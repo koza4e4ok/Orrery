@@ -1,6 +1,9 @@
 package dev.koza4e4ok.material.calendar.core
 
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.plus
 
 /**
  * Pure selection state machine. [click] never mutates; it returns the new
@@ -55,6 +58,26 @@ public class SelectionEngine(
         current: Selection,
         date: LocalDate,
     ): SelectionResult {
-        TODO("Task 6")
+        val start = current.rangeStart
+        if (start == null || current.rangeEnd != null || date < start) {
+            return SelectionResult(current.copy(rangeStart = date, rangeEnd = null), emptyList())
+        }
+        val days = start.daysUntil(date) + 1
+        val min = mode.effectiveMin
+        if (min != null && days < min) {
+            return SelectionResult(current, listOf(SelectionEvent.RangeTooShort(date, min)))
+        }
+        val max = mode.effectiveMax
+        if (max != null && days > max) {
+            return SelectionResult(current, listOf(SelectionEvent.RangeTooLong(date, max)))
+        }
+        var cursor: LocalDate = start
+        while (cursor <= date) {
+            if (interceptor(cursor)) {
+                return SelectionResult(current, listOf(SelectionEvent.Intercepted(cursor)))
+            }
+            cursor = cursor.plus(1, DateTimeUnit.DAY)
+        }
+        return SelectionResult(current.copy(rangeEnd = date), emptyList())
     }
 }

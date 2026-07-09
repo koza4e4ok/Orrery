@@ -1,9 +1,11 @@
 package dev.koza4e4ok.material.calendar.compose
 
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
@@ -68,6 +70,34 @@ public fun VerticalCalendar(
                     dayContent = dayContent,
                     modifier = Modifier.fillParentMaxWidth(),
                 )
+            }
+        }
+    }
+}
+
+/** Horizontally paged single-week calendar. */
+@Composable
+public fun WeekCalendar(
+    state: WeekCalendarState,
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    Column(modifier) {
+        weekHeader?.invoke(this, daysOfWeek(state.firstDayOfWeek))
+        LazyRow(
+            state = state.listState,
+            flingBehavior = rememberSnapFlingBehavior(state.listState),
+            userScrollEnabled = userScrollEnabled,
+        ) {
+            items(count = state.weekCount, key = { it }) { index ->
+                val week = state.weekAt(index)
+                Row(Modifier.fillParentMaxWidth()) {
+                    week.days.forEach { day ->
+                        Box(Modifier.weight(1f)) { dayContent(day) }
+                    }
+                }
             }
         }
     }

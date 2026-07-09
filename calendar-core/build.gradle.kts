@@ -1,0 +1,17 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+}
+
+kotlin {
+    explicitApi()
+    jvmToolchain(17)
+}
+
+dependencies {
+    api(libs.kotlinx.datetime)
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
+}

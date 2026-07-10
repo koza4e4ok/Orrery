@@ -1,5 +1,9 @@
 package dev.koza4e4ok.material.calendar.compose
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -11,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +48,7 @@ public fun DefaultDay(
     info: DayInfo? = null,
     enabled: Boolean = true,
     showOutDates: Boolean = true,
+    animateSelection: Boolean = true,
     decorator: (DrawScope.(CalendarDay) -> Unit)? = null,
     onClick: ((CalendarDay) -> Unit)? = null,
 ) {
@@ -54,6 +60,16 @@ public fun DefaultDay(
     val isToday = day.date == today
     val isSelected = selectionState?.isSelected(day.date) == true
     val isInRange = selectionState?.isInRange(day.date) == true
+    val selectedScale by animateFloatAsState(
+        targetValue = if (isSelected) 1f else 0f,
+        animationSpec =
+            if (animateSelection) {
+                spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow)
+            } else {
+                snap()
+            },
+        label = "daySelection",
+    )
     val description =
         remember(day.date) {
             day.date.toJavaLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
@@ -74,9 +90,15 @@ public fun DefaultDay(
                 .heightIn(min = 48.dp)
                 .background(if (isInRange) colors.inRangeContainerColor else colors.containerColor)
                 .clip(CircleShape)
-                .then(
-                    if (isSelected) Modifier.background(colors.selectedContainerColor, CircleShape) else Modifier,
-                ).then(
+                .drawBehind {
+                    if (selectedScale > 0f) {
+                        drawCircle(
+                            color = colors.selectedContainerColor,
+                            radius = (size.minDimension / 2f) * selectedScale,
+                        )
+                    }
+                    decorator?.invoke(this, day)
+                }.then(
                     if (isToday && !isSelected) {
                         Modifier.border(1.dp, colors.todayIndicatorColor, CircleShape)
                     } else {
@@ -89,8 +111,7 @@ public fun DefaultDay(
                         selectionState?.click(day.date)
                         onClick?.invoke(day)
                     },
-                ).semantics { contentDescription = description }
-                .then(if (decorator != null) Modifier.drawBehind { decorator(day) } else Modifier),
+                ).semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

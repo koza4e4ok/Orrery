@@ -39,6 +39,23 @@ class DefaultDayTest {
     }
 
     @Test
+    fun selectionWorksWithAnimationDisabled() {
+        lateinit var selection: CalendarSelectionState
+        rule.setContent {
+            selection = rememberCalendarSelectionState(mode = SelectionMode.Single())
+            DefaultDay(
+                day = day,
+                selectionState = selection,
+                today = LocalDate(2026, 7, 1),
+                animateSelection = false,
+            )
+        }
+        rule.onNodeWithText("9").performClick()
+        assertEquals(day.date, selection.selection.single)
+        rule.onNodeWithContentDescription("July 9, 2026", substring = true).assertIsSelected()
+    }
+
+    @Test
     fun disabledDayIsNotClickable() {
         rule.setContent {
             DefaultDay(day = day, enabled = false, today = LocalDate(2026, 7, 1))

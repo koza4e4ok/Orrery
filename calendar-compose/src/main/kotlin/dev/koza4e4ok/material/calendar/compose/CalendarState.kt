@@ -31,6 +31,9 @@ public class CalendarState internal constructor(
     public var firstDayOfWeek: DayOfWeek by mutableStateOf(firstDayOfWeek)
     public var outDateStyle: OutDateStyle by mutableStateOf(outDateStyle)
 
+    /** List items per month: 2 when sticky headers add a header item per month. */
+    internal var itemsPerMonth: Int = 1
+
     internal val listState: LazyListState =
         LazyListState(
             firstVisibleItemIndex = indexOf(firstVisibleMonth),
@@ -41,7 +44,7 @@ public class CalendarState internal constructor(
 
     /** The month at the first visible page. Snapshot-observable. */
     public val firstVisibleMonth: YearMonth
-        get() = CalendarPages.monthAt(startMonth, listState.firstVisibleItemIndex)
+        get() = CalendarPages.monthAt(startMonth, listState.firstVisibleItemIndex / itemsPerMonth)
 
     public suspend fun scrollToMonth(month: YearMonth) {
         listState.scrollToItem(indexOf(month))
@@ -67,7 +70,7 @@ public class CalendarState internal constructor(
         listState.requestScrollToItem(indexOf(visible))
     }
 
-    private fun indexOf(month: YearMonth): Int = CalendarPages.monthIndex(startMonth, month).coerceIn(0, monthCount - 1)
+    private fun indexOf(month: YearMonth): Int = CalendarPages.monthIndex(startMonth, month).coerceIn(0, monthCount - 1) * itemsPerMonth
 
     public companion object {
         public val Saver: Saver<CalendarState, Any> =

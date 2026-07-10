@@ -1,5 +1,7 @@
 package dev.koza4e4ok.material.calendar.compose
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -8,7 +10,9 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import dev.koza4e4ok.material.calendar.core.CalendarDay
@@ -58,12 +62,14 @@ public fun HorizontalCalendar(
 }
 
 /** Continuously scrolling vertical month list. */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun VerticalCalendar(
     state: CalendarState = rememberCalendarState(),
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
     showWeekNumbers: Boolean = false,
+    stickyMonthHeaders: Boolean = false,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
         CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
     },
@@ -76,20 +82,52 @@ public fun VerticalCalendar(
         } else {
             null
         }
+    val sticky = stickyMonthHeaders && monthHeader != null
+    LaunchedEffect(sticky) {
+        val targetItemsPerMonth = if (sticky) 2 else 1
+        if (state.itemsPerMonth != targetItemsPerMonth) {
+            val visible = state.firstVisibleMonth
+            state.itemsPerMonth = targetItemsPerMonth
+            state.scrollToMonth(visible)
+        }
+    }
     Column(modifier) {
         weekHeader?.invoke(this, daysOfWeek(state.firstDayOfWeek))
         LazyColumn(
             state = state.listState,
             userScrollEnabled = userScrollEnabled,
         ) {
-            items(count = state.monthCount, key = { it }) { index ->
-                MonthContent(
-                    month = rememberMonth(state, index),
-                    monthHeader = monthHeader,
-                    dayContent = dayContent,
-                    modifier = Modifier.fillParentMaxWidth(),
-                    weekNumber = weekNumber,
-                )
+            if (sticky) {
+                for (index in 0 until state.monthCount) {
+                    stickyHeader(key = "header-$index") {
+                        Column(
+                            Modifier
+                                .fillParentMaxWidth()
+                                .background(MaterialTheme.colorScheme.surface),
+                        ) {
+                            monthHeader?.invoke(this, rememberMonth(state, index))
+                        }
+                    }
+                    item(key = index) {
+                        MonthContent(
+                            month = rememberMonth(state, index),
+                            monthHeader = null,
+                            dayContent = dayContent,
+                            modifier = Modifier.fillParentMaxWidth(),
+                            weekNumber = weekNumber,
+                        )
+                    }
+                }
+            } else {
+                items(count = state.monthCount, key = { it }) { index ->
+                    MonthContent(
+                        month = rememberMonth(state, index),
+                        monthHeader = monthHeader,
+                        dayContent = dayContent,
+                        modifier = Modifier.fillParentMaxWidth(),
+                        weekNumber = weekNumber,
+                    )
+                }
             }
         }
     }

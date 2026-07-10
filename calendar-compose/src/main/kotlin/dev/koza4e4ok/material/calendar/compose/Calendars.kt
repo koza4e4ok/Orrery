@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import dev.koza4e4ok.material.calendar.core.CalendarDay
 import dev.koza4e4ok.material.calendar.core.CalendarMonth
 import dev.koza4e4ok.material.calendar.core.CalendarPages
+import dev.koza4e4ok.material.calendar.core.CalendarWeek
 import dev.koza4e4ok.material.calendar.core.daysOfWeek
 import dev.koza4e4ok.material.calendar.core.monthGrid
 import kotlinx.datetime.DayOfWeek
@@ -24,7 +25,10 @@ public fun HorizontalCalendar(
     state: CalendarState = rememberCalendarState(),
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
-    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
+    showWeekNumbers: Boolean = false,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
     monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
@@ -41,6 +45,12 @@ public fun HorizontalCalendar(
                     monthHeader = monthHeader,
                     dayContent = dayContent,
                     modifier = Modifier.fillParentMaxWidth(),
+                    weekNumber =
+                        if (showWeekNumbers) {
+                            { CalendarDefaults.WeekNumber(it) }
+                        } else {
+                            null
+                        },
                 )
             }
         }
@@ -53,10 +63,19 @@ public fun VerticalCalendar(
     state: CalendarState = rememberCalendarState(),
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
-    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
+    showWeekNumbers: Boolean = false,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
     monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = { CalendarDefaults.MonthTitle(it) },
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
+    val weekNumber: (@Composable (CalendarWeek) -> Unit)? =
+        if (showWeekNumbers) {
+            { CalendarDefaults.WeekNumber(it) }
+        } else {
+            null
+        }
     Column(modifier) {
         weekHeader?.invoke(this, daysOfWeek(state.firstDayOfWeek))
         LazyColumn(
@@ -69,6 +88,7 @@ public fun VerticalCalendar(
                     monthHeader = monthHeader,
                     dayContent = dayContent,
                     modifier = Modifier.fillParentMaxWidth(),
+                    weekNumber = weekNumber,
                 )
             }
         }

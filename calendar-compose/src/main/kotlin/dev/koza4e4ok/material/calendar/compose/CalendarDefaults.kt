@@ -1,8 +1,10 @@
 package dev.koza4e4ok.material.calendar.compose
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.core.CalendarMonth
+import dev.koza4e4ok.material.calendar.core.CalendarWeek
+import dev.koza4e4ok.material.calendar.core.isoWeekNumber
 import kotlinx.datetime.DayOfWeek
 
 @Immutable
@@ -63,8 +67,12 @@ public object CalendarDefaults {
     public fun WeekHeader(
         daysOfWeek: List<DayOfWeek>,
         modifier: Modifier = Modifier,
+        leadingSpacer: Boolean = false,
     ) {
         Row(modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+            if (leadingSpacer) {
+                Spacer(Modifier.width(WeekNumberColumnWidth))
+            }
             daysOfWeek.forEach { day ->
                 Text(
                     text = day.displayName(),
@@ -75,6 +83,25 @@ public object CalendarDefaults {
                 )
             }
         }
+    }
+
+    /** ISO week number cell for the leading column. */
+    @Composable
+    public fun WeekNumber(
+        week: CalendarWeek,
+        modifier: Modifier = Modifier,
+    ) {
+        Text(
+            text =
+                week.days
+                    .first()
+                    .date
+                    .isoWeekNumber()
+                    .toString(),
+            modifier = modifier,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 
     /** Month + year title used by [VerticalCalendar]'s default header. */

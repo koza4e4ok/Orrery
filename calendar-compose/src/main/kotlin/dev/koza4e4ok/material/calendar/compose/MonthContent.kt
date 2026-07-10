@@ -1,5 +1,6 @@
 package dev.koza4e4ok.material.calendar.compose
 
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.core.CalendarDay
 import dev.koza4e4ok.material.calendar.core.CalendarMonth
@@ -24,18 +27,51 @@ internal fun MonthContent(
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
     modifier: Modifier = Modifier,
     weekNumber: (@Composable (CalendarWeek) -> Unit)? = null,
+    dragSelection: CalendarSelectionState? = null,
 ) {
     Column(modifier) {
         monthHeader?.invoke(this, month)
-        month.weeks.forEach { week ->
-            Row(Modifier.fillMaxWidth()) {
-                if (weekNumber != null) {
-                    Box(Modifier.width(WeekNumberColumnWidth), contentAlignment = Alignment.Center) {
-                        weekNumber(week)
+        Column(
+            Modifier.then(
+                if (dragSelection != null) {
+                    Modifier.pointerInput(month, weekNumber != null) {
+                        val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
+
+                        fun dayAt(offset: Offset): CalendarDay? {
+                            val rows = month.weeks.size
+                            if (rows == 0) return null
+                            val rowHeight = size.height.toFloat() / rows
+                            val colWidth = (size.width - leading) / 7f
+                            val row = (offset.y / rowHeight).toInt().coerceIn(0, rows - 1)
+                            val col = ((offset.x - leading) / colWidth).toInt().coerceIn(0, 6)
+                            return month.weeks[row].days[col]
+                        }
+
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = { offset -> dayAt(offset)?.let { dragSelection.dragStart(it.date) } },
+                            onDrag = { change, _ ->
+                                change.consume()
+                                dayAt(change.position)?.let { dragSelection.dragUpdate(it.date) }
+                            },
+                            onDragEnd = { dragSelection.dragEnd() },
+                            onDragCancel = { dragSelection.dragEnd() },
+                        )
                     }
-                }
-                week.days.forEach { day ->
-                    Box(Modifier.weight(1f)) { dayContent(day) }
+                } else {
+                    Modifier
+                },
+            ),
+        ) {
+            month.weeks.forEach { week ->
+                Row(Modifier.fillMaxWidth()) {
+                    if (weekNumber != null) {
+                        Box(Modifier.width(WeekNumberColumnWidth), contentAlignment = Alignment.Center) {
+                            weekNumber(week)
+                        }
+                    }
+                    week.days.forEach { day ->
+                        Box(Modifier.weight(1f)) { dayContent(day) }
+                    }
                 }
             }
         }

@@ -13,7 +13,10 @@ import dev.koza4e4ok.material.calendar.core.Selection
 import dev.koza4e4ok.material.calendar.core.SelectionEngine
 import dev.koza4e4ok.material.calendar.core.SelectionEvent
 import dev.koza4e4ok.material.calendar.core.SelectionMode
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.plus
 
 /** Snapshot-state wrapper around the core [SelectionEngine]. */
 @Stable
@@ -21,10 +24,12 @@ public class CalendarSelectionState internal constructor(
     public val mode: SelectionMode,
     initialSelection: Selection,
     bounds: ClosedRange<LocalDate>?,
-    interceptor: (LocalDate) -> Boolean,
+    private val interceptor: (LocalDate) -> Boolean,
     private val onEvent: (SelectionEvent) -> Unit,
 ) {
     private val engine = SelectionEngine(mode, bounds, interceptor)
+
+    private var dragAnchor: LocalDate? = null
 
     public var selection: Selection by mutableStateOf(initialSelection)
         private set
@@ -37,6 +42,59 @@ public class CalendarSelectionState internal constructor(
 
     public fun clear() {
         selection = Selection.Empty
+    }
+
+    /** Begins a drag range selection at [date]. Only acts in [SelectionMode.Range]. */
+    public fun dragStart(date: LocalDate) {
+        if (mode !is SelectionMode.Range || interceptor(date)) return
+        dragAnchor = date
+        selection = Selection(rangeStart = date)
+    }
+
+    /** Live-updates the dragged range; start/end are kept ordered. */
+    public fun dragUpdate(date: LocalDate) {
+        val anchor = dragAnchor ?: return
+        selection =
+            if (date >= anchor) {
+                Selection(rangeStart = anchor, rangeEnd = date)
+            } else {
+                Selection(rangeStart = date, rangeEnd = anchor)
+            }
+    }
+
+    /** Ends the drag, validating min/max and intercepted dates; violations clear the end. */
+    public fun dragEnd() {
+        if (dragAnchor == null) return
+        dragAnchor = null
+        val range = selection.range ?: return
+        val rangeMode = mode as? SelectionMode.Range ?: return
+        val days = range.start.daysUntil(range.endInclusive) + 1
+        val min = rangeMode.effectiveMin
+        val max = rangeMode.effectiveMax
+        val blocked =
+            generateSequence(range.start) { it.plus(1, DateTimeUnit.DAY) }
+                .takeWhile { it <= range.endInclusive }
+                .firstOrNull(interceptor)
+        when {
+            min != null && days < min -> {
+                onEvent(SelectionEvent.RangeTooShort(range.endInclusive, min))
+                selection = Selection(rangeStart = range.start)
+            }
+
+            max != null && days > max -> {
+                onEvent(SelectionEvent.RangeTooLong(range.endInclusive, max))
+                selection = Selection(rangeStart = range.start)
+            }
+
+            blocked != null -> {
+                onEvent(SelectionEvent.Intercepted(blocked))
+                selection = Selection(rangeStart = range.start)
+            }
+
+            else -> {
+                Unit
+            }
+        }
     }
 
     /** True for the single selection, a multi selection, or a range endpoint. */

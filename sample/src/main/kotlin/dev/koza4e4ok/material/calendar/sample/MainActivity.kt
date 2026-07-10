@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -17,27 +18,29 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import dev.koza4e4ok.material.calendar.compose.CollapsibleCalendarScaffold
 import dev.koza4e4ok.material.calendar.compose.DefaultDay
-import dev.koza4e4ok.material.calendar.compose.HorizontalCalendar
-import dev.koza4e4ok.material.calendar.compose.WeekCalendar
+import dev.koza4e4ok.material.calendar.compose.VerticalCalendar
 import dev.koza4e4ok.material.calendar.compose.currentDate
 import dev.koza4e4ok.material.calendar.compose.displayName
 import dev.koza4e4ok.material.calendar.compose.rememberCalendarSelectionState
 import dev.koza4e4ok.material.calendar.compose.rememberCalendarState
+import dev.koza4e4ok.material.calendar.compose.rememberCollapsibleCalendarState
 import dev.koza4e4ok.material.calendar.compose.rememberWeekCalendarState
 import dev.koza4e4ok.material.calendar.core.SelectionMode
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
+import kotlinx.datetime.YearMonth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,14 +49,27 @@ class MainActivity : ComponentActivity() {
             MaterialTheme(
                 colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(),
             ) {
-                DemoScreen()
+                var screen by remember { mutableStateOf(0) }
+                Scaffold { padding ->
+                    Column(Modifier.fillMaxSize().padding(padding)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center) {
+                            TextButton(onClick = { screen = 0 }) { Text("Agenda") }
+                            TextButton(onClick = { screen = 1 }) { Text("Vertical") }
+                        }
+                        when (screen) {
+                            0 -> AgendaDemo()
+                            else -> VerticalDemo()
+                        }
+                    }
+                }
             }
         }
     }
 }
 
+/** Collapsible month/week calendar with an agenda list underneath. */
 @Composable
-private fun DemoScreen() {
+private fun AgendaDemo() {
     val today = remember { currentDate() }
     val events =
         remember {
@@ -65,66 +81,78 @@ private fun DemoScreen() {
             startDate = LocalDate(today.year - 1, 1, 1),
             endDate = LocalDate(today.year + 1, 12, 31),
         )
-    val selection = rememberCalendarSelectionState(mode = SelectionMode.Range(maxDays = 14))
+    val collapsible = rememberCollapsibleCalendarState()
+    val selection = rememberCalendarSelectionState(mode = SelectionMode.Single())
     val scope = rememberCoroutineScope()
 
-    Scaffold { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                TextButton(onClick = {
-                    scope.launch {
-                        calendarState.animateScrollToMonth(
-                            calendarState.firstVisibleMonth.minus(1, DateTimeUnit.MONTH),
-                        )
-                    }
-                }) { Text("<") }
-                Text(
-                    text = calendarState.firstVisibleMonth.displayName(),
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                TextButton(onClick = {
-                    scope.launch {
-                        calendarState.animateScrollToMonth(
-                            calendarState.firstVisibleMonth.plus(1, DateTimeUnit.MONTH),
-                        )
-                    }
-                }) { Text(">") }
-            }
-            HorizontalCalendar(
-                state = calendarState,
-                dayContent = { day ->
-                    DefaultDay(
-                        day = day,
-                        selectionState = selection,
-                        today = today,
-                        decorator = { d ->
-                            if (d.date in events) {
-                                drawCircle(
-                                    color = Color(0xFFE57373),
-                                    radius = 3.dp.toPx(),
-                                    center = Offset(size.width / 2, size.height - 6.dp.toPx()),
-                                )
-                            }
-                        },
-                    )
-                },
-            )
-            HorizontalDivider(Modifier.padding(vertical = 16.dp))
+    Column(Modifier.fillMaxSize()) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
-                "Week view",
-                Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleMedium,
+                text = calendarState.firstVisibleMonth.displayName(),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleLarge,
             )
-            WeekCalendar(
-                state = weekState,
-                dayContent = { day ->
-                    DefaultDay(day = day, selectionState = selection, today = today)
-                },
-            )
+            TextButton(onClick = {
+                scope.launch { if (collapsible.isExpanded) collapsible.collapse() else collapsible.expand() }
+            }) { Text(if (collapsible.isExpanded) "Collapse" else "Expand") }
+        }
+        CollapsibleCalendarScaffold(
+            calendarState = calendarState,
+            weekState = weekState,
+            state = collapsible,
+            dayContent = { day ->
+                DefaultDay(
+                    day = day,
+                    selectionState = selection,
+                    today = today,
+                    decorator = { d ->
+                        if (d.date in events) {
+                            drawCircle(
+                                color = Color(0xFFE57373),
+                                radius = 3.dp.toPx(),
+                                center = Offset(size.width / 2, size.height - 6.dp.toPx()),
+                            )
+                        }
+                    },
+                )
+            },
+        ) {
+            LazyColumn(Modifier.fillMaxSize()) {
+                items(count = 30) { i ->
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                        Text("Agenda item ${i + 1}", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "Scroll me up to collapse the calendar",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        HorizontalDivider(Modifier.padding(top = 12.dp))
+                    }
+                }
+            }
         }
     }
+}
+
+/** Vertical month list: sticky headers, week numbers, long-press drag range selection. */
+@Composable
+private fun VerticalDemo() {
+    val today = remember { currentDate() }
+    val selection = rememberCalendarSelectionState(mode = SelectionMode.Range(maxDays = 30))
+    VerticalCalendar(
+        state =
+            rememberCalendarState(
+                startMonth = YearMonth(today.year, 1),
+                endMonth = YearMonth(today.year + 1, 12),
+            ),
+        showWeekNumbers = true,
+        stickyMonthHeaders = true,
+        dragSelection = selection,
+        dayContent = { day ->
+            DefaultDay(day = day, selectionState = selection, today = today)
+        },
+    )
 }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +20,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -34,9 +42,15 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 /**
- * Batteries-included day cell: selection circle, in-range band, today ring,
- * optional secondary label, and a [decorator] DrawScope escape hatch for
- * custom drawing (markers, heatmaps, pressed effects).
+ * Batteries-included day cell: selection fill, in-range band, today
+ * indicator, optional secondary label, and a [decorator] DrawScope escape
+ * hatch for custom drawing (markers, heatmaps, pressed effects).
+ *
+ * Dates disabled via the selection state's DisabledDates render with the
+ * unavailable colors and are not clickable; [enabled] = false forces the
+ * same treatment. Shapes come from [shapes]; note that
+ * [CalendarDayShapes.dayShape] clips the cell, so a
+ * [CalendarDayShapes.selectedShape] wider than it will be clipped.
  */
 @Composable
 public fun DefaultDay(
@@ -45,6 +59,7 @@ public fun DefaultDay(
     selectionState: CalendarSelectionState? = null,
     today: LocalDate = currentDate(),
     colors: CalendarDayColors = CalendarDefaults.dayColors(),
+    shapes: CalendarDayShapes = CalendarDefaults.dayShapes(),
     info: DayInfo? = null,
     enabled: Boolean = true,
     showOutDates: Boolean = true,
@@ -58,8 +73,10 @@ public fun DefaultDay(
         return
     }
     val isToday = day.date == today
+    val available = enabled && selectionState?.isDisabled(day.date) != true
     val isSelected = selectionState?.isSelected(day.date) == true
     val isInRange = selectionState?.isInRange(day.date) == true
+    val indicator = shapes.todayIndicator
     val selectedScale by animateFloatAsState(
         targetValue = if (isSelected) 1f else 0f,
         animationSpec =
@@ -76,10 +93,11 @@ public fun DefaultDay(
         }
     val contentColor =
         when {
-            !enabled -> colors.unavailableContentColor
+            !available -> colors.unavailableContentColor
             isSelected -> colors.selectedContentColor
             isInRange -> colors.inRangeContentColor
             day.position != DayPosition.MonthDate -> colors.outDateContentColor
+            isToday && indicator is TodayIndicator.FilledCircle -> colors.selectedContentColor
             isToday -> colors.todayContentColor
             else -> colors.contentColor
         }
@@ -88,25 +106,51 @@ public fun DefaultDay(
             modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
-                .background(if (isInRange) colors.inRangeContainerColor else colors.containerColor)
-                .clip(CircleShape)
-                .drawBehind {
+                .background(
+                    color = if (isInRange) colors.inRangeContainerColor else colors.containerColor,
+                    shape = if (isInRange) shapes.inRangeShape else RectangleShape,
+                ).clip(shapes.dayShape)
+                .then(
+                    if (!available) Modifier.background(colors.unavailableContainerColor) else Modifier,
+                ).drawBehind {
+                    if (isToday && !isSelected) {
+                        when (indicator) {
+                            TodayIndicator.FilledCircle -> {
+                                drawDayShape(shapes.dayShape, colors.todayIndicatorColor)
+                            }
+
+                            TodayIndicator.Underline -> {
+                                val lineWidth = size.minDimension * 0.4f
+                                val y = size.height - 6.dp.toPx()
+                                drawLine(
+                                    color = colors.todayIndicatorColor,
+                                    start = Offset((size.width - lineWidth) / 2f, y),
+                                    end = Offset((size.width + lineWidth) / 2f, y),
+                                    strokeWidth = 2.dp.toPx(),
+                                    cap = StrokeCap.Round,
+                                )
+                            }
+
+                            is TodayIndicator.Ring, TodayIndicator.None -> {
+                                Unit
+                            }
+                        }
+                    }
                     if (selectedScale > 0f) {
-                        drawCircle(
-                            color = colors.selectedContainerColor,
-                            radius = (size.minDimension / 2f) * selectedScale,
-                        )
+                        scale(selectedScale) {
+                            drawDayShape(shapes.selectedShape, colors.selectedContainerColor)
+                        }
                     }
                     decorator?.invoke(this, day)
                 }.then(
-                    if (isToday && !isSelected) {
-                        Modifier.border(1.dp, colors.todayIndicatorColor, CircleShape)
+                    if (isToday && !isSelected && indicator is TodayIndicator.Ring) {
+                        Modifier.border(indicator.width, colors.todayIndicatorColor, shapes.dayShape)
                     } else {
                         Modifier
                     },
                 ).selectable(
                     selected = isSelected,
-                    enabled = enabled,
+                    enabled = available,
                     onClick = {
                         selectionState?.click(day.date)
                         onClick?.invoke(day)
@@ -129,5 +173,21 @@ public fun DefaultDay(
                 )
             }
         }
+    }
+}
+
+/**
+ * Draws [shape] filled with [color] in a centered square of the cell's
+ * min dimension — for the default CircleShape this reproduces the
+ * original drawCircle(radius = minDimension / 2) exactly, keeping
+ * existing screenshot goldens byte-identical.
+ */
+private fun DrawScope.drawDayShape(
+    shape: Shape,
+    color: Color,
+) {
+    val side = size.minDimension
+    translate((size.width - side) / 2f, (size.height - side) / 2f) {
+        drawOutline(shape.createOutline(Size(side, side), layoutDirection, this), color)
     }
 }

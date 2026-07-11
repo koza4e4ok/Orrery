@@ -1,5 +1,6 @@
 plugins {
     id("materialcalendar.android-library")
+    id("materialcalendar.publish")
 }
 
 android {

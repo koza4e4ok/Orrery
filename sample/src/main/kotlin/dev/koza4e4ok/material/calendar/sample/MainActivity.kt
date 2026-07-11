@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.compose.CollapsibleCalendarScaffold
 import dev.koza4e4ok.material.calendar.compose.DefaultDay
+import dev.koza4e4ok.material.calendar.compose.HorizontalCalendar
 import dev.koza4e4ok.material.calendar.compose.VerticalCalendar
 import dev.koza4e4ok.material.calendar.compose.currentDate
 import dev.koza4e4ok.material.calendar.compose.displayName
@@ -38,6 +39,7 @@ import dev.koza4e4ok.material.calendar.compose.rememberCalendarState
 import dev.koza4e4ok.material.calendar.compose.rememberCollapsibleCalendarState
 import dev.koza4e4ok.material.calendar.compose.rememberWeekCalendarState
 import dev.koza4e4ok.material.calendar.core.SelectionMode
+import dev.koza4e4ok.material.calendar.lunar.LunarDayInfoProvider
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -55,10 +57,12 @@ class MainActivity : ComponentActivity() {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center) {
                             TextButton(onClick = { screen = 0 }) { Text("Agenda") }
                             TextButton(onClick = { screen = 1 }) { Text("Vertical") }
+                            TextButton(onClick = { screen = 2 }) { Text("Lunar") }
                         }
                         when (screen) {
                             0 -> AgendaDemo()
-                            else -> VerticalDemo()
+                            1 -> VerticalDemo()
+                            else -> LunarDemo()
                         }
                     }
                 }
@@ -135,6 +139,25 @@ private fun AgendaDemo() {
             }
         }
     }
+}
+
+/** Month calendar with lunar day labels, festivals and solar terms from calendar-lunar. */
+@Composable
+private fun LunarDemo() {
+    val today = remember { currentDate() }
+    val provider = remember { LunarDayInfoProvider() }
+    val selection = rememberCalendarSelectionState(mode = SelectionMode.Single())
+    HorizontalCalendar(
+        state = rememberCalendarState(),
+        dayContent = { day ->
+            DefaultDay(
+                day = day,
+                selectionState = selection,
+                today = today,
+                info = provider.info(day.date),
+            )
+        },
+    )
 }
 
 /** Vertical month list: sticky headers, week numbers, long-press drag range selection. */

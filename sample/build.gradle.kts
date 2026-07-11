@@ -35,6 +35,7 @@ kotlin {
 
 dependencies {
     implementation(project(":calendar-compose"))
+    implementation(project(":calendar-lunar"))
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)

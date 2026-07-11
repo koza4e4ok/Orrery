@@ -14,5 +14,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "MaterialCalendar"
 include(":calendar-core")
+include(":calendar-lunar")
 include(":calendar-compose")
 include(":sample")

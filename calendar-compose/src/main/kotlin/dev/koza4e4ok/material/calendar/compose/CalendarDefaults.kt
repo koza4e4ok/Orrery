@@ -5,13 +5,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.core.CalendarMonth
 import dev.koza4e4ok.material.calendar.core.CalendarWeek
@@ -29,9 +33,38 @@ public class CalendarDayColors(
     public val inRangeContainerColor: Color,
     public val inRangeContentColor: Color,
     public val outDateContentColor: Color,
-    public val disabledContentColor: Color,
+    public val unavailableContainerColor: Color,
+    public val unavailableContentColor: Color,
     public val labelColor: Color,
 )
+
+/** Shapes and today-marker style used by [DefaultDay]. */
+@Immutable
+public class CalendarDayShapes(
+    public val dayShape: Shape,
+    public val selectedShape: Shape,
+    public val inRangeShape: Shape,
+    public val todayIndicator: TodayIndicator,
+)
+
+/** How today's date is marked when it is not selected. */
+public sealed interface TodayIndicator {
+    /** Outlined [CalendarDayShapes.dayShape] ring — the default. */
+    public data class Ring(
+        val width: Dp = 1.dp,
+    ) : TodayIndicator
+
+    /**
+     * Fills the day shape with the indicator color; the day number then
+     * uses [CalendarDayColors.selectedContentColor] for contrast.
+     */
+    public data object FilledCircle : TodayIndicator
+
+    /** Short line under the day number. */
+    public data object Underline : TodayIndicator
+
+    public data object None : TodayIndicator
+}
 
 public object CalendarDefaults {
     @Composable
@@ -45,7 +78,8 @@ public object CalendarDefaults {
         inRangeContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
         inRangeContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
         outDateContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+        unavailableContainerColor: Color = Color.Transparent,
+        unavailableContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
         labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     ): CalendarDayColors =
         CalendarDayColors(
@@ -58,9 +92,17 @@ public object CalendarDefaults {
             inRangeContainerColor,
             inRangeContentColor,
             outDateContentColor,
-            disabledContentColor,
+            unavailableContainerColor,
+            unavailableContentColor,
             labelColor,
         )
+
+    public fun dayShapes(
+        dayShape: Shape = CircleShape,
+        selectedShape: Shape = CircleShape,
+        inRangeShape: Shape = RectangleShape,
+        todayIndicator: TodayIndicator = TodayIndicator.Ring(),
+    ): CalendarDayShapes = CalendarDayShapes(dayShape, selectedShape, inRangeShape, todayIndicator)
 
     /** Weekday header row with localized short names. */
     @Composable

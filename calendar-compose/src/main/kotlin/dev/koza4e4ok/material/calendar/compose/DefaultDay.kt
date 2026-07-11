@@ -76,7 +76,7 @@ public fun DefaultDay(
         }
     val contentColor =
         when {
-            !enabled -> colors.disabledContentColor
+            !enabled -> colors.unavailableContentColor
             isSelected -> colors.selectedContentColor
             isInRange -> colors.inRangeContentColor
             day.position != DayPosition.MonthDate -> colors.outDateContentColor

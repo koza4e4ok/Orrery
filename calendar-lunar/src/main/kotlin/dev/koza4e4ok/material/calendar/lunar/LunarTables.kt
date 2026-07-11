@@ -1,3 +1,6 @@
+// Generated numeric tables: keep the compact wrapping.
+@file:Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:multiline-expression-wrapping")
+
 package dev.koza4e4ok.material.calendar.lunar
 
 // Bit-packed tables copied verbatim from the original LunarUtil

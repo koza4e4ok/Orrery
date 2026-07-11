@@ -56,7 +56,11 @@ public class WeekCalendarState internal constructor(
         listState.animateScrollToItem(indexOf(date))
     }
 
-    private fun indexOf(date: LocalDate): Int = CalendarPages.weekIndex(startDate, date, firstDayOfWeek).coerceIn(0, weekCount - 1)
+    private fun indexOf(date: LocalDate): Int =
+        CalendarPages.weekIndex(startDate, date, firstDayOfWeek).coerceIn(
+            0,
+            weekCount - 1,
+        )
 
     public companion object {
         public val Saver: Saver<WeekCalendarState, Any> =

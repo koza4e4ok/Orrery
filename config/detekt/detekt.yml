@@ -1,0 +1,24 @@
+# Targeted overrides on top of detekt defaults (buildUponDefaultConfig = true).
+complexity:
+  # Composables legitimately run long (slot parameters, modifier chains).
+  LongMethod:
+    ignoreAnnotated: ["Composable"]
+  CyclomaticComplexMethod:
+    ignoreAnnotated: ["Composable"]
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ["Composable"]
+  # Files intentionally group a state holder with its composable (e.g. YearCalendar.kt
+  # holds YearCalendarState + YearCalendar), mirroring the compose-foundation convention.
+  MatchingDeclarationName:
+    active: false
+style:
+  MagicNumber:
+    active: false
+  # Guard-clause early returns are the house style (ported selection/lunar logic).
+  ReturnCount:
+    max: 5
+    excludeGuardClauses: true
+  # Golden-fixture tests destructure 5-column CSV rows.
+  DestructuringDeclarationWithTooManyEntries:
+    maxDestructuringEntries: 5

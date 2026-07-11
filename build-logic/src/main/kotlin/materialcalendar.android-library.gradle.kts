@@ -3,6 +3,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("materialcalendar.lint")
 }
 
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")

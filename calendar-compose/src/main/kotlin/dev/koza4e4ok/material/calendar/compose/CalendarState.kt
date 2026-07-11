@@ -70,7 +70,8 @@ public class CalendarState internal constructor(
         listState.requestScrollToItem(indexOf(visible))
     }
 
-    private fun indexOf(month: YearMonth): Int = CalendarPages.monthIndex(startMonth, month).coerceIn(0, monthCount - 1) * itemsPerMonth
+    private fun indexOf(month: YearMonth): Int =
+        CalendarPages.monthIndex(startMonth, month).coerceIn(0, monthCount - 1) * itemsPerMonth
 
     public companion object {
         public val Saver: Saver<CalendarState, Any> =

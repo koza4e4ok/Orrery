@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,7 +55,7 @@ class MainActivity : ComponentActivity() {
                 var screen by remember { mutableStateOf(0) }
                 Scaffold { padding ->
                     Column(Modifier.fillMaxSize().padding(padding)) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                             TextButton(onClick = { screen = 0 }) { Text("Agenda") }
                             TextButton(onClick = { screen = 1 }) { Text("Vertical") }
                             TextButton(onClick = { screen = 2 }) { Text("Lunar") }

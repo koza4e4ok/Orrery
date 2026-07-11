@@ -95,7 +95,7 @@ public fun YearCalendar(
         items(count = state.yearCount, key = { it }) { index ->
             val year = state.startYear + index
             Column(Modifier.fillParentMaxWidth()) {
-                (1..12).chunked(columns).forEach { rowMonths ->
+                for (rowMonths in (1..12).chunked(columns)) {
                     Row(Modifier.fillMaxWidth()) {
                         rowMonths.forEach { m ->
                             val ym = YearMonth(year, m)

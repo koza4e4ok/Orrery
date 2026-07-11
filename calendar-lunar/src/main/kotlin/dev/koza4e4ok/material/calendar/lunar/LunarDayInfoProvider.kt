@@ -16,6 +16,7 @@ public class LunarDayInfoProvider(
 ) : DayInfoProvider {
     private val termCache = HashMap<Int, Map<LocalDate, SolarTerm>>()
 
+    @Suppress("CyclomaticComplexMethod")
     override fun info(date: LocalDate): DayInfo? {
         if (date.year < 1900 || date.year > 2099) return null
         val term = termCache.getOrPut(date.year) { solarTermsFor(date.year) }[date]

@@ -1,3 +1,6 @@
+// Generated numeric tables: keep the compact wrapping.
+@file:Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:multiline-expression-wrapping")
+
 package dev.koza4e4ok.material.calendar.lunar
 
 import kotlinx.datetime.LocalDate
@@ -168,7 +171,10 @@ internal fun julianToDate(julian: Double): LocalDate {
     return LocalDate(year.toInt(), month.toInt(), day.toInt())
 }
 
-private fun periodicSum(table: DoubleArray, t: Double): Double {
+private fun periodicSum(
+    table: DoubleArray,
+    t: Double,
+): Double {
     var v = 0.0
     var i = 0
     while (i < table.size) {
@@ -193,7 +199,10 @@ private fun earthCoord(jd: Double): DoubleArray {
 }
 
 /** Port of addGxc (annual aberration). */
-private fun addAberration(t: Double, zb: DoubleArray) {
+private fun addAberration(
+    t: Double,
+    zb: DoubleArray,
+) {
     val t1 = t / 36525
     val t2 = t1 * t1
     val t3 = t2 * t1
@@ -226,7 +235,10 @@ private fun nutationLon(time: Double): Double {
 }
 
 /** Port of angleDiff(lx = 0): difference between [angle] and apparent sun longitude at [time]. */
-private fun sunAngleDiff(time: Double, angle: Double): Double {
+private fun sunAngleDiff(
+    time: Double,
+    angle: Double,
+): Double {
     val sun = earthCoord(time)
     sun[0] += PI
     sun[1] = -sun[1]
@@ -236,7 +248,10 @@ private fun sunAngleDiff(time: Double, angle: Double): Double {
 }
 
 /** Port of getTimeFromAngle(t1, angle, lx = 0): J2000 julian day when sun longitude reaches [angleDeg]. */
-internal fun timeOfSunLongitude(start: Double, angleDeg: Double): Double {
+internal fun timeOfSunLongitude(
+    start: Double,
+    angleDeg: Double,
+): Double {
     var t1 = start
     var t2 = t1 + 360
     var t = 0.0

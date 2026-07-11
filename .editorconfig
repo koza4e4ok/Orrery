@@ -1,0 +1,8 @@
+root = true
+
+[*.{kt,kts}]
+max_line_length = 120
+# Composables are PascalCase by convention.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+# Files intentionally group a state holder with its composable (SelectionState.kt etc.).
+ktlint_standard_filename = disabled

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import dev.koza4e4ok.material.calendar.compose.CalendarDefaults
 import dev.koza4e4ok.material.calendar.compose.CollapsibleCalendarScaffold
 import dev.koza4e4ok.material.calendar.compose.DefaultDay
 import dev.koza4e4ok.material.calendar.compose.HorizontalCalendar
@@ -39,11 +41,15 @@ import dev.koza4e4ok.material.calendar.compose.rememberCalendarSelectionState
 import dev.koza4e4ok.material.calendar.compose.rememberCalendarState
 import dev.koza4e4ok.material.calendar.compose.rememberCollapsibleCalendarState
 import dev.koza4e4ok.material.calendar.compose.rememberWeekCalendarState
+import dev.koza4e4ok.material.calendar.core.DisabledDates
 import dev.koza4e4ok.material.calendar.core.SelectionMode
 import dev.koza4e4ok.material.calendar.lunar.LunarDayInfoProvider
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.plus
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,11 +64,13 @@ class MainActivity : ComponentActivity() {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                             TextButton(onClick = { screen = 0 }) { Text("Agenda") }
                             TextButton(onClick = { screen = 1 }) { Text("Vertical") }
-                            TextButton(onClick = { screen = 2 }) { Text("Lunar") }
+                            TextButton(onClick = { screen = 2 }) { Text("Booking") }
+                            TextButton(onClick = { screen = 3 }) { Text("Lunar") }
                         }
                         when (screen) {
                             0 -> AgendaDemo()
                             1 -> VerticalDemo()
+                            2 -> BookingDemo()
                             else -> LunarDemo()
                         }
                     }
@@ -140,6 +148,40 @@ private fun AgendaDemo() {
             }
         }
     }
+}
+
+/** Booking-style range selection: past dates, weekends and a blackout window disabled. */
+@Composable
+private fun BookingDemo() {
+    val today = remember { currentDate() }
+    val disabled =
+        remember(today) {
+            DisabledDates {
+                before(today)
+                daysOfWeek(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+                range(today.plus(10, DateTimeUnit.DAY)..today.plus(12, DateTimeUnit.DAY))
+            }
+        }
+    val selection =
+        rememberCalendarSelectionState(
+            mode = SelectionMode.Range(maxDays = 14),
+            disabled = disabled,
+        )
+    HorizontalCalendar(
+        state = rememberCalendarState(),
+        dayContent = { day ->
+            DefaultDay(
+                day = day,
+                selectionState = selection,
+                today = today,
+                shapes =
+                    CalendarDefaults.dayShapes(
+                        dayShape = RoundedCornerShape(12.dp),
+                        selectedShape = RoundedCornerShape(12.dp),
+                    ),
+            )
+        },
+    )
 }
 
 /** Month calendar with lunar day labels, festivals and solar terms from calendar-lunar. */

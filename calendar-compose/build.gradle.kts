@@ -1,10 +1,15 @@
 plugins {
     id("materialcalendar.android-library")
     id("materialcalendar.publish")
+    alias(libs.plugins.roborazzi)
 }
 
 android {
     namespace = "dev.koza4e4ok.material.calendar.compose"
+}
+
+roborazzi {
+    outputDir.set(file("src/test/snapshots"))
 }
 
 dependencies {
@@ -18,6 +23,8 @@ dependencies {
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
     debugImplementation(platform(libs.compose.bom))
     debugImplementation(libs.compose.ui.test.manifest)
 }

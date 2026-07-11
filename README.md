@@ -60,7 +60,11 @@ and the lunar provider.
   (`WeekCalendar`) and year-overview (`YearCalendar`) composables
 - `CollapsibleCalendarScaffold`: month collapses to a week row as the content scrolls
 - Selection modes: single (with optional auto-advance), range (min/max), multi,
-  plus long-press **drag-to-select** and date interceptors
+  plus long-press **drag-to-select**
+- First-class unavailable dates: `DisabledDates` (dates, ranges, days of week,
+  before/after, predicates) blocks selection and renders disabled automatically
+- Per-state day styling: `CalendarDayColors` + `CalendarDayShapes` with
+  today-indicator variants (ring, filled, underline)
 - Material3 theming — dark mode and dynamic color for free; all colors overridable
 - Accessibility semantics, RTL mirroring, locale-driven names and first day of week
 - ISO week numbers and sticky month headers

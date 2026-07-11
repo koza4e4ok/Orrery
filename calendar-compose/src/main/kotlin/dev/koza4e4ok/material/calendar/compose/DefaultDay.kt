@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -43,8 +44,8 @@ import java.time.format.FormatStyle
 
 /**
  * Batteries-included day cell: selection fill, in-range band, today
- * indicator, optional secondary label, and a [decorator] DrawScope escape
- * hatch for custom drawing (markers, heatmaps, pressed effects).
+ * indicator, optional secondary label, and stackable [decorators] for
+ * custom drawing (event dots, progress, markers, heatmaps).
  *
  * Dates disabled via the selection state's DisabledDates render with the
  * unavailable colors and are not clickable; [enabled] = false forces the
@@ -64,7 +65,7 @@ public fun DefaultDay(
     enabled: Boolean = true,
     showOutDates: Boolean = true,
     animateSelection: Boolean = true,
-    decorator: (DrawScope.(CalendarDay) -> Unit)? = null,
+    decorators: List<DayDecorator> = emptyList(),
     onClick: ((CalendarDay) -> Unit)? = null,
 ) {
     val hidden = !showOutDates && day.position != DayPosition.MonthDate
@@ -141,8 +142,25 @@ public fun DefaultDay(
                             drawDayShape(shapes.selectedShape, colors.selectedContainerColor)
                         }
                     }
-                    decorator?.invoke(this, day)
+                    decorators.forEach { decorator ->
+                        if (decorator.layer == DecoratorLayer.Behind) {
+                            with(decorator) { draw(day) }
+                        }
+                    }
                 }.then(
+                    if (decorators.any { it.layer == DecoratorLayer.Over }) {
+                        Modifier.drawWithContent {
+                            drawContent()
+                            decorators.forEach { decorator ->
+                                if (decorator.layer == DecoratorLayer.Over) {
+                                    with(decorator) { draw(day) }
+                                }
+                            }
+                        }
+                    } else {
+                        Modifier
+                    },
+                ).then(
                     if (isToday && !isSelected && indicator is TodayIndicator.Ring) {
                         Modifier.border(indicator.width, colors.todayIndicatorColor, shapes.dayShape)
                     } else {
@@ -182,7 +200,7 @@ public fun DefaultDay(
  * original drawCircle(radius = minDimension / 2) exactly, keeping
  * existing screenshot goldens byte-identical.
  */
-private fun DrawScope.drawDayShape(
+internal fun DrawScope.drawDayShape(
     shape: Shape,
     color: Color,
 ) {

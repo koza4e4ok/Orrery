@@ -86,7 +86,7 @@ class SelectionEngineRangeTest {
     @Test
     fun `intercepted date inside candidate range blocks completion`() {
         val blocked = d8
-        val engine = SelectionEngine(SelectionMode.Range(), interceptor = { it == blocked })
+        val engine = SelectionEngine(SelectionMode.Range(), disabled = DisabledDates { dates(blocked) })
         val started = engine.click(Selection.Empty, d5).selection
         val result = engine.click(started, d10)
         assertNull(result.selection.range)

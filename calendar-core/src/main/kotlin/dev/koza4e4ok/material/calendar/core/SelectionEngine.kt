@@ -7,14 +7,14 @@ import kotlinx.datetime.plus
 
 /**
  * Pure selection state machine. [click] never mutates; it returns the new
- * [Selection] plus any violation events. Bounds and interception are
+ * [Selection] plus any violation events. Bounds and disabled dates are
  * checked before mode-specific handling, matching the original library's
  * out-of-range and OnCalendarInterceptListener behavior.
  */
 public class SelectionEngine(
     private val mode: SelectionMode,
     private val bounds: ClosedRange<LocalDate>? = null,
-    private val interceptor: (LocalDate) -> Boolean = { false },
+    private val disabled: DisabledDates = DisabledDates.None,
 ) {
     public fun click(
         current: Selection,
@@ -23,7 +23,7 @@ public class SelectionEngine(
         if (bounds != null && date !in bounds) {
             return SelectionResult(current, listOf(SelectionEvent.OutOfRange(date)))
         }
-        if (interceptor(date)) {
+        if (date in disabled) {
             return SelectionResult(current, listOf(SelectionEvent.Intercepted(date)))
         }
         return when (mode) {
@@ -73,7 +73,7 @@ public class SelectionEngine(
         }
         var cursor: LocalDate = start
         while (cursor <= date) {
-            if (interceptor(cursor)) {
+            if (cursor in disabled) {
                 return SelectionResult(current, listOf(SelectionEvent.Intercepted(cursor)))
             }
             cursor = cursor.plus(1, DateTimeUnit.DAY)

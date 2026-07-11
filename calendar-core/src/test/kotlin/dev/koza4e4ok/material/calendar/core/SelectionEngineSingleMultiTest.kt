@@ -43,7 +43,7 @@ class SelectionEngineSingleMultiTest {
 
     @Test
     fun `intercepted dates emit Intercepted and change nothing`() {
-        val engine = SelectionEngine(SelectionMode.Single(), interceptor = { it == d2 })
+        val engine = SelectionEngine(SelectionMode.Single(), disabled = DisabledDates { dates(d2) })
         val result = engine.click(Selection.Empty, d2)
         assertEquals(Selection.Empty, result.selection)
         assertEquals(listOf<SelectionEvent>(SelectionEvent.Intercepted(d2)), result.events)

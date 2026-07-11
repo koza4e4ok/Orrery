@@ -1,0 +1,7 @@
+MaterialCalendar
+Copyright 2026 Andrii Kozakov
+
+This product ports algorithms and data tables (lunar calendar conversion,
+solar-term astronomy, calendar grid math) from CalendarView
+(https://github.com/huanghaibin-dev/CalendarView) and its angcyo fork,
+Copyright (C) 2016 huanghaibin_dev, licensed under the Apache License 2.0.

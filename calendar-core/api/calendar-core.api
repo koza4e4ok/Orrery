@@ -92,6 +92,29 @@ public final class dev/koza4e4ok/material/calendar/core/DaysOfWeekKt {
 	public static synthetic fun daysOfWeek$default (Lkotlinx/datetime/DayOfWeek;ILjava/lang/Object;)Ljava/util/List;
 }
 
+public final class dev/koza4e4ok/material/calendar/core/DisabledDates {
+	public static final field Companion Ldev/koza4e4ok/material/calendar/core/DisabledDates$Companion;
+	public final fun contains (Lkotlinx/datetime/LocalDate;)Z
+}
+
+public final class dev/koza4e4ok/material/calendar/core/DisabledDates$Companion {
+	public final fun getNone ()Ldev/koza4e4ok/material/calendar/core/DisabledDates;
+}
+
+public final class dev/koza4e4ok/material/calendar/core/DisabledDatesBuilder {
+	public final fun after (Lkotlinx/datetime/LocalDate;)V
+	public final fun before (Lkotlinx/datetime/LocalDate;)V
+	public final fun dates (Ljava/util/Collection;)V
+	public final fun dates ([Lkotlinx/datetime/LocalDate;)V
+	public final fun daysOfWeek ([Lkotlinx/datetime/DayOfWeek;)V
+	public final fun predicate (Lkotlin/jvm/functions/Function1;)V
+	public final fun range (Lkotlin/ranges/ClosedRange;)V
+}
+
+public final class dev/koza4e4ok/material/calendar/core/DisabledDatesKt {
+	public static final fun DisabledDates (Lkotlin/jvm/functions/Function1;)Ldev/koza4e4ok/material/calendar/core/DisabledDates;
+}
+
 public final class dev/koza4e4ok/material/calendar/core/MonthGridKt {
 	public static final fun monthGrid (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Ldev/koza4e4ok/material/calendar/core/OutDateStyle;)Ldev/koza4e4ok/material/calendar/core/CalendarMonth;
 	public static synthetic fun monthGrid$default (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Ldev/koza4e4ok/material/calendar/core/OutDateStyle;ILjava/lang/Object;)Ldev/koza4e4ok/material/calendar/core/CalendarMonth;

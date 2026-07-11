@@ -1,35 +1,9 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.compose.compiler)
+    id("materialcalendar.android-library")
 }
 
 android {
     namespace = "dev.koza4e4ok.material.calendar.compose"
-    compileSdk =
-        libs.versions.compile.sdk
-            .get()
-            .toInt()
-
-    defaultConfig {
-        minSdk = 23
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    buildFeatures {
-        compose = true
-    }
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-        }
-    }
-}
-
-kotlin {
-    explicitApi()
-    jvmToolchain(17)
 }
 
 dependencies {

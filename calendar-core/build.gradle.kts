@@ -1,17 +1,7 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-}
-
-kotlin {
-    explicitApi()
-    jvmToolchain(17)
+    id("materialcalendar.kotlin-library")
 }
 
 dependencies {
     api(libs.kotlinx.datetime)
-    testImplementation(kotlin("test"))
-}
-
-tasks.test {
-    useJUnitPlatform()
 }

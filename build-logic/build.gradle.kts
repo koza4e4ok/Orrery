@@ -1,0 +1,12 @@
+plugins {
+    `kotlin-dsl`
+}
+
+dependencies {
+    implementation(plugin(libs.plugins.kotlin.jvm))
+    implementation(plugin(libs.plugins.android.library))
+    implementation(plugin(libs.plugins.compose.compiler))
+}
+
+fun plugin(provider: Provider<PluginDependency>): Provider<String> =
+    provider.map { "${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}" }

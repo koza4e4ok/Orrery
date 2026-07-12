@@ -36,6 +36,8 @@
   `maxCount` cap rendering `"9+"`.
 - `rememberAnimatedDayValues`: eases per-day decorator data (progress rings,
   heatmaps) toward new targets.
+- Sample rework: four product-style screens (Agenda, Trips, Habits, Almanac)
+  with a navigation bar, dynamic color, and realistic named data.
 
 ### Changed
 

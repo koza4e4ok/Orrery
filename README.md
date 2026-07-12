@@ -51,9 +51,10 @@ fun CalendarScreen() {
 }
 ```
 
-The sample app (`sample/`) demonstrates an agenda screen with a collapsible
-month/week calendar, a vertical calendar with sticky headers and drag-to-select,
-and the lunar provider.
+The sample app (`sample/`) is four product-style screens: an Agenda with a
+collapsible calendar and named events, a Trips booking flow with drag-select,
+nightly prices and blackout dates, a Habits tracker with streaks and animated
+progress rings, and a Chinese Almanac backed by `calendar-lunar`.
 
 ### Animating decorator data
 

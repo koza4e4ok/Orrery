@@ -55,6 +55,19 @@ public class CalendarSelectionState internal constructor(
         selection = Selection.Empty
     }
 
+    /**
+     * Replaces the selection programmatically (e.g. with a
+     * SelectionPresets value). The proposal is validated like clicks —
+     * mode constraints, bounds, and disabled dates — and violations
+     * leave the selection unchanged and fire the event callback.
+     * Setting [Selection.Empty] clears.
+     */
+    public fun set(selection: Selection) {
+        val result = SelectionEngine(mode, bounds, disabled).replace(this.selection, selection)
+        this.selection = result.selection
+        result.events.forEach(onEvent)
+    }
+
     /** Begins a drag range selection at [date]. Only acts in [SelectionMode.Range]. */
     public fun dragStart(date: LocalDate) {
         if (mode !is SelectionMode.Range || isDisabled(date)) return

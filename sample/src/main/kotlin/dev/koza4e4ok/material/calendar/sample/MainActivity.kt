@@ -24,6 +24,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,12 +43,15 @@ import dev.koza4e4ok.material.calendar.compose.MonthYearPicker
 import dev.koza4e4ok.material.calendar.compose.VerticalCalendar
 import dev.koza4e4ok.material.calendar.compose.currentDate
 import dev.koza4e4ok.material.calendar.compose.displayName
+import dev.koza4e4ok.material.calendar.compose.firstDayOfWeekFromLocale
+import dev.koza4e4ok.material.calendar.compose.rememberAnimatedDayValues
 import dev.koza4e4ok.material.calendar.compose.rememberCalendarSelectionState
 import dev.koza4e4ok.material.calendar.compose.rememberCalendarState
 import dev.koza4e4ok.material.calendar.compose.rememberCollapsibleCalendarState
 import dev.koza4e4ok.material.calendar.compose.rememberWeekCalendarState
 import dev.koza4e4ok.material.calendar.core.DisabledDates
 import dev.koza4e4ok.material.calendar.core.SelectionMode
+import dev.koza4e4ok.material.calendar.core.SelectionPresets
 import dev.koza4e4ok.material.calendar.lunar.LunarDayInfoProvider
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -105,13 +109,12 @@ private fun AgendaDemo() {
     val selection = rememberCalendarSelectionState(mode = SelectionMode.Single())
     val scope = rememberCoroutineScope()
     val eventDecorators =
-        remember(events) {
-            listOf(
-                DayDecorators.eventDots { date ->
-                    if (date in events) listOf(Color(0xFFE57373)) else emptyList()
-                },
-            )
-        }
+        listOf(
+            DayDecorators.eventDots { date ->
+                if (date in events) listOf(Color(0xFFE57373)) else emptyList()
+            },
+            DayDecorators.badge { date -> if (date in events) date.day % 4 else 0 },
+        )
 
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -223,12 +226,15 @@ private fun BookingDemo() {
 @Composable
 private fun HabitsDemo() {
     val today = remember { currentDate() }
-    val ringDecorators =
-        listOf(
-            DayDecorators.progressRing { date ->
-                if (date.month == today.month) ((date.day * 37) % 101) / 100f else null
-            },
-        )
+    var seed by remember { mutableIntStateOf(37) }
+    val targets =
+        remember(seed, today) {
+            (1..28).associate { d ->
+                LocalDate(today.year, today.month, d) to ((d * seed) % 101) / 100f
+            }
+        }
+    val animatedProgress = rememberAnimatedDayValues(targets)
+    val ringDecorators = listOf(DayDecorators.progressRing(progress = animatedProgress))
     val heatDecorators =
         listOf(
             DayDecorators.heatmap { date ->
@@ -236,11 +242,17 @@ private fun HabitsDemo() {
             },
         )
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        Text(
-            "Habit progress",
-            Modifier.padding(16.dp),
-            style = MaterialTheme.typography.titleMedium,
-        )
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "Habit progress",
+                Modifier.weight(1f),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            TextButton(onClick = { seed = seed % 89 + 7 }) { Text("Shuffle") }
+        }
         HorizontalCalendar(
             state = rememberCalendarState(),
             dayContent = { day ->
@@ -284,18 +296,28 @@ private fun LunarDemo() {
 @Composable
 private fun VerticalDemo() {
     val today = remember { currentDate() }
-    val selection = rememberCalendarSelectionState(mode = SelectionMode.Range(maxDays = 30))
-    VerticalCalendar(
-        state =
-            rememberCalendarState(
-                startMonth = YearMonth(today.year, 1),
-                endMonth = YearMonth(today.year + 1, 12),
-            ),
-        showWeekNumbers = true,
-        stickyMonthHeaders = true,
-        dragSelection = selection,
-        dayContent = { day ->
-            DefaultDay(day = day, selectionState = selection, today = today)
-        },
-    )
+    val selection = rememberCalendarSelectionState(mode = SelectionMode.Range())
+    Column(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            TextButton(onClick = {
+                selection.set(SelectionPresets.thisWeek(today, firstDayOfWeekFromLocale()))
+            }) { Text("This week") }
+            TextButton(onClick = {
+                selection.set(SelectionPresets.thisMonth(today))
+            }) { Text("This month") }
+        }
+        VerticalCalendar(
+            state =
+                rememberCalendarState(
+                    startMonth = YearMonth(today.year, 1),
+                    endMonth = YearMonth(today.year + 1, 12),
+                ),
+            showWeekNumbers = true,
+            stickyMonthHeaders = true,
+            dragSelection = selection,
+            dayContent = { day ->
+                DefaultDay(day = day, selectionState = selection, today = today)
+            },
+        )
+    }
 }

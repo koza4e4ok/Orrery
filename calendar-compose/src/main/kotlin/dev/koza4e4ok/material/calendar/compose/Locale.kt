@@ -2,9 +2,11 @@ package dev.koza4e4ok.material.calendar.compose
 
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.number
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.todayIn
 import java.time.format.TextStyle
@@ -31,6 +33,16 @@ public fun YearMonth.displayName(locale: Locale = Locale.getDefault()): String {
     val month = firstDay.toJavaLocalDate().month.getDisplayName(TextStyle.FULL_STANDALONE, locale)
     return "$month $year"
 }
+
+/** Localized standalone month name, e.g. "July" or "Jul". */
+public fun Month.displayName(
+    short: Boolean = false,
+    locale: Locale = Locale.getDefault(),
+): String =
+    java.time.Month.of(number).getDisplayName(
+        if (short) TextStyle.SHORT_STANDALONE else TextStyle.FULL_STANDALONE,
+        locale,
+    )
 
 public fun currentDate(): LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
 

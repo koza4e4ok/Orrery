@@ -12,11 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.core.CalendarDay
 import dev.koza4e4ok.material.calendar.core.CalendarMonth
 import dev.koza4e4ok.material.calendar.core.CalendarWeek
+import kotlinx.datetime.LocalDate
 
 internal val WeekNumberColumnWidth = 32.dp
 
@@ -28,13 +31,15 @@ internal fun MonthContent(
     modifier: Modifier = Modifier,
     weekNumber: (@Composable (CalendarWeek) -> Unit)? = null,
     dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
 ) {
+    val haptics = LocalHapticFeedback.current
     Column(modifier) {
         monthHeader?.invoke(this, month)
         Column(
             Modifier.then(
                 if (dragSelection != null) {
-                    Modifier.pointerInput(month, weekNumber != null) {
+                    Modifier.pointerInput(month, weekNumber != null, hapticsEnabled) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
 
                         fun dayAt(offset: Offset): CalendarDay? {
@@ -47,11 +52,24 @@ internal fun MonthContent(
                             return month.weeks[row].days[col]
                         }
 
+                        var lastDragDate: LocalDate? = null
                         detectDragGesturesAfterLongPress(
-                            onDragStart = { offset -> dayAt(offset)?.let { dragSelection.dragStart(it.date) } },
+                            onDragStart = { offset ->
+                                dayAt(offset)?.let {
+                                    if (hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    lastDragDate = it.date
+                                    dragSelection.dragStart(it.date)
+                                }
+                            },
                             onDrag = { change, _ ->
                                 change.consume()
-                                dayAt(change.position)?.let { dragSelection.dragUpdate(it.date) }
+                                dayAt(change.position)?.let {
+                                    if (hapticsEnabled && it.date != lastDragDate) {
+                                        haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                                    }
+                                    lastDragDate = it.date
+                                    dragSelection.dragUpdate(it.date)
+                                }
                             },
                             onDragEnd = { dragSelection.dragEnd() },
                             onDragCancel = { dragSelection.dragEnd() },

@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -66,6 +68,7 @@ public fun DefaultDay(
     enabled: Boolean = true,
     showOutDates: Boolean = true,
     animateSelection: Boolean = true,
+    hapticsEnabled: Boolean = true,
     decorators: List<DayDecorator> = emptyList(),
     onClick: ((CalendarDay) -> Unit)? = null,
 ) {
@@ -98,6 +101,7 @@ public fun DefaultDay(
         remember(day.date) {
             day.date.toJavaLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         }
+    val haptics = LocalHapticFeedback.current
     val contentColor =
         when {
             !available -> colors.unavailableContentColor
@@ -181,6 +185,7 @@ public fun DefaultDay(
                     selected = isSelected,
                     enabled = available,
                     onClick = {
+                        if (hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                         selectionState?.click(day.date)
                         onClick?.invoke(day)
                     },

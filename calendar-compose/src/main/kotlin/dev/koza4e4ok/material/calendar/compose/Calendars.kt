@@ -31,6 +31,7 @@ public fun HorizontalCalendar(
     userScrollEnabled: Boolean = true,
     showWeekNumbers: Boolean = false,
     dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
         CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
     },
@@ -57,6 +58,7 @@ public fun HorizontalCalendar(
                             null
                         },
                     dragSelection = dragSelection,
+                    hapticsEnabled = hapticsEnabled,
                 )
             }
         }
@@ -73,6 +75,7 @@ public fun VerticalCalendar(
     showWeekNumbers: Boolean = false,
     stickyMonthHeaders: Boolean = false,
     dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
         CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
     },
@@ -119,6 +122,7 @@ public fun VerticalCalendar(
                             modifier = Modifier.fillParentMaxWidth(),
                             weekNumber = weekNumber,
                             dragSelection = dragSelection,
+                            hapticsEnabled = hapticsEnabled,
                         )
                     }
                 }
@@ -131,6 +135,7 @@ public fun VerticalCalendar(
                         modifier = Modifier.fillParentMaxWidth(),
                         weekNumber = weekNumber,
                         dragSelection = dragSelection,
+                        hapticsEnabled = hapticsEnabled,
                     )
                 }
             }

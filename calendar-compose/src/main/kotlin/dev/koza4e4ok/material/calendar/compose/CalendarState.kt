@@ -54,6 +54,11 @@ public class CalendarState internal constructor(
         listState.animateScrollToItem(indexOf(month))
     }
 
+    /** Animates back to the current month. */
+    public suspend fun animateScrollToToday() {
+        animateScrollToMonth(currentYearMonth())
+    }
+
     public suspend fun scrollToDate(date: LocalDate) {
         scrollToMonth(YearMonth(date.year, date.month))
     }

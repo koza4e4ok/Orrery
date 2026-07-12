@@ -27,6 +27,15 @@
 - Keyboard/D-pad navigation: arrow keys move between days natively, wrap at
   row edges, and page the calendar when crossing into another month's grid
   (`keyboardNavigation` on `HorizontalCalendar` and `WeekCalendar`).
+- Flow observation extensions: `CalendarState.visibleMonths()`,
+  `WeekCalendarState.visibleWeeks()`, `CalendarSelectionState.selectionChanges()`.
+- `SelectionPresets` (`nextDays`, `thisWeek`, `thisMonth`, `nextWeekend`) and
+  `CalendarSelectionState.set(selection)` — programmatic selection validated
+  like clicks (mode, bounds, disabled dates).
+- `DayDecorators.badge`: count bubble at the cell's top-end (RTL-aware) with a
+  `maxCount` cap rendering `"9+"`.
+- `rememberAnimatedDayValues`: eases per-day decorator data (progress rings,
+  heatmaps) toward new targets.
 
 ### Changed
 

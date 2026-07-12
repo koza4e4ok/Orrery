@@ -55,6 +55,20 @@ The sample app (`sample/`) demonstrates an agenda screen with a collapsible
 month/week calendar, a vertical calendar with sticky headers and drag-to-select,
 and the lunar provider.
 
+### Animating decorator data
+
+Animate in composition, read the animated value inside the decorator lookup —
+`rememberAnimatedDayValues` packages the idiom:
+
+```kotlin
+val animated = rememberAnimatedDayValues(habitProgress) // Map<LocalDate, Float>
+DefaultDay(
+    day = day,
+    decorators = listOf(DayDecorators.progressRing(progress = animated)),
+)
+// when habitProgress[date] changes 0.4 -> 0.8, the ring eases over 300 ms
+```
+
 ## Features
 
 - Month (`HorizontalCalendar`), vertical list (`VerticalCalendar`), single-week
@@ -73,6 +87,9 @@ and the lunar provider.
   `MonthYearPicker` year/month jump picker
 - Scroll-to-today, selection haptics, range-fill animation, and
   keyboard/D-pad navigation with month-edge paging
+- Flow observation (`visibleMonths`, `selectionChanges`), selection presets
+  with a validated programmatic setter, count badges, and animated
+  decorator values via `rememberAnimatedDayValues`
 - Material3 theming — dark mode and dynamic color for free; all colors overridable
 - Accessibility semantics, RTL mirroring, locale-driven names and first day of week
 - ISO week numbers and sticky month headers

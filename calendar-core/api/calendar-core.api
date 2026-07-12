@@ -282,6 +282,14 @@ public final class dev/koza4e4ok/material/calendar/core/SelectionMode$Single : d
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class dev/koza4e4ok/material/calendar/core/SelectionPresets {
+	public static final field INSTANCE Ldev/koza4e4ok/material/calendar/core/SelectionPresets;
+	public final fun nextDays (Lkotlinx/datetime/LocalDate;I)Ldev/koza4e4ok/material/calendar/core/Selection;
+	public final fun nextWeekend (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/material/calendar/core/Selection;
+	public final fun thisMonth (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/material/calendar/core/Selection;
+	public final fun thisWeek (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Ldev/koza4e4ok/material/calendar/core/Selection;
+}
+
 public final class dev/koza4e4ok/material/calendar/core/SelectionResult {
 	public fun <init> (Ldev/koza4e4ok/material/calendar/core/Selection;Ljava/util/List;)V
 	public final fun component1 ()Ldev/koza4e4ok/material/calendar/core/Selection;

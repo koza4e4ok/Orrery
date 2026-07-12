@@ -16,6 +16,17 @@
   `Behind`/`Over` layers and prebuilt factories — `eventDots`, `progressRing`,
   `progressBar`, `strikethrough` (over the day number), `underline`, and a
   GitHub-style `heatmap`.
+- `CalendarNavHeader`: previous/next month buttons around an animated title;
+  the title becomes clickable with a dropdown affordance via `onTitleClick`.
+- `MonthYearPicker`: two-level year → month jump picker, range-aware.
+- `CalendarState.animateScrollToToday()`.
+- The in-range band now animates in when a range completes (driven by the
+  existing `animateSelection` flag).
+- Haptic feedback on day click, drag-select start, and drag boundary changes
+  (`hapticsEnabled` on `DefaultDay`, `HorizontalCalendar`, `VerticalCalendar`).
+- Keyboard/D-pad navigation: arrow keys move between days natively, wrap at
+  row edges, and page the calendar when crossing into another month's grid
+  (`keyboardNavigation` on `HorizontalCalendar` and `WeekCalendar`).
 
 ### Changed
 

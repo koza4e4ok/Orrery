@@ -69,6 +69,10 @@ and the lunar provider.
 - Stackable day decorators: event dots, progress rings/bars, strikethrough,
   underline, and a GitHub-style heatmap — plus a raw `DayDecorator` DrawScope
   escape hatch
+- `CalendarNavHeader` prev/next navigation with animated title and
+  `MonthYearPicker` year/month jump picker
+- Scroll-to-today, selection haptics, range-fill animation, and
+  keyboard/D-pad navigation with month-edge paging
 - Material3 theming — dark mode and dynamic color for free; all colors overridable
 - Accessibility semantics, RTL mirroring, locale-driven names and first day of week
 - ISO week numbers and sticky month headers

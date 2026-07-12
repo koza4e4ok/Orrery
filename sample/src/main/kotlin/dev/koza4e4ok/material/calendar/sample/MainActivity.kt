@@ -3,6 +3,7 @@ package dev.koza4e4ok.material.calendar.sample
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,10 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.compose.CalendarDefaults
+import dev.koza4e4ok.material.calendar.compose.CalendarNavHeader
 import dev.koza4e4ok.material.calendar.compose.CollapsibleCalendarScaffold
 import dev.koza4e4ok.material.calendar.compose.DayDecorators
 import dev.koza4e4ok.material.calendar.compose.DefaultDay
 import dev.koza4e4ok.material.calendar.compose.HorizontalCalendar
+import dev.koza4e4ok.material.calendar.compose.MonthYearPicker
 import dev.koza4e4ok.material.calendar.compose.VerticalCalendar
 import dev.koza4e4ok.material.calendar.compose.currentDate
 import dev.koza4e4ok.material.calendar.compose.displayName
@@ -154,7 +157,7 @@ private fun AgendaDemo() {
     }
 }
 
-/** Booking-style range selection: past dates, weekends and a blackout window disabled. */
+/** Booking-style range selection with nav header, jump picker, and today button. */
 @Composable
 private fun BookingDemo() {
     val today = remember { currentDate() }
@@ -171,21 +174,49 @@ private fun BookingDemo() {
             mode = SelectionMode.Range(maxDays = 14),
             disabled = disabled,
         )
-    HorizontalCalendar(
-        state = rememberCalendarState(),
-        dayContent = { day ->
-            DefaultDay(
-                day = day,
-                selectionState = selection,
-                today = today,
-                shapes =
-                    CalendarDefaults.dayShapes(
-                        dayShape = RoundedCornerShape(12.dp),
-                        selectedShape = RoundedCornerShape(12.dp),
-                    ),
+    val calendarState = rememberCalendarState()
+    val scope = rememberCoroutineScope()
+    var pickerVisible by remember { mutableStateOf(false) }
+    Column {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            CalendarNavHeader(
+                state = calendarState,
+                modifier = Modifier.weight(1f),
+                onTitleClick = { pickerVisible = !pickerVisible },
             )
-        },
-    )
+            TextButton(onClick = { scope.launch { calendarState.animateScrollToToday() } }) {
+                Text("Today")
+            }
+        }
+        AnimatedContent(targetState = pickerVisible, label = "bookingPicker") { showPicker ->
+            if (showPicker) {
+                MonthYearPicker(
+                    current = calendarState.firstVisibleMonth,
+                    range = calendarState.startMonth..calendarState.endMonth,
+                    onSelect = { month ->
+                        pickerVisible = false
+                        scope.launch { calendarState.scrollToMonth(month) }
+                    },
+                )
+            } else {
+                HorizontalCalendar(
+                    state = calendarState,
+                    dayContent = { day ->
+                        DefaultDay(
+                            day = day,
+                            selectionState = selection,
+                            today = today,
+                            shapes =
+                                CalendarDefaults.dayShapes(
+                                    dayShape = RoundedCornerShape(12.dp),
+                                    selectedShape = RoundedCornerShape(12.dp),
+                                ),
+                        )
+                    },
+                )
+            }
+        }
+    }
 }
 
 /** Habit tracker: progress rings for the current month and a completion heatmap. */

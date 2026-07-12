@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -88,6 +89,11 @@ public fun DefaultDay(
             },
         label = "daySelection",
     )
+    val inRangeAlpha by animateFloatAsState(
+        targetValue = if (isInRange) 1f else 0f,
+        animationSpec = if (animateSelection) tween(durationMillis = 200) else snap(),
+        label = "dayInRange",
+    )
     val description =
         remember(day.date) {
             day.date.toJavaLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
@@ -108,8 +114,13 @@ public fun DefaultDay(
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
                 .background(
-                    color = if (isInRange) colors.inRangeContainerColor else colors.containerColor,
-                    shape = if (isInRange) shapes.inRangeShape else RectangleShape,
+                    color =
+                        if (inRangeAlpha > 0f) {
+                            colors.inRangeContainerColor.copy(alpha = colors.inRangeContainerColor.alpha * inRangeAlpha)
+                        } else {
+                            colors.containerColor
+                        },
+                    shape = if (inRangeAlpha > 0f) shapes.inRangeShape else RectangleShape,
                 ).clip(shapes.dayShape)
                 .then(
                     if (!available) Modifier.background(colors.unavailableContainerColor) else Modifier,

@@ -41,9 +41,10 @@ fun CalendarScreen() {
                 selectionState = selection,
                 today = today,
                 info = lunar.info(day.date),
-                decorator = { d ->
-                    // DrawScope escape hatch: event dots, heatmaps, progress rings…
-                },
+                decorators = listOf(
+                    DayDecorators.eventDots { date -> eventColors[date].orEmpty() },
+                    DayDecorators.progressRing { date -> habits[date] }, // 0f..1f
+                ),
             )
         },
     )
@@ -65,6 +66,9 @@ and the lunar provider.
   before/after, predicates) blocks selection and renders disabled automatically
 - Per-state day styling: `CalendarDayColors` + `CalendarDayShapes` with
   today-indicator variants (ring, filled, underline)
+- Stackable day decorators: event dots, progress rings/bars, strikethrough,
+  underline, and a GitHub-style heatmap — plus a raw `DayDecorator` DrawScope
+  escape hatch
 - Material3 theming — dark mode and dynamic color for free; all colors overridable
 - Accessibility semantics, RTL mirroring, locale-driven names and first day of week
 - ISO week numbers and sticky month headers

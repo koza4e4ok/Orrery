@@ -12,6 +12,10 @@
   selection and in-range shapes, plus `TodayIndicator` styles (`Ring`,
   `FilledCircle`, `Underline`, `None`).
 - `CalendarDayColors.unavailableContainerColor`.
+- `DayDecorator` + `DayDecorators`: stackable DrawScope day decorations with
+  `Behind`/`Over` layers and prebuilt factories — `eventDots`, `progressRing`,
+  `progressBar`, `strikethrough` (over the day number), `underline`, and a
+  GitHub-style `heatmap`.
 
 ### Changed
 
@@ -23,6 +27,9 @@
 - `DefaultDay` renders dates disabled by the selection state's `DisabledDates`
   automatically (unavailable colors, no click, disabled semantics); the
   `enabled` parameter remains as a manual override.
+- **Breaking:** `DefaultDay`'s `decorator: (DrawScope.(CalendarDay) -> Unit)?`
+  is replaced by `decorators: List<DayDecorator>`. Migrate
+  `decorator = { day -> ... }` to `decorators = listOf(DayDecorator { day -> ... })`.
 
 ## [0.1.0] - TBD
 

@@ -16,19 +16,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import dev.koza4e4ok.material.calendar.compose.DefaultDay
-import dev.koza4e4ok.material.calendar.compose.HorizontalCalendar
-import dev.koza4e4ok.material.calendar.compose.currentDate
-import dev.koza4e4ok.material.calendar.compose.rememberCalendarSelectionState
-import dev.koza4e4ok.material.calendar.compose.rememberCalendarState
-import dev.koza4e4ok.material.calendar.core.SelectionMode
-import dev.koza4e4ok.material.calendar.lunar.LunarDayInfoProvider
 import kotlinx.datetime.plus
 
 class MainActivity : ComponentActivity() {
@@ -45,36 +37,17 @@ class MainActivity : ComponentActivity() {
                             TextButton(onClick = { screen = 0 }) { Text("Agenda") }
                             TextButton(onClick = { screen = 1 }) { Text("Trips") }
                             TextButton(onClick = { screen = 2 }) { Text("Habits") }
-                            TextButton(onClick = { screen = 3 }) { Text("Lunar") }
+                            TextButton(onClick = { screen = 3 }) { Text("Almanac") }
                         }
                         when (screen) {
                             0 -> AgendaScreen()
                             1 -> TripsScreen()
                             2 -> HabitsScreen()
-                            else -> LunarDemo()
+                            else -> AlmanacScreen()
                         }
                     }
                 }
             }
         }
     }
-}
-
-/** Month calendar with lunar day labels, festivals and solar terms from calendar-lunar. */
-@Composable
-private fun LunarDemo() {
-    val today = remember { currentDate() }
-    val provider = remember { LunarDayInfoProvider() }
-    val selection = rememberCalendarSelectionState(mode = SelectionMode.Single())
-    HorizontalCalendar(
-        state = rememberCalendarState(),
-        dayContent = { day ->
-            DefaultDay(
-                day = day,
-                selectionState = selection,
-                today = today,
-                info = provider.info(day.date),
-            )
-        },
-    )
 }

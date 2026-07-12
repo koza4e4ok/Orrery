@@ -160,6 +160,7 @@ public final class dev/koza4e4ok/material/calendar/core/SelectionEngine {
 	public fun <init> (Ldev/koza4e4ok/material/calendar/core/SelectionMode;Lkotlin/ranges/ClosedRange;Ldev/koza4e4ok/material/calendar/core/DisabledDates;)V
 	public synthetic fun <init> (Ldev/koza4e4ok/material/calendar/core/SelectionMode;Lkotlin/ranges/ClosedRange;Ldev/koza4e4ok/material/calendar/core/DisabledDates;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun click (Ldev/koza4e4ok/material/calendar/core/Selection;Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/material/calendar/core/SelectionResult;
+	public final fun replace (Ldev/koza4e4ok/material/calendar/core/Selection;Ldev/koza4e4ok/material/calendar/core/Selection;)Ldev/koza4e4ok/material/calendar/core/SelectionResult;
 }
 
 public abstract interface class dev/koza4e4ok/material/calendar/core/SelectionEvent {

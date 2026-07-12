@@ -3,6 +3,7 @@ package dev.koza4e4ok.material.calendar.compose
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -11,7 +12,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.core.CalendarDay
 import kotlinx.datetime.LocalDate
@@ -185,6 +189,56 @@ public object DayDecorators {
                 drawDayShape(shape, colorScale(value.coerceIn(0f, 1f)))
             }
         }
+
+    /**
+     * Count bubble at the cell's top-end corner (top-start in RTL). Counts
+     * <= 0 draw nothing; counts above [maxCount] render as "[maxCount]+".
+     * Draws over the day content.
+     */
+    @Composable
+    public fun badge(
+        maxCount: Int = 9,
+        containerColor: Color = MaterialTheme.colorScheme.error,
+        contentColor: Color = MaterialTheme.colorScheme.onError,
+        count: (LocalDate) -> Int,
+    ): DayDecorator {
+        val textMeasurer = rememberTextMeasurer()
+        val textStyle = MaterialTheme.typography.labelSmall.copy(color = contentColor)
+        return object : DayDecorator {
+            override val layer: DecoratorLayer
+                get() = DecoratorLayer.Over
+
+            override fun DrawScope.draw(day: CalendarDay) {
+                val value = count(day.date)
+                if (value <= 0) return
+                val text = if (value > maxCount) "$maxCount+" else value.toString()
+                val layout = textMeasurer.measure(text, textStyle)
+                val bubbleHeight = layout.size.height + 2.dp.toPx()
+                val bubbleWidth = maxOf(bubbleHeight, layout.size.width + 8.dp.toPx())
+                val inset = 2.dp.toPx()
+                val left =
+                    if (layoutDirection == LayoutDirection.Rtl) {
+                        inset
+                    } else {
+                        size.width - bubbleWidth - inset
+                    }
+                drawRoundRect(
+                    color = containerColor,
+                    topLeft = Offset(left, inset),
+                    size = Size(bubbleWidth, bubbleHeight),
+                    cornerRadius = CornerRadius(bubbleHeight / 2f),
+                )
+                drawText(
+                    textLayoutResult = layout,
+                    topLeft =
+                        Offset(
+                            left + (bubbleWidth - layout.size.width) / 2f,
+                            inset + (bubbleHeight - layout.size.height) / 2f,
+                        ),
+                )
+            }
+        }
+    }
 
     @Composable
     private fun defaultHeatmapScale(): (Float) -> Color {

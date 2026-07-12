@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,24 +29,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.compose.CalendarDefaults
 import dev.koza4e4ok.material.calendar.compose.CalendarNavHeader
-import dev.koza4e4ok.material.calendar.compose.CollapsibleCalendarScaffold
 import dev.koza4e4ok.material.calendar.compose.DayDecorators
 import dev.koza4e4ok.material.calendar.compose.DefaultDay
 import dev.koza4e4ok.material.calendar.compose.HorizontalCalendar
 import dev.koza4e4ok.material.calendar.compose.MonthYearPicker
 import dev.koza4e4ok.material.calendar.compose.VerticalCalendar
 import dev.koza4e4ok.material.calendar.compose.currentDate
-import dev.koza4e4ok.material.calendar.compose.displayName
 import dev.koza4e4ok.material.calendar.compose.firstDayOfWeekFromLocale
 import dev.koza4e4ok.material.calendar.compose.rememberAnimatedDayValues
 import dev.koza4e4ok.material.calendar.compose.rememberCalendarSelectionState
 import dev.koza4e4ok.material.calendar.compose.rememberCalendarState
-import dev.koza4e4ok.material.calendar.compose.rememberCollapsibleCalendarState
-import dev.koza4e4ok.material.calendar.compose.rememberWeekCalendarState
 import dev.koza4e4ok.material.calendar.core.DisabledDates
 import dev.koza4e4ok.material.calendar.core.SelectionMode
 import dev.koza4e4ok.material.calendar.core.SelectionPresets
@@ -78,81 +71,12 @@ class MainActivity : ComponentActivity() {
                             TextButton(onClick = { screen = 4 }) { Text("Lunar") }
                         }
                         when (screen) {
-                            0 -> AgendaDemo()
+                            0 -> AgendaScreen()
                             1 -> VerticalDemo()
                             2 -> BookingDemo()
                             3 -> HabitsDemo()
                             else -> LunarDemo()
                         }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/** Collapsible month/week calendar with an agenda list underneath. */
-@Composable
-private fun AgendaDemo() {
-    val today = remember { currentDate() }
-    val events =
-        remember {
-            (1..28 step 3).map { LocalDate(today.year, today.month, it) }.toSet()
-        }
-    val calendarState = rememberCalendarState()
-    val weekState =
-        rememberWeekCalendarState(
-            startDate = LocalDate(today.year - 1, 1, 1),
-            endDate = LocalDate(today.year + 1, 12, 31),
-        )
-    val collapsible = rememberCollapsibleCalendarState()
-    val selection = rememberCalendarSelectionState(mode = SelectionMode.Single())
-    val scope = rememberCoroutineScope()
-    val eventDecorators =
-        listOf(
-            DayDecorators.eventDots { date ->
-                if (date in events) listOf(Color(0xFFE57373)) else emptyList()
-            },
-            DayDecorators.badge { date -> if (date in events) date.day % 4 else 0 },
-        )
-
-    Column(Modifier.fillMaxSize()) {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = calendarState.firstVisibleMonth.displayName(),
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleLarge,
-            )
-            TextButton(onClick = {
-                scope.launch { if (collapsible.isExpanded) collapsible.collapse() else collapsible.expand() }
-            }) { Text(if (collapsible.isExpanded) "Collapse" else "Expand") }
-        }
-        CollapsibleCalendarScaffold(
-            calendarState = calendarState,
-            weekState = weekState,
-            state = collapsible,
-            dayContent = { day ->
-                DefaultDay(
-                    day = day,
-                    selectionState = selection,
-                    today = today,
-                    decorators = eventDecorators,
-                )
-            },
-        ) {
-            LazyColumn(Modifier.fillMaxSize()) {
-                items(count = 30) { i ->
-                    Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                        Text("Agenda item ${i + 1}", style = MaterialTheme.typography.bodyLarge)
-                        Text(
-                            "Scroll me up to collapse the calendar",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        HorizontalDivider(Modifier.padding(top = 12.dp))
                     }
                 }
             }

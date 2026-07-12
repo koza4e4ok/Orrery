@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,11 +29,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.koza4e4ok.material.calendar.compose.CalendarDefaults
 import dev.koza4e4ok.material.calendar.compose.CollapsibleCalendarScaffold
+import dev.koza4e4ok.material.calendar.compose.DayDecorators
 import dev.koza4e4ok.material.calendar.compose.DefaultDay
 import dev.koza4e4ok.material.calendar.compose.HorizontalCalendar
 import dev.koza4e4ok.material.calendar.compose.VerticalCalendar
@@ -65,12 +67,14 @@ class MainActivity : ComponentActivity() {
                             TextButton(onClick = { screen = 0 }) { Text("Agenda") }
                             TextButton(onClick = { screen = 1 }) { Text("Vertical") }
                             TextButton(onClick = { screen = 2 }) { Text("Booking") }
-                            TextButton(onClick = { screen = 3 }) { Text("Lunar") }
+                            TextButton(onClick = { screen = 3 }) { Text("Habits") }
+                            TextButton(onClick = { screen = 4 }) { Text("Lunar") }
                         }
                         when (screen) {
                             0 -> AgendaDemo()
                             1 -> VerticalDemo()
                             2 -> BookingDemo()
+                            3 -> HabitsDemo()
                             else -> LunarDemo()
                         }
                     }
@@ -97,6 +101,14 @@ private fun AgendaDemo() {
     val collapsible = rememberCollapsibleCalendarState()
     val selection = rememberCalendarSelectionState(mode = SelectionMode.Single())
     val scope = rememberCoroutineScope()
+    val eventDecorators =
+        remember(events) {
+            listOf(
+                DayDecorators.eventDots { date ->
+                    if (date in events) listOf(Color(0xFFE57373)) else emptyList()
+                },
+            )
+        }
 
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -121,15 +133,7 @@ private fun AgendaDemo() {
                     day = day,
                     selectionState = selection,
                     today = today,
-                    decorator = { d ->
-                        if (d.date in events) {
-                            drawCircle(
-                                color = Color(0xFFE57373),
-                                radius = 3.dp.toPx(),
-                                center = Offset(size.width / 2, size.height - 6.dp.toPx()),
-                            )
-                        }
-                    },
+                    decorators = eventDecorators,
                 )
             },
         ) {
@@ -182,6 +186,48 @@ private fun BookingDemo() {
             )
         },
     )
+}
+
+/** Habit tracker: progress rings for the current month and a completion heatmap. */
+@Composable
+private fun HabitsDemo() {
+    val today = remember { currentDate() }
+    val ringDecorators =
+        listOf(
+            DayDecorators.progressRing { date ->
+                if (date.month == today.month) ((date.day * 37) % 101) / 100f else null
+            },
+        )
+    val heatDecorators =
+        listOf(
+            DayDecorators.heatmap { date ->
+                if (date.month == today.month) ((date.day * 53) % 101) / 100f else null
+            },
+        )
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Text(
+            "Habit progress",
+            Modifier.padding(16.dp),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        HorizontalCalendar(
+            state = rememberCalendarState(),
+            dayContent = { day ->
+                DefaultDay(day = day, today = today, decorators = ringDecorators)
+            },
+        )
+        Text(
+            "Completion heatmap",
+            Modifier.padding(16.dp),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        HorizontalCalendar(
+            state = rememberCalendarState(),
+            dayContent = { day ->
+                DefaultDay(day = day, today = today, decorators = heatDecorators)
+            },
+        )
+    }
 }
 
 /** Month calendar with lunar day labels, festivals and solar terms from calendar-lunar. */

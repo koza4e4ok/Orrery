@@ -3,7 +3,6 @@ package dev.koza4e4ok.material.calendar.compose
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -14,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import dev.koza4e4ok.material.calendar.core.CalendarDay
 import dev.koza4e4ok.material.calendar.core.CalendarMonth
@@ -22,6 +22,7 @@ import dev.koza4e4ok.material.calendar.core.CalendarWeek
 import dev.koza4e4ok.material.calendar.core.daysOfWeek
 import dev.koza4e4ok.material.calendar.core.monthGrid
 import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.YearMonth
 
 /** Horizontally paged month calendar (one month per page, snap paging). */
 @Composable
@@ -29,6 +30,7 @@ public fun HorizontalCalendar(
     state: CalendarState = rememberCalendarState(),
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
     showWeekNumbers: Boolean = false,
     dragSelection: CalendarSelectionState? = null,
     hapticsEnabled: Boolean = true,
@@ -38,6 +40,17 @@ public fun HorizontalCalendar(
     monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+    val keyboard =
+        if (keyboardNavigation) {
+            remember(state, scope) {
+                CalendarKeyboardNavigation(scope) { date ->
+                    state.animateScrollToMonth(YearMonth(date.year, date.month))
+                }
+            }
+        } else {
+            null
+        }
     Column(modifier) {
         weekHeader?.invoke(this, daysOfWeek(state.firstDayOfWeek))
         LazyRow(
@@ -59,6 +72,7 @@ public fun HorizontalCalendar(
                         },
                     dragSelection = dragSelection,
                     hapticsEnabled = hapticsEnabled,
+                    keyboardNavigation = keyboard,
                 )
             }
         }
@@ -149,9 +163,19 @@ public fun WeekCalendar(
     state: WeekCalendarState,
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+    val keyboard =
+        if (keyboardNavigation) {
+            remember(state, scope) {
+                CalendarKeyboardNavigation(scope) { date -> state.animateScrollToDate(date) }
+            }
+        } else {
+            null
+        }
     Column(modifier) {
         weekHeader?.invoke(this, daysOfWeek(state.firstDayOfWeek))
         LazyRow(
@@ -162,8 +186,14 @@ public fun WeekCalendar(
             items(count = state.weekCount, key = { it }) { index ->
                 val week = state.weekAt(index)
                 Row(Modifier.fillParentMaxWidth()) {
-                    week.days.forEach { day ->
-                        Box(Modifier.weight(1f)) { dayContent(day) }
+                    week.days.forEachIndexed { col, day ->
+                        DayCell(
+                            day = day,
+                            col = col,
+                            keyboard = keyboard,
+                            modifier = Modifier.weight(1f),
+                            dayContent = dayContent,
+                        )
                     }
                 }
             }

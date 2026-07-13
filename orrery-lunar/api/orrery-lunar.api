@@ -1,21 +1,21 @@
-public final class dev/koza4e4ok/orrery/lunar/ChineseVariant : java/lang/Enum {
-	public static final field SIMPLIFIED Ldev/koza4e4ok/orrery/lunar/ChineseVariant;
-	public static final field TRADITIONAL_HK Ldev/koza4e4ok/orrery/lunar/ChineseVariant;
-	public static final field TRADITIONAL_TW Ldev/koza4e4ok/orrery/lunar/ChineseVariant;
+public final class me/kozakov/orrery/lunar/ChineseVariant : java/lang/Enum {
+	public static final field SIMPLIFIED Lme/kozakov/orrery/lunar/ChineseVariant;
+	public static final field TRADITIONAL_HK Lme/kozakov/orrery/lunar/ChineseVariant;
+	public static final field TRADITIONAL_TW Lme/kozakov/orrery/lunar/ChineseVariant;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Ldev/koza4e4ok/orrery/lunar/ChineseVariant;
-	public static fun values ()[Ldev/koza4e4ok/orrery/lunar/ChineseVariant;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/lunar/ChineseVariant;
+	public static fun values ()[Lme/kozakov/orrery/lunar/ChineseVariant;
 }
 
-public final class dev/koza4e4ok/orrery/lunar/LunarDate {
+public final class me/kozakov/orrery/lunar/LunarDate {
 	public fun <init> (IIIZ)V
 	public synthetic fun <init> (IIIZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()I
 	public final fun component2 ()I
 	public final fun component3 ()I
 	public final fun component4 ()Z
-	public final fun copy (IIIZ)Ldev/koza4e4ok/orrery/lunar/LunarDate;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/lunar/LunarDate;IIIZILjava/lang/Object;)Ldev/koza4e4ok/orrery/lunar/LunarDate;
+	public final fun copy (IIIZ)Lme/kozakov/orrery/lunar/LunarDate;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/lunar/LunarDate;IIIZILjava/lang/Object;)Lme/kozakov/orrery/lunar/LunarDate;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDay ()I
 	public final fun getMonth ()I
@@ -25,54 +25,54 @@ public final class dev/koza4e4ok/orrery/lunar/LunarDate {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/lunar/LunarDateKt {
-	public static final fun toLocalDate (Ldev/koza4e4ok/orrery/lunar/LunarDate;)Lkotlinx/datetime/LocalDate;
-	public static final fun toLunarDate (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/orrery/lunar/LunarDate;
+public final class me/kozakov/orrery/lunar/LunarDateKt {
+	public static final fun toLocalDate (Lme/kozakov/orrery/lunar/LunarDate;)Lkotlinx/datetime/LocalDate;
+	public static final fun toLunarDate (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/lunar/LunarDate;
 }
 
-public final class dev/koza4e4ok/orrery/lunar/LunarDayInfoProvider : dev/koza4e4ok/orrery/core/DayInfoProvider {
+public final class me/kozakov/orrery/lunar/LunarDayInfoProvider : me/kozakov/orrery/core/DayInfoProvider {
 	public fun <init> ()V
-	public fun <init> (Ldev/koza4e4ok/orrery/lunar/ChineseVariant;)V
-	public synthetic fun <init> (Ldev/koza4e4ok/orrery/lunar/ChineseVariant;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun info (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/orrery/core/DayInfo;
+	public fun <init> (Lme/kozakov/orrery/lunar/ChineseVariant;)V
+	public synthetic fun <init> (Lme/kozakov/orrery/lunar/ChineseVariant;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun info (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/DayInfo;
 }
 
-public final class dev/koza4e4ok/orrery/lunar/SolarTerm : java/lang/Enum {
-	public static final field BAILU Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field CHUNFEN Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field CHUSHU Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field DAHAN Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field DASHU Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field DAXUE Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field DONGZHI Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field GUYU Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field HANLU Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field JINGZHE Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field LICHUN Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field LIDONG Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field LIQIU Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field LIXIA Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field MANGZHONG Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field QINGMING Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field QIUFEN Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field SHUANGJIANG Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field XIAOHAN Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field XIAOMAN Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field XIAOSHU Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field XIAOXUE Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field XIAZHI Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static final field YUSHUI Ldev/koza4e4ok/orrery/lunar/SolarTerm;
+public final class me/kozakov/orrery/lunar/SolarTerm : java/lang/Enum {
+	public static final field BAILU Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field CHUNFEN Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field CHUSHU Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field DAHAN Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field DASHU Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field DAXUE Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field DONGZHI Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field GUYU Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field HANLU Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field JINGZHE Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field LICHUN Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field LIDONG Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field LIQIU Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field LIXIA Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field MANGZHONG Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field QINGMING Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field QIUFEN Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field SHUANGJIANG Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field XIAOHAN Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field XIAOMAN Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field XIAOSHU Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field XIAOXUE Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field XIAZHI Lme/kozakov/orrery/lunar/SolarTerm;
+	public static final field YUSHUI Lme/kozakov/orrery/lunar/SolarTerm;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Ldev/koza4e4ok/orrery/lunar/SolarTerm;
-	public static fun values ()[Ldev/koza4e4ok/orrery/lunar/SolarTerm;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/lunar/SolarTerm;
+	public static fun values ()[Lme/kozakov/orrery/lunar/SolarTerm;
 }
 
-public final class dev/koza4e4ok/orrery/lunar/SolarTermsKt {
-	public static final fun displayName (Ldev/koza4e4ok/orrery/lunar/SolarTerm;Ldev/koza4e4ok/orrery/lunar/ChineseVariant;)Ljava/lang/String;
+public final class me/kozakov/orrery/lunar/SolarTermsKt {
+	public static final fun displayName (Lme/kozakov/orrery/lunar/SolarTerm;Lme/kozakov/orrery/lunar/ChineseVariant;)Ljava/lang/String;
 	public static final fun solarTermsFor (I)Ljava/util/Map;
 }
 
-public final class dev/koza4e4ok/orrery/lunar/TrunkBranchKt {
+public final class me/kozakov/orrery/lunar/TrunkBranchKt {
 	public static final fun trunkBranchYear (I)Ljava/lang/String;
 }
 

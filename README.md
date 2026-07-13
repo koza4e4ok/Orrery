@@ -1,6 +1,6 @@
 # Orrery
 
-[![Maven Central](https://img.shields.io/maven-central/v/dev.koza4e4ok.orrery/orrery-compose?label=Maven%20Central)](https://central.sonatype.com/artifact/dev.koza4e4ok.orrery/orrery-compose)
+[![Maven Central](https://img.shields.io/maven-central/v/me.kozakov.orrery/orrery-compose?label=Maven%20Central)](https://central.sonatype.com/artifact/me.kozakov.orrery/orrery-compose)
 [![CI](https://github.com/koza4e4ok/Orrery/actions/workflows/ci.yml/badge.svg)](https://github.com/koza4e4ok/Orrery/actions/workflows/ci.yml)
 [![API](https://img.shields.io/badge/API-23%2B-brightgreen.svg)](https://developer.android.com/studio/releases/platforms)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
@@ -21,13 +21,13 @@ Built on [`kotlinx-datetime`](https://github.com/Kotlin/kotlinx-datetime).
 ## Installation
 
 The library ships three artifacts on **Maven Central** under the group
-`dev.koza4e4ok.orrery`:
+`me.kozakov.orrery`:
 
 | Artifact                              | Contents                                                                   |
 | ------------------------------------- | -------------------------------------------------------------------------- |
-| `dev.koza4e4ok.orrery:orrery-core`    | Pure-Kotlin calendar models, grid math and selection engine                |
-| `dev.koza4e4ok.orrery:orrery-compose` | Jetpack Compose calendar composables with Material3 theming                |
-| `dev.koza4e4ok.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
+| `me.kozakov.orrery:orrery-core`    | Pure-Kotlin calendar models, grid math and selection engine                |
+| `me.kozakov.orrery:orrery-compose` | Jetpack Compose calendar composables with Material3 theming                |
+| `me.kozakov.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
 
 `orrery-compose` already depends on `orrery-core`, so most apps only need the two
 lines below. Make sure Maven Central is in your repositories (usually in
@@ -45,9 +45,9 @@ dependencyResolutionManagement {
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("dev.koza4e4ok.orrery:orrery-compose:0.1.0")
+    implementation("me.kozakov.orrery:orrery-compose:0.1.0")
     // Optional Chinese lunisolar labels:
-    implementation("dev.koza4e4ok.orrery:orrery-lunar:0.1.0")
+    implementation("me.kozakov.orrery:orrery-lunar:0.1.0")
 }
 ```
 
@@ -59,8 +59,8 @@ Using a [version catalog](https://docs.gradle.org/current/userguide/version_cata
 orrery = "0.1.0"
 
 [libraries]
-orrery-compose = { module = "dev.koza4e4ok.orrery:orrery-compose", version.ref = "orrery" }
-orrery-lunar   = { module = "dev.koza4e4ok.orrery:orrery-lunar",   version.ref = "orrery" }
+orrery-compose = { module = "me.kozakov.orrery:orrery-compose", version.ref = "orrery" }
+orrery-lunar   = { module = "me.kozakov.orrery:orrery-lunar",   version.ref = "orrery" }
 ```
 
 ```kotlin

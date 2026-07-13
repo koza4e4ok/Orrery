@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.koza4e4ok.orrery.compose"
+    namespace = "me.kozakov.orrery.compose"
 }
 
 roborazzi {

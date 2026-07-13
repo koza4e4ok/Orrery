@@ -1,35 +1,35 @@
-public final class dev/koza4e4ok/orrery/core/AutoSelectDay : java/lang/Enum {
-	public static final field FirstDayOfMonth Ldev/koza4e4ok/orrery/core/AutoSelectDay;
-	public static final field LastSelectedDay Ldev/koza4e4ok/orrery/core/AutoSelectDay;
-	public static final field LastSelectedDayIgnoringCurrent Ldev/koza4e4ok/orrery/core/AutoSelectDay;
+public final class me/kozakov/orrery/core/AutoSelectDay : java/lang/Enum {
+	public static final field FirstDayOfMonth Lme/kozakov/orrery/core/AutoSelectDay;
+	public static final field LastSelectedDay Lme/kozakov/orrery/core/AutoSelectDay;
+	public static final field LastSelectedDayIgnoringCurrent Lme/kozakov/orrery/core/AutoSelectDay;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Ldev/koza4e4ok/orrery/core/AutoSelectDay;
-	public static fun values ()[Ldev/koza4e4ok/orrery/core/AutoSelectDay;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/core/AutoSelectDay;
+	public static fun values ()[Lme/kozakov/orrery/core/AutoSelectDay;
 }
 
-public final class dev/koza4e4ok/orrery/core/AutoSelectKt {
-	public static final fun autoSelectDate (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/LocalDate;Ldev/koza4e4ok/orrery/core/AutoSelectDay;Lkotlinx/datetime/LocalDate;)Lkotlinx/datetime/LocalDate;
+public final class me/kozakov/orrery/core/AutoSelectKt {
+	public static final fun autoSelectDate (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/AutoSelectDay;Lkotlinx/datetime/LocalDate;)Lkotlinx/datetime/LocalDate;
 }
 
-public final class dev/koza4e4ok/orrery/core/CalendarDay {
-	public fun <init> (Lkotlinx/datetime/LocalDate;Ldev/koza4e4ok/orrery/core/DayPosition;)V
+public final class me/kozakov/orrery/core/CalendarDay {
+	public fun <init> (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayPosition;)V
 	public final fun component1 ()Lkotlinx/datetime/LocalDate;
-	public final fun component2 ()Ldev/koza4e4ok/orrery/core/DayPosition;
-	public final fun copy (Lkotlinx/datetime/LocalDate;Ldev/koza4e4ok/orrery/core/DayPosition;)Ldev/koza4e4ok/orrery/core/CalendarDay;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/CalendarDay;Lkotlinx/datetime/LocalDate;Ldev/koza4e4ok/orrery/core/DayPosition;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/CalendarDay;
+	public final fun component2 ()Lme/kozakov/orrery/core/DayPosition;
+	public final fun copy (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayPosition;)Lme/kozakov/orrery/core/CalendarDay;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarDay;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayPosition;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarDay;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDate ()Lkotlinx/datetime/LocalDate;
-	public final fun getPosition ()Ldev/koza4e4ok/orrery/core/DayPosition;
+	public final fun getPosition ()Lme/kozakov/orrery/core/DayPosition;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/CalendarMonth {
+public final class me/kozakov/orrery/core/CalendarMonth {
 	public fun <init> (Lkotlinx/datetime/YearMonth;Ljava/util/List;)V
 	public final fun component1 ()Lkotlinx/datetime/YearMonth;
 	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Lkotlinx/datetime/YearMonth;Ljava/util/List;)Ldev/koza4e4ok/orrery/core/CalendarMonth;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/CalendarMonth;Lkotlinx/datetime/YearMonth;Ljava/util/List;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/CalendarMonth;
+	public final fun copy (Lkotlinx/datetime/YearMonth;Ljava/util/List;)Lme/kozakov/orrery/core/CalendarMonth;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarMonth;Lkotlinx/datetime/YearMonth;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarMonth;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getWeeks ()Ljava/util/List;
 	public final fun getYearMonth ()Lkotlinx/datetime/YearMonth;
@@ -37,8 +37,8 @@ public final class dev/koza4e4ok/orrery/core/CalendarMonth {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/CalendarPages {
-	public static final field INSTANCE Ldev/koza4e4ok/orrery/core/CalendarPages;
+public final class me/kozakov/orrery/core/CalendarPages {
+	public static final field INSTANCE Lme/kozakov/orrery/core/CalendarPages;
 	public final fun monthAt (Lkotlinx/datetime/YearMonth;I)Lkotlinx/datetime/YearMonth;
 	public final fun monthCount (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/YearMonth;)I
 	public final fun monthIndex (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/YearMonth;)I
@@ -47,25 +47,25 @@ public final class dev/koza4e4ok/orrery/core/CalendarPages {
 	public final fun weekStart (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Lkotlinx/datetime/LocalDate;
 }
 
-public final class dev/koza4e4ok/orrery/core/CalendarWeek {
+public final class me/kozakov/orrery/core/CalendarWeek {
 	public fun <init> (Ljava/util/List;)V
 	public final fun component1 ()Ljava/util/List;
-	public final fun copy (Ljava/util/List;)Ldev/koza4e4ok/orrery/core/CalendarWeek;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/CalendarWeek;Ljava/util/List;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/CalendarWeek;
+	public final fun copy (Ljava/util/List;)Lme/kozakov/orrery/core/CalendarWeek;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarWeek;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarWeek;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDays ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/DayInfo {
+public final class me/kozakov/orrery/core/DayInfo {
 	public fun <init> (Ljava/lang/String;ZLjava/util/List;)V
 	public synthetic fun <init> (Ljava/lang/String;ZLjava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Z
 	public final fun component3 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;ZLjava/util/List;)Ldev/koza4e4ok/orrery/core/DayInfo;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/DayInfo;Ljava/lang/String;ZLjava/util/List;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/DayInfo;
+	public final fun copy (Ljava/lang/String;ZLjava/util/List;)Lme/kozakov/orrery/core/DayInfo;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/DayInfo;Ljava/lang/String;ZLjava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/DayInfo;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getLabel ()Ljava/lang/String;
 	public final fun getTags ()Ljava/util/List;
@@ -74,34 +74,34 @@ public final class dev/koza4e4ok/orrery/core/DayInfo {
 	public fun toString ()Ljava/lang/String;
 }
 
-public abstract interface class dev/koza4e4ok/orrery/core/DayInfoProvider {
-	public abstract fun info (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/orrery/core/DayInfo;
+public abstract interface class me/kozakov/orrery/core/DayInfoProvider {
+	public abstract fun info (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/DayInfo;
 }
 
-public final class dev/koza4e4ok/orrery/core/DayPosition : java/lang/Enum {
-	public static final field InDate Ldev/koza4e4ok/orrery/core/DayPosition;
-	public static final field MonthDate Ldev/koza4e4ok/orrery/core/DayPosition;
-	public static final field OutDate Ldev/koza4e4ok/orrery/core/DayPosition;
+public final class me/kozakov/orrery/core/DayPosition : java/lang/Enum {
+	public static final field InDate Lme/kozakov/orrery/core/DayPosition;
+	public static final field MonthDate Lme/kozakov/orrery/core/DayPosition;
+	public static final field OutDate Lme/kozakov/orrery/core/DayPosition;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Ldev/koza4e4ok/orrery/core/DayPosition;
-	public static fun values ()[Ldev/koza4e4ok/orrery/core/DayPosition;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/core/DayPosition;
+	public static fun values ()[Lme/kozakov/orrery/core/DayPosition;
 }
 
-public final class dev/koza4e4ok/orrery/core/DaysOfWeekKt {
+public final class me/kozakov/orrery/core/DaysOfWeekKt {
 	public static final fun daysOfWeek (Lkotlinx/datetime/DayOfWeek;)Ljava/util/List;
 	public static synthetic fun daysOfWeek$default (Lkotlinx/datetime/DayOfWeek;ILjava/lang/Object;)Ljava/util/List;
 }
 
-public final class dev/koza4e4ok/orrery/core/DisabledDates {
-	public static final field Companion Ldev/koza4e4ok/orrery/core/DisabledDates$Companion;
+public final class me/kozakov/orrery/core/DisabledDates {
+	public static final field Companion Lme/kozakov/orrery/core/DisabledDates$Companion;
 	public final fun contains (Lkotlinx/datetime/LocalDate;)Z
 }
 
-public final class dev/koza4e4ok/orrery/core/DisabledDates$Companion {
-	public final fun getNone ()Ldev/koza4e4ok/orrery/core/DisabledDates;
+public final class me/kozakov/orrery/core/DisabledDates$Companion {
+	public final fun getNone ()Lme/kozakov/orrery/core/DisabledDates;
 }
 
-public final class dev/koza4e4ok/orrery/core/DisabledDatesBuilder {
+public final class me/kozakov/orrery/core/DisabledDatesBuilder {
 	public final fun after (Lkotlinx/datetime/LocalDate;)V
 	public final fun before (Lkotlinx/datetime/LocalDate;)V
 	public final fun dates (Ljava/util/Collection;)V
@@ -111,28 +111,28 @@ public final class dev/koza4e4ok/orrery/core/DisabledDatesBuilder {
 	public final fun range (Lkotlin/ranges/ClosedRange;)V
 }
 
-public final class dev/koza4e4ok/orrery/core/DisabledDatesKt {
-	public static final fun DisabledDates (Lkotlin/jvm/functions/Function1;)Ldev/koza4e4ok/orrery/core/DisabledDates;
+public final class me/kozakov/orrery/core/DisabledDatesKt {
+	public static final fun DisabledDates (Lkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/core/DisabledDates;
 }
 
-public final class dev/koza4e4ok/orrery/core/MonthGridKt {
-	public static final fun monthGrid (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Ldev/koza4e4ok/orrery/core/OutDateStyle;)Ldev/koza4e4ok/orrery/core/CalendarMonth;
-	public static synthetic fun monthGrid$default (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Ldev/koza4e4ok/orrery/core/OutDateStyle;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/CalendarMonth;
-	public static final fun weekGrid (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Ldev/koza4e4ok/orrery/core/CalendarWeek;
-	public static synthetic fun weekGrid$default (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/CalendarWeek;
+public final class me/kozakov/orrery/core/MonthGridKt {
+	public static final fun monthGrid (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/core/OutDateStyle;)Lme/kozakov/orrery/core/CalendarMonth;
+	public static synthetic fun monthGrid$default (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/core/OutDateStyle;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarMonth;
+	public static final fun weekGrid (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Lme/kozakov/orrery/core/CalendarWeek;
+	public static synthetic fun weekGrid$default (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarWeek;
 }
 
-public final class dev/koza4e4ok/orrery/core/OutDateStyle : java/lang/Enum {
-	public static final field EndOfGrid Ldev/koza4e4ok/orrery/core/OutDateStyle;
-	public static final field EndOfRow Ldev/koza4e4ok/orrery/core/OutDateStyle;
-	public static final field None Ldev/koza4e4ok/orrery/core/OutDateStyle;
+public final class me/kozakov/orrery/core/OutDateStyle : java/lang/Enum {
+	public static final field EndOfGrid Lme/kozakov/orrery/core/OutDateStyle;
+	public static final field EndOfRow Lme/kozakov/orrery/core/OutDateStyle;
+	public static final field None Lme/kozakov/orrery/core/OutDateStyle;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Ldev/koza4e4ok/orrery/core/OutDateStyle;
-	public static fun values ()[Ldev/koza4e4ok/orrery/core/OutDateStyle;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/core/OutDateStyle;
+	public static fun values ()[Lme/kozakov/orrery/core/OutDateStyle;
 }
 
-public final class dev/koza4e4ok/orrery/core/Selection {
-	public static final field Companion Ldev/koza4e4ok/orrery/core/Selection$Companion;
+public final class me/kozakov/orrery/core/Selection {
+	public static final field Companion Lme/kozakov/orrery/core/Selection$Companion;
 	public fun <init> ()V
 	public fun <init> (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;)V
 	public synthetic fun <init> (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -140,8 +140,8 @@ public final class dev/koza4e4ok/orrery/core/Selection {
 	public final fun component2 ()Lkotlinx/datetime/LocalDate;
 	public final fun component3 ()Lkotlinx/datetime/LocalDate;
 	public final fun component4 ()Ljava/util/Set;
-	public final fun copy (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;)Ldev/koza4e4ok/orrery/core/Selection;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/Selection;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/Selection;
+	public final fun copy (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;)Lme/kozakov/orrery/core/Selection;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/Selection;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;ILjava/lang/Object;)Lme/kozakov/orrery/core/Selection;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getMulti ()Ljava/util/Set;
 	public final fun getRange ()Lkotlin/ranges/ClosedRange;
@@ -152,49 +152,49 @@ public final class dev/koza4e4ok/orrery/core/Selection {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/Selection$Companion {
-	public final fun getEmpty ()Ldev/koza4e4ok/orrery/core/Selection;
+public final class me/kozakov/orrery/core/Selection$Companion {
+	public final fun getEmpty ()Lme/kozakov/orrery/core/Selection;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionEngine {
-	public fun <init> (Ldev/koza4e4ok/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Ldev/koza4e4ok/orrery/core/DisabledDates;)V
-	public synthetic fun <init> (Ldev/koza4e4ok/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Ldev/koza4e4ok/orrery/core/DisabledDates;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun click (Ldev/koza4e4ok/orrery/core/Selection;Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/orrery/core/SelectionResult;
-	public final fun replace (Ldev/koza4e4ok/orrery/core/Selection;Ldev/koza4e4ok/orrery/core/Selection;)Ldev/koza4e4ok/orrery/core/SelectionResult;
+public final class me/kozakov/orrery/core/SelectionEngine {
+	public fun <init> (Lme/kozakov/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;)V
+	public synthetic fun <init> (Lme/kozakov/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun click (Lme/kozakov/orrery/core/Selection;Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/SelectionResult;
+	public final fun replace (Lme/kozakov/orrery/core/Selection;Lme/kozakov/orrery/core/Selection;)Lme/kozakov/orrery/core/SelectionResult;
 }
 
-public abstract interface class dev/koza4e4ok/orrery/core/SelectionEvent {
+public abstract interface class me/kozakov/orrery/core/SelectionEvent {
 	public abstract fun getDate ()Lkotlinx/datetime/LocalDate;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionEvent$Intercepted : dev/koza4e4ok/orrery/core/SelectionEvent {
+public final class me/kozakov/orrery/core/SelectionEvent$Intercepted : me/kozakov/orrery/core/SelectionEvent {
 	public fun <init> (Lkotlinx/datetime/LocalDate;)V
 	public final fun component1 ()Lkotlinx/datetime/LocalDate;
-	public final fun copy (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/orrery/core/SelectionEvent$Intercepted;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionEvent$Intercepted;Lkotlinx/datetime/LocalDate;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionEvent$Intercepted;
+	public final fun copy (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/SelectionEvent$Intercepted;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionEvent$Intercepted;Lkotlinx/datetime/LocalDate;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionEvent$Intercepted;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDate ()Lkotlinx/datetime/LocalDate;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionEvent$OutOfRange : dev/koza4e4ok/orrery/core/SelectionEvent {
+public final class me/kozakov/orrery/core/SelectionEvent$OutOfRange : me/kozakov/orrery/core/SelectionEvent {
 	public fun <init> (Lkotlinx/datetime/LocalDate;)V
 	public final fun component1 ()Lkotlinx/datetime/LocalDate;
-	public final fun copy (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/orrery/core/SelectionEvent$OutOfRange;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionEvent$OutOfRange;Lkotlinx/datetime/LocalDate;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionEvent$OutOfRange;
+	public final fun copy (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/SelectionEvent$OutOfRange;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionEvent$OutOfRange;Lkotlinx/datetime/LocalDate;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionEvent$OutOfRange;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDate ()Lkotlinx/datetime/LocalDate;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionEvent$RangeTooLong : dev/koza4e4ok/orrery/core/SelectionEvent {
+public final class me/kozakov/orrery/core/SelectionEvent$RangeTooLong : me/kozakov/orrery/core/SelectionEvent {
 	public fun <init> (Lkotlinx/datetime/LocalDate;I)V
 	public final fun component1 ()Lkotlinx/datetime/LocalDate;
 	public final fun component2 ()I
-	public final fun copy (Lkotlinx/datetime/LocalDate;I)Ldev/koza4e4ok/orrery/core/SelectionEvent$RangeTooLong;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionEvent$RangeTooLong;Lkotlinx/datetime/LocalDate;IILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionEvent$RangeTooLong;
+	public final fun copy (Lkotlinx/datetime/LocalDate;I)Lme/kozakov/orrery/core/SelectionEvent$RangeTooLong;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionEvent$RangeTooLong;Lkotlinx/datetime/LocalDate;IILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionEvent$RangeTooLong;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDate ()Lkotlinx/datetime/LocalDate;
 	public final fun getMaxDays ()I
@@ -202,12 +202,12 @@ public final class dev/koza4e4ok/orrery/core/SelectionEvent$RangeTooLong : dev/k
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionEvent$RangeTooShort : dev/koza4e4ok/orrery/core/SelectionEvent {
+public final class me/kozakov/orrery/core/SelectionEvent$RangeTooShort : me/kozakov/orrery/core/SelectionEvent {
 	public fun <init> (Lkotlinx/datetime/LocalDate;I)V
 	public final fun component1 ()Lkotlinx/datetime/LocalDate;
 	public final fun component2 ()I
-	public final fun copy (Lkotlinx/datetime/LocalDate;I)Ldev/koza4e4ok/orrery/core/SelectionEvent$RangeTooShort;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionEvent$RangeTooShort;Lkotlinx/datetime/LocalDate;IILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionEvent$RangeTooShort;
+	public final fun copy (Lkotlinx/datetime/LocalDate;I)Lme/kozakov/orrery/core/SelectionEvent$RangeTooShort;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionEvent$RangeTooShort;Lkotlinx/datetime/LocalDate;IILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionEvent$RangeTooShort;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDate ()Lkotlinx/datetime/LocalDate;
 	public final fun getMinDays ()I
@@ -215,12 +215,12 @@ public final class dev/koza4e4ok/orrery/core/SelectionEvent$RangeTooShort : dev/
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionEvent$TooManyDays : dev/koza4e4ok/orrery/core/SelectionEvent {
+public final class me/kozakov/orrery/core/SelectionEvent$TooManyDays : me/kozakov/orrery/core/SelectionEvent {
 	public fun <init> (Lkotlinx/datetime/LocalDate;I)V
 	public final fun component1 ()Lkotlinx/datetime/LocalDate;
 	public final fun component2 ()I
-	public final fun copy (Lkotlinx/datetime/LocalDate;I)Ldev/koza4e4ok/orrery/core/SelectionEvent$TooManyDays;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionEvent$TooManyDays;Lkotlinx/datetime/LocalDate;IILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionEvent$TooManyDays;
+	public final fun copy (Lkotlinx/datetime/LocalDate;I)Lme/kozakov/orrery/core/SelectionEvent$TooManyDays;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionEvent$TooManyDays;Lkotlinx/datetime/LocalDate;IILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionEvent$TooManyDays;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDate ()Lkotlinx/datetime/LocalDate;
 	public final fun getMaxCount ()I
@@ -228,37 +228,37 @@ public final class dev/koza4e4ok/orrery/core/SelectionEvent$TooManyDays : dev/ko
 	public fun toString ()Ljava/lang/String;
 }
 
-public abstract interface class dev/koza4e4ok/orrery/core/SelectionMode {
+public abstract interface class me/kozakov/orrery/core/SelectionMode {
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionMode$Multi : dev/koza4e4ok/orrery/core/SelectionMode {
+public final class me/kozakov/orrery/core/SelectionMode$Multi : me/kozakov/orrery/core/SelectionMode {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/Integer;)V
 	public synthetic fun <init> (Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Integer;
-	public final fun copy (Ljava/lang/Integer;)Ldev/koza4e4ok/orrery/core/SelectionMode$Multi;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionMode$Multi;Ljava/lang/Integer;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionMode$Multi;
+	public final fun copy (Ljava/lang/Integer;)Lme/kozakov/orrery/core/SelectionMode$Multi;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Multi;Ljava/lang/Integer;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Multi;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getMaxCount ()Ljava/lang/Integer;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionMode$None : dev/koza4e4ok/orrery/core/SelectionMode {
-	public static final field INSTANCE Ldev/koza4e4ok/orrery/core/SelectionMode$None;
+public final class me/kozakov/orrery/core/SelectionMode$None : me/kozakov/orrery/core/SelectionMode {
+	public static final field INSTANCE Lme/kozakov/orrery/core/SelectionMode$None;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionMode$Range : dev/koza4e4ok/orrery/core/SelectionMode {
+public final class me/kozakov/orrery/core/SelectionMode$Range : me/kozakov/orrery/core/SelectionMode {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/Integer;Ljava/lang/Integer;)V
 	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Integer;
 	public final fun component2 ()Ljava/lang/Integer;
-	public final fun copy (Ljava/lang/Integer;Ljava/lang/Integer;)Ldev/koza4e4ok/orrery/core/SelectionMode$Range;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionMode$Range;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionMode$Range;
+	public final fun copy (Ljava/lang/Integer;Ljava/lang/Integer;)Lme/kozakov/orrery/core/SelectionMode$Range;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Range;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Range;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getEffectiveMax ()Ljava/lang/Integer;
 	public final fun getEffectiveMin ()Ljava/lang/Integer;
@@ -268,43 +268,43 @@ public final class dev/koza4e4ok/orrery/core/SelectionMode$Range : dev/koza4e4ok
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionMode$Single : dev/koza4e4ok/orrery/core/SelectionMode {
+public final class me/kozakov/orrery/core/SelectionMode$Single : me/kozakov/orrery/core/SelectionMode {
 	public fun <init> ()V
-	public fun <init> (ZLdev/koza4e4ok/orrery/core/AutoSelectDay;)V
-	public synthetic fun <init> (ZLdev/koza4e4ok/orrery/core/AutoSelectDay;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZLme/kozakov/orrery/core/AutoSelectDay;)V
+	public synthetic fun <init> (ZLme/kozakov/orrery/core/AutoSelectDay;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Z
-	public final fun component2 ()Ldev/koza4e4ok/orrery/core/AutoSelectDay;
-	public final fun copy (ZLdev/koza4e4ok/orrery/core/AutoSelectDay;)Ldev/koza4e4ok/orrery/core/SelectionMode$Single;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionMode$Single;ZLdev/koza4e4ok/orrery/core/AutoSelectDay;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionMode$Single;
+	public final fun component2 ()Lme/kozakov/orrery/core/AutoSelectDay;
+	public final fun copy (ZLme/kozakov/orrery/core/AutoSelectDay;)Lme/kozakov/orrery/core/SelectionMode$Single;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Single;ZLme/kozakov/orrery/core/AutoSelectDay;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Single;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAutoAdvance ()Z
-	public final fun getAutoSelectDay ()Ldev/koza4e4ok/orrery/core/AutoSelectDay;
+	public final fun getAutoSelectDay ()Lme/kozakov/orrery/core/AutoSelectDay;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionPresets {
-	public static final field INSTANCE Ldev/koza4e4ok/orrery/core/SelectionPresets;
-	public final fun nextDays (Lkotlinx/datetime/LocalDate;I)Ldev/koza4e4ok/orrery/core/Selection;
-	public final fun nextWeekend (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/orrery/core/Selection;
-	public final fun thisMonth (Lkotlinx/datetime/LocalDate;)Ldev/koza4e4ok/orrery/core/Selection;
-	public final fun thisWeek (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Ldev/koza4e4ok/orrery/core/Selection;
+public final class me/kozakov/orrery/core/SelectionPresets {
+	public static final field INSTANCE Lme/kozakov/orrery/core/SelectionPresets;
+	public final fun nextDays (Lkotlinx/datetime/LocalDate;I)Lme/kozakov/orrery/core/Selection;
+	public final fun nextWeekend (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/Selection;
+	public final fun thisMonth (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/Selection;
+	public final fun thisWeek (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Lme/kozakov/orrery/core/Selection;
 }
 
-public final class dev/koza4e4ok/orrery/core/SelectionResult {
-	public fun <init> (Ldev/koza4e4ok/orrery/core/Selection;Ljava/util/List;)V
-	public final fun component1 ()Ldev/koza4e4ok/orrery/core/Selection;
+public final class me/kozakov/orrery/core/SelectionResult {
+	public fun <init> (Lme/kozakov/orrery/core/Selection;Ljava/util/List;)V
+	public final fun component1 ()Lme/kozakov/orrery/core/Selection;
 	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Ldev/koza4e4ok/orrery/core/Selection;Ljava/util/List;)Ldev/koza4e4ok/orrery/core/SelectionResult;
-	public static synthetic fun copy$default (Ldev/koza4e4ok/orrery/core/SelectionResult;Ldev/koza4e4ok/orrery/core/Selection;Ljava/util/List;ILjava/lang/Object;)Ldev/koza4e4ok/orrery/core/SelectionResult;
+	public final fun copy (Lme/kozakov/orrery/core/Selection;Ljava/util/List;)Lme/kozakov/orrery/core/SelectionResult;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionResult;Lme/kozakov/orrery/core/Selection;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionResult;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getEvents ()Ljava/util/List;
-	public final fun getSelection ()Ldev/koza4e4ok/orrery/core/Selection;
+	public final fun getSelection ()Lme/kozakov/orrery/core/Selection;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/koza4e4ok/orrery/core/WeekNumbersKt {
+public final class me/kozakov/orrery/core/WeekNumbersKt {
 	public static final fun isoWeekNumber (Lkotlinx/datetime/LocalDate;)I
 }
 

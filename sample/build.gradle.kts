@@ -5,14 +5,14 @@ plugins {
 }
 
 android {
-    namespace = "dev.koza4e4ok.orrery.sample"
+    namespace = "me.kozakov.orrery.sample"
     compileSdk =
         libs.versions.compile.sdk
             .get()
             .toInt()
 
     defaultConfig {
-        applicationId = "dev.koza4e4ok.orrery.sample"
+        applicationId = "me.kozakov.orrery.sample"
         minSdk = 23
         targetSdk =
             libs.versions.compile.sdk

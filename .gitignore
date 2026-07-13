@@ -6,3 +6,6 @@ local.properties
 *.iml
 captures/
 .kotlin/
+
+# Never commit exported keys
+*.asc

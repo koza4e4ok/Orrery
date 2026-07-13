@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-07-13
+
 ### Added
 
 - `DisabledDates` (orrery-core): declarative unavailable dates — explicit
@@ -67,11 +69,3 @@
 - **Breaking:** `DefaultDay`'s `decorator: (DrawScope.(CalendarDay) -> Unit)?`
   is replaced by `decorators: List<DayDecorator>`. Migrate
   `decorator = { day -> ... }` to `decorators = listOf(DayDecorator { day -> ... })`.
-
-## [0.1.0] - TBD
-
-Initial release: orrery-core (models, grid math, selection engine,
-ISO week numbers), orrery-compose (Horizontal/Vertical/Week/Year
-calendars, CollapsibleCalendarScaffold, drag-to-select, Material3
-theming, a11y/RTL), orrery-lunar (lunar conversion, 24 solar terms,
-festivals, trunk-branch years, LunarDayInfoProvider).

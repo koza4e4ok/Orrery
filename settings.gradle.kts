@@ -13,8 +13,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "MaterialCalendar"
-include(":calendar-core")
-include(":calendar-lunar")
-include(":calendar-compose")
+rootProject.name = "Orrery"
+include(":orrery-core")
+include(":orrery-lunar")
+include(":orrery-compose")
 include(":sample")

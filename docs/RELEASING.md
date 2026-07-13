@@ -3,7 +3,7 @@
 ## One-time setup (manual, cannot be automated)
 
 1. Create the GitHub repository and wire the remote:
-   `git remote add origin git@github.com:koza4e4ok/MaterialCalendar.git && git push -u origin master`
+   `git remote add origin git@github.com:koza4e4ok/Orrery.git && git push -u origin master`
    (If the org/repo name differs, update `POM_URL`/`POM_SCM_*` in `gradle.properties` and the
    README badge first.)
 2. Verify the `dev.koza4e4ok` namespace on the [Central Portal](https://central.sonatype.com/).
@@ -29,7 +29,7 @@
 
 ```bash
 ./gradlew publishToMavenLocal
-ls ~/.m2/repository/dev/koza4e4ok/material/calendar/
+ls ~/.m2/repository/dev/koza4e4ok/orrery/
 ```
 
 Signing is skipped locally: the publish convention only calls `signAllPublications()`

@@ -18,13 +18,13 @@ jobs:
       - name: Lint, ABI check, tests, screenshots, sample build
         run: >
           ./gradlew ktlintCheck detekt checkKotlinAbi
-          :calendar-core:test :calendar-lunar:test
-          :calendar-compose:testDebugUnitTest :calendar-compose:verifyRoborazziDebug
+          :orrery-core:test :orrery-lunar:test
+          :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug
           :sample:assembleDebug
       - name: Upload screenshot diffs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: roborazzi-diffs
-          path: calendar-compose/build/outputs/roborazzi/
+          path: orrery-compose/build/outputs/roborazzi/
           if-no-files-found: ignore

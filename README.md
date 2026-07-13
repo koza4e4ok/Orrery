@@ -1,27 +1,80 @@
-# MaterialCalendar
+# Orrery
 
-[![CI](https://github.com/koza4e4ok/MaterialCalendar/actions/workflows/ci.yml/badge.svg)](https://github.com/koza4e4ok/MaterialCalendar/actions/workflows/ci.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/dev.koza4e4ok.orrery/orrery-compose?label=Maven%20Central)](https://central.sonatype.com/artifact/dev.koza4e4ok.orrery/orrery-compose)
+[![CI](https://github.com/koza4e4ok/Orrery/actions/workflows/ci.yml/badge.svg)](https://github.com/koza4e4ok/Orrery/actions/workflows/ci.yml)
+[![API](https://img.shields.io/badge/API-23%2B-brightgreen.svg)](https://developer.android.com/studio/releases/platforms)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-A modern Android calendar library: Kotlin, Jetpack Compose, Material3, kotlinx-datetime.
-A full rewrite of [CalendarView](https://github.com/huanghaibin-dev/CalendarView) with
-composable slots instead of view subclassing, snapshot state instead of listener
+**Orrery is an Android calendar library for Jetpack Compose** — a fully
+composable month/week/year calendar with Material 3 theming, flexible selection, and an
+optional Chinese lunisolar module. It's distributed as Maven Central artifacts you add to
+your app's Gradle dependencies (see [Installation](#installation)); there's no view
+subclassing or XML.
+
+It's a full rewrite of [CalendarView](https://github.com/huanghaibin-dev/CalendarView)
+with composable slots instead of view subclassing, snapshot state instead of listener
 interfaces, and an optional Chinese lunisolar artifact.
 
-## Modules
+**Requirements:** Android `minSdk 23` · Jetpack Compose (Material 3) · Kotlin · JDK 17.
+Built on [`kotlinx-datetime`](https://github.com/Kotlin/kotlinx-datetime).
 
-| Artifact                                           | Contents                                                                   |
-| -------------------------------------------------- | -------------------------------------------------------------------------- |
-| `dev.koza4e4ok.material.calendar:calendar-core`    | Pure-Kotlin calendar models, grid math and selection engine                |
-| `dev.koza4e4ok.material.calendar:calendar-compose` | Jetpack Compose calendar composables with Material3 theming                |
-| `dev.koza4e4ok.material.calendar:calendar-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
+## Installation
+
+The library ships three artifacts on **Maven Central** under the group
+`dev.koza4e4ok.orrery`:
+
+| Artifact                              | Contents                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------- |
+| `dev.koza4e4ok.orrery:orrery-core`    | Pure-Kotlin calendar models, grid math and selection engine                |
+| `dev.koza4e4ok.orrery:orrery-compose` | Jetpack Compose calendar composables with Material3 theming                |
+| `dev.koza4e4ok.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
+
+`orrery-compose` already depends on `orrery-core`, so most apps only need the two
+lines below. Make sure Maven Central is in your repositories (usually in
+`settings.gradle.kts` under `dependencyResolutionManagement`):
 
 ```kotlin
-dependencies {
-    implementation("dev.koza4e4ok.material.calendar:calendar-compose:0.1.0-SNAPSHOT")
-    // Optional lunar labels:
-    implementation("dev.koza4e4ok.material.calendar:calendar-lunar:0.1.0-SNAPSHOT")
+// settings.gradle.kts
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
 }
 ```
+
+```kotlin
+// app/build.gradle.kts
+dependencies {
+    implementation("dev.koza4e4ok.orrery:orrery-compose:0.1.0")
+    // Optional Chinese lunisolar labels:
+    implementation("dev.koza4e4ok.orrery:orrery-lunar:0.1.0")
+}
+```
+
+Using a [version catalog](https://docs.gradle.org/current/userguide/version_catalogs.html)
+(`gradle/libs.versions.toml`)?
+
+```toml
+[versions]
+orrery = "0.1.0"
+
+[libraries]
+orrery-compose = { module = "dev.koza4e4ok.orrery:orrery-compose", version.ref = "orrery" }
+orrery-lunar   = { module = "dev.koza4e4ok.orrery:orrery-lunar",   version.ref = "orrery" }
+```
+
+```kotlin
+// app/build.gradle.kts
+dependencies {
+    implementation(libs.orrery.compose)
+    implementation(libs.orrery.lunar) // optional
+}
+```
+
+> **Snapshots:** development builds are published as `0.1.0-SNAPSHOT` to the Central
+> snapshots repository. To use them, add
+> `maven("https://central.sonatype.com/repository/maven-snapshots/")` to your repositories
+> and depend on the `-SNAPSHOT` version.
 
 ## Quick start
 
@@ -30,7 +83,7 @@ dependencies {
 fun CalendarScreen() {
     val today = remember { currentDate() }
     val selection = rememberCalendarSelectionState(mode = SelectionMode.Range(maxDays = 14))
-    val lunar = remember { LunarDayInfoProvider() } // optional, from calendar-lunar
+    val lunar = remember { LunarDayInfoProvider() } // optional, from orrery-lunar
 
     HorizontalCalendar(
         state = rememberCalendarState(),
@@ -54,7 +107,7 @@ fun CalendarScreen() {
 The sample app (`sample/`) is four product-style screens: an Agenda with a
 collapsible calendar and named events, a Trips booking flow with drag-select,
 nightly prices and blackout dates, a Habits tracker with streaks and animated
-progress rings, and a Chinese Almanac backed by `calendar-lunar`.
+progress rings, and a Chinese Almanac backed by `orrery-lunar`.
 
 ### Animating decorator data
 
@@ -94,7 +147,7 @@ DefaultDay(
 - Material3 theming — dark mode and dynamic color for free; all colors overridable
 - Accessibility semantics, RTL mirroring, locale-driven names and first day of week
 - ISO week numbers and sticky month headers
-- `calendar-lunar`: Gregorian↔lunar conversion (golden-tested against the original
+- `orrery-lunar`: Gregorian↔lunar conversion (golden-tested against the original
   for all 73,049 days of 1900–2099), astronomical 24 solar terms, traditional and
   Gregorian festivals, 干支 year names, zh-CN/zh-TW/zh-HK string variants
 
@@ -103,15 +156,32 @@ DefaultDay(
 ```bash
 # Full verification (what CI runs):
 ./gradlew ktlintCheck detekt checkKotlinAbi \
-  :calendar-core:test :calendar-lunar:test \
-  :calendar-compose:testDebugUnitTest :calendar-compose:verifyRoborazziDebug \
+  :orrery-core:test :orrery-lunar:test \
+  :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug \
   :sample:assembleDebug
 
-./gradlew :calendar-compose:recordRoborazziDebug  # refresh screenshot goldens
+./gradlew :orrery-compose:recordRoborazziDebug  # refresh screenshot goldens
 ./gradlew updateKotlinAbi                          # refresh ABI dumps after API changes
 ```
 
 Releases are documented in [docs/RELEASING.md](docs/RELEASING.md).
+
+## Topics
+
+Keywords: **Android calendar library, Jetpack Compose calendar, Compose Material 3
+calendar, Kotlin date picker, date range picker, week view, agenda view, year view,
+month calendar, drag-to-select, lunar calendar, Chinese calendar, solar terms,
+kotlinx-datetime, calendar-view.**
+
+For maximum discoverability on GitHub, set the repository topics (Settings → _Topics_, or
+via the [GitHub CLI](https://cli.github.com/) once the repo is pushed):
+
+```bash
+gh repo edit koza4e4ok/Orrery --add-topic \
+  android,android-library,jetpack-compose,compose,material3,material-design,material-you,\
+kotlin,calendar,calendar-view,datepicker,date-range-picker,week-view,year-view,\
+agenda,lunar-calendar,chinese-calendar,solar-terms,kotlinx-datetime,android-ui
+```
 
 ## License
 

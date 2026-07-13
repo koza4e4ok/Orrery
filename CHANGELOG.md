@@ -4,7 +4,7 @@
 
 ### Added
 
-- `DisabledDates` (calendar-core): declarative unavailable dates — explicit
+- `DisabledDates` (orrery-core): declarative unavailable dates — explicit
   dates, inclusive ranges, days of week, exclusive before/after bounds, and
   predicate escape hatches — honored by selection, drag-select, and rendered
   automatically by `DefaultDay`.
@@ -38,6 +38,21 @@
   heatmaps) toward new targets.
 - Sample rework: four product-style screens (Agenda, Trips, Habits, Almanac)
   with a navigation bar, dynamic color, and realistic named data.
+- `HorizontalCalendar` animates its height between months with different week
+  counts — tracking the swipe 1:1, then springing to the settled page's height
+  so content laid out below the calendar glides rather than jumps
+  (`animateHeight`, default on).
+- `CalendarSelectionState.isRangeStart`/`isRangeEnd` for styling range endpoints.
+
+### Fixed
+
+- Count badges (`DayDecorators.badge`) and other `Over` decorators are no longer
+  clipped by the day cell shape — they render fully at the cell corner.
+- The `TodayIndicator.Ring` marker is now a true circle on non-square cells
+  instead of a stretched ellipse.
+- A completed date range renders as one continuous rounded band that connects
+  the endpoint fills, replacing the disjoint endpoints and sharp rectangular
+  band.
 
 ### Changed
 
@@ -55,8 +70,8 @@
 
 ## [0.1.0] - TBD
 
-Initial release: calendar-core (models, grid math, selection engine,
-ISO week numbers), calendar-compose (Horizontal/Vertical/Week/Year
+Initial release: orrery-core (models, grid math, selection engine,
+ISO week numbers), orrery-compose (Horizontal/Vertical/Week/Year
 calendars, CollapsibleCalendarScaffold, drag-to-select, Material3
-theming, a11y/RTL), calendar-lunar (lunar conversion, 24 solar terms,
+theming, a11y/RTL), orrery-lunar (lunar conversion, 24 solar terms,
 festivals, trunk-branch years, LunarDayInfoProvider).

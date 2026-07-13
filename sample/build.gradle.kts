@@ -1,18 +1,18 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    id("materialcalendar.lint")
+    id("orrery.lint")
 }
 
 android {
-    namespace = "dev.koza4e4ok.material.calendar.sample"
+    namespace = "dev.koza4e4ok.orrery.sample"
     compileSdk =
         libs.versions.compile.sdk
             .get()
             .toInt()
 
     defaultConfig {
-        applicationId = "dev.koza4e4ok.material.calendar.sample"
+        applicationId = "dev.koza4e4ok.orrery.sample"
         minSdk = 23
         targetSdk =
             libs.versions.compile.sdk
@@ -35,8 +35,8 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":calendar-compose"))
-    implementation(project(":calendar-lunar"))
+    implementation(project(":orrery-compose"))
+    implementation(project(":orrery-lunar"))
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.core)

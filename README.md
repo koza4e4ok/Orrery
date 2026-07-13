@@ -23,8 +23,8 @@ Built on [`kotlinx-datetime`](https://github.com/Kotlin/kotlinx-datetime).
 The library ships three artifacts on **Maven Central** under the group
 `me.kozakov.orrery`:
 
-| Artifact                              | Contents                                                                   |
-| ------------------------------------- | -------------------------------------------------------------------------- |
+| Artifact                           | Contents                                                                   |
+| ---------------------------------- | -------------------------------------------------------------------------- |
 | `me.kozakov.orrery:orrery-core`    | Pure-Kotlin calendar models, grid math and selection engine                |
 | `me.kozakov.orrery:orrery-compose` | Jetpack Compose calendar composables with Material3 theming                |
 | `me.kozakov.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
@@ -165,23 +165,6 @@ DefaultDay(
 ```
 
 Releases are documented in [docs/RELEASING.md](docs/RELEASING.md).
-
-## Topics
-
-Keywords: **Android calendar library, Jetpack Compose calendar, Compose Material 3
-calendar, Kotlin date picker, date range picker, week view, agenda view, year view,
-month calendar, drag-to-select, lunar calendar, Chinese calendar, solar terms,
-kotlinx-datetime, calendar-view.**
-
-For maximum discoverability on GitHub, set the repository topics (Settings → _Topics_, or
-via the [GitHub CLI](https://cli.github.com/) once the repo is pushed):
-
-```bash
-gh repo edit koza4e4ok/Orrery --add-topic \
-  android,android-library,jetpack-compose,compose,material3,material-design,material-you,\
-kotlin,calendar,calendar-view,datepicker,date-range-picker,week-view,year-view,\
-agenda,lunar-calendar,chinese-calendar,solar-terms,kotlinx-datetime,android-ui
-```
 
 ## License
 

@@ -130,7 +130,7 @@ public fun rememberOrreryDatePickerState(
  * State for [OrreryDateRangePickerDialog]: the selected range, the
  * display mode, and the visible month. Writes to [setSelection] are
  * validated like clicks (bounds, disabled dates, and range length);
- * invalid writes are ignored.
+ * an end before the start is dropped, other invalid writes are ignored.
  */
 @Stable
 public class OrreryDateRangePickerState internal constructor(

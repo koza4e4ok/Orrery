@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-18
+
+### Added
+
+- `OrreryDatePickerDialog`: Material-3-shaped single-date picker dialog
+  (slot-based confirm/dismiss buttons) with calendar and locale-aware
+  text-input modes, backed by `rememberOrreryDatePickerState`.
+- `OrreryDateRangePickerDialog`: full-screen range picker with drag
+  selection, sticky month headers, and dual text-input fields, backed by
+  `rememberOrreryDateRangePickerState`.
+- `DatePickerStrings` / `DatePickerDefaults.strings()`: every built-in
+  string is an overridable parameter (English defaults).
+
 ## [0.2.0] - 2026-07-17
 
 ### Added

@@ -123,6 +123,41 @@ DefaultDay(
 // when habitProgress[date] changes 0.4 -> 0.8, the ring eases over 300 ms
 ```
 
+### Date picker dialogs
+
+M3-shaped dialog wrappers — `OrreryDatePickerDialog` (compact, single date) and
+`OrreryDateRangePickerDialog` (full-screen, drag-select range) — with the same
+`onDismissRequest`/`confirmButton`/`dismissButton` slot API as
+`androidx.compose.material3.DatePickerDialog`, plus a locale-aware text-input mode:
+
+```kotlin
+@Composable
+fun PickDateButton() {
+    var showDialog by remember { mutableStateOf(false) }
+    val state = rememberOrreryDatePickerState()
+
+    Button(onClick = { showDialog = true }) { Text("Pick date") }
+
+    if (showDialog) {
+        OrreryDatePickerDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = { showDialog = false },
+                    enabled = state.selectedDate != null,
+                ) { Text("OK") }
+            },
+            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } },
+            state = state,
+        )
+    }
+}
+```
+
+Read `state.selectedDate` (or `selectedStartDate`/`selectedEndDate` on the range state) in
+your confirm button. Both dialogs localize entirely through `DatePickerStrings` — override
+any message via `DatePickerDefaults.strings(...)`.
+
 ## Features
 
 - Month (`HorizontalCalendar`), vertical list (`VerticalCalendar`), single-week
@@ -130,6 +165,8 @@ DefaultDay(
 - `CollapsibleCalendarScaffold`: month collapses to a week row as the content scrolls
 - Selection modes: single (with optional auto-advance), range (min/max), multi,
   plus long-press **drag-to-select**
+- `OrreryDatePickerDialog` / `OrreryDateRangePickerDialog`: Material 3-shaped dialogs
+  (slot-based confirm/dismiss buttons) with calendar and locale-aware text-input modes
 - First-class unavailable dates: `DisabledDates` (dates, ranges, days of week,
   before/after, predicates) blocks selection and renders disabled automatically
 - Per-state day styling: `CalendarDayColors` + `CalendarDayShapes` with

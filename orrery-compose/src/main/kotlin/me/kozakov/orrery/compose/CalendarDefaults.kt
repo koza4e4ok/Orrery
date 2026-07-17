@@ -38,7 +38,14 @@ public class CalendarDayColors(
     public val labelColor: Color,
 )
 
-/** Shapes and today-marker style used by [DefaultDay]. */
+/**
+ * Shapes and today-marker style used by [DefaultDay].
+ *
+ * [inRangeShape] picks the in-range rendering mode: [RectangleShape]
+ * (the default) draws a continuous connector band across the range;
+ * any other shape draws a separate centered fill per in-range day
+ * (segmented style), with the range endpoints keeping [selectedShape].
+ */
 @Immutable
 public class CalendarDayShapes(
     public val dayShape: Shape,

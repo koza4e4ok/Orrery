@@ -61,6 +61,9 @@ import java.time.format.FormatStyle
  * unavailable colors and are not clickable; [enabled] = false forces the
  * same treatment. Shapes come from [shapes].
  *
+ * A non-rectangular [CalendarDayShapes.inRangeShape] switches the range
+ * band to per-day segmented fills.
+ *
  * The container fill, selection fill, today FilledCircle and Behind
  * decorators are clipped to [CalendarDayShapes.dayShape]; the range
  * connector band, the today Ring/Underline and Over decorators (e.g.
@@ -140,7 +143,7 @@ public fun DefaultDay(
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
                 .drawBehind {
-                    if (bandAlpha > 0f) {
+                    if (bandAlpha > 0f && shapes.inRangeShape == RectangleShape) {
                         drawRangeBand(
                             bandMode,
                             colors.inRangeContainerColor.copy(alpha = colors.inRangeContainerColor.alpha * bandAlpha),
@@ -169,6 +172,12 @@ public fun DefaultDay(
                 .then(
                     if (!available) Modifier.background(colors.unavailableContainerColor) else Modifier,
                 ).drawBehind {
+                    if (bandAlpha > 0f && bandMode == RangeBand.Full && shapes.inRangeShape != RectangleShape) {
+                        drawDayShape(
+                            shapes.inRangeShape,
+                            colors.inRangeContainerColor.copy(alpha = colors.inRangeContainerColor.alpha * bandAlpha),
+                        )
+                    }
                     if (isToday && !isSelected && indicator is TodayIndicator.FilledCircle) {
                         drawDayShape(shapes.dayShape, colors.todayIndicatorColor)
                     }

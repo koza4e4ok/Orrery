@@ -6,13 +6,18 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -115,6 +120,7 @@ public fun DefaultDay(
             day.date.toJavaLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         }
     val haptics = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
     val contentColor =
         when {
             !available -> colors.unavailableContentColor
@@ -143,6 +149,9 @@ public fun DefaultDay(
                 }.selectable(
                     selected = isSelected,
                     enabled = available,
+                    interactionSource = interactionSource,
+                    // Ripple is drawn by the shape-clipped layer below, not the full-cell touch target.
+                    indication = null,
                     onClick = {
                         if (hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                         selectionState?.click(day.date)
@@ -175,6 +184,17 @@ public fun DefaultDay(
                     }
                 },
         )
+        // Ripple layer: a centered square clipped to dayShape so touch feedback
+        // matches the drawn selection (circle by default, or any custom shape).
+        Box(Modifier.matchParentSize(), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .aspectRatio(1f)
+                    .clip(shapes.dayShape)
+                    .indication(interactionSource, ripple()),
+            )
+        }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = day.date.day.toString(),

@@ -162,14 +162,7 @@ private fun RangeInputPane(
     fun parsedEnd(): LocalDate? = endText.takeIf(String::isNotEmpty)?.let(LocalDate::parse)
 
     fun apply() {
-        val start = parsedStart()
-        val end = parsedEnd()
-        // The shared selection engine only rejects a reversed pair when
-        // minDays/maxDays are configured (its length check is a no-op
-        // otherwise); clamp an out-of-order end to null here so typing
-        // end-before-start never silently swaps into a reversed range.
-        val proposedEnd = if (start != null && end != null && end < start) null else end
-        state.setSelection(start, proposedEnd)
+        state.setSelection(parsedStart(), parsedEnd())
     }
 
     val start = parsedStart()

@@ -108,7 +108,7 @@ public fun OrreryDatePickerDialog(
                 ) { mode ->
                     when (mode) {
                         DatePickerDisplayMode.Picker -> {
-                            PickerPane(state, colors, shapes, today)
+                            PickerPane(state, colors, shapes, today, strings)
                         }
 
                         DatePickerDisplayMode.Input -> {
@@ -142,6 +142,7 @@ private fun PickerPane(
     colors: CalendarDayColors,
     shapes: CalendarDayShapes,
     today: LocalDate,
+    strings: DatePickerStrings,
 ) {
     val scope = rememberCoroutineScope()
     var showMonthPicker by rememberSaveable { mutableStateOf(false) }
@@ -149,6 +150,8 @@ private fun PickerPane(
         CalendarNavHeader(
             state = state.calendar,
             onTitleClick = { showMonthPicker = !showMonthPicker },
+            previousMonthContentDescription = strings.previousMonthDescription,
+            nextMonthContentDescription = strings.nextMonthDescription,
         )
         if (showMonthPicker) {
             MonthYearPicker(

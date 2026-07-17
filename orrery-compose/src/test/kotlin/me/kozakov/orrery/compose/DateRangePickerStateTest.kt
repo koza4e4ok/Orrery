@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.LocalDate
+import me.kozakov.orrery.core.DisabledDates
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -32,6 +33,44 @@ class DateRangePickerStateTest {
         // SelectionEngine.replace rejects wholesale, keeping the current
         // (empty) selection - so both endpoints stay null.
         rule.runOnIdle { state.setSelection(LocalDate(2026, 7, 8), LocalDate(2026, 7, 9)) }
+        rule.runOnIdle {
+            assertNull(state.selectedStartDate)
+            assertNull(state.selectedEndDate)
+        }
+    }
+
+    @Test
+    fun setSelectionClampsReversedEndToNull() {
+        lateinit var state: OrreryDateRangePickerState
+        rule.setContent { state = rememberOrreryDateRangePickerState() }
+        rule.runOnIdle { state.setSelection(LocalDate(2026, 7, 12), LocalDate(2026, 7, 8)) }
+        rule.runOnIdle {
+            assertEquals(LocalDate(2026, 7, 12), state.selectedStartDate)
+            assertNull(state.selectedEndDate)
+        }
+    }
+
+    @Test
+    fun setSelectionAcceptsHalfOpenRange() {
+        lateinit var state: OrreryDateRangePickerState
+        rule.setContent { state = rememberOrreryDateRangePickerState() }
+        rule.runOnIdle { state.setSelection(LocalDate(2026, 7, 8), null) }
+        rule.runOnIdle {
+            assertEquals(LocalDate(2026, 7, 8), state.selectedStartDate)
+            assertNull(state.selectedEndDate)
+        }
+    }
+
+    @Test
+    fun setSelectionRejectsDisabledStart() {
+        lateinit var state: OrreryDateRangePickerState
+        rule.setContent {
+            state =
+                rememberOrreryDateRangePickerState(
+                    disabledDates = DisabledDates { dates(LocalDate(2026, 7, 20)) },
+                )
+        }
+        rule.runOnIdle { state.setSelection(LocalDate(2026, 7, 20), null) }
         rule.runOnIdle {
             assertNull(state.selectedStartDate)
             assertNull(state.selectedEndDate)

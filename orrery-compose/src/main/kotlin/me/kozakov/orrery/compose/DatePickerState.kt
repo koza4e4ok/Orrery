@@ -178,12 +178,23 @@ public class OrreryDateRangePickerState internal constructor(
     public val selectedEndDate: LocalDate?
         get() = selection.selection.rangeEnd
 
-    /** Replaces the range through selection-engine validation; null [start] clears. */
+    /**
+     * Replaces the range through selection-engine validation; null [start]
+     * clears. A reversed pair (`end` before `start`) is clamped to a
+     * half-open range (`end = null`) before proposing, since the engine's
+     * length check only rejects reversed pairs when `minDays`/`maxDays`
+     * are configured.
+     */
     public fun setSelection(
         start: LocalDate?,
         end: LocalDate?,
     ) {
-        if (start == null) selection.clear() else selection.set(Selection(rangeStart = start, rangeEnd = end))
+        if (start == null) {
+            selection.clear()
+        } else {
+            val clampedEnd = if (end != null && end < start) null else end
+            selection.set(Selection(rangeStart = start, rangeEnd = clampedEnd))
+        }
     }
 
     /** The month at the picker's first visible page. Snapshot-observable. */

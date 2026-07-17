@@ -22,6 +22,8 @@ public class DatePickerStrings(
     public val invalidRangeError: String,
     public val switchToInputDescription: String,
     public val switchToPickerDescription: String,
+    public val previousMonthDescription: String,
+    public val nextMonthDescription: String,
     public val closeDescription: String,
 )
 
@@ -46,6 +48,8 @@ public object DatePickerDefaults {
         invalidRangeError: String = "Invalid date range",
         switchToInputDescription: String = "Switch to text input",
         switchToPickerDescription: String = "Switch to calendar",
+        previousMonthDescription: String = "Previous month",
+        nextMonthDescription: String = "Next month",
         closeDescription: String = "Close",
     ): DatePickerStrings =
         DatePickerStrings(
@@ -63,6 +67,8 @@ public object DatePickerDefaults {
             invalidRangeError = invalidRangeError,
             switchToInputDescription = switchToInputDescription,
             switchToPickerDescription = switchToPickerDescription,
+            previousMonthDescription = previousMonthDescription,
+            nextMonthDescription = nextMonthDescription,
             closeDescription = closeDescription,
         )
 }

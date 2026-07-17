@@ -64,4 +64,11 @@ class DatePickerDialogSnapshotTest {
         content(initialDisplayMode = DatePickerDisplayMode.Input)
         rule.onNode(isDialog()).captureRoboImage()
     }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun inputDark() {
+        content(initialDisplayMode = DatePickerDisplayMode.Input)
+        rule.onNode(isDialog()).captureRoboImage()
+    }
 }

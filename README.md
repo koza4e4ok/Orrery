@@ -127,8 +127,9 @@ DefaultDay(
 
 M3-shaped dialog wrappers — `OrreryDatePickerDialog` (compact, single date) and
 `OrreryDateRangePickerDialog` (full-screen, drag-select range) — with the same
-`onDismissRequest`/`confirmButton`/`dismissButton` slot API as
-`androidx.compose.material3.DatePickerDialog`, plus a locale-aware text-input mode:
+`onDismissRequest`/`confirmButton` slot API as `androidx.compose.material3.DatePickerDialog`
+(the compact dialog also takes a `dismissButton` slot; the range dialog dismisses via its
+close glyph instead), plus a locale-aware text-input mode:
 
 ```kotlin
 @Composable

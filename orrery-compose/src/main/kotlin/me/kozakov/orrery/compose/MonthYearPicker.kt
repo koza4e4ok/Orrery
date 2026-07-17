@@ -25,8 +25,9 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 
 /**
- * Two-level month/year jump picker: a year grid drilling into a 3x4
- * month grid; months outside [range] are disabled. Selecting a month
+ * Month/year jump picker: a year grid drilling into a 3x4 month grid;
+ * months outside [range] are disabled. Tapping the year grid's title
+ * zooms out to a decade grid for fast far jumps. Selecting a month
  * fires [onSelect] — the host decides what to do (typically scroll a
  * calendar and dismiss). Host it in a dialog, dropdown, or swap it with
  * the calendar in-place.
@@ -39,6 +40,8 @@ public fun MonthYearPicker(
     modifier: Modifier = Modifier,
 ) {
     var pickedYear by rememberSaveable { mutableStateOf<Int?>(null) }
+    var showingDecades by rememberSaveable { mutableStateOf(false) }
+    var focusYear by rememberSaveable { mutableStateOf(current.year) }
     AnimatedContent(
         targetState = pickedYear,
         modifier = modifier,
@@ -46,7 +49,31 @@ public fun MonthYearPicker(
         label = "monthYearPicker",
     ) { year ->
         if (year == null) {
-            YearGrid(currentYear = current.year, range = range, onYearClick = { pickedYear = it })
+            AnimatedContent(
+                targetState = showingDecades,
+                transitionSpec = { (fadeIn() + scaleIn(initialScale = 0.92f)).togetherWith(fadeOut()) },
+                label = "yearDecade",
+            ) { decades ->
+                if (decades) {
+                    DecadeGrid(
+                        currentYear = current.year,
+                        range = range,
+                        onDecadeClick = { decadeStart ->
+                            focusYear =
+                                decadeStart.coerceIn(range.start.year, range.endInclusive.year)
+                            showingDecades = false
+                        },
+                    )
+                } else {
+                    YearGrid(
+                        currentYear = current.year,
+                        focusYear = focusYear,
+                        range = range,
+                        onTitleClick = { showingDecades = true },
+                        onYearClick = { pickedYear = it },
+                    )
+                }
+            }
         } else {
             MonthGrid(
                 year = year,
@@ -62,23 +89,53 @@ public fun MonthYearPicker(
 @Composable
 private fun YearGrid(
     currentYear: Int,
+    focusYear: Int,
     range: ClosedRange<YearMonth>,
+    onTitleClick: () -> Unit,
     onYearClick: (Int) -> Unit,
 ) {
     val years = (range.start.year..range.endInclusive.year).toList()
     val initialIndex =
-        (currentYear - range.start.year).coerceIn(0, years.lastIndex).let { it - it % 3 }
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        state = rememberLazyGridState(initialFirstVisibleItemIndex = initialIndex),
-    ) {
-        items(years.size) { index ->
-            val year = years[index]
-            TextButton(onClick = { onYearClick(year) }) {
+        (focusYear - range.start.year).coerceIn(0, years.lastIndex).let { it - it % 3 }
+    Column {
+        TextButton(onClick = onTitleClick) {
+            Text(
+                "${range.start.year} – ${range.endInclusive.year}",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            state = rememberLazyGridState(initialFirstVisibleItemIndex = initialIndex),
+        ) {
+            items(years.size) { index ->
+                val year = years[index]
+                TextButton(onClick = { onYearClick(year) }) {
+                    Text(
+                        year.toString(),
+                        color = if (year == currentYear) MaterialTheme.colorScheme.primary else Color.Unspecified,
+                        fontWeight = if (year == currentYear) FontWeight.Bold else null,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DecadeGrid(
+    currentYear: Int,
+    range: ClosedRange<YearMonth>,
+    onDecadeClick: (Int) -> Unit,
+) {
+    val decades = (range.start.year / 10..range.endInclusive.year / 10).map { it * 10 }
+    LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.fillMaxWidth()) {
+        items(decades.size) { index ->
+            val decade = decades[index]
+            TextButton(onClick = { onDecadeClick(decade) }) {
                 Text(
-                    year.toString(),
-                    color = if (year == currentYear) MaterialTheme.colorScheme.primary else Color.Unspecified,
-                    fontWeight = if (year == currentYear) FontWeight.Bold else null,
+                    "${decade}s",
+                    fontWeight = if (currentYear in decade until decade + 10) FontWeight.Bold else null,
                 )
             }
         }

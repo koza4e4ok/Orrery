@@ -52,6 +52,25 @@ class MonthYearPickerTest {
     }
 
     @Test
+    fun yearGridTitleOpensTheDecadeGrid() {
+        content()
+        rule.onNodeWithText("2020 – 2030").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("2020s").assertExists()
+        rule.onNodeWithText("2030s").assertExists()
+    }
+
+    @Test
+    fun pickingADecadeJumpsTheYearGrid() {
+        content(range = YearMonth(1971, 1)..YearMonth(2055, 12))
+        rule.onNodeWithText("1971 – 2055").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("1990s").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("1991").assertExists()
+    }
+
+    @Test
     fun yearHeaderNavigatesBackToTheYearGrid() {
         content()
         rule.onNodeWithText("2027").performClick()

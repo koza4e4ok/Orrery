@@ -63,6 +63,11 @@ public class CalendarState internal constructor(
         scrollToMonth(YearMonth(date.year, date.month))
     }
 
+    /** Animated counterpart of [scrollToDate]. */
+    public suspend fun animateScrollToDate(date: LocalDate) {
+        animateScrollToMonth(YearMonth(date.year, date.month))
+    }
+
     /** Changes the month range, keeping the visible month if still in range. */
     public fun updateRange(
         startMonth: YearMonth,

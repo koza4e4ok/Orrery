@@ -45,6 +45,7 @@ public fun HorizontalCalendar(
     userScrollEnabled: Boolean = true,
     keyboardNavigation: Boolean = true,
     showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
     animateHeight: Boolean = true,
     dragSelection: CalendarSelectionState? = null,
     hapticsEnabled: Boolean = true,
@@ -134,12 +135,7 @@ public fun HorizontalCalendar(
                                 .fillParentMaxWidth()
                                 .wrapContentHeight(align = Alignment.Top, unbounded = true)
                                 .onSizeChanged { if (it.height > 0) pageHeights[index] = it.height },
-                        weekNumber =
-                            if (showWeekNumbers) {
-                                { CalendarDefaults.WeekNumber(it) }
-                            } else {
-                                null
-                            },
+                        weekNumber = if (showWeekNumbers) weekNumber else null,
                         dragSelection = dragSelection,
                         hapticsEnabled = hapticsEnabled,
                         keyboardNavigation = keyboard,
@@ -158,6 +154,7 @@ public fun VerticalCalendar(
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
     showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
     stickyMonthHeaders: Boolean = false,
     dragSelection: CalendarSelectionState? = null,
     hapticsEnabled: Boolean = true,
@@ -167,12 +164,8 @@ public fun VerticalCalendar(
     monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = { CalendarDefaults.MonthTitle(it) },
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
-    val weekNumber: (@Composable (CalendarWeek) -> Unit)? =
-        if (showWeekNumbers) {
-            { CalendarDefaults.WeekNumber(it) }
-        } else {
-            null
-        }
+    val weekNumberSlot: (@Composable (CalendarWeek) -> Unit)? =
+        if (showWeekNumbers) weekNumber else null
     val sticky = stickyMonthHeaders && monthHeader != null
     LaunchedEffect(sticky) {
         val targetItemsPerMonth = if (sticky) 2 else 1
@@ -205,7 +198,7 @@ public fun VerticalCalendar(
                             monthHeader = null,
                             dayContent = dayContent,
                             modifier = Modifier.fillParentMaxWidth(),
-                            weekNumber = weekNumber,
+                            weekNumber = weekNumberSlot,
                             dragSelection = dragSelection,
                             hapticsEnabled = hapticsEnabled,
                         )
@@ -218,7 +211,7 @@ public fun VerticalCalendar(
                         monthHeader = monthHeader,
                         dayContent = dayContent,
                         modifier = Modifier.fillParentMaxWidth(),
-                        weekNumber = weekNumber,
+                        weekNumber = weekNumberSlot,
                         dragSelection = dragSelection,
                         hapticsEnabled = hapticsEnabled,
                     )

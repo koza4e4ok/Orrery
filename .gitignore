@@ -6,6 +6,7 @@ local.properties
 *.iml
 captures/
 .kotlin/
+.superpowers/
 
 # Never commit exported keys
 *.asc

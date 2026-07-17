@@ -23,15 +23,11 @@ Mode detection: `shapes.inRangeShape === RectangleShape` (identity). The existin
 
 ## 2. Animated programmatic scrolling
 
-`CalendarState` has instant `scrollToMonth`/`scrollToDate` and animated `animateScrollToToday`, but no animated scroll to an arbitrary target. Add:
+_Corrected during planning:_ `CalendarState.animateScrollToMonth` and `WeekCalendarState.animateScrollToDate` already exist. The only gap is the animated counterpart of `CalendarState.scrollToDate`. Add:
 
-- `CalendarState.animateScrollToMonth(month: YearMonth)` (suspend)
-- `CalendarState.animateScrollToDate(date: LocalDate)` (suspend)
-- `WeekCalendarState.animateScrollToWeek(date: LocalDate)` (suspend)
+- `CalendarState.animateScrollToDate(date: LocalDate)` (suspend) — delegates to `animateScrollToMonth(YearMonth(date.year, date.month))`, mirroring how `scrollToDate` delegates to `scrollToMonth`. Out-of-range targets coerce to the bounds via the existing `indexOf`.
 
-Each delegates to the underlying pager/lazy-list `animateScrollToItem`, the same path `animateScrollToToday` uses. Targets outside `startMonth..endMonth` coerce to the bound, matching the instant variants. No new animation system.
-
-**Files:** `orrery-compose/.../CalendarState.kt`, `orrery-compose/.../WeekCalendarState.kt`.
+**Files:** `orrery-compose/.../CalendarState.kt`.
 
 ## 3. Selected-day elevation
 
@@ -74,8 +70,8 @@ weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(i
 ## Testing
 
 - **Core unit tests:** the three new presets in `SelectionPresetsTest` (boundaries: quarter edges, week start, n = 1).
-- **Snapshot tests (Roborazzi, existing conventions in `SnapshotTest.kt` — fixed dates, light/dark/RTL where relevant):** segmented in-range fill, selected-day elevation, decade grid, custom week-number slot.
-- **Interaction tests:** decade-level navigation in `MonthYearPickerTest`; animated scroll targets in a state test.
+- **Snapshot tests (Roborazzi, existing conventions in `SnapshotTest.kt` — fixed dates, light/dark/RTL where relevant):** segmented in-range fill, selected-day elevation, decade grid.
+- **Interaction tests:** decade-level navigation in `MonthYearPickerTest`; animated scroll targets in a state test; custom week-number slot content (asserting rendered text beats an image diff here).
 - **Verification:** `./gradlew :orrery-core:test :orrery-compose:testDebugUnitTest ktlintCheck detekt`.
 
 ## Release

@@ -3,8 +3,10 @@ package me.kozakov.orrery.core
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.plus
 
 /** Pure factories for common range selections. Apply via CalendarSelectionState.set. */
@@ -48,5 +50,28 @@ public object SelectionPresets {
                 from.plus(untilSaturday, DateTimeUnit.DAY)
             }
         return Selection(rangeStart = saturday, rangeEnd = saturday.plus(1, DateTimeUnit.DAY))
+    }
+
+    /** The [days]-day range ending at [until], inclusive; requires [days] >= 1. */
+    public fun lastNDays(
+        until: LocalDate,
+        days: Int,
+    ): Selection {
+        require(days >= 1) { "days must be >= 1, was $days" }
+        return Selection(rangeStart = until.minus(days - 1, DateTimeUnit.DAY), rangeEnd = until)
+    }
+
+    /** First..last day of [today]'s calendar quarter (Jan-Mar, Apr-Jun, Jul-Sep, Oct-Dec). */
+    public fun thisQuarter(today: LocalDate): Selection {
+        val firstMonth = Month(((today.month.number - 1) / 3) * 3 + 1)
+        val first = LocalDate(today.year, firstMonth, 1)
+        val last = first.plus(3, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
+        return Selection(rangeStart = first, rangeEnd = last)
+    }
+
+    /** Monday..Friday of the week containing [today]. */
+    public fun workweek(today: LocalDate): Selection {
+        val monday = CalendarPages.weekStart(today, DayOfWeek.MONDAY)
+        return Selection(rangeStart = monday, rangeEnd = monday.plus(4, DateTimeUnit.DAY))
     }
 }

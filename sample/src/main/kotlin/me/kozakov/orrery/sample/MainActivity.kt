@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -47,6 +48,7 @@ private enum class Destination(
     Trips("Trips", Icons.Filled.Place),
     Habits("Habits", Icons.Filled.CheckCircle),
     Almanac("Almanac", Icons.Filled.Star),
+    Pickers("Pickers", Icons.Filled.Edit),
 }
 
 @Composable
@@ -88,7 +90,8 @@ private fun SampleApp() {
                     0 -> AgendaScreen()
                     1 -> TripsScreen()
                     2 -> HabitsScreen()
-                    else -> AlmanacScreen()
+                    3 -> AlmanacScreen()
+                    else -> PickersScreen()
                 }
             }
         }

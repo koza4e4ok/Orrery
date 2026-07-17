@@ -133,12 +133,13 @@ DefaultDay(
 - First-class unavailable dates: `DisabledDates` (dates, ranges, days of week,
   before/after, predicates) blocks selection and renders disabled automatically
 - Per-state day styling: `CalendarDayColors` + `CalendarDayShapes` with
-  today-indicator variants (ring, filled, underline)
+  today-indicator variants (ring, filled, underline), segmented or banded
+  in-range fills, and optional selected-day elevation
 - Stackable day decorators: event dots, progress rings/bars, strikethrough,
   underline, and a GitHub-style heatmap — plus a raw `DayDecorator` DrawScope
   escape hatch
 - `CalendarNavHeader` prev/next navigation with animated title and
-  `MonthYearPicker` year/month jump picker
+  `MonthYearPicker` decade/year/month jump picker
 - Scroll-to-today, selection haptics, range-fill animation, and
   keyboard/D-pad navigation with month-edge paging
 - Flow observation (`visibleMonths`, `selectionChanges`), selection presets
@@ -146,7 +147,7 @@ DefaultDay(
   decorator values via `rememberAnimatedDayValues`
 - Material3 theming — dark mode and dynamic color for free; all colors overridable
 - Accessibility semantics, RTL mirroring, locale-driven names and first day of week
-- ISO week numbers and sticky month headers
+- Week numbers (ISO by default, custom `weekNumber` slot) and sticky month headers
 - `orrery-lunar`: Gregorian↔lunar conversion (golden-tested against the original
   for all 73,049 days of 1900–2099), astronomical 24 solar terms, traditional and
   Gregorian festivals, 干支 year names, zh-CN/zh-TW/zh-HK string variants

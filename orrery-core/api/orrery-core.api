@@ -285,10 +285,13 @@ public final class me/kozakov/orrery/core/SelectionMode$Single : me/kozakov/orre
 
 public final class me/kozakov/orrery/core/SelectionPresets {
 	public static final field INSTANCE Lme/kozakov/orrery/core/SelectionPresets;
+	public final fun lastNDays (Lkotlinx/datetime/LocalDate;I)Lme/kozakov/orrery/core/Selection;
 	public final fun nextDays (Lkotlinx/datetime/LocalDate;I)Lme/kozakov/orrery/core/Selection;
 	public final fun nextWeekend (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/Selection;
 	public final fun thisMonth (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/Selection;
+	public final fun thisQuarter (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/Selection;
 	public final fun thisWeek (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Lme/kozakov/orrery/core/Selection;
+	public final fun workweek (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/Selection;
 }
 
 public final class me/kozakov/orrery/core/SelectionResult {

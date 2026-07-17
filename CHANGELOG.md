@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-17
+
+### Added
+
+- `SelectionPresets.lastNDays`, `SelectionPresets.thisQuarter`, and
+  `SelectionPresets.workweek`.
+- `CalendarState.animateScrollToDate(date)`, the animated counterpart of
+  `scrollToDate`.
+- Segmented in-range style: a non-rectangular `CalendarDayShapes.inRangeShape`
+  now draws a centered per-day fill instead of the connector band (the
+  parameter previously had no effect).
+- `DefaultDay(selectedElevation = ...)`: draws a shadow under the selected
+  day's fill.
+- `weekNumber` slot on `HorizontalCalendar` and `VerticalCalendar` for custom
+  week-number content; `showWeekNumbers` still gates visibility.
+- `MonthYearPicker`: decade level — tap the year grid's title to jump by
+  decade.
+
+### Fixed
+
+- Day-cell ripple is clipped to `CalendarDayShapes.dayShape` instead of
+  covering the whole rectangular cell.
+
 ## [0.1.0] - 2026-07-13
 
 ### Added

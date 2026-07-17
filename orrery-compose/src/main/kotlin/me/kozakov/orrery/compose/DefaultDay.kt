@@ -1,6 +1,7 @@
 package me.kozakov.orrery.compose
 
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -42,6 +44,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
@@ -62,7 +65,8 @@ import java.time.format.FormatStyle
  * same treatment. Shapes come from [shapes].
  *
  * A non-rectangular [CalendarDayShapes.inRangeShape] switches the range
- * band to per-day segmented fills.
+ * band to per-day segmented fills. A positive [selectedElevation] draws
+ * a shadow under the selected day's fill.
  *
  * The container fill, selection fill, today FilledCircle and Behind
  * decorators are clipped to [CalendarDayShapes.dayShape]; the range
@@ -82,6 +86,7 @@ public fun DefaultDay(
     enabled: Boolean = true,
     showOutDates: Boolean = true,
     animateSelection: Boolean = true,
+    selectedElevation: Dp = 0.dp,
     hapticsEnabled: Boolean = true,
     decorators: List<DayDecorator> = emptyList(),
     onClick: ((CalendarDay) -> Unit)? = null,
@@ -117,6 +122,11 @@ public fun DefaultDay(
         targetValue = if (bandMode != RangeBand.None) 1f else 0f,
         animationSpec = if (animateSelection) tween(durationMillis = 200) else snap(),
         label = "dayRangeBand",
+    )
+    val elevation by animateDpAsState(
+        targetValue = if (isSelected) selectedElevation else 0.dp,
+        animationSpec = if (animateSelection) spring(stiffness = Spring.StiffnessMediumLow) else snap(),
+        label = "dayElevation",
     )
     val description =
         remember(day.date) {
@@ -163,6 +173,18 @@ public fun DefaultDay(
                 ).semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
+        // Shadow layer: same centered-square geometry as the ripple layer,
+        // drawn first so the selection fill covers the shape's interior.
+        if (elevation > 0.dp) {
+            Box(Modifier.matchParentSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .aspectRatio(1f)
+                        .shadow(elevation, shapes.selectedShape, clip = false),
+                )
+            }
+        }
         // Clipped fill layer: container, unavailable, today fill, selection, Behind decorators.
         Box(
             Modifier

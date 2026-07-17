@@ -41,7 +41,7 @@ public fun rememberOrreryDatePickerState(
 ): OrreryDatePickerState                            // rememberSaveable-backed
 ```
 
-`OrreryDateRangePickerState` / `rememberOrreryDateRangePickerState` are the analog with `selectedStartDate`/`selectedEndDate` (both `LocalDate?`) and `minDays: Int = 1`, `maxDays: Int = Int.MAX_VALUE` passed through to `SelectionMode.Range`. Setting `selectedDate`(s) programmatically goes through the selection engine's validation; disabled and out-of-range dates are rejected in both picker and input modes by the same engine.
+`OrreryDateRangePickerState` / `rememberOrreryDateRangePickerState` are the analog with read-only `selectedStartDate`/`selectedEndDate` (both `LocalDate?`) plus `setSelection(start: LocalDate?, end: LocalDate?)`, and `minDays: Int? = null`, `maxDays: Int? = null` passed through to `SelectionMode.Range` (nullable to match the core API; null = unbounded). Programmatic writes go through the selection engine's validation; disabled and out-of-range dates are rejected in both picker and input modes by the same engine. Both factories also take `firstDayOfWeek: DayOfWeek = firstDayOfWeekFromLocale()`, and both dialogs take `today: LocalDate = currentDate()` so tests and snapshots can pin the today marker.
 
 ## 2. Single-date dialog (compact)
 
@@ -100,14 +100,14 @@ public fun OrreryDateRangePickerDialog(
 
 New internal file `orrery-compose/.../DateInput.kt`:
 
-- Placeholder/hint pattern from `DateTimeFormatterBuilder.getLocalizedDateTimePattern(FormatStyle.SHORT, null, IsoChronology.INSTANCE, locale)` uppercased (e.g. "MM/DD/YYYY" for en-US).
-- Parsing via `DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)` with `ResolverStyle.STRICT`.
+- Pattern from `android.text.format.DateFormat.getBestDateTimePattern(locale, "yMMdd")` — locale field order with 4-digit years (what M3's input mode uses; avoids `FormatStyle.SHORT`'s 2-digit-year pitfalls). Placeholder shows it uppercased (e.g. "MM/DD/YYYY" for en-US).
+- Parsing via `DateTimeFormatter.ofPattern(pattern.replace('y', 'u'))` with `ResolverStyle.STRICT` (the `y`→`u` swap is the standard strict-resolution requirement).
 - `OutlinedTextField` with `isError` + `supportingText` for three error cases: unparseable (`strings.invalidFormatError`, includes the pattern), outside `yearRange`/bounds (`strings.outOfRangeError`), disabled date (`strings.disabledDateError`).
 - Valid input writes through to the state, so toggling back to picker mode shows the typed date selected and scrolled into view.
 
 ## 5. Strings
 
-All user-visible defaults live in one `@Immutable` `DatePickerStrings` class built by `DatePickerDefaults.strings(...)` — every value an English-default parameter (the `previousMonthContentDescription` precedent; no Android string resources, callers localize by passing values): `title`, `rangeTitle`, `headlinePlaceholder`, `rangeStartPlaceholder`, `rangeEndPlaceholder`, `inputLabel`, `rangeStartInputLabel`, `rangeEndInputLabel`, `invalidFormatError`, `outOfRangeError`, `disabledDateError`, `switchToInputDescription`, `switchToPickerDescription`, `closeDescription`.
+All user-visible defaults live in one `@Immutable` `DatePickerStrings` class built by `DatePickerDefaults.strings(...)` — every value an English-default parameter (the `previousMonthContentDescription` precedent; no Android string resources, callers localize by passing values): `title`, `rangeTitle`, `headlinePlaceholder`, `rangeStartPlaceholder`, `rangeEndPlaceholder`, `inputLabel`, `rangeStartInputLabel`, `rangeEndInputLabel`, `invalidFormatError`, `outOfRangeError`, `disabledDateError`, `invalidRangeError` (cross-field: end before start or min/max-days violation), `switchToInputDescription`, `switchToPickerDescription`, `closeDescription`.
 
 ## 6. Testing
 

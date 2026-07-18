@@ -118,6 +118,7 @@ demonstrating both date picker dialogs.
 
 - Month (`HorizontalCalendar`), vertical list (`VerticalCalendar`), single-week
   (`WeekCalendar`) and year-overview (`YearCalendar`) composables
+- Unbounded (infinite) month/week scrolling with one-sided ranges
 - `CollapsibleCalendarScaffold`: month collapses to a week row as the content scrolls
 - Selection modes: single (with optional auto-advance), range (min/max), multi,
   plus long-press **drag-to-select**
@@ -172,9 +173,7 @@ HorizontalCalendar(state = rememberCalendarState()) { day -> DefaultDay(day) }
 
 VerticalCalendar(state = state, stickyMonthHeaders = true) { day -> DefaultDay(day) }
 
-WeekCalendar(
-    state = rememberWeekCalendarState(startDate = start, endDate = end),
-) { day -> DefaultDay(day) }
+WeekCalendar(state = rememberWeekCalendarState()) { day -> DefaultDay(day) }
 
 YearCalendar(onMonthClick = { month -> /* navigate */ })
 ```
@@ -204,9 +203,9 @@ and the visible month as snapshot state:
 
 ```kotlin
 val state = rememberCalendarState(
-    startMonth = YearMonth(2020, 1),
-    endMonth = YearMonth(2030, 12),
-    outDateStyle = OutDateStyle.EndOfGrid, // always six rows
+    startMonth = YearMonth(2020, 1),        // omit bounds for unbounded scrolling
+    endMonth = YearMonth(2030, 12),         // null = open on that side
+    outDateStyle = OutDateStyle.EndOfGrid,  // always six rows
 )
 val scope = rememberCoroutineScope()
 
@@ -214,6 +213,11 @@ state.firstVisibleMonth                       // snapshot-observable
 scope.launch { state.animateScrollToToday() } // also: scrollToMonth, (animate)ScrollToDate
 state.updateRange(newStart, newEnd)           // grow/shrink the range in place
 ```
+
+Bounds are optional — the default state scrolls indefinitely in both
+directions, and one-sided ranges (fixed past, open future) work too. Far
+animated jumps teleport near the target before animating the landing, so
+`animateScrollToMonth` five centuries away completes instantly.
 
 `CalendarNavHeader` gives you prev/next chevrons around an animated title;
 `MonthYearPicker` is a month/year/decade jump grid you can host in a dialog,

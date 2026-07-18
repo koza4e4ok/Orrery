@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-18
+
+### Added
+
+- Unbounded (infinite) scrolling for `CalendarState` and `WeekCalendarState`:
+  bounds are now nullable and default to null (open); one-sided ranges
+  supported. Far `animateScrollTo*` jumps teleport near the target before
+  animating.
+
+### Changed
+
+- **Breaking:** `CalendarState.startMonth`/`endMonth` and
+  `WeekCalendarState.startDate`/`endDate` are now nullable;
+  `rememberWeekCalendarState`'s `startDate`/`endDate` parameters are now
+  optional. The default calendar range changes from 1971–2055 to unbounded.
+
 ## [0.4.0] - 2026-07-18
 
 ### Added

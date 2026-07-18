@@ -11,10 +11,10 @@ import me.kozakov.orrery.core.HeatmapSummary
 import kotlin.math.min
 
 /** Number of a11y/legend buckets; fixed regardless of a custom color scale. */
-internal const val HeatmapLevels: Int = 5
+internal const val HEATMAP_LEVELS: Int = 5
 
-/** 1-based bucket of a clamped 0..1 intensity: 0f -> 1, 1f -> [HeatmapLevels]. */
-internal fun heatLevel(value: Float): Int = min(HeatmapLevels, (value.coerceIn(0f, 1f) * HeatmapLevels).toInt() + 1)
+/** 1-based bucket of a clamped 0..1 intensity: 0f -> 1, 1f -> [HEATMAP_LEVELS]. */
+internal fun heatLevel(value: Float): Int = min(HEATMAP_LEVELS, (value.coerceIn(0f, 1f) * HEATMAP_LEVELS).toInt() + 1)
 
 /**
  * Localizable strings for the heatmap composables. Defaults are English;
@@ -39,7 +39,7 @@ public object HeatmapDefaults {
      * from `surfaceVariant` toward `primary`. Values are clamped.
      */
     @Composable
-    public fun colorScale(levels: Int = HeatmapLevels): (Float) -> Color {
+    public fun colorScale(levels: Int = HEATMAP_LEVELS): (Float) -> Color {
         val from = MaterialTheme.colorScheme.surfaceVariant
         val to = MaterialTheme.colorScheme.primary
         return remember(levels, from, to) {

@@ -325,7 +325,7 @@ private fun HeatCell(
             strings.dayDescription.format(
                 date.toJavaLocalDate().format(dateFormatter),
                 heatLevel(value),
-                HeatmapLevels,
+                HEATMAP_LEVELS,
             )
         }
     Box(

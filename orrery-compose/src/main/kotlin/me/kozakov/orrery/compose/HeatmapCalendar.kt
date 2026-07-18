@@ -288,7 +288,7 @@ private fun WeekdayLabelColumn(
         }
         days.forEachIndexed { row, day ->
             Box(Modifier.height(cellSize), contentAlignment = Alignment.CenterStart) {
-                if (row % 2 == 0) {
+                if (row % 2 == 0 && row < 6) {
                     Text(
                         text = day.displayName(),
                         style = MaterialTheme.typography.labelSmall,

@@ -115,6 +115,25 @@ public final class me/kozakov/orrery/core/DisabledDatesKt {
 	public static final fun DisabledDates (Lkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/core/DisabledDates;
 }
 
+public final class me/kozakov/orrery/core/HeatmapSummary {
+	public fun <init> (III)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun copy (III)Lme/kozakov/orrery/core/HeatmapSummary;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/HeatmapSummary;IIIILjava/lang/Object;)Lme/kozakov/orrery/core/HeatmapSummary;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActiveDays ()I
+	public final fun getCurrentStreak ()I
+	public final fun getLongestStreak ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/HeatmapSummaryKt {
+	public static final fun heatmapSummary (Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/core/HeatmapSummary;
+}
+
 public final class me/kozakov/orrery/core/MonthGridKt {
 	public static final fun monthGrid (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/core/OutDateStyle;)Lme/kozakov/orrery/core/CalendarMonth;
 	public static synthetic fun monthGrid$default (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/core/OutDateStyle;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarMonth;

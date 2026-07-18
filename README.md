@@ -15,6 +15,10 @@ It's a full rewrite of [CalendarView](https://github.com/huanghaibin-dev/Calenda
 with composable slots instead of view subclassing, snapshot state instead of listener
 interfaces, and an optional Chinese lunisolar artifact.
 
+<p align="center">
+  <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with event badges, trip range selection with per-day prices, habit progress rings, Chinese lunar almanac, and Material 3 date picker dialogs" />
+</p>
+
 **Requirements:** Android `minSdk 23` · Jetpack Compose (Material 3) · Kotlin · JDK 17.
 Built on [`kotlinx-datetime`](https://github.com/Kotlin/kotlinx-datetime).
 

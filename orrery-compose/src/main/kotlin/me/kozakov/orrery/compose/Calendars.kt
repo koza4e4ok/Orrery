@@ -270,7 +270,7 @@ private fun rememberMonth(
     state: CalendarState,
     index: Int,
 ): CalendarMonth {
-    val start = state.startMonth
+    val start = state.effectiveStartMonth
     val firstDayOfWeek = state.firstDayOfWeek
     val outDateStyle = state.outDateStyle
     return remember(start, firstDayOfWeek, outDateStyle, index) {

@@ -54,12 +54,14 @@ public fun CalendarNavHeader(
 ) {
     val scope = rememberCoroutineScope()
     val visibleMonth = state.firstVisibleMonth
+    val startBound = state.startMonth
+    val endBound = state.endMonth
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             onClick = {
                 scope.launch { state.animateScrollToMonth(CalendarPages.monthAt(state.firstVisibleMonth, -1)) }
             },
-            enabled = visibleMonth > state.startMonth,
+            enabled = startBound == null || visibleMonth > startBound,
         ) {
             NavChevron(forward = false, contentDescription = previousMonthContentDescription)
         }
@@ -92,7 +94,7 @@ public fun CalendarNavHeader(
             onClick = {
                 scope.launch { state.animateScrollToMonth(CalendarPages.monthAt(state.firstVisibleMonth, 1)) }
             },
-            enabled = visibleMonth < state.endMonth,
+            enabled = endBound == null || visibleMonth < endBound,
         ) {
             NavChevron(forward = true, contentDescription = nextMonthContentDescription)
         }

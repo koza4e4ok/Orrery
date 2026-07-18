@@ -28,14 +28,16 @@ class NavHeaderTest {
     private fun content(
         onTitleClick: (() -> Unit)? = null,
         firstVisible: YearMonth = YearMonth(2026, 8),
+        startMonth: YearMonth? = YearMonth(2026, 7),
+        endMonth: YearMonth? = YearMonth(2026, 9),
     ): () -> CalendarState {
         lateinit var state: CalendarState
         rule.setContent {
             MaterialTheme {
                 state =
                     rememberCalendarState(
-                        startMonth = YearMonth(2026, 7),
-                        endMonth = YearMonth(2026, 9),
+                        startMonth = startMonth,
+                        endMonth = endMonth,
                         firstVisibleMonth = firstVisible,
                         firstDayOfWeek = DayOfWeek.MONDAY,
                     )
@@ -72,6 +74,13 @@ class NavHeaderTest {
     fun buttonsDisableAtRangeBounds() {
         content(firstVisible = YearMonth(2026, 7))
         rule.onNodeWithContentDescription("Previous month").assertIsNotEnabled()
+        rule.onNodeWithContentDescription("Next month").assertIsEnabled()
+    }
+
+    @Test
+    fun buttonsStayEnabledWithOpenBounds() {
+        content(startMonth = null, endMonth = null)
+        rule.onNodeWithContentDescription("Previous month").assertIsEnabled()
         rule.onNodeWithContentDescription("Next month").assertIsEnabled()
     }
 

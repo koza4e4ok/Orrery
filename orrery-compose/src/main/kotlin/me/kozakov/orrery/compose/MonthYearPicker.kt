@@ -30,7 +30,8 @@ import kotlinx.datetime.YearMonth
  * zooms out to a decade grid for fast far jumps. Selecting a month
  * fires [onSelect] — the host decides what to do (typically scroll a
  * calendar and dismiss). Host it in a dialog, dropdown, or swap it with
- * the calendar in-place.
+ * the calendar in-place. For calendars with unbounded state, pass a
+ * finite window here — e.g. a hundred years around [currentYearMonth].
  */
 @Composable
 public fun MonthYearPicker(

@@ -13,7 +13,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import me.kozakov.orrery.core.CalendarPages
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -111,6 +113,91 @@ class InfinitePagingTest {
             assertEquals(YearMonth(2026, 1), state.startMonth)
             assertNull(state.endMonth)
             assertEquals(YearMonth(2026, 7), state.firstVisibleMonth)
+        }
+    }
+
+    private lateinit var weekState: WeekCalendarState
+
+    private fun weekContent(
+        startDate: LocalDate? = null,
+        endDate: LocalDate? = null,
+    ) {
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            weekState =
+                rememberWeekCalendarState(
+                    startDate = startDate,
+                    endDate = endDate,
+                    firstVisibleDate = LocalDate(2026, 7, 15),
+                    firstDayOfWeek = DayOfWeek.MONDAY,
+                )
+            LazyRow(state = weekState.listState) {
+                items(weekState.weekCount) { Box(Modifier.size(80.dp)) { Text("w$it") } }
+            }
+        }
+    }
+
+    @Test
+    fun weekDefaultStateIsUnbounded() {
+        weekContent()
+        rule.runOnIdle {
+            assertNull(weekState.startDate)
+            assertNull(weekState.endDate)
+        }
+    }
+
+    @Test
+    fun weekScrollsCenturiesOutAndBack() {
+        weekContent()
+        rule.waitForIdle()
+        scope.launch { weekState.scrollToDate(LocalDate(2526, 7, 15)) }
+        rule.runOnIdle {
+            assertEquals(
+                CalendarPages.weekStart(LocalDate(2526, 7, 15), DayOfWeek.MONDAY),
+                weekState.firstVisibleWeek.days
+                    .first()
+                    .date,
+            )
+        }
+        scope.launch { weekState.scrollToDate(LocalDate(1526, 7, 15)) }
+        rule.runOnIdle {
+            assertEquals(
+                CalendarPages.weekStart(LocalDate(1526, 7, 15), DayOfWeek.MONDAY),
+                weekState.firstVisibleWeek.days
+                    .first()
+                    .date,
+            )
+        }
+    }
+
+    @Test
+    fun weekOneSidedStartClamps() {
+        weekContent(startDate = LocalDate(2026, 7, 1))
+        rule.waitForIdle()
+        scope.launch { weekState.scrollToDate(LocalDate(2020, 1, 1)) }
+        rule.runOnIdle {
+            assertEquals(
+                CalendarPages.weekStart(LocalDate(2026, 7, 1), DayOfWeek.MONDAY),
+                weekState.firstVisibleWeek.days
+                    .first()
+                    .date,
+            )
+        }
+    }
+
+    @Test
+    fun weekFarAnimatedJumpLandsExactly() {
+        weekContent()
+        rule.waitForIdle()
+        scope.launch { weekState.animateScrollToDate(LocalDate(2126, 7, 15)) }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            assertEquals(
+                CalendarPages.weekStart(LocalDate(2126, 7, 15), DayOfWeek.MONDAY),
+                weekState.firstVisibleWeek.days
+                    .first()
+                    .date,
+            )
         }
     }
 }

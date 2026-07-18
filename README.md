@@ -131,6 +131,8 @@ demonstrating both date picker dialogs.
 - Stackable day decorators: event dots, progress rings/bars, strikethrough,
   underline, and a GitHub-style heatmap — plus a raw `DayDecorator` DrawScope
   escape hatch
+- `HeatmapCalendar` contribution graph and `HeatmapMonth` heat tiles with
+  active-day/streak summaries (`heatmapSummary` in orrery-core)
 - `CalendarNavHeader` prev/next navigation with animated title and
   `MonthYearPicker` decade/year/month jump picker
 - Scroll-to-today, selection haptics, range-fill animation, and
@@ -366,6 +368,30 @@ DefaultDay(
 )
 // when habitProgress[date] changes 0.4 -> 0.8, the ring eases over 300 ms
 ```
+
+### Heatmaps
+
+`HeatmapCalendar` is the GitHub-style contribution graph: one column per week
+over any date range, scrolled to the most recent data, with month labels,
+weekday labels, a legend, and a summary slot ("N active days · M-day streak",
+computed by orrery-core's pure `heatmapSummary()`). `HeatmapMonth` is a static
+month grid of the same tiles for dashboards. Both take the decorator-style
+`intensity` lookup — null means no data — and an optional tap callback:
+
+```kotlin
+HeatmapCalendar(
+    intensity = { date -> activity[date] },          // 0f..1f, null = empty cell
+    state = rememberHeatmapCalendarState(),          // trailing 365 days by default
+    onDayClick = { date -> showDetail(date) },
+    strings = HeatmapDefaults.strings(legendLess = "Weniger", legendMore = "Mehr"),
+)
+
+HeatmapMonth(yearMonth = YearMonth(2026, 7), intensity = { activity[it] }, showDayNumbers = true)
+```
+
+The default color scale quantizes into five buckets from `surfaceVariant` to
+`primary`; pass any `colorScale: (Float) -> Color` (a continuous lerp works
+too). Cell accessibility descriptions bucket intensity into five spoken levels.
 
 ### Date picker dialogs
 

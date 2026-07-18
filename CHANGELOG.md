@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-18
+
+### Added
+
+- `HeatmapCalendar`: GitHub-style contribution graph — week columns over an
+  arbitrary date range with month labels, weekday labels, legend, and a
+  summary slot, backed by `rememberHeatmapCalendarState`.
+- `HeatmapMonth`: static month grid of heat tiles for dashboards.
+- `heatmapSummary()` (orrery-core): pure active-days/streak aggregation.
+- `HeatmapStrings` / `HeatmapDefaults`: quantized color scale, legend and
+  accessibility strings — all overridable for localization.
+
 ## [0.3.0] - 2026-07-18
 
 ### Added

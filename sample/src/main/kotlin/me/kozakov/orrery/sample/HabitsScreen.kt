@@ -16,21 +16,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.plus
 import me.kozakov.orrery.compose.CalendarDefaults
 import me.kozakov.orrery.compose.DayDecorators
 import me.kozakov.orrery.compose.DefaultDay
+import me.kozakov.orrery.compose.HeatmapCalendar
+import me.kozakov.orrery.compose.HeatmapMonth
 import me.kozakov.orrery.compose.HorizontalCalendar
 import me.kozakov.orrery.compose.currentDate
 import me.kozakov.orrery.compose.rememberAnimatedDayValues
 import me.kozakov.orrery.compose.rememberCalendarState
+import me.kozakov.orrery.compose.rememberHeatmapCalendarState
 
 /** Habit tracker: per-habit animated progress rings, streaks, overall heatmap. */
 @Composable
@@ -109,6 +115,42 @@ internal fun HabitsScreen() {
                     }
                 DefaultDay(day = day, today = today, colors = colors, decorators = heatDecorators)
             },
+        )
+        val yearHeat =
+            remember(today) {
+                buildMap<LocalDate, Float> {
+                    repeat(13) { back ->
+                        val m = month.plus(-back, DateTimeUnit.MONTH)
+                        val maps = SampleData.habits.map { SampleData.habitProgress(it, m, today) }
+                        maps.flatMap { it.keys }.distinct().forEach { date ->
+                            put(date, maps.mapNotNull { it[date] }.average().toFloat())
+                        }
+                    }
+                }
+            }
+        var pickedDay by rememberSaveable { mutableStateOf<String?>(null) }
+        Text("Year in review", Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
+        HeatmapCalendar(
+            intensity = { date -> yearHeat[date] },
+            state = rememberHeatmapCalendarState(),
+            modifier = Modifier.padding(horizontal = 16.dp),
+            onDayClick = { pickedDay = it.toString() },
+        )
+        pickedDay?.let {
+            Text(
+                "Selected: $it",
+                Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Text("This month", Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
+        HeatmapMonth(
+            yearMonth = month,
+            intensity = { date -> yearHeat[date] },
+            modifier = Modifier.padding(horizontal = 16.dp),
+            onDayClick = { pickedDay = it.toString() },
+            showDayNumbers = true,
         )
     }
 }

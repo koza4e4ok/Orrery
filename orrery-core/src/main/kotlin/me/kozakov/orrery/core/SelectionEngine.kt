@@ -1,6 +1,5 @@
 package me.kozakov.orrery.core
 
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus

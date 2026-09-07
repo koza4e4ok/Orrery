@@ -10,10 +10,8 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
-import kotlinx.datetime.plus
 import me.kozakov.orrery.core.DisabledDates
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionEngine

@@ -258,11 +258,15 @@ private fun monthLabelFor(
     index: Int,
 ): String? {
     val weekStart = state.weekStartAt(index)
-    val firstOfMonth =
-        generateSequence(weekStart) { it.plus(1, DateTimeUnit.DAY) }
-            .take(7)
-            .firstOrNull { it.day == 1 && it in state.startDate..state.endDate }
-            ?: return null
+
+    // ⚡ Bolt optimization: Iterating over epoch days is significantly faster
+    // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`
+    val startEpoch = weekStart.toEpochDays()
+    val firstOfMonth = (startEpoch until startEpoch + 7)
+        .map { LocalDate.fromEpochDays(it) }
+        .firstOrNull { it.day == 1 && it in state.startDate..state.endDate }
+        ?: return null
+
     val previousFirst = firstOfMonth.minus(1, DateTimeUnit.MONTH).let { LocalDate(it.year, it.month, 1) }
     if (previousFirst >= state.startDate) {
         val previousColumn = CalendarPages.weekIndex(state.startDate, previousFirst, state.firstDayOfWeek)

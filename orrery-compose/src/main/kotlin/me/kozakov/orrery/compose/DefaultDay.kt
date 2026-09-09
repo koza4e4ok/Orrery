@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -164,6 +165,7 @@ public fun DefaultDay(
                     enabled = available,
                     interactionSource = interactionSource,
                     // Ripple is drawn by the shape-clipped layer below, not the full-cell touch target.
+                    role = Role.Button,
                     indication = null,
                     onClick = {
                         if (hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.Confirm)

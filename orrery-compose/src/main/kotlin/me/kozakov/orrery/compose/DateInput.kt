@@ -1,6 +1,7 @@
 package me.kozakov.orrery.compose
 
 import android.text.format.DateFormat
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ internal fun DateInputField(
     isDisabled: (LocalDate) -> Boolean,
     strings: DatePickerStrings,
     modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     externalError: String? = null,
 ) {
     val locale = Locale.getDefault()
@@ -93,6 +95,7 @@ internal fun DateInputField(
         isError = error != null || externalError != null,
         supportingText = { (error ?: externalError)?.let { Text(it) } },
         singleLine = true,
+        keyboardOptions = keyboardOptions,
         modifier = modifier,
     )
 }

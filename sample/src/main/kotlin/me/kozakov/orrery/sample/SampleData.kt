@@ -50,8 +50,13 @@ internal object SampleData {
     /** Named events on ~40% of days, 1..3 per day, sorted by time. */
     fun eventsFor(month: YearMonth): Map<LocalDate, List<Event>> {
         val last = month.firstDay.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
-        return generateSequence(month.firstDay) { it.plus(1, DateTimeUnit.DAY) }
-            .takeWhile { it <= last }
+        val startEpoch = month.firstDay.toEpochDays()
+        val endEpoch = last.toEpochDays()
+
+        // ⚡ Bolt optimization: Iterating over epoch days is significantly faster
+        // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`
+        return (startEpoch..endEpoch)
+            .map { LocalDate.fromEpochDays(it) }
             .mapNotNull { date ->
                 val roll = (date.day * 7 + date.month.number * 3) % 10
                 if (roll > 3) return@mapNotNull null
@@ -76,8 +81,14 @@ internal object SampleData {
         val last = minOf(today, month.firstDay.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY))
         if (last < month.firstDay) return emptyMap()
         val streakLength = seed % 4 + 2
-        return generateSequence(month.firstDay) { it.plus(1, DateTimeUnit.DAY) }
-            .takeWhile { it <= last }
+
+        val startEpoch = month.firstDay.toEpochDays()
+        val endEpoch = last.toEpochDays()
+
+        // ⚡ Bolt optimization: Iterating over epoch days is significantly faster
+        // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`
+        return (startEpoch..endEpoch)
+            .map { LocalDate.fromEpochDays(it) }
             .associateWith { date ->
                 if (date.daysUntil(today) < streakLength) 1f else ((date.day * seed) % 100) / 100f
             }
@@ -123,8 +134,14 @@ internal object SampleData {
         }
 
     /** Sum of nightly prices, checkout day excluded. */
-    fun rangePrice(range: ClosedRange<LocalDate>): Int =
-        generateSequence(range.start) { it.plus(1, DateTimeUnit.DAY) }
-            .takeWhile { it < range.endInclusive }
-            .sumOf { nightlyPrice(it) }
+    fun rangePrice(range: ClosedRange<LocalDate>): Int {
+        val startEpoch = range.start.toEpochDays()
+        val endEpoch = range.endInclusive.toEpochDays() - 1
+        if (startEpoch > endEpoch) return 0
+
+        // ⚡ Bolt optimization: Iterating over epoch days is significantly faster
+        // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`
+        return (startEpoch..endEpoch)
+            .sumOf { nightlyPrice(LocalDate.fromEpochDays(it)) }
+    }
 }

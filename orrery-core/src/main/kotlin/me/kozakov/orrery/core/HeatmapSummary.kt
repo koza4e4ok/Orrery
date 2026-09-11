@@ -1,8 +1,6 @@
 package me.kozakov.orrery.core
 
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.plus
 
 /**
  * Aggregates for a heatmap range: how many days were active, the streak

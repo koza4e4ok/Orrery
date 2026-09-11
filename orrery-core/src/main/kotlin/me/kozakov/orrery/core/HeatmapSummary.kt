@@ -1,8 +1,6 @@
 package me.kozakov.orrery.core
 
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.plus
 
 /**
  * Aggregates for a heatmap range: how many days were active, the streak
@@ -27,8 +25,16 @@ public fun heatmapSummary(
     var activeDays = 0
     var longest = 0
     var run = 0
-    var date = range.start
-    while (date <= range.endInclusive) {
+
+    // ⚡ Bolt Optimization:
+    // Iterating over a range of integer epoch days and converting each using
+    // `LocalDate.fromEpochDays()` is significantly faster than using
+    // `LocalDate.plus(1, DateTimeUnit.DAY)`, which performs heavy calendar math on every iteration.
+    val startEpoch = range.start.toEpochDays()
+    val endEpoch = range.endInclusive.toEpochDays()
+
+    for (epoch in startEpoch..endEpoch) {
+        val date = LocalDate.fromEpochDays(epoch)
         if (isActive(date)) {
             activeDays++
             run++
@@ -36,7 +42,6 @@ public fun heatmapSummary(
         } else {
             run = 0
         }
-        date = date.plus(1, DateTimeUnit.DAY)
     }
     return HeatmapSummary(activeDays = activeDays, currentStreak = run, longestStreak = longest)
 }

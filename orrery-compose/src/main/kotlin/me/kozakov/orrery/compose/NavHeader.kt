@@ -26,6 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
@@ -71,7 +72,7 @@ public fun CalendarNavHeader(
                     .weight(1f)
                     .then(
                         if (onTitleClick != null) {
-                            Modifier.clip(MaterialTheme.shapes.small).clickable(onClick = onTitleClick)
+                            Modifier.clip(MaterialTheme.shapes.small).clickable(role = Role.Button, onClick = onTitleClick)
                         } else {
                             Modifier
                         },

@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -339,7 +340,7 @@ private fun HeatCell(
             .clip(cellShape)
             .background(if (value == null) emptyCellColor else colorScale(value))
             .then(
-                if (onDayClick != null) Modifier.clickable { onDayClick(date) } else Modifier,
+                if (onDayClick != null) Modifier.clickable(role = Role.Button) { onDayClick(date) } else Modifier,
             ).semantics { contentDescription = description },
     )
 }

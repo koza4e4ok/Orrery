@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,7 +103,7 @@ public fun YearCalendar(
                             Box(
                                 Modifier
                                     .weight(1f)
-                                    .clickable { onMonthClick(ym) },
+                                    .clickable(role = Role.Button) { onMonthClick(ym) },
                             ) { monthContent(ym) }
                         }
                     }

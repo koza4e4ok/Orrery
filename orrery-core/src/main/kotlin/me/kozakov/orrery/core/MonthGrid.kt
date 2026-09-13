@@ -27,11 +27,16 @@ public fun monthGrid(
             OutDateStyle.EndOfRow, OutDateStyle.None -> (offset + yearMonth.numberOfDays + 6) / 7
         }
     val gridStart = firstDay.minus(offset, DateTimeUnit.DAY)
+    // ⚡ Bolt optimization: Iterating over epoch days and converting back to LocalDate
+    // is significantly faster than using `LocalDate.plus(1, DateTimeUnit.DAY)`, which
+    // performs full calendar math on every step.
+    val gridStartEpoch = gridStart.toEpochDays()
     val weeks =
         List(rows) { row ->
+            val rowStartEpoch = gridStartEpoch + row * 7
             CalendarWeek(
                 List(7) { col ->
-                    val date = gridStart.plus(row * 7 + col, DateTimeUnit.DAY)
+                    val date = LocalDate.fromEpochDays(rowStartEpoch + col)
                     val position =
                         when {
                             date < firstDay -> DayPosition.InDate
@@ -52,7 +57,9 @@ public fun weekGrid(
 ): CalendarWeek {
     val offset = (anchor.dayOfWeek.isoDayNumber - firstDayOfWeek.isoDayNumber).mod(7)
     val start = anchor.minus(offset, DateTimeUnit.DAY)
+    // ⚡ Bolt optimization: Iterating over epoch days is significantly faster than `plus`.
+    val startEpoch = start.toEpochDays()
     return CalendarWeek(
-        List(7) { i -> CalendarDay(start.plus(i, DateTimeUnit.DAY), DayPosition.MonthDate) },
+        List(7) { i -> CalendarDay(LocalDate.fromEpochDays(startEpoch + i), DayPosition.MonthDate) },
     )
 }

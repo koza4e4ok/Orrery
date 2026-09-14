@@ -73,9 +73,11 @@ public fun CalendarNavHeader(
                     .then(
                         if (onTitleClick != null) {
                             Modifier
-                                .clip(
-                                    MaterialTheme.shapes.small,
-                                ).clickable(onClick = onTitleClick, role = Role.Button)
+                                .clip(MaterialTheme.shapes.small)
+                                .clickable(
+                                    role = Role.Button,
+                                    onClick = onTitleClick,
+                                )
                         } else {
                             Modifier
                         },

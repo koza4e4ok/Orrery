@@ -4,3 +4,6 @@
 ## 2024-05-24 - Keyboard UX for Date Input
 **Learning:** Using appropriate `KeyboardOptions` (specifically `KeyboardType.Number` and `ImeAction.Next`/`ImeAction.Done`) significantly improves data entry UX on mobile date range pickers.
 **Action:** Always verify text inputs have appropriate IME actions, especially when placed in sequence (e.g., Start Date -> End Date).
+## 2024-05-14 - Modifier.clickable Accessibility Semantics
+**Learning:** `Modifier.clickable` does not implicitly add a role to elements, which can cause screen readers to read interactive elements incorrectly.
+**Action:** Always explicitly pass an appropriate role (e.g., `role = Role.Button`) to `Modifier.clickable` so assistive technologies can accurately interpret the semantic meaning of the element.

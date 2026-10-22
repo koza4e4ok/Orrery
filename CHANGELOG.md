@@ -60,7 +60,7 @@
 ## [0.2.0] - 2026-07-17
 
 > Never tagged or published to Maven Central. These changes first shipped in
-> [0.3.0], which was the next published release.
+> 0.3.0, which was the next published release.
 
 ### Added
 

@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Interactive elements now report `Role.Button` to accessibility services, so
+  TalkBack announces them as buttons: day cells in `DefaultDay`, clickable
+  days in `HeatmapCalendar` and `HeatmapMonth`, months in `YearCalendar`,
+  and the clickable title of `CalendarNavHeader` (#4, #6).
+- Date picker text input opens the numeric keyboard. In
+  `OrreryDateRangePickerDialog` the IME action moves from the start date to
+  the end date field (`Next`), then `Done` (#2).
+- Faster date iteration: `SelectionEngine`, `CalendarSelectionState`,
+  `heatmapSummary()`, `HeatmapCalendar`, `monthGrid` and `weekGrid` walk
+  dates by epoch day instead of repeated `LocalDate.plus(1, DAY)`
+  (#1, #3, #5, #9).
+
 ## [0.5.0] - 2026-07-18
 
 ### Added
@@ -44,6 +58,9 @@
   string is an overridable parameter (English defaults).
 
 ## [0.2.0] - 2026-07-17
+
+> Never tagged or published to Maven Central. These changes first shipped in
+> [0.3.0], which was the next published release.
 
 ### Added
 

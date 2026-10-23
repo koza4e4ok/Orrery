@@ -358,15 +358,15 @@ final object me.kozakov.orrery.core/CalendarPages { // me.kozakov.orrery.core/Ca
 }
 
 final object me.kozakov.orrery.core/DayInfoPriority { // me.kozakov.orrery.core/DayInfoPriority|null[0]
-    const final val DEFAULT // me.kozakov.orrery.core/DayInfoPriority.DEFAULT|{}DEFAULT[0]
+    final const val DEFAULT // me.kozakov.orrery.core/DayInfoPriority.DEFAULT|{}DEFAULT[0]
         final fun <get-DEFAULT>(): kotlin/Int // me.kozakov.orrery.core/DayInfoPriority.DEFAULT.<get-DEFAULT>|<get-DEFAULT>(){}[0]
-    const final val FESTIVAL // me.kozakov.orrery.core/DayInfoPriority.FESTIVAL|{}FESTIVAL[0]
+    final const val FESTIVAL // me.kozakov.orrery.core/DayInfoPriority.FESTIVAL|{}FESTIVAL[0]
         final fun <get-FESTIVAL>(): kotlin/Int // me.kozakov.orrery.core/DayInfoPriority.FESTIVAL.<get-FESTIVAL>|<get-FESTIVAL>(){}[0]
-    const final val PUBLIC_HOLIDAY // me.kozakov.orrery.core/DayInfoPriority.PUBLIC_HOLIDAY|{}PUBLIC_HOLIDAY[0]
+    final const val PUBLIC_HOLIDAY // me.kozakov.orrery.core/DayInfoPriority.PUBLIC_HOLIDAY|{}PUBLIC_HOLIDAY[0]
         final fun <get-PUBLIC_HOLIDAY>(): kotlin/Int // me.kozakov.orrery.core/DayInfoPriority.PUBLIC_HOLIDAY.<get-PUBLIC_HOLIDAY>|<get-PUBLIC_HOLIDAY>(){}[0]
-    const final val SECONDARY // me.kozakov.orrery.core/DayInfoPriority.SECONDARY|{}SECONDARY[0]
+    final const val SECONDARY // me.kozakov.orrery.core/DayInfoPriority.SECONDARY|{}SECONDARY[0]
         final fun <get-SECONDARY>(): kotlin/Int // me.kozakov.orrery.core/DayInfoPriority.SECONDARY.<get-SECONDARY>|<get-SECONDARY>(){}[0]
-    const final val SOLAR_TERM // me.kozakov.orrery.core/DayInfoPriority.SOLAR_TERM|{}SOLAR_TERM[0]
+    final const val SOLAR_TERM // me.kozakov.orrery.core/DayInfoPriority.SOLAR_TERM|{}SOLAR_TERM[0]
         final fun <get-SOLAR_TERM>(): kotlin/Int // me.kozakov.orrery.core/DayInfoPriority.SOLAR_TERM.<get-SOLAR_TERM>|<get-SOLAR_TERM>(){}[0]
 }
 

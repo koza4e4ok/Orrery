@@ -35,6 +35,7 @@ public final class me/kozakov/orrery/lunar/LunarDayInfoProvider : me/kozakov/orr
 	public fun <init> (Lme/kozakov/orrery/lunar/ChineseVariant;)V
 	public synthetic fun <init> (Lme/kozakov/orrery/lunar/ChineseVariant;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun info (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/DayInfo;
+	public fun plus (Lme/kozakov/orrery/core/DayInfoProvider;)Lme/kozakov/orrery/core/DayInfoProvider;
 }
 
 public final class me/kozakov/orrery/lunar/LunarDayMetadata {

@@ -17,8 +17,7 @@ public interface DayInfoProvider {
      * - [DayInfo.isHoliday] is `this.isHoliday || other.isHoliday`.
      * - [DayInfo.tags] is the deduplicated union of both tag lists in order.
      */
-    public operator fun plus(other: DayInfoProvider): DayInfoProvider =
-        CompositeDayInfoProvider(this, other)
+    public operator fun plus(other: DayInfoProvider): DayInfoProvider = CompositeDayInfoProvider(this, other)
 }
 
 /** Standard priority tiers for [DayInfo.priority] when composing providers. */

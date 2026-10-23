@@ -98,6 +98,10 @@ public abstract interface class me/kozakov/orrery/core/DayInfoProvider {
 	public fun plus (Lme/kozakov/orrery/core/DayInfoProvider;)Lme/kozakov/orrery/core/DayInfoProvider;
 }
 
+public final class me/kozakov/orrery/core/DayInfoProvider$DefaultImpls {
+	public static fun plus (Lme/kozakov/orrery/core/DayInfoProvider;Lme/kozakov/orrery/core/DayInfoProvider;)Lme/kozakov/orrery/core/DayInfoProvider;
+}
+
 public final class me/kozakov/orrery/core/DayPosition : java/lang/Enum {
 	public static final field InDate Lme/kozakov/orrery/core/DayPosition;
 	public static final field MonthDate Lme/kozakov/orrery/core/DayPosition;

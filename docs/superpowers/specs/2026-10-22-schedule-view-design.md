@@ -1,7 +1,7 @@
 # Time-Grid Day/Week Schedule View (0.7.0) — Design
 
 **Date:** 2026-10-22
-**Status:** Proposed (awaiting Andrii sign-off & Rei visual review)
+**Status:** Approved by Andrii (2026-10-23); awaiting Rei visual pass
 **Issue:** #21 (Co-designed with #22 event model & agenda; tracking roadmap: #26)
 **Owners:** Ritsuko (architecture & layout algorithm), Rei (visual spec), Maya (implementation), Asuka (review)
 
@@ -346,7 +346,8 @@ When `event.colorArgb != null`, `ScheduleDefaults.EventTile` derives the tile fi
 
 ---
 
-## 6. Open Decisions for Sign-Off
+## 6. Resolved Decisions (Andrii, 2026-10-23)
 
-1. **Multi-day all-day spanning bars in `WeekSchedule`:** In v1, should multi-day `AllDay` events render as a per-column chip in each covered day's header, or a continuous horizontal bar spanning across columns? *(Recommendation: per-column chip in v1 for simplicity and accessibility semantics; continuous multi-column bar can be added as an enhancement without API changes.)*
-2. **`WeekSchedule` horizontal scrolling model:** Page-snapping by `daysPerPage` (7-day weeks, matching `WeekCalendar`) vs continuous single-day horizontal scrolling? *(Recommendation: page-snapping by `daysPerPage`, matching `WeekCalendar` and Google Calendar's Week view.)*
+1. **All-day events in `WeekSchedule` (v1):** Render per-column all-day chips in each covered day's header (no multi-column spanning bars in v1).
+2. **`WeekSchedule` horizontal paging:** Page-snapping one week (`daysPerPage`) per swipe, matching `WeekCalendar`.
+3. **Visual spec review:** Pending Rei's (`rei_design`) visual pass on `ScheduleColors` and `ScheduleDimensions` before implementation.

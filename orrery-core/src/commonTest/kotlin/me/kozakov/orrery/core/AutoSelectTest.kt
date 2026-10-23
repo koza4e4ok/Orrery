@@ -9,7 +9,7 @@ class AutoSelectTest {
     private val today = LocalDate(2026, 7, 9)
 
     @Test
-    fun `FirstDayOfMonth selects the 1st, or today in the current month`() {
+    fun `FirstDayOfMonth selects the 1st or today in the current month`() {
         assertEquals(
             LocalDate(2026, 8, 1),
             autoSelectDate(YearMonth(2026, 8), previous = today, AutoSelectDay.FirstDayOfMonth, today),
@@ -21,7 +21,7 @@ class AutoSelectTest {
     }
 
     @Test
-    fun `LastSelectedDay keeps day-of-month, clamped to month length`() {
+    fun `LastSelectedDay keeps day-of-month clamped to month length`() {
         val previous = LocalDate(2026, 8, 31)
         assertEquals(
             LocalDate(2026, 9, 30), // September has 30 days

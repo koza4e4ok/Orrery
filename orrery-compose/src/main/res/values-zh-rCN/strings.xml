@@ -29,4 +29,7 @@
     <string name="orrery_day_state_in_range">在范围内</string>
     <string name="orrery_day_state_today">今天</string>
     <string name="orrery_day_state_unavailable">不可用</string>
+    <string name="orrery_agenda_today_prefix">今天</string>
+    <string name="orrery_agenda_all_day">全天</string>
+    <string name="orrery_agenda_no_events">无日程</string>
 </resources>

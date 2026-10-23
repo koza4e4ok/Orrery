@@ -29,4 +29,7 @@
     <string name="orrery_day_state_in_range">In range</string>
     <string name="orrery_day_state_today">Today</string>
     <string name="orrery_day_state_unavailable">Unavailable</string>
+    <string name="orrery_agenda_today_prefix">TODAY</string>
+    <string name="orrery_agenda_all_day">All day</string>
+    <string name="orrery_agenda_no_events">No events</string>
 </resources>

@@ -4,29 +4,36 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
+import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.DisabledDates
-
-internal data class Event(
-    val time: String,
-    val title: String,
-    val color: Color,
-)
+import me.kozakov.orrery.core.EventSpan
+import me.kozakov.orrery.core.eventsByDate
 
 internal data class Habit(
     val name: String,
     val color: Color,
 )
 
+private data class EventTemplate(
+    val start: LocalTime?,
+    val end: LocalTime?,
+    val title: String,
+    val subtitle: String? = null,
+    val colorArgb: Long,
+)
+
 /** Deterministic fake data anchored to the current date — no randomness. */
 internal object SampleData {
-    private val work = Color(0xFF64B5F6)
-    private val personal = Color(0xFFE57373)
-    private val health = Color(0xFF81C784)
+    private const val WORK_COLOR = 0xFF64B5F6L
+    private const val PERSONAL_COLOR = 0xFFE57373L
+    private const val HEALTH_COLOR = 0xFF81C784L
 
     val habits =
         listOf(
@@ -37,38 +44,54 @@ internal object SampleData {
 
     private val eventPool =
         listOf(
-            Event("08:00", "Morning run", health),
-            Event("09:00", "Team standup", work),
-            Event("11:30", "Design review", work),
-            Event("12:30", "Lunch with Sam", personal),
-            Event("14:00", "Dentist", health),
-            Event("16:00", "1:1 with manager", work),
-            Event("18:00", "Gym", health),
-            Event("19:30", "Book club", personal),
+            EventTemplate(LocalTime(8, 0), LocalTime(8, 45), "Morning run", "Riverside park", HEALTH_COLOR),
+            EventTemplate(LocalTime(9, 0), LocalTime(9, 30), "Team standup", null, WORK_COLOR),
+            EventTemplate(LocalTime(11, 30), LocalTime(12, 30), "Design review", "Room 302", WORK_COLOR),
+            EventTemplate(LocalTime(12, 30), LocalTime(13, 30), "Lunch with Sam", null, PERSONAL_COLOR),
+            EventTemplate(LocalTime(14, 0), LocalTime(15, 0), "Dentist", null, HEALTH_COLOR),
+            EventTemplate(LocalTime(16, 0), LocalTime(16, 45), "1:1 with manager", null, WORK_COLOR),
+            EventTemplate(LocalTime(18, 0), LocalTime(19, 0), "Gym", null, HEALTH_COLOR),
+            EventTemplate(LocalTime(19, 30), LocalTime(21, 0), "Book club", null, PERSONAL_COLOR),
+            EventTemplate(null, null, "Sprint planning day", null, WORK_COLOR),
         )
 
-    /** Named events on ~40% of days, 1..3 per day, sorted by time. */
-    fun eventsFor(month: YearMonth): Map<LocalDate, List<Event>> {
-        val last = month.firstDay.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
-        val startEpoch = month.firstDay.toEpochDays()
-        val endEpoch = last.toEpochDays()
-
-        // ⚡ Bolt optimization: Iterating over epoch days is significantly faster
-        // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`
-        return (startEpoch..endEpoch)
-            .map { LocalDate.fromEpochDays(it) }
-            .mapNotNull { date ->
-                val roll = (date.day * 7 + date.month.number * 3) % 10
-                if (roll > 3) return@mapNotNull null
-                val count = roll % 3 + 1
-                val startIndex = (date.day * 3) % eventPool.size
-                val events =
-                    (0 until count)
-                        .map { eventPool[(startIndex + it * 2) % eventPool.size] }
-                        .distinct()
-                        .sortedBy { it.time }
-                date to events
-            }.toMap()
+    /** Named events on ~40% of days in [range], 1..3 per day, indexed by date. */
+    fun eventsFor(range: ClosedRange<LocalDate>): Map<LocalDate, List<CalendarEvent<Nothing>>> {
+        val startEpoch = range.start.toEpochDays()
+        val endEpoch = range.endInclusive.toEpochDays()
+        val rawEvents =
+            buildList<CalendarEvent<Nothing>> {
+                for (epoch in startEpoch..endEpoch) {
+                    val date = LocalDate.fromEpochDays(epoch)
+                    val roll = (date.day * 7 + date.month.number * 3) % 10
+                    if (roll <= 3) {
+                        val count = roll % 3 + 1
+                        val startIndex = (date.day * 3) % eventPool.size
+                        for (i in 0 until count) {
+                            val tpl = eventPool[(startIndex + i * 2) % eventPool.size]
+                            val span =
+                                if (tpl.start != null && tpl.end != null) {
+                                    EventSpan.Timed(
+                                        start = LocalDateTime(date, tpl.start),
+                                        end = LocalDateTime(date, tpl.end),
+                                    )
+                                } else {
+                                    EventSpan.AllDay(startDate = date)
+                                }
+                            add(
+                                CalendarEvent<Nothing>(
+                                    id = "$date-$i",
+                                    title = tpl.title,
+                                    span = span,
+                                    subtitle = tpl.subtitle,
+                                    colorArgb = tpl.colorArgb,
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+        return rawEvents.eventsByDate(range)
     }
 
     /** Progress for past days and today; the most recent days are complete so streaks show. */

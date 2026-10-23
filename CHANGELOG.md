@@ -4,6 +4,10 @@
 
 ### Added
 
+- `CalendarEvent` and `EventSpan` (`AllDay`, `Timed`) in `orrery-core` with
+  `occursOn` and `eventsByDate` range indexing, plus `Agenda`, `AgendaState` /
+  `rememberAgendaState`, `AgendaDefaults` / `AgendaStrings`, and
+  `DayDecorators.eventDotsForEvents` in `orrery-compose` (#22).
 - `orrery-compose` ships a baseline profile, generated from the sample's
   `HorizontalCalendar` and `VerticalCalendar` scroll journeys, so its calendar
   code (and the `orrery-core` code it calls) is compiled ahead of time in apps

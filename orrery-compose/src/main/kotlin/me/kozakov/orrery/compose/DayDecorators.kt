@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.CalendarEvent
 
 /** Draw layer for a [DayDecorator]: behind or over the day content. */
 public enum class DecoratorLayer { Behind, Over }
@@ -65,6 +66,23 @@ public object DayDecorators {
                     x += diameter + gap
                 }
             }
+        }
+
+    /** Up to [maxDots] distinct event colors for each day from [eventsByDate]. */
+    @Composable
+    public fun eventDotsForEvents(
+        eventsByDate: (LocalDate) -> List<CalendarEvent<*>>,
+        defaultColor: Color = MaterialTheme.colorScheme.primary,
+        maxDots: Int = 3,
+        dotSize: Dp = 4.dp,
+        spacing: Dp = 2.dp,
+    ): DayDecorator =
+        eventDots(
+            maxDots = maxDots,
+            dotSize = dotSize,
+            spacing = spacing,
+        ) { date ->
+            eventsByDate(date).map { event -> event.colorArgb?.let(::Color) ?: defaultColor }.distinct()
         }
 
     /** 0f..1f progress arc around the cell; null draws nothing. */

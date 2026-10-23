@@ -44,6 +44,7 @@ public fun Month.displayName(
         locale,
     )
 
-public fun currentDate(): LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+// Declared here (not in commonMain) so they stay in LocaleKt for existing JVM callers.
+public actual fun currentDate(): LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-public fun currentYearMonth(): YearMonth = currentDate().let { YearMonth(it.year, it.month) }
+public actual fun currentYearMonth(): YearMonth = currentDate().let { YearMonth(it.year, it.month) }

@@ -26,13 +26,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.OutDateStyle
 import me.kozakov.orrery.core.daysOfWeek
 import me.kozakov.orrery.core.monthGrid
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 /**
  * Static month grid of heat tiles over [monthGrid]. Cells divide the
@@ -51,14 +48,15 @@ public fun HeatmapMonth(
     cellShape: Shape = RoundedCornerShape(4.dp),
     showDayNumbers: Boolean = false,
     showWeekdayHeader: Boolean = true,
-    firstDayOfWeek: DayOfWeek = firstDayOfWeekFromLocale(),
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
     strings: HeatmapStrings = HeatmapDefaults.strings(),
 ) {
     val month =
         remember(yearMonth, firstDayOfWeek) {
             monthGrid(yearMonth, firstDayOfWeek, OutDateStyle.EndOfRow)
         }
-    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
+    val dateFormatter: (LocalDate) -> String =
+        remember { { date -> PlatformDateFormat.formatDate(date, DateFormattingStyle.Medium) } }
     Column(modifier) {
         if (showWeekdayHeader) {
             CalendarDefaults.WeekHeader(daysOfWeek = daysOfWeek(firstDayOfWeek))
@@ -101,17 +99,17 @@ private fun MonthHeatCell(
     emptyCellColor: Color,
     cellShape: Shape,
     showDayNumber: Boolean,
-    dateFormatter: DateTimeFormatter,
+    dateFormatter: (LocalDate) -> String,
     strings: HeatmapStrings,
 ) {
     val value = intensity(date)
     val background = if (value == null) emptyCellColor else colorScale(value)
     val description =
         if (value == null) {
-            strings.dayDescriptionEmpty.format(date.toJavaLocalDate().format(dateFormatter))
+            strings.dayDescriptionEmpty.formatTemplate(dateFormatter(date))
         } else {
-            strings.dayDescription.format(
-                date.toJavaLocalDate().format(dateFormatter),
+            strings.dayDescription.formatTemplate(
+                dateFormatter(date),
                 heatLevel(value),
                 HEATMAP_LEVELS,
             )

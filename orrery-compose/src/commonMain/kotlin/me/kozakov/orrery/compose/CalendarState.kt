@@ -143,7 +143,7 @@ public fun rememberCalendarState(
     startMonth: YearMonth? = null,
     endMonth: YearMonth? = null,
     firstVisibleMonth: YearMonth = currentYearMonth(),
-    firstDayOfWeek: DayOfWeek = firstDayOfWeekFromLocale(),
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
     outDateStyle: OutDateStyle = OutDateStyle.EndOfRow,
 ): CalendarState =
     rememberSaveable(saver = CalendarState.Saver) {

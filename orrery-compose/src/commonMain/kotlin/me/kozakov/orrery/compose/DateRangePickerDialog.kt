@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -32,9 +31,6 @@ import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.toJavaLocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 /**
  * Full-screen Material-3-shaped date range picker dialog over Orrery's
@@ -55,7 +51,6 @@ public fun OrreryDateRangePickerDialog(
     today: LocalDate = currentDate(),
     strings: DatePickerStrings = DatePickerDefaults.strings(),
 ) {
-    val headlineFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
     val scope = rememberCoroutineScope()
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -82,10 +77,10 @@ public fun OrreryDateRangePickerDialog(
                     modifier = Modifier.padding(horizontal = 24.dp),
                 ) {
                     val start =
-                        state.selectedStartDate?.toJavaLocalDate()?.format(headlineFormatter)
+                        state.selectedStartDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
                             ?: strings.rangeStartPlaceholder
                     val end =
-                        state.selectedEndDate?.toJavaLocalDate()?.format(headlineFormatter)
+                        state.selectedEndDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
                             ?: strings.rangeEndPlaceholder
                     Text(
                         "$start – $end",

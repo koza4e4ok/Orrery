@@ -40,13 +40,10 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
-import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.core.CalendarPages
 import me.kozakov.orrery.core.HeatmapSummary
 import me.kozakov.orrery.core.daysOfWeek
 import me.kozakov.orrery.core.heatmapSummary
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 /** State holder for [HeatmapCalendar]. */
 @Stable
@@ -119,7 +116,7 @@ public fun rememberHeatmapCalendarState(
     startDate: LocalDate = currentDate().minus(364, DateTimeUnit.DAY),
     endDate: LocalDate = currentDate(),
     firstVisibleDate: LocalDate = endDate,
-    firstDayOfWeek: DayOfWeek = firstDayOfWeekFromLocale(),
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
 ): HeatmapCalendarState =
     rememberSaveable(saver = HeatmapCalendarState.Saver) {
         HeatmapCalendarState(startDate, endDate, firstVisibleDate, firstDayOfWeek)
@@ -149,7 +146,8 @@ public fun HeatmapCalendar(
     summary: (@Composable (HeatmapSummary) -> Unit)? = { HeatmapDefaults.Summary(it) },
     strings: HeatmapStrings = HeatmapDefaults.strings(),
 ) {
-    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
+    val dateFormatter: (LocalDate) -> String =
+        remember { { date -> PlatformDateFormat.formatDate(date, DateFormattingStyle.Medium) } }
     val labelHeight = if (showMonthLabels) 16.dp else 0.dp
     Column(modifier) {
         Row {
@@ -213,7 +211,7 @@ private fun WeekColumn(
     cellShape: Shape,
     showMonthLabels: Boolean,
     labelHeight: Dp,
-    dateFormatter: DateTimeFormatter,
+    dateFormatter: (LocalDate) -> String,
     strings: HeatmapStrings,
 ) {
     val weekStart = state.weekStartAt(index)
@@ -274,7 +272,7 @@ private fun monthLabelFor(
         val previousColumn = CalendarPages.weekIndex(state.startDate, previousFirst, state.firstDayOfWeek)
         if (index - previousColumn < 3) return null
     }
-    return firstOfMonth.month.displayName(short = true)
+    return PlatformDateFormat.monthName(firstOfMonth.month, short = true)
 }
 
 @Composable
@@ -296,7 +294,7 @@ private fun WeekdayLabelColumn(
             Box(Modifier.height(cellSize), contentAlignment = Alignment.CenterStart) {
                 if (row % 2 == 0 && row < 6) {
                     Text(
-                        text = day.displayName(),
+                        text = PlatformDateFormat.weekdayName(day, narrow = false),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -316,7 +314,7 @@ private fun HeatCell(
     emptyCellColor: Color,
     cellSize: Dp,
     cellShape: Shape,
-    dateFormatter: DateTimeFormatter,
+    dateFormatter: (LocalDate) -> String,
     strings: HeatmapStrings,
 ) {
     if (!inRange) {
@@ -326,10 +324,10 @@ private fun HeatCell(
     val value = intensity(date)
     val description =
         if (value == null) {
-            strings.dayDescriptionEmpty.format(date.toJavaLocalDate().format(dateFormatter))
+            strings.dayDescriptionEmpty.formatTemplate(dateFormatter(date))
         } else {
-            strings.dayDescription.format(
-                date.toJavaLocalDate().format(dateFormatter),
+            strings.dayDescription.formatTemplate(
+                dateFormatter(date),
                 heatLevel(value),
                 HEATMAP_LEVELS,
             )

@@ -24,11 +24,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.EventSpan
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 internal val LocalAgendaDate = compositionLocalOf<LocalDate?> { null }
 
@@ -76,7 +73,7 @@ public object AgendaDefaults {
                 if (isToday) {
                     "${strings.todayPrefix} · $label"
                 } else {
-                    label.uppercase(Locale.getDefault())
+                    PlatformDateFormat.uppercase(label)
                 },
             modifier =
                 modifier
@@ -187,8 +184,7 @@ public object AgendaDefaults {
     }
 }
 
-internal fun LocalDate.formatDayHeader(locale: Locale = Locale.getDefault()): String =
-    toJavaLocalDate().format(DateTimeFormatter.ofPattern("EEE, MMM d", locale))
+internal fun LocalDate.formatDayHeader(): String = PlatformDateFormat.dayHeader(this)
 
 internal fun eventTimeLabel(
     span: EventSpan,
@@ -214,4 +210,4 @@ internal fun eventTimeLabel(
         }
     }
 
-private fun LocalTime.formatHhMm(): String = "%02d:%02d".format(Locale.ROOT, hour, minute)
+private fun LocalTime.formatHhMm(): String = hour.toString().padStart(2, '0') + ":" + minute.toString().padStart(2, '0')

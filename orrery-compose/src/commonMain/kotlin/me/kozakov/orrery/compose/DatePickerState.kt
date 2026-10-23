@@ -105,7 +105,7 @@ public fun rememberOrreryDatePickerState(
     yearRange: IntRange = 1971..2055,
     initialDisplayMode: DatePickerDisplayMode = DatePickerDisplayMode.Picker,
     disabledDates: DisabledDates = DisabledDates.None,
-    firstDayOfWeek: DayOfWeek = firstDayOfWeekFromLocale(),
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
 ): OrreryDatePickerState {
     val saver =
         remember(yearRange, firstDayOfWeek) {
@@ -247,7 +247,7 @@ public fun rememberOrreryDateRangePickerState(
     minDays: Int? = null,
     maxDays: Int? = null,
     disabledDates: DisabledDates = DisabledDates.None,
-    firstDayOfWeek: DayOfWeek = firstDayOfWeekFromLocale(),
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
 ): OrreryDateRangePickerState {
     val saver =
         remember(yearRange, firstDayOfWeek, minDays, maxDays) {

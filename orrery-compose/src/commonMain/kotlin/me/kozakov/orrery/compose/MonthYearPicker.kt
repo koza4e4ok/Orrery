@@ -136,7 +136,7 @@ private fun DecadeGrid(
             val decade = decades[index]
             TextButton(onClick = { onDecadeClick(decade) }) {
                 Text(
-                    decadeLabel.format(decade),
+                    decadeLabel.formatTemplate(decade),
                     fontWeight = if (currentYear in decade until decade + 10) FontWeight.Bold else null,
                 )
             }
@@ -165,7 +165,7 @@ private fun MonthGrid(
                     enabled = yearMonth in range,
                 ) {
                     Text(
-                        month.displayName(),
+                        PlatformDateFormat.monthName(month, short = false),
                         fontWeight = if (yearMonth == current) FontWeight.Bold else null,
                     )
                 }

@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.OutDateStyle
 import me.kozakov.orrery.core.monthGrid
@@ -124,7 +123,7 @@ public fun CalendarDefaults.MiniMonth(
     val isCurrentMonth = yearMonth.year == today.year && yearMonth.month == today.month
     Column(modifier.padding(8.dp)) {
         Text(
-            text = yearMonth.firstDay.toJavaMonthName(),
+            text = PlatformDateFormat.monthName(yearMonth.month, short = true),
             style = MaterialTheme.typography.titleSmall,
             color =
                 if (isCurrentMonth) {
@@ -148,8 +147,3 @@ public fun CalendarDefaults.MiniMonth(
         }
     }
 }
-
-private fun LocalDate.toJavaMonthName(): String =
-    toJavaLocalDate()
-        .month
-        .getDisplayName(java.time.format.TextStyle.SHORT_STANDALONE, java.util.Locale.getDefault())

@@ -88,9 +88,9 @@ public object HeatmapDefaults {
     ) {
         Text(
             text =
-                strings.summaryActiveDays.format(summary.activeDays) +
+                strings.summaryActiveDays.formatTemplate(summary.activeDays) +
                     " · " +
-                    strings.summaryStreak.format(summary.currentStreak),
+                    strings.summaryStreak.formatTemplate(summary.currentStreak),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

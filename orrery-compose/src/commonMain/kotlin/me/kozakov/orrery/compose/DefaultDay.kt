@@ -50,12 +50,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DayPosition
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 /**
  * Batteries-included day cell: selection fill, in-range band, today
@@ -139,7 +136,7 @@ public fun DefaultDay(
     )
     val description =
         remember(day.date) {
-            day.date.toJavaLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
+            PlatformDateFormat.formatDate(day.date, DateFormattingStyle.Long)
         }
     val dayState =
         listOfNotNull(

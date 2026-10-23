@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -34,9 +33,6 @@ import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.toJavaLocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 /**
  * Material-3-shaped date picker dialog over Orrery's calendar. Selection
@@ -56,7 +52,6 @@ public fun OrreryDatePickerDialog(
     today: LocalDate = currentDate(),
     strings: DatePickerStrings = DatePickerDefaults.strings(),
 ) {
-    val headlineFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
     val scope = rememberCoroutineScope()
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -77,7 +72,7 @@ public fun OrreryDatePickerDialog(
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        state.selectedDate?.toJavaLocalDate()?.format(headlineFormatter)
+                        state.selectedDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
                             ?: strings.headlinePlaceholder,
                         style = MaterialTheme.typography.headlineLarge,
                         modifier = Modifier.weight(1f),

@@ -121,7 +121,7 @@ public fun rememberWeekCalendarState(
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
     firstVisibleDate: LocalDate = currentDate(),
-    firstDayOfWeek: DayOfWeek = firstDayOfWeekFromLocale(),
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
 ): WeekCalendarState =
     rememberSaveable(saver = WeekCalendarState.Saver) {
         WeekCalendarState(startDate, endDate, firstVisibleDate, firstDayOfWeek)

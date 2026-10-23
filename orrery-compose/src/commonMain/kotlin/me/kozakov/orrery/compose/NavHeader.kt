@@ -116,7 +116,7 @@ private fun NavHeaderTitle(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
     ) {
-        Text(month.displayName(), style = MaterialTheme.typography.titleMedium)
+        Text(PlatformDateFormat.yearMonthTitle(month), style = MaterialTheme.typography.titleMedium)
         if (showDropdown) {
             DropdownTriangle()
         }

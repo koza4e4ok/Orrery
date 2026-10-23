@@ -156,7 +156,7 @@ public object CalendarDefaults {
             }
             daysOfWeek.forEach { day ->
                 Text(
-                    text = day.displayName(),
+                    text = PlatformDateFormat.weekdayName(day, narrow = false),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.labelMedium,
@@ -192,7 +192,7 @@ public object CalendarDefaults {
         modifier: Modifier = Modifier,
     ) {
         Text(
-            text = month.yearMonth.displayName(),
+            text = PlatformDateFormat.yearMonthTitle(month.yearMonth),
             modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             style = MaterialTheme.typography.titleMedium,
         )

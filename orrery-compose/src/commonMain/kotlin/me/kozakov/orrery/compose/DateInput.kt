@@ -1,6 +1,5 @@
 package me.kozakov.orrery.compose
 
-import android.text.format.DateFormat
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -12,24 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.intl.Locale
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toJavaLocalDate
-import kotlinx.datetime.toKotlinLocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
-import java.time.format.ResolverStyle
-import java.util.Locale
-
-/** Locale-ordered date pattern with 4-digit years (e.g. MM/dd/yyyy for en-US). */
-internal fun localizedDatePattern(locale: Locale = Locale.getDefault()): String =
-    DateFormat.getBestDateTimePattern(locale, "yyyyMMdd")
-
-/** Strict formatter for [localizedDatePattern]; y->u is required for STRICT resolution. */
-internal fun strictDateFormatter(
-    pattern: String,
-    locale: Locale = Locale.getDefault(),
-): DateTimeFormatter =
-    DateTimeFormatter.ofPattern(pattern.replace('y', 'u'), locale).withResolverStyle(ResolverStyle.STRICT)
 
 /**
  * One date text field: strict locale-pattern parsing with error
@@ -49,25 +32,18 @@ internal fun DateInputField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     externalError: String? = null,
 ) {
-    val locale = Locale.getDefault()
-    val pattern = remember(locale) { localizedDatePattern(locale) }
-    val formatter = remember(pattern) { strictDateFormatter(pattern, locale) }
+    val locale = Locale.current
+    val pattern = remember(locale) { PlatformDateFormat.inputDatePattern() }
+    val displayPattern = remember(pattern) { PlatformDateFormat.uppercase(pattern) }
 
-    fun parse(text: String): LocalDate? =
-        try {
-            java.time.LocalDate
-                .parse(text, formatter)
-                .toKotlinLocalDate()
-        } catch (_: DateTimeParseException) {
-            null
-        }
+    fun parse(text: String): LocalDate? = parseStrictDate(text, pattern)
 
-    var text by rememberSaveable { mutableStateOf(value?.toJavaLocalDate()?.format(formatter) ?: "") }
+    var text by rememberSaveable { mutableStateOf(value?.let { formatInputDate(it, pattern) } ?: "") }
     var error by remember { mutableStateOf<String?>(null) }
     // Sync external writes (e.g. mode toggle after picking) without clobbering typing.
     LaunchedEffect(value) {
         if (value != parse(text)) {
-            text = value?.toJavaLocalDate()?.format(formatter) ?: ""
+            text = value?.let { formatInputDate(it, pattern) } ?: ""
             error = null
         }
     }
@@ -83,7 +59,7 @@ internal fun DateInputField(
             val parsed = parse(new)
             error =
                 when {
-                    parsed == null -> strings.invalidFormatError.format(pattern.uppercase(locale))
+                    parsed == null -> strings.invalidFormatError.formatTemplate(displayPattern)
                     parsed !in bounds -> strings.outOfRangeError
                     isDisabled(parsed) -> strings.disabledDateError
                     else -> null
@@ -91,7 +67,7 @@ internal fun DateInputField(
             onValueChange(if (error == null) parsed else null)
         },
         label = { Text(label) },
-        placeholder = { Text(pattern.uppercase(locale)) },
+        placeholder = { Text(displayPattern) },
         isError = error != null || externalError != null,
         supportingText = { (error ?: externalError)?.let { Text(it) } },
         singleLine = true,

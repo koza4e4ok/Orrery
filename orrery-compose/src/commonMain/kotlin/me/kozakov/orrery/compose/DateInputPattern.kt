@@ -22,7 +22,7 @@ private sealed interface PatternToken {
     ) : PatternToken
 }
 
-private const val FIELD_LETTERS = "yMd"
+private const val FIELD_LETTERS = "yMdLu"
 private const val MAX_VARIABLE_DIGITS = 9
 private const val TWO_DIGIT_YEAR_BASE = 2000
 private const val FULL_YEAR_WIDTH = 4
@@ -40,7 +40,8 @@ private fun tokenize(pattern: String): List<PatternToken> {
                     var end = i
                     while (end < pattern.length && pattern[end] == c) end++
                     tokens.flushLiteral(literal)
-                    tokens += PatternToken.Field(c, end - i)
+                    val canonical = if (c == 'L') 'M' else if (c == 'u') 'y' else c
+                    tokens += PatternToken.Field(canonical, end - i)
                     end
                 }
                 else -> {
@@ -168,7 +169,7 @@ private fun readField(
     var end = start
     while (end < text.length && end - start < maxDigits && text[end] in '0'..'9') end++
     if (end - start < minDigits) return null
-    val value = text.substring(start, end).toInt()
+    val value = text.substring(start, end).toIntOrNull() ?: return null
     values[field.letter] = if (field.letter == 'y' && field.width == 2) TWO_DIGIT_YEAR_BASE + value else value
     return end
 }

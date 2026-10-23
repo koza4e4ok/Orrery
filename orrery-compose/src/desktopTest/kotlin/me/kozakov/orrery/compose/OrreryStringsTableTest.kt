@@ -6,6 +6,7 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /** The non-Android string tables must match the Android string resources they mirror. */
 class OrreryStringsTableTest {
@@ -22,6 +23,9 @@ class OrreryStringsTableTest {
             )
         for ((folder, tag) in locales) {
             val resources = readStrings(File("src/androidMain/res/$folder/strings.xml"))
+            for (name in resources.keys) {
+                assertTrue(name.startsWith("orrery_"), "$folder/$name must start with orrery_")
+            }
             val table = translationsFor(Locale(tag))
             for (string in OrreryString.entries) {
                 assertEquals(resources[string.resourceName], table[string], "$folder/${string.resourceName}")

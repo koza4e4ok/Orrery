@@ -1,7 +1,7 @@
 # Kotlin & Compose Multiplatform (0.6.0) — Design
 
 **Date:** 2026-10-22
-**Status:** Proposed (awaiting Andrii sign-off)
+**Status:** Approved (signed off 2026-10-23)
 **Issue:** #20 (Tracking roadmap: #26)
 **Owners:** Ritsuko (design), Maya (implementation), Asuka (review)
 
@@ -18,6 +18,8 @@ A live codebase audit of `0.5.1-SNAPSHOT` confirms how close the modules already
 **Deliberate non-goals (what we are NOT building):**
 
 - No native SwiftUI or UIKit wrappers; iOS consumers render Orrery via Compose Multiplatform (`ComposeUIViewController`).
+- No legacy `js(IR)` Web target; Web support uses `wasmJs` only.
+- No desktop entry point in `:sample` during this migration (`:sample` stays Android-only for now; desktop sample deferred to a later phase).
 - No Linux/Mingw native non-Compose targets for `orrery-core`/`orrery-lunar` in the initial wave (can be added trivially later if requested; initial targets match Compose Multiplatform's supported matrix).
 - No third-party KMP file/compression library in `orrery-lunar` just to unzip test fixtures on non-JVM targets.
 - No multiplatform pixel-snapshot framework replacing Roborazzi on non-Android targets.
@@ -170,12 +172,12 @@ Each phase lands as an independently verifiable PR once this design is signed of
 
 ---
 
-## 7. Risks & Open Decisions for Sign-Off
+## 7. Risks & Resolved Decisions
 
 ### Risks & Mitigations
 - **Compose BOM vs JetBrains Compose Multiplatform version alignment:** Android Jetpack Compose BOM `2026.06.01` maps to a specific JetBrains Compose Multiplatform release. *Mitigation:* Pin the matching stable `org.jetbrains.compose` version in `libs.versions.toml` during Phase 3 and verify all 28 Roborazzi snapshots remain pixel-identical.
 - **Wasm `Intl.Locale` week-start support across older headless browsers:** *Mitigation:* Wrap `Intl.Locale` weekInfo lookup in `try/catch` in `wasmJsMain`, falling back to `DayOfWeek.MONDAY` (ISO) or `SUNDAY` for `en-US`.
 
-### Open Decisions for Andrii
-1. **Web target scope:** Is `wasmJs` sufficient for initial Web support, or do you also want a legacy `js(IR)` target? *(Recommendation: `wasmJs` only — it is the standard target for Compose Multiplatform Web.)*
-2. **Sample app scope:** Keep `:sample` as Android-only for `0.6.0`, or add a `:sample:desktopRun` target in Phase 3 to dogfood the Desktop artifact? *(Recommendation: add a lightweight `desktopMain` entry point in `:sample` in Phase 3.)*
+### Resolved Decisions (Andrii, 2026-10-23)
+1. **Web target scope:** `wasmJs` only — no `js(IR)` target.
+2. **Sample app scope:** Keep `:sample` as Android-only for now; the desktop entry point for `:sample` is deferred to a later phase.

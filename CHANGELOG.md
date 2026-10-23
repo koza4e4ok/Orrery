@@ -10,6 +10,12 @@
   Ships English, Ukrainian, German, Spanish, Simplified Chinese (zh-CN) and
   Japanese; other locales fall back to English. Every string can still be
   overridden (#15).
+- `DefaultDay` reports range start, range end, in range, today and
+  unavailable as its accessibility state description, so TalkBack announces
+  them after the date (e.g. "July 9, 2026, Range start, Today"). The strings
+  come from the new `CalendarDayStrings` / `CalendarDefaults.dayStrings()`,
+  are localized like the other built-in strings, and can be overridden through
+  `DefaultDay`'s new `strings` parameter (#16).
 
 ### Changed
 

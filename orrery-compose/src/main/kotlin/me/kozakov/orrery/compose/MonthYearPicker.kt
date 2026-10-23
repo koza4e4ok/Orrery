@@ -130,12 +130,13 @@ private fun DecadeGrid(
     onDecadeClick: (Int) -> Unit,
 ) {
     val decades = (range.start.year / 10..range.endInclusive.year / 10).map { it * 10 }
+    val decadeLabel = orreryString(OrreryString.MonthYearPickerDecade)
     LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.fillMaxWidth()) {
         items(decades.size) { index ->
             val decade = decades[index]
             TextButton(onClick = { onDecadeClick(decade) }) {
                 Text(
-                    "${decade}s",
+                    decadeLabel.format(decade),
                     fontWeight = if (currentYear in decade until decade + 10) FontWeight.Bold else null,
                 )
             }

@@ -1,10 +1,13 @@
 package me.kozakov.orrery.compose
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 
 /**
- * English default strings for the date picker dialogs. Callers
- * localize by passing their own values to [DatePickerDefaults.strings].
+ * Strings for the date picker dialogs. [DatePickerDefaults.strings]
+ * resolves them from the current locale's resources; callers can
+ * override any of them.
  */
 @Immutable
 public class DatePickerStrings(
@@ -30,27 +33,30 @@ public class DatePickerStrings(
 /** Defaults for the date picker dialogs. */
 public object DatePickerDefaults {
     /**
-     * Builds [DatePickerStrings], defaulting to English. Callers
-     * localize by overriding the parameters they need.
+     * Builds [DatePickerStrings]. Defaults are resolved from the current
+     * locale's resources; override any parameter to replace a string.
+     * [invalidFormatError] is a template receiving the expected pattern.
      */
+    @Composable
+    @ReadOnlyComposable
     public fun strings(
-        title: String = "Select date",
-        rangeTitle: String = "Select dates",
-        headlinePlaceholder: String = "Selected date",
-        rangeStartPlaceholder: String = "Start date",
-        rangeEndPlaceholder: String = "End date",
-        inputLabel: String = "Date",
-        rangeStartInputLabel: String = "Start date",
-        rangeEndInputLabel: String = "End date",
-        invalidFormatError: String = "Date must match %s",
-        outOfRangeError: String = "Date out of allowed range",
-        disabledDateError: String = "Date is unavailable",
-        invalidRangeError: String = "Invalid date range",
-        switchToInputDescription: String = "Switch to text input",
-        switchToPickerDescription: String = "Switch to calendar",
-        previousMonthDescription: String = "Previous month",
-        nextMonthDescription: String = "Next month",
-        closeDescription: String = "Close",
+        title: String = orreryString(OrreryString.DatePickerTitle),
+        rangeTitle: String = orreryString(OrreryString.DatePickerRangeTitle),
+        headlinePlaceholder: String = orreryString(OrreryString.DatePickerHeadlinePlaceholder),
+        rangeStartPlaceholder: String = orreryString(OrreryString.DatePickerRangeStartPlaceholder),
+        rangeEndPlaceholder: String = orreryString(OrreryString.DatePickerRangeEndPlaceholder),
+        inputLabel: String = orreryString(OrreryString.DatePickerInputLabel),
+        rangeStartInputLabel: String = orreryString(OrreryString.DatePickerRangeStartInputLabel),
+        rangeEndInputLabel: String = orreryString(OrreryString.DatePickerRangeEndInputLabel),
+        invalidFormatError: String = orreryString(OrreryString.DatePickerInvalidFormatError),
+        outOfRangeError: String = orreryString(OrreryString.DatePickerOutOfRangeError),
+        disabledDateError: String = orreryString(OrreryString.DatePickerDisabledDateError),
+        invalidRangeError: String = orreryString(OrreryString.DatePickerInvalidRangeError),
+        switchToInputDescription: String = orreryString(OrreryString.DatePickerSwitchToInput),
+        switchToPickerDescription: String = orreryString(OrreryString.DatePickerSwitchToPicker),
+        previousMonthDescription: String = orreryString(OrreryString.PreviousMonth),
+        nextMonthDescription: String = orreryString(OrreryString.NextMonth),
+        closeDescription: String = orreryString(OrreryString.Close),
     ): DatePickerStrings =
         DatePickerStrings(
             title = title,

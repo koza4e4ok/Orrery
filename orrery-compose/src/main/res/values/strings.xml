@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="orrery_date_picker_title">Select date</string>
+    <string name="orrery_date_picker_range_title">Select dates</string>
+    <string name="orrery_date_picker_headline_placeholder">Selected date</string>
+    <string name="orrery_date_picker_range_start_placeholder">Start date</string>
+    <string name="orrery_date_picker_range_end_placeholder">End date</string>
+    <string name="orrery_date_picker_input_label">Date</string>
+    <string name="orrery_date_picker_range_start_input_label">Start date</string>
+    <string name="orrery_date_picker_range_end_input_label">End date</string>
+    <string name="orrery_date_picker_invalid_format_error">Date must match %s</string>
+    <string name="orrery_date_picker_out_of_range_error">Date out of allowed range</string>
+    <string name="orrery_date_picker_disabled_date_error">Date is unavailable</string>
+    <string name="orrery_date_picker_invalid_range_error">Invalid date range</string>
+    <string name="orrery_date_picker_switch_to_input">Switch to text input</string>
+    <string name="orrery_date_picker_switch_to_picker">Switch to calendar</string>
+    <string name="orrery_previous_month">Previous month</string>
+    <string name="orrery_next_month">Next month</string>
+    <string name="orrery_close">Close</string>
+    <string name="orrery_month_year_picker_decade">%ds</string>
+    <string name="orrery_heatmap_legend_less">Less</string>
+    <string name="orrery_heatmap_legend_more">More</string>
+    <string name="orrery_heatmap_day_description">%1$s, level %2$d of %3$d</string>
+    <string name="orrery_heatmap_day_description_empty">%1$s, no data</string>
+    <string name="orrery_heatmap_summary_active_days">%d active days</string>
+    <string name="orrery_heatmap_summary_streak">%d-day streak</string>
+</resources>

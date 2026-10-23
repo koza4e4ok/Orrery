@@ -17,11 +17,12 @@ class DateInputFieldTest {
     @get:Rule val rule = createComposeRule()
 
     private var value: LocalDate? = null
-    private val strings = DatePickerDefaults.strings()
+    private lateinit var strings: DatePickerStrings
 
     private fun content(disabled: (LocalDate) -> Boolean = { false }) {
         rule.setContent {
             MaterialTheme {
+                strings = DatePickerDefaults.strings()
                 DateInputField(
                     value = null,
                     onValueChange = { value = it },

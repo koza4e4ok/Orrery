@@ -77,12 +77,11 @@ class MonthGridTest {
                     }
                     // first cell is on the configured first day of week
                     assertEquals(fdow, days.first().date.dayOfWeek)
-                    // MonthDate count equals the real month length (java.time oracle)
-                    val oracle =
-                        java.time.YearMonth
-                            .of(year, month)
-                            .lengthOfMonth()
-                    assertEquals(oracle, days.count { it.position == DayPosition.MonthDate })
+                    // MonthDate count equals the real month length (Gregorian oracle)
+                    assertEquals(
+                        gregorianMonthLength(year, month),
+                        days.count { it.position == DayPosition.MonthDate },
+                    )
                     // positions are ordered: InDate* MonthDate* OutDate*
                     val positions = days.map { it.position }
                     assertEquals(positions.sorted(), positions)
@@ -99,4 +98,15 @@ class MonthGridTest {
         assertEquals(LocalDate(2026, 7, 12), week.days.last().date)
         assertTrue(week.days.all { it.position == DayPosition.MonthDate })
     }
+
+    /** Independent Gregorian month-length oracle (no kotlinx-datetime, no java.time). */
+    private fun gregorianMonthLength(
+        year: Int,
+        month: Int,
+    ): Int =
+        when (month) {
+            2 -> if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) 29 else 28
+            4, 6, 9, 11 -> 30
+            else -> 31
+        }
 }

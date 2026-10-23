@@ -25,7 +25,7 @@ class HeatmapCalendarTest {
 
     private val start = LocalDate(2025, 7, 16)
     private val end = LocalDate(2026, 7, 15)
-    private val strings = HeatmapDefaults.strings()
+    private lateinit var strings: HeatmapStrings
 
     private fun intensity(date: LocalDate): Float? = if (date.day % 5 == 0) null else (date.day % 5) / 4f
 
@@ -39,6 +39,7 @@ class HeatmapCalendarTest {
     ) {
         rule.setContent {
             MaterialTheme {
+                strings = HeatmapDefaults.strings()
                 state =
                     rememberHeatmapCalendarState(
                         startDate = start,

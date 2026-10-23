@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="orrery_date_picker_title">日付を選択</string>
+    <string name="orrery_date_picker_range_title">期間を選択</string>
+    <string name="orrery_date_picker_headline_placeholder">選択した日付</string>
+    <string name="orrery_date_picker_range_start_placeholder">開始日</string>
+    <string name="orrery_date_picker_range_end_placeholder">終了日</string>
+    <string name="orrery_date_picker_input_label">日付</string>
+    <string name="orrery_date_picker_range_start_input_label">開始日</string>
+    <string name="orrery_date_picker_range_end_input_label">終了日</string>
+    <string name="orrery_date_picker_invalid_format_error">日付は %s の形式で入力してください</string>
+    <string name="orrery_date_picker_out_of_range_error">日付が許可された範囲外です</string>
+    <string name="orrery_date_picker_disabled_date_error">この日付は選択できません</string>
+    <string name="orrery_date_picker_invalid_range_error">期間が無効です</string>
+    <string name="orrery_date_picker_switch_to_input">テキスト入力に切り替え</string>
+    <string name="orrery_date_picker_switch_to_picker">カレンダーに切り替え</string>
+    <string name="orrery_previous_month">前の月</string>
+    <string name="orrery_next_month">次の月</string>
+    <string name="orrery_close">閉じる</string>
+    <string name="orrery_month_year_picker_decade">%d年代</string>
+    <string name="orrery_heatmap_legend_less">少</string>
+    <string name="orrery_heatmap_legend_more">多</string>
+    <string name="orrery_heatmap_day_description">%1$s、レベル %2$d/%3$d</string>
+    <string name="orrery_heatmap_day_description_empty">%1$s、データなし</string>
+    <string name="orrery_heatmap_summary_active_days">アクティブ日数: %d</string>
+    <string name="orrery_heatmap_summary_streak">連続 %d 日</string>
+</resources>

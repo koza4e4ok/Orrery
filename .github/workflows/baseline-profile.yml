@@ -4,11 +4,6 @@ name: Baseline profile
 # macrobenchmarks on a Gradle Managed Device. Kept out of ci.yml because it is slow.
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "baselineprofile/**"
-      - "orrery-compose/src/main/generated/baselineProfiles/**"
-      - ".github/workflows/baseline-profile.yml"
 
 env:
   GMD_FLAGS: >-

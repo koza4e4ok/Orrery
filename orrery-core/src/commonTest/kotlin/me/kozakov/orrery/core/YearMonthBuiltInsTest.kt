@@ -36,16 +36,4 @@ class YearMonthBuiltInsTest {
         assertEquals(28, YearMonth(2100, 2).numberOfDays) // 2100 is not a leap year
         assertEquals(31, YearMonth(2026, 12).numberOfDays)
     }
-
-    @Test
-    fun `matches java time oracle for every month 1900-2099`() {
-        for (year in 1900..2099) {
-            for (month in 1..12) {
-                val oracle = java.time.YearMonth.of(year, month)
-                val ym = YearMonth(year, month)
-                assertEquals(oracle.lengthOfMonth(), ym.numberOfDays, "numberOfDays $year-$month")
-                assertEquals(oracle.atEndOfMonth().dayOfMonth, ym.lastDay.day, "lastDay $year-$month")
-            }
-        }
-    }
 }

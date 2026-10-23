@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- `orrery-compose` ships a baseline profile, generated from the sample's
+  `HorizontalCalendar` and `VerticalCalendar` scroll journeys, so its calendar
+  code (and the `orrery-core` code it calls) is compiled ahead of time in apps
+  instead of being interpreted and JIT-compiled on first use (#17).
+
 ### Changed
 
 - Interactive elements now report `Role.Button` to accessibility services, so

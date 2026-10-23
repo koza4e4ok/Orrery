@@ -87,7 +87,7 @@ public fun <T> Iterable<CalendarEvent<T>>.eventsByDate(
     val rangeEndEpoch = range.endInclusive.toEpochDays()
     if (rangeStartEpoch > rangeEndEpoch) return emptyMap()
 
-    val buckets = mutableMapOf<Int, MutableList<CalendarEvent<T>>>()
+    val buckets = mutableMapOf<Long, MutableList<CalendarEvent<T>>>()
     for (event in this) {
         val startEpoch = maxOf(event.span.startDate.toEpochDays(), rangeStartEpoch)
         val endEpoch = minOf(event.span.endDate.toEpochDays(), rangeEndEpoch)

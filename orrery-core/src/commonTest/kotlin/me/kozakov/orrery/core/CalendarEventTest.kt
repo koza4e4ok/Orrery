@@ -14,6 +14,30 @@ class CalendarEventTest {
     private val jul12 = LocalDate(2026, 7, 12)
     private val jul13 = LocalDate(2026, 7, 13)
 
+    private fun allDay(
+        id: String,
+        title: String,
+        start: LocalDate,
+        end: LocalDate = start,
+    ): CalendarEvent<Nothing> = CalendarEvent(id = id, title = title, span = EventSpan.AllDay(start, end))
+
+    private fun timed(
+        id: String,
+        title: String,
+        startHour: Int,
+        endHour: Int,
+        endMinute: Int = 0,
+    ): CalendarEvent<Nothing> =
+        CalendarEvent(
+            id = id,
+            title = title,
+            span =
+                EventSpan.Timed(
+                    start = LocalDateTime(2026, 7, 10, startHour, 0),
+                    end = LocalDateTime(2026, 7, 10, endHour, endMinute),
+                ),
+        )
+
     @Test
     fun `all-day span defaults endDate to startDate and validates bounds`() {
         val single = EventSpan.AllDay(jul10)
@@ -33,9 +57,9 @@ class CalendarEventTest {
     fun `timed span exposes start and end dates and validates bounds`() {
         val start = LocalDateTime(2026, 7, 10, 22, 0)
         val end = LocalDateTime(2026, 7, 11, 2, 0)
-        val timed = EventSpan.Timed(start = start, end = end)
-        assertEquals(jul10, timed.startDate)
-        assertEquals(jul11, timed.endDate)
+        val span = EventSpan.Timed(start = start, end = end)
+        assertEquals(jul10, span.startDate)
+        assertEquals(jul11, span.endDate)
 
         val zeroDuration = EventSpan.Timed(start = start, end = start)
         assertEquals(jul10, zeroDuration.startDate)
@@ -47,12 +71,7 @@ class CalendarEventTest {
 
     @Test
     fun `occursOn checks inclusive date span for all-day and overnight timed events`() {
-        val multiAllDay =
-            CalendarEvent<Nothing>(
-                id = "all-day",
-                title = "Conference",
-                span = EventSpan.AllDay(jul10, jul12),
-            )
+        val multiAllDay = allDay(id = "all-day", title = "Conference", start = jul10, end = jul12)
         assertFalse(multiAllDay.occursOn(LocalDate(2026, 7, 9)))
         assertTrue(multiAllDay.occursOn(jul10))
         assertTrue(multiAllDay.occursOn(jul11))
@@ -79,74 +98,14 @@ class CalendarEventTest {
 
     @Test
     fun `eventsByDate sorts all-day before timed with canonical tie-breaking`() {
-        val timedLate =
-            CalendarEvent<Nothing>(
-                id = "t-late",
-                title = "Afternoon sync",
-                span =
-                    EventSpan.Timed(
-                        start = LocalDateTime(2026, 7, 10, 15, 0),
-                        end = LocalDateTime(2026, 7, 10, 16, 0),
-                    ),
-            )
-        val timedEarlyLong =
-            CalendarEvent<Nothing>(
-                id = "t-early-long",
-                title = "Workshop",
-                span =
-                    EventSpan.Timed(
-                        start = LocalDateTime(2026, 7, 10, 9, 0),
-                        end = LocalDateTime(2026, 7, 10, 11, 0),
-                    ),
-            )
-        val timedEarlyShortB =
-            CalendarEvent<Nothing>(
-                id = "t-early-b",
-                title = "Standup B",
-                span =
-                    EventSpan.Timed(
-                        start = LocalDateTime(2026, 7, 10, 9, 0),
-                        end = LocalDateTime(2026, 7, 10, 9, 30),
-                    ),
-            )
-        val timedEarlyShortA2 =
-            CalendarEvent<Nothing>(
-                id = "t-early-a-2",
-                title = "Standup A",
-                span =
-                    EventSpan.Timed(
-                        start = LocalDateTime(2026, 7, 10, 9, 0),
-                        end = LocalDateTime(2026, 7, 10, 9, 30),
-                    ),
-            )
-        val timedEarlyShortA1 =
-            CalendarEvent<Nothing>(
-                id = "t-early-a-1",
-                title = "Standup A",
-                span =
-                    EventSpan.Timed(
-                        start = LocalDateTime(2026, 7, 10, 9, 0),
-                        end = LocalDateTime(2026, 7, 10, 9, 30),
-                    ),
-            )
-        val allDayTodayB =
-            CalendarEvent<Nothing>(
-                id = "ad-today-b",
-                title = "Release B",
-                span = EventSpan.AllDay(jul10),
-            )
-        val allDayTodayA =
-            CalendarEvent<Nothing>(
-                id = "ad-today-a",
-                title = "Release A",
-                span = EventSpan.AllDay(jul10),
-            )
-        val allDayStartedEarlier =
-            CalendarEvent<Nothing>(
-                id = "ad-earlier",
-                title = "Zeta Summit",
-                span = EventSpan.AllDay(LocalDate(2026, 7, 9), jul11),
-            )
+        val timedLate = timed("t-late", "Afternoon sync", 15, 16)
+        val timedEarlyLong = timed("t-early-long", "Workshop", 9, 11)
+        val timedEarlyShortB = timed("t-early-b", "Standup B", 9, 9, 30)
+        val timedEarlyShortA2 = timed("t-early-a-2", "Standup A", 9, 9, 30)
+        val timedEarlyShortA1 = timed("t-early-a-1", "Standup A", 9, 9, 30)
+        val allDayTodayB = allDay("ad-today-b", "Release B", jul10)
+        val allDayTodayA = allDay("ad-today-a", "Release A", jul10)
+        val allDayStartedEarlier = allDay("ad-earlier", "Zeta Summit", LocalDate(2026, 7, 9), jul11)
 
         val indexed =
             listOf(
@@ -177,18 +136,8 @@ class CalendarEventTest {
 
     @Test
     fun `eventsByDate clips multi-day spans to queried range and handles empty range`() {
-        val multi =
-            CalendarEvent<Nothing>(
-                id = "multi",
-                title = "Roadshow",
-                span = EventSpan.AllDay(jul10, jul13),
-            )
-        val outside =
-            CalendarEvent<Nothing>(
-                id = "outside",
-                title = "August event",
-                span = EventSpan.AllDay(LocalDate(2026, 8, 1)),
-            )
+        val multi = allDay(id = "multi", title = "Roadshow", start = jul10, end = jul13)
+        val outside = allDay(id = "outside", title = "August event", start = LocalDate(2026, 8, 1))
 
         val clipped = listOf(multi, outside).eventsByDate(jul11..jul12)
         assertEquals(setOf(jul11, jul12), clipped.keys)

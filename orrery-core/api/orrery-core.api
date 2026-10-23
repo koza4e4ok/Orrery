@@ -24,6 +24,33 @@ public final class me/kozakov/orrery/core/CalendarDay {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class me/kozakov/orrery/core/CalendarEvent {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lme/kozakov/orrery/core/EventSpan;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/Long;
+	public final fun component6 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarEvent;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getColorArgb ()Ljava/lang/Long;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getPayload ()Ljava/lang/Object;
+	public final fun getSpan ()Lme/kozakov/orrery/core/EventSpan;
+	public final fun getSubtitle ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun occursOn (Lkotlinx/datetime/LocalDate;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/CalendarEventKt {
+	public static final fun eventsByDate (Ljava/lang/Iterable;Lkotlin/ranges/ClosedRange;)Ljava/util/Map;
+}
+
 public final class me/kozakov/orrery/core/CalendarMonth {
 	public fun <init> (Lkotlinx/datetime/YearMonth;Ljava/util/List;)V
 	public final fun component1 ()Lkotlinx/datetime/YearMonth;
@@ -113,6 +140,40 @@ public final class me/kozakov/orrery/core/DisabledDatesBuilder {
 
 public final class me/kozakov/orrery/core/DisabledDatesKt {
 	public static final fun DisabledDates (Lkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/core/DisabledDates;
+}
+
+public abstract interface class me/kozakov/orrery/core/EventSpan {
+	public abstract fun getEndDate ()Lkotlinx/datetime/LocalDate;
+	public abstract fun getStartDate ()Lkotlinx/datetime/LocalDate;
+}
+
+public final class me/kozakov/orrery/core/EventSpan$AllDay : me/kozakov/orrery/core/EventSpan {
+	public fun <init> (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;)V
+	public synthetic fun <init> (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlinx/datetime/LocalDate;
+	public final fun component2 ()Lkotlinx/datetime/LocalDate;
+	public final fun copy (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/EventSpan$AllDay;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/EventSpan$AllDay;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;ILjava/lang/Object;)Lme/kozakov/orrery/core/EventSpan$AllDay;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getEndDate ()Lkotlinx/datetime/LocalDate;
+	public fun getStartDate ()Lkotlinx/datetime/LocalDate;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/EventSpan$Timed : me/kozakov/orrery/core/EventSpan {
+	public fun <init> (Lkotlinx/datetime/LocalDateTime;Lkotlinx/datetime/LocalDateTime;)V
+	public final fun component1 ()Lkotlinx/datetime/LocalDateTime;
+	public final fun component2 ()Lkotlinx/datetime/LocalDateTime;
+	public final fun copy (Lkotlinx/datetime/LocalDateTime;Lkotlinx/datetime/LocalDateTime;)Lme/kozakov/orrery/core/EventSpan$Timed;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/EventSpan$Timed;Lkotlinx/datetime/LocalDateTime;Lkotlinx/datetime/LocalDateTime;ILjava/lang/Object;)Lme/kozakov/orrery/core/EventSpan$Timed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEnd ()Lkotlinx/datetime/LocalDateTime;
+	public fun getEndDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getStart ()Lkotlinx/datetime/LocalDateTime;
+	public fun getStartDate ()Lkotlinx/datetime/LocalDate;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class me/kozakov/orrery/core/HeatmapSummary {

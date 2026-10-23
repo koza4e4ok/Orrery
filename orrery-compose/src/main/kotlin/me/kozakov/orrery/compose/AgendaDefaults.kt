@@ -108,7 +108,8 @@ public object AgendaDefaults {
     ) {
         val barColor = event.colorArgb?.let(::Color) ?: MaterialTheme.colorScheme.primary
         val timeText = eventTimeLabel(event.span, date, strings)
-        val barHeight = if (event.subtitle != null) 44.dp else 36.dp
+        val subtitle = event.subtitle
+        val barHeight = if (subtitle != null) 44.dp else 36.dp
         Row(
             modifier =
                 modifier
@@ -142,9 +143,9 @@ public object AgendaDefaults {
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                if (event.subtitle != null) {
+                if (subtitle != null) {
                     Text(
-                        text = event.subtitle,
+                        text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

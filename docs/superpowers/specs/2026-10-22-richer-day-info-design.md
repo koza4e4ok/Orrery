@@ -1,7 +1,7 @@
 # Richer DayInfo for Custom Providers (0.6.0 / 0.7.0) — Design
 
 **Date:** 2026-10-22
-**Status:** Proposed (awaiting Andrii sign-off)
+**Status:** Approved (signed off 2026-10-23)
 **Issue:** #19 (Tracking roadmap: #26)
 **Owners:** Ritsuko (design), Maya (implementation), Asuka (review)
 
@@ -108,6 +108,25 @@ public data class DayInfo(
         colorArgb = null,
         payload = null,
     )
+
+    /** Binary-compatible 3-argument copy bridge for callers compiled against 0.5.x. */
+    @Deprecated(
+        message = "Binary compatibility bridge for 3-arg DayInfo.copy",
+        level = DeprecationLevel.HIDDEN,
+    )
+    public fun copy(
+        label: String? = this.label,
+        isHoliday: Boolean = this.isHoliday,
+        tags: List<String> = this.tags,
+    ): DayInfo =
+        DayInfo(
+            label = label,
+            isHoliday = isHoliday,
+            tags = tags,
+            priority = this.priority,
+            colorArgb = this.colorArgb,
+            payload = this.payload,
+        )
 }
 
 /** Type-safe extraction of [DayInfo.payload], returning null if absent or of a different type. */
@@ -157,7 +176,7 @@ Because `DayInfo` is a Kotlin `data class`, expanding its primary constructor fr
 | `<init>(Ljava/lang/String;ZLjava/util/List;)V` | Preserved via explicit 3-arg secondary constructor | 100% binary compatible |
 | `<init>(Ljava/lang/String;ZLjava/util/List;ILjava/lang/Long;Ljava/lang/Object;)V` | Added (new 6-arg primary constructor) | Additive |
 | `getPriority()`, `getColorArgb()`, `getPayload()`, `component4..6()` | Added | Additive |
-| `copy$default` synthetic mask (3-arg vs 6-arg) | Changes from 3-arg `copy` to 6-arg `copy` | Pre-1.0 acceptable (or preserve a `@Deprecated(HIDDEN)` 3-arg `copy` bridge if strict `0.5.0` `copy()` binary compatibility is desired) |
+| `copy(Ljava/lang/String;ZLjava/util/List;)Lme/kozakov/orrery/core/DayInfo;` & `copy$default` | Preserved via `@Deprecated(level = DeprecationLevel.HIDDEN)` 3-arg `copy` bridge | 100% binary compatible with `0.5.x` |
 
 Running `./gradlew updateKotlinAbi` updates `orrery-core/api/orrery-core.api` and `orrery-lunar/api/orrery-lunar.api`, verified by `checkKotlinAbi`.
 
@@ -177,6 +196,6 @@ Running `./gradlew updateKotlinAbi` updates `orrery-core/api/orrery-core.api` an
 
 ---
 
-## 5. Open Decisions for Sign-Off
+## 5. Resolved Decisions (Andrii, 2026-10-23)
 
-1. **Strict 0.5.x binary compatibility for `DayInfo.copy(...)` vs clean pre-1.0 data class:** Since Orrery is pre-1.0 (`0.5.x`), should we keep `DayInfo` as a clean 6-property `data class` (with the 3-arg secondary constructor for Java/Kotlin construction compatibility) and accept the `copy$default` signature update in `orrery-core.api`, or add a `@Deprecated(level = DeprecationLevel.HIDDEN)` 3-arg `copy` bridge? *(Recommendation: clean 6-property `data class` + 3-arg secondary constructor; pre-1.0 minor releases explicitly allow ABI evolution.)*
+1. **Binary compatibility for `DayInfo.copy(...)`:** Include the `@Deprecated(level = DeprecationLevel.HIDDEN)` 3-argument `copy` bridge alongside the 3-argument secondary constructor so consumers compiled against `0.5.x` continue working without recompilation.

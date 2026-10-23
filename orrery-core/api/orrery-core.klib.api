@@ -1,0 +1,364 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <Orrery:orrery-core>
+final enum class me.kozakov.orrery.core/AutoSelectDay : kotlin/Enum<me.kozakov.orrery.core/AutoSelectDay> { // me.kozakov.orrery.core/AutoSelectDay|null[0]
+    enum entry FirstDayOfMonth // me.kozakov.orrery.core/AutoSelectDay.FirstDayOfMonth|null[0]
+    enum entry LastSelectedDay // me.kozakov.orrery.core/AutoSelectDay.LastSelectedDay|null[0]
+    enum entry LastSelectedDayIgnoringCurrent // me.kozakov.orrery.core/AutoSelectDay.LastSelectedDayIgnoringCurrent|null[0]
+
+    final val entries // me.kozakov.orrery.core/AutoSelectDay.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.core/AutoSelectDay> // me.kozakov.orrery.core/AutoSelectDay.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.core/AutoSelectDay // me.kozakov.orrery.core/AutoSelectDay.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.core/AutoSelectDay> // me.kozakov.orrery.core/AutoSelectDay.values|values#static(){}[0]
+}
+
+final enum class me.kozakov.orrery.core/DayPosition : kotlin/Enum<me.kozakov.orrery.core/DayPosition> { // me.kozakov.orrery.core/DayPosition|null[0]
+    enum entry InDate // me.kozakov.orrery.core/DayPosition.InDate|null[0]
+    enum entry MonthDate // me.kozakov.orrery.core/DayPosition.MonthDate|null[0]
+    enum entry OutDate // me.kozakov.orrery.core/DayPosition.OutDate|null[0]
+
+    final val entries // me.kozakov.orrery.core/DayPosition.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.core/DayPosition> // me.kozakov.orrery.core/DayPosition.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.core/DayPosition // me.kozakov.orrery.core/DayPosition.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.core/DayPosition> // me.kozakov.orrery.core/DayPosition.values|values#static(){}[0]
+}
+
+final enum class me.kozakov.orrery.core/OutDateStyle : kotlin/Enum<me.kozakov.orrery.core/OutDateStyle> { // me.kozakov.orrery.core/OutDateStyle|null[0]
+    enum entry EndOfGrid // me.kozakov.orrery.core/OutDateStyle.EndOfGrid|null[0]
+    enum entry EndOfRow // me.kozakov.orrery.core/OutDateStyle.EndOfRow|null[0]
+    enum entry None // me.kozakov.orrery.core/OutDateStyle.None|null[0]
+
+    final val entries // me.kozakov.orrery.core/OutDateStyle.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.core/OutDateStyle> // me.kozakov.orrery.core/OutDateStyle.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.core/OutDateStyle // me.kozakov.orrery.core/OutDateStyle.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.core/OutDateStyle> // me.kozakov.orrery.core/OutDateStyle.values|values#static(){}[0]
+}
+
+abstract interface me.kozakov.orrery.core/DayInfoProvider { // me.kozakov.orrery.core/DayInfoProvider|null[0]
+    abstract fun info(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/DayInfo? // me.kozakov.orrery.core/DayInfoProvider.info|info(kotlinx.datetime.LocalDate){}[0]
+}
+
+sealed interface me.kozakov.orrery.core/SelectionEvent { // me.kozakov.orrery.core/SelectionEvent|null[0]
+    abstract val date // me.kozakov.orrery.core/SelectionEvent.date|{}date[0]
+        abstract fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.date.<get-date>|<get-date>(){}[0]
+
+    final class Intercepted : me.kozakov.orrery.core/SelectionEvent { // me.kozakov.orrery.core/SelectionEvent.Intercepted|null[0]
+        constructor <init>(kotlinx.datetime/LocalDate) // me.kozakov.orrery.core/SelectionEvent.Intercepted.<init>|<init>(kotlinx.datetime.LocalDate){}[0]
+
+        final val date // me.kozakov.orrery.core/SelectionEvent.Intercepted.date|{}date[0]
+            final fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.Intercepted.date.<get-date>|<get-date>(){}[0]
+
+        final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.Intercepted.component1|component1(){}[0]
+        final fun copy(kotlinx.datetime/LocalDate = ...): me.kozakov.orrery.core/SelectionEvent.Intercepted // me.kozakov.orrery.core/SelectionEvent.Intercepted.copy|copy(kotlinx.datetime.LocalDate){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionEvent.Intercepted.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.Intercepted.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionEvent.Intercepted.toString|toString(){}[0]
+    }
+
+    final class OutOfRange : me.kozakov.orrery.core/SelectionEvent { // me.kozakov.orrery.core/SelectionEvent.OutOfRange|null[0]
+        constructor <init>(kotlinx.datetime/LocalDate) // me.kozakov.orrery.core/SelectionEvent.OutOfRange.<init>|<init>(kotlinx.datetime.LocalDate){}[0]
+
+        final val date // me.kozakov.orrery.core/SelectionEvent.OutOfRange.date|{}date[0]
+            final fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.OutOfRange.date.<get-date>|<get-date>(){}[0]
+
+        final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.OutOfRange.component1|component1(){}[0]
+        final fun copy(kotlinx.datetime/LocalDate = ...): me.kozakov.orrery.core/SelectionEvent.OutOfRange // me.kozakov.orrery.core/SelectionEvent.OutOfRange.copy|copy(kotlinx.datetime.LocalDate){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionEvent.OutOfRange.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.OutOfRange.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionEvent.OutOfRange.toString|toString(){}[0]
+    }
+
+    final class RangeTooLong : me.kozakov.orrery.core/SelectionEvent { // me.kozakov.orrery.core/SelectionEvent.RangeTooLong|null[0]
+        constructor <init>(kotlinx.datetime/LocalDate, kotlin/Int) // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.<init>|<init>(kotlinx.datetime.LocalDate;kotlin.Int){}[0]
+
+        final val date // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.date|{}date[0]
+            final fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.date.<get-date>|<get-date>(){}[0]
+        final val maxDays // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.maxDays|{}maxDays[0]
+            final fun <get-maxDays>(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.maxDays.<get-maxDays>|<get-maxDays>(){}[0]
+
+        final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.component1|component1(){}[0]
+        final fun component2(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.component2|component2(){}[0]
+        final fun copy(kotlinx.datetime/LocalDate = ..., kotlin/Int = ...): me.kozakov.orrery.core/SelectionEvent.RangeTooLong // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.copy|copy(kotlinx.datetime.LocalDate;kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionEvent.RangeTooLong.toString|toString(){}[0]
+    }
+
+    final class RangeTooShort : me.kozakov.orrery.core/SelectionEvent { // me.kozakov.orrery.core/SelectionEvent.RangeTooShort|null[0]
+        constructor <init>(kotlinx.datetime/LocalDate, kotlin/Int) // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.<init>|<init>(kotlinx.datetime.LocalDate;kotlin.Int){}[0]
+
+        final val date // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.date|{}date[0]
+            final fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.date.<get-date>|<get-date>(){}[0]
+        final val minDays // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.minDays|{}minDays[0]
+            final fun <get-minDays>(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.minDays.<get-minDays>|<get-minDays>(){}[0]
+
+        final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.component1|component1(){}[0]
+        final fun component2(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.component2|component2(){}[0]
+        final fun copy(kotlinx.datetime/LocalDate = ..., kotlin/Int = ...): me.kozakov.orrery.core/SelectionEvent.RangeTooShort // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.copy|copy(kotlinx.datetime.LocalDate;kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionEvent.RangeTooShort.toString|toString(){}[0]
+    }
+
+    final class TooManyDays : me.kozakov.orrery.core/SelectionEvent { // me.kozakov.orrery.core/SelectionEvent.TooManyDays|null[0]
+        constructor <init>(kotlinx.datetime/LocalDate, kotlin/Int) // me.kozakov.orrery.core/SelectionEvent.TooManyDays.<init>|<init>(kotlinx.datetime.LocalDate;kotlin.Int){}[0]
+
+        final val date // me.kozakov.orrery.core/SelectionEvent.TooManyDays.date|{}date[0]
+            final fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.TooManyDays.date.<get-date>|<get-date>(){}[0]
+        final val maxCount // me.kozakov.orrery.core/SelectionEvent.TooManyDays.maxCount|{}maxCount[0]
+            final fun <get-maxCount>(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.TooManyDays.maxCount.<get-maxCount>|<get-maxCount>(){}[0]
+
+        final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/SelectionEvent.TooManyDays.component1|component1(){}[0]
+        final fun component2(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.TooManyDays.component2|component2(){}[0]
+        final fun copy(kotlinx.datetime/LocalDate = ..., kotlin/Int = ...): me.kozakov.orrery.core/SelectionEvent.TooManyDays // me.kozakov.orrery.core/SelectionEvent.TooManyDays.copy|copy(kotlinx.datetime.LocalDate;kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionEvent.TooManyDays.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionEvent.TooManyDays.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionEvent.TooManyDays.toString|toString(){}[0]
+    }
+}
+
+sealed interface me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode|null[0]
+    final class Multi : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.Multi|null[0]
+        constructor <init>(kotlin/Int? = ...) // me.kozakov.orrery.core/SelectionMode.Multi.<init>|<init>(kotlin.Int?){}[0]
+
+        final val maxCount // me.kozakov.orrery.core/SelectionMode.Multi.maxCount|{}maxCount[0]
+            final fun <get-maxCount>(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Multi.maxCount.<get-maxCount>|<get-maxCount>(){}[0]
+
+        final fun component1(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Multi.component1|component1(){}[0]
+        final fun copy(kotlin/Int? = ...): me.kozakov.orrery.core/SelectionMode.Multi // me.kozakov.orrery.core/SelectionMode.Multi.copy|copy(kotlin.Int?){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Multi.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.Multi.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionMode.Multi.toString|toString(){}[0]
+    }
+
+    final class Range : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.Range|null[0]
+        constructor <init>(kotlin/Int? = ..., kotlin/Int? = ...) // me.kozakov.orrery.core/SelectionMode.Range.<init>|<init>(kotlin.Int?;kotlin.Int?){}[0]
+
+        final val effectiveMax // me.kozakov.orrery.core/SelectionMode.Range.effectiveMax|{}effectiveMax[0]
+            final fun <get-effectiveMax>(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Range.effectiveMax.<get-effectiveMax>|<get-effectiveMax>(){}[0]
+        final val effectiveMin // me.kozakov.orrery.core/SelectionMode.Range.effectiveMin|{}effectiveMin[0]
+            final fun <get-effectiveMin>(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Range.effectiveMin.<get-effectiveMin>|<get-effectiveMin>(){}[0]
+        final val maxDays // me.kozakov.orrery.core/SelectionMode.Range.maxDays|{}maxDays[0]
+            final fun <get-maxDays>(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Range.maxDays.<get-maxDays>|<get-maxDays>(){}[0]
+        final val minDays // me.kozakov.orrery.core/SelectionMode.Range.minDays|{}minDays[0]
+            final fun <get-minDays>(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Range.minDays.<get-minDays>|<get-minDays>(){}[0]
+
+        final fun component1(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Range.component1|component1(){}[0]
+        final fun component2(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Range.component2|component2(){}[0]
+        final fun copy(kotlin/Int? = ..., kotlin/Int? = ...): me.kozakov.orrery.core/SelectionMode.Range // me.kozakov.orrery.core/SelectionMode.Range.copy|copy(kotlin.Int?;kotlin.Int?){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Range.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.Range.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionMode.Range.toString|toString(){}[0]
+    }
+
+    final class Single : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.Single|null[0]
+        constructor <init>(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ...) // me.kozakov.orrery.core/SelectionMode.Single.<init>|<init>(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay){}[0]
+
+        final val autoAdvance // me.kozakov.orrery.core/SelectionMode.Single.autoAdvance|{}autoAdvance[0]
+            final fun <get-autoAdvance>(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.autoAdvance.<get-autoAdvance>|<get-autoAdvance>(){}[0]
+        final val autoSelectDay // me.kozakov.orrery.core/SelectionMode.Single.autoSelectDay|{}autoSelectDay[0]
+            final fun <get-autoSelectDay>(): me.kozakov.orrery.core/AutoSelectDay // me.kozakov.orrery.core/SelectionMode.Single.autoSelectDay.<get-autoSelectDay>|<get-autoSelectDay>(){}[0]
+
+        final fun component1(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.component1|component1(){}[0]
+        final fun component2(): me.kozakov.orrery.core/AutoSelectDay // me.kozakov.orrery.core/SelectionMode.Single.component2|component2(){}[0]
+        final fun copy(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ...): me.kozakov.orrery.core/SelectionMode.Single // me.kozakov.orrery.core/SelectionMode.Single.copy|copy(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.Single.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionMode.Single.toString|toString(){}[0]
+    }
+
+    final object None : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.None|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.None.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.None.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionMode.None.toString|toString(){}[0]
+    }
+}
+
+final class me.kozakov.orrery.core/CalendarDay { // me.kozakov.orrery.core/CalendarDay|null[0]
+    constructor <init>(kotlinx.datetime/LocalDate, me.kozakov.orrery.core/DayPosition) // me.kozakov.orrery.core/CalendarDay.<init>|<init>(kotlinx.datetime.LocalDate;me.kozakov.orrery.core.DayPosition){}[0]
+
+    final val date // me.kozakov.orrery.core/CalendarDay.date|{}date[0]
+        final fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/CalendarDay.date.<get-date>|<get-date>(){}[0]
+    final val position // me.kozakov.orrery.core/CalendarDay.position|{}position[0]
+        final fun <get-position>(): me.kozakov.orrery.core/DayPosition // me.kozakov.orrery.core/CalendarDay.position.<get-position>|<get-position>(){}[0]
+
+    final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/CalendarDay.component1|component1(){}[0]
+    final fun component2(): me.kozakov.orrery.core/DayPosition // me.kozakov.orrery.core/CalendarDay.component2|component2(){}[0]
+    final fun copy(kotlinx.datetime/LocalDate = ..., me.kozakov.orrery.core/DayPosition = ...): me.kozakov.orrery.core/CalendarDay // me.kozakov.orrery.core/CalendarDay.copy|copy(kotlinx.datetime.LocalDate;me.kozakov.orrery.core.DayPosition){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/CalendarDay.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/CalendarDay.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/CalendarDay.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.core/CalendarMonth { // me.kozakov.orrery.core/CalendarMonth|null[0]
+    constructor <init>(kotlinx.datetime/YearMonth, kotlin.collections/List<me.kozakov.orrery.core/CalendarWeek>) // me.kozakov.orrery.core/CalendarMonth.<init>|<init>(kotlinx.datetime.YearMonth;kotlin.collections.List<me.kozakov.orrery.core.CalendarWeek>){}[0]
+
+    final val weeks // me.kozakov.orrery.core/CalendarMonth.weeks|{}weeks[0]
+        final fun <get-weeks>(): kotlin.collections/List<me.kozakov.orrery.core/CalendarWeek> // me.kozakov.orrery.core/CalendarMonth.weeks.<get-weeks>|<get-weeks>(){}[0]
+    final val yearMonth // me.kozakov.orrery.core/CalendarMonth.yearMonth|{}yearMonth[0]
+        final fun <get-yearMonth>(): kotlinx.datetime/YearMonth // me.kozakov.orrery.core/CalendarMonth.yearMonth.<get-yearMonth>|<get-yearMonth>(){}[0]
+
+    final fun component1(): kotlinx.datetime/YearMonth // me.kozakov.orrery.core/CalendarMonth.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/List<me.kozakov.orrery.core/CalendarWeek> // me.kozakov.orrery.core/CalendarMonth.component2|component2(){}[0]
+    final fun copy(kotlinx.datetime/YearMonth = ..., kotlin.collections/List<me.kozakov.orrery.core/CalendarWeek> = ...): me.kozakov.orrery.core/CalendarMonth // me.kozakov.orrery.core/CalendarMonth.copy|copy(kotlinx.datetime.YearMonth;kotlin.collections.List<me.kozakov.orrery.core.CalendarWeek>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/CalendarMonth.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/CalendarMonth.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/CalendarMonth.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.core/CalendarWeek { // me.kozakov.orrery.core/CalendarWeek|null[0]
+    constructor <init>(kotlin.collections/List<me.kozakov.orrery.core/CalendarDay>) // me.kozakov.orrery.core/CalendarWeek.<init>|<init>(kotlin.collections.List<me.kozakov.orrery.core.CalendarDay>){}[0]
+
+    final val days // me.kozakov.orrery.core/CalendarWeek.days|{}days[0]
+        final fun <get-days>(): kotlin.collections/List<me.kozakov.orrery.core/CalendarDay> // me.kozakov.orrery.core/CalendarWeek.days.<get-days>|<get-days>(){}[0]
+
+    final fun component1(): kotlin.collections/List<me.kozakov.orrery.core/CalendarDay> // me.kozakov.orrery.core/CalendarWeek.component1|component1(){}[0]
+    final fun copy(kotlin.collections/List<me.kozakov.orrery.core/CalendarDay> = ...): me.kozakov.orrery.core/CalendarWeek // me.kozakov.orrery.core/CalendarWeek.copy|copy(kotlin.collections.List<me.kozakov.orrery.core.CalendarDay>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/CalendarWeek.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/CalendarWeek.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/CalendarWeek.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.core/DayInfo { // me.kozakov.orrery.core/DayInfo|null[0]
+    constructor <init>(kotlin/String?, kotlin/Boolean = ..., kotlin.collections/List<kotlin/String> = ...) // me.kozakov.orrery.core/DayInfo.<init>|<init>(kotlin.String?;kotlin.Boolean;kotlin.collections.List<kotlin.String>){}[0]
+
+    final val isHoliday // me.kozakov.orrery.core/DayInfo.isHoliday|{}isHoliday[0]
+        final fun <get-isHoliday>(): kotlin/Boolean // me.kozakov.orrery.core/DayInfo.isHoliday.<get-isHoliday>|<get-isHoliday>(){}[0]
+    final val label // me.kozakov.orrery.core/DayInfo.label|{}label[0]
+        final fun <get-label>(): kotlin/String? // me.kozakov.orrery.core/DayInfo.label.<get-label>|<get-label>(){}[0]
+    final val tags // me.kozakov.orrery.core/DayInfo.tags|{}tags[0]
+        final fun <get-tags>(): kotlin.collections/List<kotlin/String> // me.kozakov.orrery.core/DayInfo.tags.<get-tags>|<get-tags>(){}[0]
+
+    final fun component1(): kotlin/String? // me.kozakov.orrery.core/DayInfo.component1|component1(){}[0]
+    final fun component2(): kotlin/Boolean // me.kozakov.orrery.core/DayInfo.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/List<kotlin/String> // me.kozakov.orrery.core/DayInfo.component3|component3(){}[0]
+    final fun copy(kotlin/String? = ..., kotlin/Boolean = ..., kotlin.collections/List<kotlin/String> = ...): me.kozakov.orrery.core/DayInfo // me.kozakov.orrery.core/DayInfo.copy|copy(kotlin.String?;kotlin.Boolean;kotlin.collections.List<kotlin.String>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/DayInfo.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/DayInfo.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/DayInfo.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.core/DisabledDates { // me.kozakov.orrery.core/DisabledDates|null[0]
+    final fun contains(kotlinx.datetime/LocalDate): kotlin/Boolean // me.kozakov.orrery.core/DisabledDates.contains|contains(kotlinx.datetime.LocalDate){}[0]
+
+    final object Companion { // me.kozakov.orrery.core/DisabledDates.Companion|null[0]
+        final val None // me.kozakov.orrery.core/DisabledDates.Companion.None|{}None[0]
+            final fun <get-None>(): me.kozakov.orrery.core/DisabledDates // me.kozakov.orrery.core/DisabledDates.Companion.None.<get-None>|<get-None>(){}[0]
+    }
+}
+
+final class me.kozakov.orrery.core/DisabledDatesBuilder { // me.kozakov.orrery.core/DisabledDatesBuilder|null[0]
+    final fun after(kotlinx.datetime/LocalDate) // me.kozakov.orrery.core/DisabledDatesBuilder.after|after(kotlinx.datetime.LocalDate){}[0]
+    final fun before(kotlinx.datetime/LocalDate) // me.kozakov.orrery.core/DisabledDatesBuilder.before|before(kotlinx.datetime.LocalDate){}[0]
+    final fun dates(kotlin.collections/Collection<kotlinx.datetime/LocalDate>) // me.kozakov.orrery.core/DisabledDatesBuilder.dates|dates(kotlin.collections.Collection<kotlinx.datetime.LocalDate>){}[0]
+    final fun dates(kotlin/Array<out kotlinx.datetime/LocalDate>...) // me.kozakov.orrery.core/DisabledDatesBuilder.dates|dates(kotlin.Array<out|kotlinx.datetime.LocalDate>...){}[0]
+    final fun daysOfWeek(kotlin/Array<out kotlinx.datetime/DayOfWeek>...) // me.kozakov.orrery.core/DisabledDatesBuilder.daysOfWeek|daysOfWeek(kotlin.Array<out|kotlinx.datetime.DayOfWeek>...){}[0]
+    final fun predicate(kotlin/Function1<kotlinx.datetime/LocalDate, kotlin/Boolean>) // me.kozakov.orrery.core/DisabledDatesBuilder.predicate|predicate(kotlin.Function1<kotlinx.datetime.LocalDate,kotlin.Boolean>){}[0]
+    final fun range(kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>) // me.kozakov.orrery.core/DisabledDatesBuilder.range|range(kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>){}[0]
+}
+
+final class me.kozakov.orrery.core/HeatmapSummary { // me.kozakov.orrery.core/HeatmapSummary|null[0]
+    constructor <init>(kotlin/Int, kotlin/Int, kotlin/Int) // me.kozakov.orrery.core/HeatmapSummary.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Int){}[0]
+
+    final val activeDays // me.kozakov.orrery.core/HeatmapSummary.activeDays|{}activeDays[0]
+        final fun <get-activeDays>(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.activeDays.<get-activeDays>|<get-activeDays>(){}[0]
+    final val currentStreak // me.kozakov.orrery.core/HeatmapSummary.currentStreak|{}currentStreak[0]
+        final fun <get-currentStreak>(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.currentStreak.<get-currentStreak>|<get-currentStreak>(){}[0]
+    final val longestStreak // me.kozakov.orrery.core/HeatmapSummary.longestStreak|{}longestStreak[0]
+        final fun <get-longestStreak>(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.longestStreak.<get-longestStreak>|<get-longestStreak>(){}[0]
+
+    final fun component1(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.component2|component2(){}[0]
+    final fun component3(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.component3|component3(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ...): me.kozakov.orrery.core/HeatmapSummary // me.kozakov.orrery.core/HeatmapSummary.copy|copy(kotlin.Int;kotlin.Int;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/HeatmapSummary.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/HeatmapSummary.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.core/Selection { // me.kozakov.orrery.core/Selection|null[0]
+    constructor <init>(kotlinx.datetime/LocalDate? = ..., kotlinx.datetime/LocalDate? = ..., kotlinx.datetime/LocalDate? = ..., kotlin.collections/Set<kotlinx.datetime/LocalDate> = ...) // me.kozakov.orrery.core/Selection.<init>|<init>(kotlinx.datetime.LocalDate?;kotlinx.datetime.LocalDate?;kotlinx.datetime.LocalDate?;kotlin.collections.Set<kotlinx.datetime.LocalDate>){}[0]
+
+    final val multi // me.kozakov.orrery.core/Selection.multi|{}multi[0]
+        final fun <get-multi>(): kotlin.collections/Set<kotlinx.datetime/LocalDate> // me.kozakov.orrery.core/Selection.multi.<get-multi>|<get-multi>(){}[0]
+    final val range // me.kozakov.orrery.core/Selection.range|{}range[0]
+        final fun <get-range>(): kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>? // me.kozakov.orrery.core/Selection.range.<get-range>|<get-range>(){}[0]
+    final val rangeEnd // me.kozakov.orrery.core/Selection.rangeEnd|{}rangeEnd[0]
+        final fun <get-rangeEnd>(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.rangeEnd.<get-rangeEnd>|<get-rangeEnd>(){}[0]
+    final val rangeStart // me.kozakov.orrery.core/Selection.rangeStart|{}rangeStart[0]
+        final fun <get-rangeStart>(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.rangeStart.<get-rangeStart>|<get-rangeStart>(){}[0]
+    final val single // me.kozakov.orrery.core/Selection.single|{}single[0]
+        final fun <get-single>(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.single.<get-single>|<get-single>(){}[0]
+
+    final fun component1(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.component1|component1(){}[0]
+    final fun component2(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.component2|component2(){}[0]
+    final fun component3(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.component3|component3(){}[0]
+    final fun component4(): kotlin.collections/Set<kotlinx.datetime/LocalDate> // me.kozakov.orrery.core/Selection.component4|component4(){}[0]
+    final fun copy(kotlinx.datetime/LocalDate? = ..., kotlinx.datetime/LocalDate? = ..., kotlinx.datetime/LocalDate? = ..., kotlin.collections/Set<kotlinx.datetime/LocalDate> = ...): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/Selection.copy|copy(kotlinx.datetime.LocalDate?;kotlinx.datetime.LocalDate?;kotlinx.datetime.LocalDate?;kotlin.collections.Set<kotlinx.datetime.LocalDate>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/Selection.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/Selection.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/Selection.toString|toString(){}[0]
+
+    final object Companion { // me.kozakov.orrery.core/Selection.Companion|null[0]
+        final val Empty // me.kozakov.orrery.core/Selection.Companion.Empty|{}Empty[0]
+            final fun <get-Empty>(): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/Selection.Companion.Empty.<get-Empty>|<get-Empty>(){}[0]
+    }
+}
+
+final class me.kozakov.orrery.core/SelectionEngine { // me.kozakov.orrery.core/SelectionEngine|null[0]
+    constructor <init>(me.kozakov.orrery.core/SelectionMode, kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>? = ..., me.kozakov.orrery.core/DisabledDates = ...) // me.kozakov.orrery.core/SelectionEngine.<init>|<init>(me.kozakov.orrery.core.SelectionMode;kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>?;me.kozakov.orrery.core.DisabledDates){}[0]
+
+    final fun click(me.kozakov.orrery.core/Selection, kotlinx.datetime/LocalDate): me.kozakov.orrery.core/SelectionResult // me.kozakov.orrery.core/SelectionEngine.click|click(me.kozakov.orrery.core.Selection;kotlinx.datetime.LocalDate){}[0]
+    final fun replace(me.kozakov.orrery.core/Selection, me.kozakov.orrery.core/Selection): me.kozakov.orrery.core/SelectionResult // me.kozakov.orrery.core/SelectionEngine.replace|replace(me.kozakov.orrery.core.Selection;me.kozakov.orrery.core.Selection){}[0]
+}
+
+final class me.kozakov.orrery.core/SelectionResult { // me.kozakov.orrery.core/SelectionResult|null[0]
+    constructor <init>(me.kozakov.orrery.core/Selection, kotlin.collections/List<me.kozakov.orrery.core/SelectionEvent>) // me.kozakov.orrery.core/SelectionResult.<init>|<init>(me.kozakov.orrery.core.Selection;kotlin.collections.List<me.kozakov.orrery.core.SelectionEvent>){}[0]
+
+    final val events // me.kozakov.orrery.core/SelectionResult.events|{}events[0]
+        final fun <get-events>(): kotlin.collections/List<me.kozakov.orrery.core/SelectionEvent> // me.kozakov.orrery.core/SelectionResult.events.<get-events>|<get-events>(){}[0]
+    final val selection // me.kozakov.orrery.core/SelectionResult.selection|{}selection[0]
+        final fun <get-selection>(): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionResult.selection.<get-selection>|<get-selection>(){}[0]
+
+    final fun component1(): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionResult.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/List<me.kozakov.orrery.core/SelectionEvent> // me.kozakov.orrery.core/SelectionResult.component2|component2(){}[0]
+    final fun copy(me.kozakov.orrery.core/Selection = ..., kotlin.collections/List<me.kozakov.orrery.core/SelectionEvent> = ...): me.kozakov.orrery.core/SelectionResult // me.kozakov.orrery.core/SelectionResult.copy|copy(me.kozakov.orrery.core.Selection;kotlin.collections.List<me.kozakov.orrery.core.SelectionEvent>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionResult.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionResult.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionResult.toString|toString(){}[0]
+}
+
+final object me.kozakov.orrery.core/CalendarPages { // me.kozakov.orrery.core/CalendarPages|null[0]
+    final fun monthAt(kotlinx.datetime/YearMonth, kotlin/Int): kotlinx.datetime/YearMonth // me.kozakov.orrery.core/CalendarPages.monthAt|monthAt(kotlinx.datetime.YearMonth;kotlin.Int){}[0]
+    final fun monthCount(kotlinx.datetime/YearMonth, kotlinx.datetime/YearMonth): kotlin/Int // me.kozakov.orrery.core/CalendarPages.monthCount|monthCount(kotlinx.datetime.YearMonth;kotlinx.datetime.YearMonth){}[0]
+    final fun monthIndex(kotlinx.datetime/YearMonth, kotlinx.datetime/YearMonth): kotlin/Int // me.kozakov.orrery.core/CalendarPages.monthIndex|monthIndex(kotlinx.datetime.YearMonth;kotlinx.datetime.YearMonth){}[0]
+    final fun weekCount(kotlinx.datetime/LocalDate, kotlinx.datetime/LocalDate, kotlinx.datetime/DayOfWeek): kotlin/Int // me.kozakov.orrery.core/CalendarPages.weekCount|weekCount(kotlinx.datetime.LocalDate;kotlinx.datetime.LocalDate;kotlinx.datetime.DayOfWeek){}[0]
+    final fun weekIndex(kotlinx.datetime/LocalDate, kotlinx.datetime/LocalDate, kotlinx.datetime/DayOfWeek): kotlin/Int // me.kozakov.orrery.core/CalendarPages.weekIndex|weekIndex(kotlinx.datetime.LocalDate;kotlinx.datetime.LocalDate;kotlinx.datetime.DayOfWeek){}[0]
+    final fun weekStart(kotlinx.datetime/LocalDate, kotlinx.datetime/DayOfWeek): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/CalendarPages.weekStart|weekStart(kotlinx.datetime.LocalDate;kotlinx.datetime.DayOfWeek){}[0]
+}
+
+final object me.kozakov.orrery.core/SelectionPresets { // me.kozakov.orrery.core/SelectionPresets|null[0]
+    final fun lastNDays(kotlinx.datetime/LocalDate, kotlin/Int): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionPresets.lastNDays|lastNDays(kotlinx.datetime.LocalDate;kotlin.Int){}[0]
+    final fun nextDays(kotlinx.datetime/LocalDate, kotlin/Int): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionPresets.nextDays|nextDays(kotlinx.datetime.LocalDate;kotlin.Int){}[0]
+    final fun nextWeekend(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionPresets.nextWeekend|nextWeekend(kotlinx.datetime.LocalDate){}[0]
+    final fun thisMonth(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionPresets.thisMonth|thisMonth(kotlinx.datetime.LocalDate){}[0]
+    final fun thisQuarter(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionPresets.thisQuarter|thisQuarter(kotlinx.datetime.LocalDate){}[0]
+    final fun thisWeek(kotlinx.datetime/LocalDate, kotlinx.datetime/DayOfWeek): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionPresets.thisWeek|thisWeek(kotlinx.datetime.LocalDate;kotlinx.datetime.DayOfWeek){}[0]
+    final fun workweek(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionPresets.workweek|workweek(kotlinx.datetime.LocalDate){}[0]
+}
+
+final fun (kotlinx.datetime/LocalDate).me.kozakov.orrery.core/isoWeekNumber(): kotlin/Int // me.kozakov.orrery.core/isoWeekNumber|isoWeekNumber@kotlinx.datetime.LocalDate(){}[0]
+final fun me.kozakov.orrery.core/DisabledDates(kotlin/Function1<me.kozakov.orrery.core/DisabledDatesBuilder, kotlin/Unit>): me.kozakov.orrery.core/DisabledDates // me.kozakov.orrery.core/DisabledDates|DisabledDates(kotlin.Function1<me.kozakov.orrery.core.DisabledDatesBuilder,kotlin.Unit>){}[0]
+final fun me.kozakov.orrery.core/autoSelectDate(kotlinx.datetime/YearMonth, kotlinx.datetime/LocalDate?, me.kozakov.orrery.core/AutoSelectDay, kotlinx.datetime/LocalDate): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/autoSelectDate|autoSelectDate(kotlinx.datetime.YearMonth;kotlinx.datetime.LocalDate?;me.kozakov.orrery.core.AutoSelectDay;kotlinx.datetime.LocalDate){}[0]
+final fun me.kozakov.orrery.core/daysOfWeek(kotlinx.datetime/DayOfWeek = ...): kotlin.collections/List<kotlinx.datetime/DayOfWeek> // me.kozakov.orrery.core/daysOfWeek|daysOfWeek(kotlinx.datetime.DayOfWeek){}[0]
+final fun me.kozakov.orrery.core/heatmapSummary(kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>, kotlin/Function1<kotlinx.datetime/LocalDate, kotlin/Boolean>): me.kozakov.orrery.core/HeatmapSummary // me.kozakov.orrery.core/heatmapSummary|heatmapSummary(kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>;kotlin.Function1<kotlinx.datetime.LocalDate,kotlin.Boolean>){}[0]
+final fun me.kozakov.orrery.core/monthGrid(kotlinx.datetime/YearMonth, kotlinx.datetime/DayOfWeek = ..., me.kozakov.orrery.core/OutDateStyle = ...): me.kozakov.orrery.core/CalendarMonth // me.kozakov.orrery.core/monthGrid|monthGrid(kotlinx.datetime.YearMonth;kotlinx.datetime.DayOfWeek;me.kozakov.orrery.core.OutDateStyle){}[0]
+final fun me.kozakov.orrery.core/weekGrid(kotlinx.datetime/LocalDate, kotlinx.datetime/DayOfWeek = ...): me.kozakov.orrery.core/CalendarWeek // me.kozakov.orrery.core/weekGrid|weekGrid(kotlinx.datetime.LocalDate;kotlinx.datetime.DayOfWeek){}[0]

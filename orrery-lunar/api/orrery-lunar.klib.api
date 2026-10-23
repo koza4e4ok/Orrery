@@ -1,0 +1,86 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <Orrery:orrery-lunar>
+final enum class me.kozakov.orrery.lunar/ChineseVariant : kotlin/Enum<me.kozakov.orrery.lunar/ChineseVariant> { // me.kozakov.orrery.lunar/ChineseVariant|null[0]
+    enum entry SIMPLIFIED // me.kozakov.orrery.lunar/ChineseVariant.SIMPLIFIED|null[0]
+    enum entry TRADITIONAL_HK // me.kozakov.orrery.lunar/ChineseVariant.TRADITIONAL_HK|null[0]
+    enum entry TRADITIONAL_TW // me.kozakov.orrery.lunar/ChineseVariant.TRADITIONAL_TW|null[0]
+
+    final val entries // me.kozakov.orrery.lunar/ChineseVariant.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.lunar/ChineseVariant> // me.kozakov.orrery.lunar/ChineseVariant.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.lunar/ChineseVariant // me.kozakov.orrery.lunar/ChineseVariant.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.lunar/ChineseVariant> // me.kozakov.orrery.lunar/ChineseVariant.values|values#static(){}[0]
+}
+
+final enum class me.kozakov.orrery.lunar/SolarTerm : kotlin/Enum<me.kozakov.orrery.lunar/SolarTerm> { // me.kozakov.orrery.lunar/SolarTerm|null[0]
+    enum entry BAILU // me.kozakov.orrery.lunar/SolarTerm.BAILU|null[0]
+    enum entry CHUNFEN // me.kozakov.orrery.lunar/SolarTerm.CHUNFEN|null[0]
+    enum entry CHUSHU // me.kozakov.orrery.lunar/SolarTerm.CHUSHU|null[0]
+    enum entry DAHAN // me.kozakov.orrery.lunar/SolarTerm.DAHAN|null[0]
+    enum entry DASHU // me.kozakov.orrery.lunar/SolarTerm.DASHU|null[0]
+    enum entry DAXUE // me.kozakov.orrery.lunar/SolarTerm.DAXUE|null[0]
+    enum entry DONGZHI // me.kozakov.orrery.lunar/SolarTerm.DONGZHI|null[0]
+    enum entry GUYU // me.kozakov.orrery.lunar/SolarTerm.GUYU|null[0]
+    enum entry HANLU // me.kozakov.orrery.lunar/SolarTerm.HANLU|null[0]
+    enum entry JINGZHE // me.kozakov.orrery.lunar/SolarTerm.JINGZHE|null[0]
+    enum entry LICHUN // me.kozakov.orrery.lunar/SolarTerm.LICHUN|null[0]
+    enum entry LIDONG // me.kozakov.orrery.lunar/SolarTerm.LIDONG|null[0]
+    enum entry LIQIU // me.kozakov.orrery.lunar/SolarTerm.LIQIU|null[0]
+    enum entry LIXIA // me.kozakov.orrery.lunar/SolarTerm.LIXIA|null[0]
+    enum entry MANGZHONG // me.kozakov.orrery.lunar/SolarTerm.MANGZHONG|null[0]
+    enum entry QINGMING // me.kozakov.orrery.lunar/SolarTerm.QINGMING|null[0]
+    enum entry QIUFEN // me.kozakov.orrery.lunar/SolarTerm.QIUFEN|null[0]
+    enum entry SHUANGJIANG // me.kozakov.orrery.lunar/SolarTerm.SHUANGJIANG|null[0]
+    enum entry XIAOHAN // me.kozakov.orrery.lunar/SolarTerm.XIAOHAN|null[0]
+    enum entry XIAOMAN // me.kozakov.orrery.lunar/SolarTerm.XIAOMAN|null[0]
+    enum entry XIAOSHU // me.kozakov.orrery.lunar/SolarTerm.XIAOSHU|null[0]
+    enum entry XIAOXUE // me.kozakov.orrery.lunar/SolarTerm.XIAOXUE|null[0]
+    enum entry XIAZHI // me.kozakov.orrery.lunar/SolarTerm.XIAZHI|null[0]
+    enum entry YUSHUI // me.kozakov.orrery.lunar/SolarTerm.YUSHUI|null[0]
+
+    final val entries // me.kozakov.orrery.lunar/SolarTerm.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.lunar/SolarTerm> // me.kozakov.orrery.lunar/SolarTerm.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.lunar/SolarTerm // me.kozakov.orrery.lunar/SolarTerm.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.lunar/SolarTerm> // me.kozakov.orrery.lunar/SolarTerm.values|values#static(){}[0]
+}
+
+final class me.kozakov.orrery.lunar/LunarDate { // me.kozakov.orrery.lunar/LunarDate|null[0]
+    constructor <init>(kotlin/Int, kotlin/Int, kotlin/Int, kotlin/Boolean = ...) // me.kozakov.orrery.lunar/LunarDate.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Boolean){}[0]
+
+    final val day // me.kozakov.orrery.lunar/LunarDate.day|{}day[0]
+        final fun <get-day>(): kotlin/Int // me.kozakov.orrery.lunar/LunarDate.day.<get-day>|<get-day>(){}[0]
+    final val isLeapMonth // me.kozakov.orrery.lunar/LunarDate.isLeapMonth|{}isLeapMonth[0]
+        final fun <get-isLeapMonth>(): kotlin/Boolean // me.kozakov.orrery.lunar/LunarDate.isLeapMonth.<get-isLeapMonth>|<get-isLeapMonth>(){}[0]
+    final val month // me.kozakov.orrery.lunar/LunarDate.month|{}month[0]
+        final fun <get-month>(): kotlin/Int // me.kozakov.orrery.lunar/LunarDate.month.<get-month>|<get-month>(){}[0]
+    final val year // me.kozakov.orrery.lunar/LunarDate.year|{}year[0]
+        final fun <get-year>(): kotlin/Int // me.kozakov.orrery.lunar/LunarDate.year.<get-year>|<get-year>(){}[0]
+
+    final fun component1(): kotlin/Int // me.kozakov.orrery.lunar/LunarDate.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // me.kozakov.orrery.lunar/LunarDate.component2|component2(){}[0]
+    final fun component3(): kotlin/Int // me.kozakov.orrery.lunar/LunarDate.component3|component3(){}[0]
+    final fun component4(): kotlin/Boolean // me.kozakov.orrery.lunar/LunarDate.component4|component4(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Boolean = ...): me.kozakov.orrery.lunar/LunarDate // me.kozakov.orrery.lunar/LunarDate.copy|copy(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Boolean){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.lunar/LunarDate.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.lunar/LunarDate.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.lunar/LunarDate.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.lunar/LunarDayInfoProvider : me.kozakov.orrery.core/DayInfoProvider { // me.kozakov.orrery.lunar/LunarDayInfoProvider|null[0]
+    constructor <init>(me.kozakov.orrery.lunar/ChineseVariant = ...) // me.kozakov.orrery.lunar/LunarDayInfoProvider.<init>|<init>(me.kozakov.orrery.lunar.ChineseVariant){}[0]
+
+    final fun info(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/DayInfo? // me.kozakov.orrery.lunar/LunarDayInfoProvider.info|info(kotlinx.datetime.LocalDate){}[0]
+}
+
+final fun (kotlinx.datetime/LocalDate).me.kozakov.orrery.lunar/toLunarDate(): me.kozakov.orrery.lunar/LunarDate // me.kozakov.orrery.lunar/toLunarDate|toLunarDate@kotlinx.datetime.LocalDate(){}[0]
+final fun (me.kozakov.orrery.lunar/LunarDate).me.kozakov.orrery.lunar/toLocalDate(): kotlinx.datetime/LocalDate // me.kozakov.orrery.lunar/toLocalDate|toLocalDate@me.kozakov.orrery.lunar.LunarDate(){}[0]
+final fun (me.kozakov.orrery.lunar/SolarTerm).me.kozakov.orrery.lunar/displayName(me.kozakov.orrery.lunar/ChineseVariant): kotlin/String // me.kozakov.orrery.lunar/displayName|displayName@me.kozakov.orrery.lunar.SolarTerm(me.kozakov.orrery.lunar.ChineseVariant){}[0]
+final fun me.kozakov.orrery.lunar/solarTermsFor(kotlin/Int): kotlin.collections/Map<kotlinx.datetime/LocalDate, me.kozakov.orrery.lunar/SolarTerm> // me.kozakov.orrery.lunar/solarTermsFor|solarTermsFor(kotlin.Int){}[0]
+final fun me.kozakov.orrery.lunar/trunkBranchYear(kotlin/Int): kotlin/String // me.kozakov.orrery.lunar/trunkBranchYear|trunkBranchYear(kotlin.Int){}[0]

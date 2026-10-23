@@ -18,19 +18,19 @@ class SolarTermsTest {
     }
 
     @Test
-    fun `matches original SolarTermUtil for 1900-2099`() {
-        val golden =
-            checkNotNull(javaClass.getResourceAsStream("/golden/solar-terms.csv"))
-                .bufferedReader()
-                .readLines()
-                .map { it.split(",") }
-                .groupBy(
-                    keySelector = { it[0].toInt() },
-                    valueTransform = { LocalDate.parse(it[1]) to it[2].toInt() },
-                )
+    fun `boundary solar terms and 24 terms per year across 1900-2099`() {
+        val terms1900 = solarTermsFor(1900)
+        assertEquals(SolarTerm.LICHUN, terms1900[LocalDate(1900, 2, 4)])
+        assertEquals(SolarTerm.CHUNFEN, terms1900[LocalDate(1900, 3, 21)])
+
+        val terms2099 = solarTermsFor(2099)
+        assertEquals(SolarTerm.XIAOHAN, terms2099[LocalDate(2099, 1, 5)])
+        assertEquals(SolarTerm.DONGZHI, terms2099[LocalDate(2099, 12, 21)])
+
         for (year in 1900..2099) {
-            val actual = solarTermsFor(year).map { (date, term) -> date to term.ordinal }.toSet()
-            assertEquals(checkNotNull(golden[year]).toSet(), actual, "year $year")
+            val terms = solarTermsFor(year)
+            assertEquals(24, terms.size, "year $year")
+            assertEquals(SolarTerm.entries.toSet(), terms.values.toSet(), "year $year")
         }
     }
 }

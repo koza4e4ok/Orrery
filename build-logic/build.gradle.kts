@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation(plugin(libs.plugins.kotlin.jvm))
+    implementation(plugin(libs.plugins.kotlin.multiplatform))
     implementation(plugin(libs.plugins.android.library))
     implementation(plugin(libs.plugins.compose.compiler))
     implementation(plugin(libs.plugins.ktlint))

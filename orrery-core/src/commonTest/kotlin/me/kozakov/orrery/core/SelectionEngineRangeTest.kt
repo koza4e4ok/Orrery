@@ -13,7 +13,7 @@ class SelectionEngineRangeTest {
     private val d20 = LocalDate(2026, 7, 20)
 
     @Test
-    fun `first click sets start, second completes the range`() {
+    fun `first click sets start and second completes the range`() {
         val engine = SelectionEngine(SelectionMode.Range())
         val started = engine.click(Selection.Empty, d5)
         assertEquals(d5, started.selection.rangeStart)

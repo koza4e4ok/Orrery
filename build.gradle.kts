@@ -1,3 +1,10 @@
+import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenEnvSpec
+import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenPlugin
+import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsPlugin
+import org.jetbrains.kotlin.gradle.targets.wasm.yarn.WasmYarnPlugin
+import org.jetbrains.kotlin.gradle.targets.wasm.yarn.WasmYarnRootEnvSpec
+
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
@@ -9,4 +16,18 @@ plugins {
     // sibling modules instead of failing with a cross-project provider error.
     alias(libs.plugins.maven.publish) apply false
     alias(libs.plugins.dokka) apply false
+}
+
+// Node.js, Yarn and Binaryen for the wasmJs target resolve from the repositories in
+// settings.gradle.kts; a null base URL stops the Kotlin plugin adding its own.
+allprojects {
+    plugins.withType<WasmNodeJsPlugin> {
+        the<WasmNodeJsEnvSpec>().downloadBaseUrl.set(null as String?)
+    }
+    plugins.withType<WasmYarnPlugin> {
+        the<WasmYarnRootEnvSpec>().downloadBaseUrl.set(null as String?)
+    }
+    plugins.withType<BinaryenPlugin> {
+        the<BinaryenEnvSpec>().downloadBaseUrl.set(null as String?)
+    }
 }

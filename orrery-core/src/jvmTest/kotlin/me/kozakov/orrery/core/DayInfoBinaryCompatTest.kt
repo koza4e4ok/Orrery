@@ -63,7 +63,7 @@ class DayInfoBinaryCompatTest {
 
         val copyDefault =
             DayInfo::class.java.getDeclaredMethod(
-                "copy$default",
+                "copy\$default",
                 DayInfo::class.java,
                 String::class.java,
                 Boolean::class.javaPrimitiveType,

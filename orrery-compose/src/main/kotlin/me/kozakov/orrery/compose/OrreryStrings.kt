@@ -33,6 +33,9 @@ internal enum class OrreryString(
     HeatmapDayDescriptionEmpty(R.string.orrery_heatmap_day_description_empty),
     HeatmapSummaryActiveDays(R.string.orrery_heatmap_summary_active_days),
     HeatmapSummaryStreak(R.string.orrery_heatmap_summary_streak),
+    AgendaTodayPrefix(R.string.orrery_agenda_today_prefix),
+    AgendaAllDay(R.string.orrery_agenda_all_day),
+    AgendaNoEvents(R.string.orrery_agenda_no_events),
 }
 
 /**

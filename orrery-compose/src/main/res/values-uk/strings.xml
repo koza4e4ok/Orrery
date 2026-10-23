@@ -24,4 +24,7 @@
     <string name="orrery_heatmap_day_description_empty">%1$s, немає даних</string>
     <string name="orrery_heatmap_summary_active_days">Активних днів: %d</string>
     <string name="orrery_heatmap_summary_streak">Днів поспіль: %d</string>
+    <string name="orrery_agenda_today_prefix">СЬОГОДНІ</string>
+    <string name="orrery_agenda_all_day">Весь день</string>
+    <string name="orrery_agenda_no_events">Немає подій</string>
 </resources>

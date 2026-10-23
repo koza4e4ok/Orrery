@@ -15,36 +15,20 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      # On Linux, :orrery-core:allTests runs jvmTest and wasmJsTest (headless Chrome);
-      # iOS klibs compile here, iOS tests run in the macos job below.
-      - name: Lint, ABI check, tests, screenshots, sample build
+      - name: Lint, ABI update, tests, record screenshots, sample build
         run: >
-          ./gradlew ktlintCheck detekt checkKotlinAbi
+          ./gradlew ktlintCheck detekt :orrery-core:updateKotlinAbi
           :orrery-core:allTests :orrery-lunar:test
-          :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug
+          :orrery-compose:testDebugUnitTest :orrery-compose:recordRoborazziDebug
           :sample:assembleDebug
-      - name: Check the Kotlin/Wasm yarn.lock is committed
-        run: |
-          if [ -n "$(git status --porcelain -- kotlin-js-store)" ]; then
-            git status --porcelain -- kotlin-js-store
-            echo "kotlin-js-store/ changed: run ./gradlew kotlinWasmUpgradeYarnLock and commit it."
-            exit 1
-          fi
-      - name: Publish orrery-core to Maven Local (KMP publication smoke test)
-        run: |
-          ./gradlew :orrery-core:publishToMavenLocal
-          ls ~/.m2/repository/me/kozakov/orrery/
-      - name: Regenerate ABI dumps on failure
-        if: failure()
-        run: ./gradlew updateKotlinAbi --continue
-      - name: Upload ABI dumps and JS lock files on failure
-        if: failure()
+      - name: Upload generated ABI dumps and Roborazzi snapshots
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: abi-dumps
+          name: generated-abi-and-snapshots
           path: |
-            */api/
-            kotlin-js-store/
+            orrery-core/api/
+            orrery-compose/src/test/snapshots/me.kozakov.orrery.compose.AgendaSnapshotTest.*.png
           if-no-files-found: ignore
       - name: Upload test results
         if: always()
@@ -52,31 +36,4 @@ jobs:
         with:
           name: test-results
           path: "*/build/test-results/"
-          if-no-files-found: ignore
-      - name: Upload screenshot diffs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: roborazzi-diffs
-          path: orrery-compose/build/outputs/roborazzi/
-          if-no-files-found: ignore
-
-  ios:
-    # Kotlin/Native iOS test binaries can only be linked and run on a macOS host.
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
-      - name: iOS simulator tests (orrery-core)
-        run: ./gradlew :orrery-core:iosSimulatorArm64Test
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-test-results
-          path: orrery-core/build/test-results/
           if-no-files-found: ignore

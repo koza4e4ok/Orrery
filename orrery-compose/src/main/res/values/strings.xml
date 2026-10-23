@@ -24,4 +24,7 @@
     <string name="orrery_heatmap_day_description_empty">%1$s, no data</string>
     <string name="orrery_heatmap_summary_active_days">%d active days</string>
     <string name="orrery_heatmap_summary_streak">%d-day streak</string>
+    <string name="orrery_agenda_today_prefix">TODAY</string>
+    <string name="orrery_agenda_all_day">All day</string>
+    <string name="orrery_agenda_no_events">No events</string>
 </resources>

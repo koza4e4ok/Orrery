@@ -4,6 +4,10 @@
 
 ### Added
 
+- `CalendarEvent` and `EventSpan` (`AllDay`, `Timed`) in `orrery-core` with
+  `occursOn` and `eventsByDate` range indexing, plus `Agenda`, `AgendaState` /
+  `rememberAgendaState`, `AgendaDefaults` / `AgendaStrings`, and
+  `DayDecorators.eventDotsForEvents` in `orrery-compose` (#22).
 - Localized built-in strings: date picker dialogs, `CalendarNavHeader`
   chevron descriptions, heatmap legend/summary/day descriptions and the
   `MonthYearPicker` decade labels now resolve from Android string resources.

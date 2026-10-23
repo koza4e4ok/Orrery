@@ -1,8 +1,8 @@
 name: Android compatibility vs main (temporary, #20 phase 3)
 
 # One-off evidence for the orrery-compose multiplatform migration: compares the
-# Android ABI, AAR contents and POM dependencies of this branch with main.
-# Remove once the migration PR is merged.
+# Android AAR contents, public class/method signatures (javap), and POM dependencies
+# of this branch with main. Remove once the migration PR is merged.
 
 on:
   pull_request:
@@ -21,42 +21,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Branch - ABI dump and Maven Local publication
         run: |
-          ./gradlew :orrery-compose:updateKotlinAbi :orrery-compose:publishToMavenLocal -Dmaven.repo.local=$HOME/m2-branch
-          find orrery-compose/api -type f
+          ./gradlew :orrery-compose:checkKotlinAbi :orrery-compose:publishToMavenLocal -Dmaven.repo.local=$HOME/m2-branch
       - name: Main - Maven Local publication (unmodified main)
         run: |
           git worktree add ../main origin/main
           cd ../main
           ./gradlew :orrery-compose:publishToMavenLocal -Dmaven.repo.local=$HOME/m2-main
-      - name: Main - ABI dump
-        # KGP's abiValidation fails on AGP 9 built-in Kotlin modules ("Cannot query the
-        # value of this provider"), so dump main through the kotlin-android plugin instead.
-        # Only :orrery-compose's own sources matter here; the app modules are dropped.
+      - name: Compare AAR contents, public bytecode API, and POM
         run: |
-          cd ../main
-          sed -i '/include(":sample")/d; /include(":baselineprofile")/d' settings.gradle.kts
-          sed -i '/baselineProfile(project(":baselineprofile"))/d' orrery-compose/build.gradle.kts
-          sed -i 's/^    id("com.android.library")$/    id("com.android.library")\n    id("org.jetbrains.kotlin.android")/' build-logic/src/main/kotlin/orrery.android-library.gradle.kts
-          echo "android.builtInKotlin=false" >> gradle.properties
-          cat >> orrery-compose/build.gradle.kts <<'EOF'
-
-          kotlin {
-              @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
-              abiValidation {
-              }
-          }
-          EOF
-          git diff
-          ./gradlew :orrery-compose:updateKotlinAbi
-          find orrery-compose/api -type f
-      - name: Compare
-        run: |
-          set -x
-          cp -r ../main/orrery-compose/api main-api
-          main_api=main-api/orrery-compose.api
-          branch_api=$(find orrery-compose/api -path '*android*' -name '*.api' | head -1)
-          [ -n "$branch_api" ] || branch_api=$(find orrery-compose/api -name '*.api' ! -name '*.klib.api' | head -1)
-          diff -u "$main_api" "$branch_api" && echo "ABI: identical"
+          set -e
           main_aar=$(ls $HOME/m2-main/me/kozakov/orrery/orrery-compose/*/orrery-compose-*.aar)
           branch_aar=$(ls $HOME/m2-branch/me/kozakov/orrery/orrery-compose-android/*/orrery-compose-android-*.aar)
           mkdir -p /tmp/aar/main /tmp/aar/branch
@@ -64,22 +37,16 @@ jobs:
           unzip -q -o "$branch_aar" -d /tmp/aar/branch
           (cd /tmp/aar/main && find . -type f | sort) > /tmp/main-files
           (cd /tmp/aar/branch && find . -type f | sort) > /tmp/branch-files
-          diff -u /tmp/main-files /tmp/branch-files || true
-          unzip -Z1 /tmp/aar/main/classes.jar | sort > /tmp/main-classes
-          unzip -Z1 /tmp/aar/branch/classes.jar | sort > /tmp/branch-classes
-          diff -u /tmp/main-classes /tmp/branch-classes || true
+          echo "=== AAR file list diff ==="
+          diff -u /tmp/main-files /tmp/branch-files && echo "AAR files: identical"
+          unzip -Z1 /tmp/aar/main/classes.jar | grep -v '^META-INF/' | sort > /tmp/main-classes
+          unzip -Z1 /tmp/aar/branch/classes.jar | grep -v '^META-INF/' | sort > /tmp/branch-classes
+          echo "=== classes.jar entry diff (excluding META-INF) ==="
+          diff -u /tmp/main-classes /tmp/branch-classes && echo "Class entries: identical"
+          javap -cp /tmp/aar/main/classes.jar -public $(unzip -Z1 /tmp/aar/main/classes.jar | grep '\.class$' | sed 's/\.class$//' | sort) > /tmp/main-javap.txt
+          javap -cp /tmp/aar/branch/classes.jar -public $(unzip -Z1 /tmp/aar/branch/classes.jar | grep '\.class$' | sed 's/\.class$//' | sort) > /tmp/branch-javap.txt
+          echo "=== Public bytecode signatures diff (javap -public) ==="
+          diff -u /tmp/main-javap.txt /tmp/branch-javap.txt && echo "Public bytecode API: identical"
           diff -u /tmp/aar/main/R.txt /tmp/aar/branch/R.txt && echo "R.txt: identical"
           diff -u /tmp/aar/main/baseline-prof.txt /tmp/aar/branch/baseline-prof.txt && echo "baseline-prof.txt: identical"
-          for d in /tmp/aar/main/res/*/; do n=$(basename $d); diff -ru "$d" "/tmp/aar/branch/res/$n" && echo "res/$n: identical"; done
-          diff -u /tmp/aar/main/AndroidManifest.xml /tmp/aar/branch/AndroidManifest.xml || true
-          echo "--- main POM dependencies"; sed -n '/<dependencies>/,/<\/dependencies>/p' $HOME/m2-main/me/kozakov/orrery/orrery-compose/*/orrery-compose-*.pom
-          echo "--- branch (orrery-compose-android) POM dependencies"; sed -n '/<dependencies>/,/<\/dependencies>/p' $HOME/m2-branch/me/kozakov/orrery/orrery-compose-android/*/orrery-compose-android-*.pom
-      - name: Upload comparison inputs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-compat
-          path: |
-            orrery-compose/api/
-            main-api/
-          if-no-files-found: ignore
+          for d in /tmp/aar/main/res/*/; do n=$(basename "$d"); diff -ru "$d" "/tmp/aar/branch/res/$n" && echo "res/$n: identical"; done

@@ -88,13 +88,15 @@ private fun readQuoted(
 internal fun normalizeInputPattern(pattern: String): String =
     tokenize(pattern).joinToString("") { token ->
         when (token) {
-            is PatternToken.Literal -> quoteLiteral(token.text)
+            is PatternToken.Literal ->
+                if (token.text.any { it.isLetter() || it == '\'' }) {
+                    "'" + token.text.replace("'", "''") + "'"
+                } else {
+                    token.text
+                }
             is PatternToken.Field -> if (token.letter == 'y') "yyyy" else token.letter.toString().repeat(2)
         }
     }
-
-private fun quoteLiteral(text: String): String =
-    if (text.any { it.isLetter() || it == '\'' }) "'" + text.replace("'", "''") + "'" else text
 
 /** Formats [date] with an input [pattern]; the inverse of [parseStrictDate]. */
 internal fun formatInputDate(
@@ -132,21 +134,16 @@ internal fun parseStrictDate(
     val fields = mutableMapOf<Char, Int>()
     val end =
         tokenize(pattern).fold<PatternToken, Int?>(0) { pos, token ->
-            pos?.let { matchToken(text, it, token, fields) }
+            when {
+                pos == null -> null
+                token is PatternToken.Literal ->
+                    if (text.startsWith(token.text, pos)) pos + token.text.length else null
+                token is PatternToken.Field -> readField(text, pos, token, fields)
+                else -> null
+            }
         }
     return if (end == text.length) dateOf(fields) else null
 }
-
-private fun matchToken(
-    text: String,
-    pos: Int,
-    token: PatternToken,
-    fields: MutableMap<Char, Int>,
-): Int? =
-    when (token) {
-        is PatternToken.Literal -> if (text.startsWith(token.text, pos)) pos + token.text.length else null
-        is PatternToken.Field -> readField(text, pos, token, fields)
-    }
 
 private fun dateOf(fields: Map<Char, Int>): LocalDate? {
     val year = fields['y']

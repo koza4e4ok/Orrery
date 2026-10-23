@@ -31,13 +31,9 @@ class DefaultDayTest {
 
     private fun labelColor(text: String): Color {
         val layouts = mutableListOf<TextLayoutResult>()
-        rule
-            .onNodeWithText(text, useUnmergedTree = true)
-            .fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult]
-            .action
-            ?.invoke(layouts)
-        return layouts.single().layoutInput.style.color
+        val node = rule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+        node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        return layouts[0].layoutInput.style.color
     }
 
     @Test

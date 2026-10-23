@@ -18,7 +18,7 @@ jobs:
       - name: Lint, ABI update, tests, record screenshots, sample build
         run: >
           ./gradlew ktlintCheck detekt :orrery-core:updateKotlinAbi
-          :orrery-core:allTests :orrery-lunar:test
+          :orrery-core:allTests :orrery-lunar:allTests
           :orrery-compose:testDebugUnitTest :orrery-compose:recordRoborazziDebug
           :sample:assembleDebug
       - name: Upload generated ABI dumps and Roborazzi snapshots

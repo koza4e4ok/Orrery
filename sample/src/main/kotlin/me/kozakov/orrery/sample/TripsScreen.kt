@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -107,6 +108,7 @@ internal fun TripsScreen() {
                         startMonth = startMonth,
                         endMonth = CalendarPages.monthAt(startMonth, 5),
                     ),
+                modifier = Modifier.testTag("trips_calendar"),
                 stickyMonthHeaders = true,
                 dragSelection = selection,
                 dayContent = { day ->

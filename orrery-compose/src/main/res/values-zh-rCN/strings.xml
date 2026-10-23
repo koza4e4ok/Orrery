@@ -24,6 +24,11 @@
     <string name="orrery_heatmap_day_description_empty">%1$s，无数据</string>
     <string name="orrery_heatmap_summary_active_days">活跃 %d 天</string>
     <string name="orrery_heatmap_summary_streak">连续 %d 天</string>
+    <string name="orrery_day_state_range_start">范围开始</string>
+    <string name="orrery_day_state_range_end">范围结束</string>
+    <string name="orrery_day_state_in_range">在范围内</string>
+    <string name="orrery_day_state_today">今天</string>
+    <string name="orrery_day_state_unavailable">不可用</string>
     <string name="orrery_agenda_today_prefix">今天</string>
     <string name="orrery_agenda_all_day">全天</string>
     <string name="orrery_agenda_no_events">无日程</string>

@@ -24,6 +24,11 @@
     <string name="orrery_heatmap_day_description_empty">%1$s、データなし</string>
     <string name="orrery_heatmap_summary_active_days">アクティブ日数: %d</string>
     <string name="orrery_heatmap_summary_streak">連続 %d 日</string>
+    <string name="orrery_day_state_range_start">期間の開始日</string>
+    <string name="orrery_day_state_range_end">期間の終了日</string>
+    <string name="orrery_day_state_in_range">期間内</string>
+    <string name="orrery_day_state_today">今日</string>
+    <string name="orrery_day_state_unavailable">選択不可</string>
     <string name="orrery_agenda_today_prefix">今日</string>
     <string name="orrery_agenda_all_day">終日</string>
     <string name="orrery_agenda_no_events">予定なし</string>

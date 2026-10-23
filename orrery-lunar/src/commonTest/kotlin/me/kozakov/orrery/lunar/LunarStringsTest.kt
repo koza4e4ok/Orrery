@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class LunarStringsTest {
     @Test
-    fun `first of month shows month name, other days show day name`() {
+    fun `first of month shows month name and other days show day name`() {
         assertEquals("春节", lunarLabel(LunarDate(2026, 1, 1), ChineseVariant.SIMPLIFIED))
         assertEquals("初二", lunarLabel(LunarDate(2026, 1, 2), ChineseVariant.SIMPLIFIED))
         assertEquals("二十", lunarLabel(LunarDate(2026, 3, 20), ChineseVariant.SIMPLIFIED))

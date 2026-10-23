@@ -6,6 +6,7 @@ import kotlinx.datetime.Month
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class FestivalsTest {
     @Test
@@ -36,17 +37,13 @@ class FestivalsTest {
     }
 
     @Test
-    fun `nthWeekday matches java time across 1900-2099`() {
+    fun `nthWeekday invariants hold across 1900-2099`() {
         for (year in 1900..2099) {
-            val expected =
-                java.time.LocalDate
-                    .of(year, 11, 1)
-                    .with(
-                        java.time.temporal.TemporalAdjusters
-                            .dayOfWeekInMonth(4, java.time.DayOfWeek.THURSDAY),
-                    )
             val actual = nthWeekday(year, Month.NOVEMBER, DayOfWeek.THURSDAY, 4)
-            assertEquals(expected.dayOfMonth, actual.day, "year $year")
+            assertEquals(year, actual.year, "year $year")
+            assertEquals(Month.NOVEMBER, actual.month, "year $year")
+            assertEquals(DayOfWeek.THURSDAY, actual.dayOfWeek, "year $year")
+            assertTrue(actual.day in 22..28, "year $year")
         }
     }
 }

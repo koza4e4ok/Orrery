@@ -1,9 +1,13 @@
 plugins {
-    id("orrery.kotlin-library")
+    id("orrery.kmp-library")
     id("orrery.publish")
 }
 
-dependencies {
-    api(project(":orrery-core"))
-    api(libs.kotlinx.datetime)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":orrery-core"))
+            api(libs.kotlinx.datetime)
+        }
+    }
 }

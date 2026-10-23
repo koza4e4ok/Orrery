@@ -8,12 +8,22 @@
   `occursOn` and `eventsByDate` range indexing, plus `Agenda`, `AgendaState` /
   `rememberAgendaState`, `AgendaDefaults` / `AgendaStrings`, and
   `DayDecorators.eventDotsForEvents` in `orrery-compose` (#22).
+- `orrery-compose` ships a baseline profile, generated from the sample's
+  `HorizontalCalendar` and `VerticalCalendar` scroll journeys, so its calendar
+  code (and the `orrery-core` code it calls) is compiled ahead of time in apps
+  instead of being interpreted and JIT-compiled on first use (#17).
 - Localized built-in strings: date picker dialogs, `CalendarNavHeader`
   chevron descriptions, heatmap legend/summary/day descriptions and the
   `MonthYearPicker` decade labels now resolve from Android string resources.
   Ships English, Ukrainian, German, Spanish, Simplified Chinese (zh-CN) and
   Japanese; other locales fall back to English. Every string can still be
   overridden (#15).
+- `DefaultDay` reports range start, range end, in range, today and
+  unavailable as its accessibility state description, so TalkBack announces
+  them after the date (e.g. "July 9, 2026, Range start, Today"). The strings
+  come from the new `CalendarDayStrings` / `CalendarDefaults.dayStrings()`,
+  are localized like the other built-in strings, and can be overridden through
+  `DefaultDay`'s new `strings` parameter (#16).
 
 ### Changed
 

@@ -2,8 +2,22 @@
 
 ## [Unreleased]
 
+### Added
+
+- Localized built-in strings: date picker dialogs, `CalendarNavHeader`
+  chevron descriptions, heatmap legend/summary/day descriptions and the
+  `MonthYearPicker` decade labels now resolve from Android string resources.
+  Ships English, Ukrainian, German, Spanish, Simplified Chinese (zh-CN) and
+  Japanese; other locales fall back to English. Every string can still be
+  overridden (#15).
+
 ### Changed
 
+- **Breaking:** `DatePickerDefaults.strings()` and `HeatmapDefaults.strings()`
+  are now `@Composable` (they read the current locale's resources), so they
+  must be called from composition. Calls from non-composable code no longer
+  compile, and code compiled against the previous signature must be
+  recompiled (#15).
 - Interactive elements now report `Role.Button` to accessibility services, so
   TalkBack announces them as buttons: day cells in `DefaultDay`, clickable
   days in `HeatmapCalendar` and `HeatmapMonth`, months in `YearCalendar`,

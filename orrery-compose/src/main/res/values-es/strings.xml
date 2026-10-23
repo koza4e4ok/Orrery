@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="orrery_date_picker_title">Seleccionar fecha</string>
+    <string name="orrery_date_picker_range_title">Seleccionar fechas</string>
+    <string name="orrery_date_picker_headline_placeholder">Fecha seleccionada</string>
+    <string name="orrery_date_picker_range_start_placeholder">Fecha de inicio</string>
+    <string name="orrery_date_picker_range_end_placeholder">Fecha de fin</string>
+    <string name="orrery_date_picker_input_label">Fecha</string>
+    <string name="orrery_date_picker_range_start_input_label">Fecha de inicio</string>
+    <string name="orrery_date_picker_range_end_input_label">Fecha de fin</string>
+    <string name="orrery_date_picker_invalid_format_error">La fecha debe tener el formato %s</string>
+    <string name="orrery_date_picker_out_of_range_error">Fecha fuera del intervalo permitido</string>
+    <string name="orrery_date_picker_disabled_date_error">Fecha no disponible</string>
+    <string name="orrery_date_picker_invalid_range_error">Intervalo de fechas no válido</string>
+    <string name="orrery_date_picker_switch_to_input">Cambiar a entrada de texto</string>
+    <string name="orrery_date_picker_switch_to_picker">Cambiar a calendario</string>
+    <string name="orrery_previous_month">Mes anterior</string>
+    <string name="orrery_next_month">Mes siguiente</string>
+    <string name="orrery_close">Cerrar</string>
+    <string name="orrery_month_year_picker_decade">Años %d</string>
+    <string name="orrery_heatmap_legend_less">Menos</string>
+    <string name="orrery_heatmap_legend_more">Más</string>
+    <string name="orrery_heatmap_day_description">%1$s, nivel %2$d de %3$d</string>
+    <string name="orrery_heatmap_day_description_empty">%1$s, sin datos</string>
+    <string name="orrery_heatmap_summary_active_days">Días activos: %d</string>
+    <string name="orrery_heatmap_summary_streak">Días seguidos: %d</string>
+</resources>

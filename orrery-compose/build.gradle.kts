@@ -6,6 +6,7 @@ plugins {
 
 android {
     namespace = "me.kozakov.orrery.compose"
+    resourcePrefix = "orrery_"
 }
 
 roborazzi {

@@ -499,13 +499,21 @@ useful for view-based UIs, widgets, or server-side rendering.
 ```bash
 # Full verification (what CI runs):
 ./gradlew ktlintCheck detekt checkKotlinAbi \
-  :orrery-core:test :orrery-lunar:test \
+  :orrery-core:allTests :orrery-lunar:allTests \
   :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug \
+  :orrery-compose:desktopTest \
   :sample:assembleDebug
 
 ./gradlew :orrery-compose:recordRoborazziDebug  # refresh screenshot goldens
 ./gradlew updateKotlinAbi                          # refresh ABI dumps after API changes
 ```
+
+`orrery-compose` is a Kotlin Multiplatform module (Android-KMP library plugin):
+Android tests live in `src/androidHostTest`, and `testDebugUnitTest` /
+`verifyRoborazziDebug` / `recordRoborazziDebug` are aliases for
+`testAndroidHostTest` / `verifyRoborazziAndroidHostTest` /
+`recordRoborazziAndroidHostTest`. To filter tests, call the real task, e.g.
+`./gradlew :orrery-compose:testAndroidHostTest --tests "*DateInputFieldTest"`.
 
 Releases are documented in [docs/RELEASING.md](docs/RELEASING.md).
 

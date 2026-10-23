@@ -60,7 +60,7 @@ internal object SampleData {
         val startEpoch = range.start.toEpochDays()
         val endEpoch = range.endInclusive.toEpochDays()
         val rawEvents =
-            buildList {
+            buildList<CalendarEvent<Nothing>> {
                 for (epoch in startEpoch..endEpoch) {
                     val date = LocalDate.fromEpochDays(epoch)
                     val roll = (date.day * 7 + date.month.number * 3) % 10
@@ -79,7 +79,7 @@ internal object SampleData {
                                     EventSpan.AllDay(startDate = date)
                                 }
                             add(
-                                CalendarEvent(
+                                CalendarEvent<Nothing>(
                                     id = "$date-$i",
                                     title = tpl.title,
                                     span = span,

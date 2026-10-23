@@ -5,6 +5,20 @@ complexity:
     ignoreAnnotated: ["Composable"]
   CyclomaticComplexMethod:
     ignoreAnnotated: ["Composable"]
+  # Default test-source excludes plus the Android-KMP and desktop test source sets.
+  TooManyFunctions:
+    excludes:
+      - "**/test/**"
+      - "**/androidTest/**"
+      - "**/commonTest/**"
+      - "**/jvmTest/**"
+      - "**/androidUnitTest/**"
+      - "**/androidInstrumentedTest/**"
+      - "**/jsTest/**"
+      - "**/iosTest/**"
+      - "**/androidHostTest/**"
+      - "**/androidDeviceTest/**"
+      - "**/desktopTest/**"
 naming:
   FunctionNaming:
     ignoreAnnotated: ["Composable"]

@@ -23,10 +23,21 @@ jobs:
         run: |
           ./gradlew :orrery-compose:updateKotlinAbi :orrery-compose:publishToMavenLocal -Dmaven.repo.local=$HOME/m2-branch
           find orrery-compose/api -type f
-      - name: Main - ABI dump and Maven Local publication
+      - name: Main - Maven Local publication (unmodified main)
         run: |
           git worktree add ../main origin/main
           cd ../main
+          ./gradlew :orrery-compose:publishToMavenLocal -Dmaven.repo.local=$HOME/m2-main
+      - name: Main - ABI dump
+        # KGP's abiValidation fails on AGP 9 built-in Kotlin modules ("Cannot query the
+        # value of this provider"), so dump main through the kotlin-android plugin instead.
+        # Only :orrery-compose's own sources matter here; the app modules are dropped.
+        run: |
+          cd ../main
+          sed -i '/include(":sample")/d; /include(":baselineprofile")/d' settings.gradle.kts
+          sed -i '/baselineProfile(project(":baselineprofile"))/d' orrery-compose/build.gradle.kts
+          sed -i 's/^    id("com.android.library")$/    id("com.android.library")\n    id("org.jetbrains.kotlin.android")/' build-logic/src/main/kotlin/orrery.android-library.gradle.kts
+          echo "android.builtInKotlin=false" >> gradle.properties
           cat >> orrery-compose/build.gradle.kts <<'EOF'
 
           kotlin {
@@ -35,7 +46,8 @@ jobs:
               }
           }
           EOF
-          ./gradlew :orrery-compose:updateKotlinAbi :orrery-compose:publishToMavenLocal -Dmaven.repo.local=$HOME/m2-main
+          git diff
+          ./gradlew :orrery-compose:updateKotlinAbi
           find orrery-compose/api -type f
       - name: Compare
         run: |

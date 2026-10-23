@@ -30,42 +30,58 @@ private const val FULL_YEAR_WIDTH = 4
 private fun tokenize(pattern: String): List<PatternToken> {
     val tokens = mutableListOf<PatternToken>()
     val literal = StringBuilder()
-
-    fun flushLiteral() {
-        if (literal.isNotEmpty()) {
-            tokens += PatternToken.Literal(literal.toString())
-            literal.clear()
-        }
-    }
     var i = 0
     while (i < pattern.length) {
         val c = pattern[i]
-        when {
-            c == '\'' -> {
-                if (i + 1 < pattern.length && pattern[i + 1] == '\'') {
-                    literal.append('\'')
-                    i += 2
-                } else {
-                    val end = pattern.indexOf('\'', i + 1).let { if (it < 0) pattern.length else it }
-                    literal.append(pattern, i + 1, end)
-                    i = end + 1
+        i =
+            when {
+                c == '\'' -> readQuoted(pattern, i, literal)
+                c in FIELD_LETTERS -> {
+                    var end = i
+                    while (end < pattern.length && pattern[end] == c) end++
+                    tokens.flushLiteral(literal)
+                    tokens += PatternToken.Field(c, end - i)
+                    end
+                }
+                else -> {
+                    literal.append(c)
+                    i + 1
                 }
             }
-            c in FIELD_LETTERS -> {
-                var end = i
-                while (end < pattern.length && pattern[end] == c) end++
-                flushLiteral()
-                tokens += PatternToken.Field(c, end - i)
-                i = end
+    }
+    tokens.flushLiteral(literal)
+    return tokens
+}
+
+private fun MutableList<PatternToken>.flushLiteral(literal: StringBuilder) {
+    if (literal.isNotEmpty()) {
+        add(PatternToken.Literal(literal.toString()))
+        literal.clear()
+    }
+}
+
+/** Appends the quoted text opening at [start] to [into] and returns the index after the closing quote. */
+private fun readQuoted(
+    pattern: String,
+    start: Int,
+    into: StringBuilder,
+): Int {
+    var i = start + 1
+    if (i < pattern.length && pattern[i] == '\'') {
+        into.append('\'')
+        return i + 1
+    }
+    while (i < pattern.length) {
+        when {
+            pattern[i] != '\'' -> into.append(pattern[i++])
+            i + 1 < pattern.length && pattern[i + 1] == '\'' -> {
+                into.append('\'')
+                i += 2
             }
-            else -> {
-                literal.append(c)
-                i++
-            }
+            else -> return i + 1
         }
     }
-    flushLiteral()
-    return tokens
+    return i
 }
 
 /** Widens every y/M/d field of [pattern] to yyyy, MM and dd, keeping order and separators. */
@@ -114,18 +130,29 @@ internal fun parseStrictDate(
     pattern: String,
 ): LocalDate? {
     val fields = mutableMapOf<Char, Int>()
-    var pos = 0
-    for (token in tokenize(pattern)) {
-        pos =
-            when (token) {
-                is PatternToken.Literal -> if (text.startsWith(token.text, pos)) pos + token.text.length else return null
-                is PatternToken.Field -> readField(text, pos, token, fields) ?: return null
-            }
+    val end =
+        tokenize(pattern).fold<PatternToken, Int?>(0) { pos, token ->
+            pos?.let { matchToken(text, it, token, fields) }
+        }
+    return if (end == text.length) dateOf(fields) else null
+}
+
+private fun matchToken(
+    text: String,
+    pos: Int,
+    token: PatternToken,
+    fields: MutableMap<Char, Int>,
+): Int? =
+    when (token) {
+        is PatternToken.Literal -> if (text.startsWith(token.text, pos)) pos + token.text.length else null
+        is PatternToken.Field -> readField(text, pos, token, fields)
     }
+
+private fun dateOf(fields: Map<Char, Int>): LocalDate? {
     val year = fields['y']
     val month = fields['M']
     val day = fields['d']
-    if (pos != text.length || year == null || month == null || day == null) return null
+    if (year == null || month == null || day == null) return null
     return try {
         LocalDate(year, month, day)
     } catch (_: IllegalArgumentException) {

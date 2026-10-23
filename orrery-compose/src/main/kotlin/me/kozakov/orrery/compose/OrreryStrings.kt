@@ -38,6 +38,9 @@ internal enum class OrreryString(
     DayInRange(R.string.orrery_day_state_in_range),
     DayToday(R.string.orrery_day_state_today),
     DayUnavailable(R.string.orrery_day_state_unavailable),
+    AgendaTodayPrefix(R.string.orrery_agenda_today_prefix),
+    AgendaAllDay(R.string.orrery_agenda_all_day),
+    AgendaNoEvents(R.string.orrery_agenda_no_events),
 }
 
 /**

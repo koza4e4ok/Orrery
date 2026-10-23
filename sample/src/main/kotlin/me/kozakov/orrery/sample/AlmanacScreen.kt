@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
@@ -50,6 +51,7 @@ internal fun AlmanacScreen() {
         CalendarNavHeader(state = calendarState)
         HorizontalCalendar(
             state = calendarState,
+            modifier = Modifier.testTag("almanac_calendar"),
             dayContent = { day ->
                 DefaultDay(
                     day = day,

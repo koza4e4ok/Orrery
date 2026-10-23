@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -17,8 +18,9 @@ internal const val HEATMAP_LEVELS: Int = 5
 internal fun heatLevel(value: Float): Int = min(HEATMAP_LEVELS, (value.coerceIn(0f, 1f) * HEATMAP_LEVELS).toInt() + 1)
 
 /**
- * Localizable strings for the heatmap composables. Defaults are English;
- * callers localize by passing their own values. The day-description
+ * Strings for the heatmap composables. [HeatmapDefaults.strings]
+ * resolves them from the current locale's resources; callers can
+ * override any of them. The day-description
  * templates receive the formatted date, the level, and the max level in
  * that order.
  */
@@ -55,14 +57,19 @@ public object HeatmapDefaults {
     @Composable
     public fun emptyCellColor(): Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
 
-    /** English-default strings; override any parameter to localize. */
+    /**
+     * Builds [HeatmapStrings]. Defaults are resolved from the current
+     * locale's resources; override any parameter to replace a string.
+     */
+    @Composable
+    @ReadOnlyComposable
     public fun strings(
-        legendLess: String = "Less",
-        legendMore: String = "More",
-        dayDescription: String = "%1${'$'}s, level %2${'$'}d of %3${'$'}d",
-        dayDescriptionEmpty: String = "%1${'$'}s, no data",
-        summaryActiveDays: String = "%d active days",
-        summaryStreak: String = "%d-day streak",
+        legendLess: String = orreryString(OrreryString.HeatmapLegendLess),
+        legendMore: String = orreryString(OrreryString.HeatmapLegendMore),
+        dayDescription: String = orreryString(OrreryString.HeatmapDayDescription),
+        dayDescriptionEmpty: String = orreryString(OrreryString.HeatmapDayDescriptionEmpty),
+        summaryActiveDays: String = orreryString(OrreryString.HeatmapSummaryActiveDays),
+        summaryStreak: String = orreryString(OrreryString.HeatmapSummaryStreak),
     ): HeatmapStrings =
         HeatmapStrings(
             legendLess = legendLess,

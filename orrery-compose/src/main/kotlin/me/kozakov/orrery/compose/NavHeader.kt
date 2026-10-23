@@ -47,8 +47,8 @@ public fun CalendarNavHeader(
     state: CalendarState,
     modifier: Modifier = Modifier,
     onTitleClick: (() -> Unit)? = null,
-    previousMonthContentDescription: String = "Previous month",
-    nextMonthContentDescription: String = "Next month",
+    previousMonthContentDescription: String = orreryString(OrreryString.PreviousMonth),
+    nextMonthContentDescription: String = orreryString(OrreryString.NextMonth),
     title: @Composable (YearMonth) -> Unit = { month ->
         NavHeaderTitle(month, showDropdown = onTitleClick != null)
     },

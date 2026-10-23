@@ -25,12 +25,13 @@ class DateRangePickerDialogTest {
     @get:Rule val rule = createComposeRule()
 
     private lateinit var state: OrreryDateRangePickerState
-    private val strings = DatePickerDefaults.strings()
+    private lateinit var strings: DatePickerStrings
     private var dismissed = false
 
     private fun content() {
         rule.setContent {
             MaterialTheme {
+                strings = DatePickerDefaults.strings()
                 state =
                     rememberOrreryDateRangePickerState(
                         initialDisplayedMonth = YearMonth(2026, 7),

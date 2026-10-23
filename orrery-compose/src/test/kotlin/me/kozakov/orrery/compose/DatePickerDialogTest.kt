@@ -21,11 +21,12 @@ class DatePickerDialogTest {
     @get:Rule val rule = createComposeRule()
 
     private lateinit var state: OrreryDatePickerState
-    private val strings = DatePickerDefaults.strings()
+    private lateinit var strings: DatePickerStrings
 
     private fun content() {
         rule.setContent {
             MaterialTheme {
+                strings = DatePickerDefaults.strings()
                 state =
                     rememberOrreryDatePickerState(
                         initialDisplayedMonth = YearMonth(2026, 7),

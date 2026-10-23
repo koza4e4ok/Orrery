@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="orrery_date_picker_title">Виберіть дату</string>
+    <string name="orrery_date_picker_range_title">Виберіть дати</string>
+    <string name="orrery_date_picker_headline_placeholder">Вибрана дата</string>
+    <string name="orrery_date_picker_range_start_placeholder">Дата початку</string>
+    <string name="orrery_date_picker_range_end_placeholder">Дата завершення</string>
+    <string name="orrery_date_picker_input_label">Дата</string>
+    <string name="orrery_date_picker_range_start_input_label">Дата початку</string>
+    <string name="orrery_date_picker_range_end_input_label">Дата завершення</string>
+    <string name="orrery_date_picker_invalid_format_error">Дата має бути у форматі %s</string>
+    <string name="orrery_date_picker_out_of_range_error">Дата поза дозволеним діапазоном</string>
+    <string name="orrery_date_picker_disabled_date_error">Дата недоступна</string>
+    <string name="orrery_date_picker_invalid_range_error">Недійсний діапазон дат</string>
+    <string name="orrery_date_picker_switch_to_input">Перейти до введення тексту</string>
+    <string name="orrery_date_picker_switch_to_picker">Перейти до календаря</string>
+    <string name="orrery_previous_month">Попередній місяць</string>
+    <string name="orrery_next_month">Наступний місяць</string>
+    <string name="orrery_close">Закрити</string>
+    <string name="orrery_month_year_picker_decade">%d-ті</string>
+    <string name="orrery_heatmap_legend_less">Менше</string>
+    <string name="orrery_heatmap_legend_more">Більше</string>
+    <string name="orrery_heatmap_day_description">%1$s, рівень %2$d з %3$d</string>
+    <string name="orrery_heatmap_day_description_empty">%1$s, немає даних</string>
+    <string name="orrery_heatmap_summary_active_days">Активних днів: %d</string>
+    <string name="orrery_heatmap_summary_streak">Днів поспіль: %d</string>
+</resources>

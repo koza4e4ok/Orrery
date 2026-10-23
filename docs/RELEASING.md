@@ -18,12 +18,15 @@
 
 ## Release flow
 
-1. Set `VERSION_NAME=X.Y.Z` (drop `-SNAPSHOT`) in `gradle.properties`; update `CHANGELOG.md`.
+1. Set `VERSION_NAME=X.Y.Z` (drop `-SNAPSHOT`) in `gradle.properties`; update `CHANGELOG.md`
+   and the install snippets in `README.md` (`implementation(...)` lines and the
+   version-catalog `orrery = "X.Y.Z"`).
 2. Commit: `git commit -am "release: X.Y.Z"`.
 3. Tag and push: `git tag vX.Y.Z && git push origin main vX.Y.Z`.
 4. The `Publish` workflow builds, signs, uploads to the Central Portal, and releases
    automatically (`publishToMavenCentral(automaticRelease = true)`).
-5. Bump `VERSION_NAME` to the next `X.Y.(Z+1)-SNAPSHOT` and commit.
+5. Bump `VERSION_NAME` to the next `X.Y.(Z+1)-SNAPSHOT`, update the snapshot version in the
+   README's **Snapshots** note to match, and commit.
 
 ## Local dry-run (no credentials needed)
 

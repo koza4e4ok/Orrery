@@ -23,6 +23,13 @@ jobs:
           :orrery-core:allTests :orrery-lunar:test
           :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug
           :sample:assembleDebug
+      - name: Check the Kotlin/Wasm yarn.lock is committed
+        run: |
+          if [ -n "$(git status --porcelain -- kotlin-js-store)" ]; then
+            git status --porcelain -- kotlin-js-store
+            echo "kotlin-js-store/ changed: run ./gradlew kotlinWasmUpgradeYarnLock and commit it."
+            exit 1
+          fi
       - name: Publish orrery-core to Maven Local (KMP publication smoke test)
         run: |
           ./gradlew :orrery-core:publishToMavenLocal

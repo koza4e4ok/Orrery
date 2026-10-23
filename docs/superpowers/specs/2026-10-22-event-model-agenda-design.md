@@ -1,7 +1,7 @@
 # Event Model & Agenda List (0.7.0) — Design
 
 **Date:** 2026-10-22
-**Status:** Proposed (awaiting Andrii sign-off)
+**Status:** Approved (signed off 2026-10-23)
 **Issue:** #22 (Co-designed with #21 time-grid schedule view; tracking roadmap: #26)
 **Owners:** Ritsuko (design), Maya (implementation), Asuka (review)
 
@@ -221,7 +221,7 @@ public fun <T> Agenda(
 - **Calendar synchronization:** Consumers pairing `Agenda` inside `CollapsibleCalendarScaffold` can observe `selectionState.selection.single` in a `LaunchedEffect` to call `agendaState.animateScrollToDate(selectedDate)`, or observe `agendaState.firstVisibleDate` while `agendaState.listState.isScrollInProgress` to update the calendar selection.
 - **Default `EventRow` (`AgendaDefaults.EventRow`):**
   - Leading vertical color bar (`4.dp` wide, `RoundedCornerShape(2.dp)`, using `event.colorArgb?.let(::Color) ?: MaterialTheme.colorScheme.primary`).
-  - Time label column: `strings.allDayLabel` ("All day") for `EventSpan.AllDay`, or localized `HH:mm – HH:mm` for `EventSpan.Timed`.
+  - Time label column: `strings.allDayLabel` ("All day") for `EventSpan.AllDay`, or localized `HH:mm – HH:mm` for `EventSpan.Timed` (clamped to the rendered day's `00:00..24:00` window so overnight events show `00:00 – end` on day 2).
   - Title (`bodyLarge`) and optional `subtitle` (`bodyMedium`, `onSurfaceVariant`).
   - Full-row `Modifier.clickable(role = Role.Button)` when `onEventClick != null`.
 
@@ -279,6 +279,6 @@ public object AgendaDefaults {
 
 ---
 
-## 7. Open Decisions for Sign-Off
+## 7. Resolved Decisions (Andrii, 2026-10-23)
 
-1. **Multi-day timed events in `Agenda`:** When an `EventSpan.Timed` spans midnight (e.g., 22:00 Jul 15 → 02:00 Jul 16), should `AgendaDefaults.EventRow` format the second day's time as `00:00 – 02:00` (clamped to that date) or `Jul 15, 22:00 – 02:00`? *(Recommendation: clamp display times to the day's `00:00..24:00` window with a subtle continuation arrow `→ 02:00`, matching Google Calendar and the #21 time-grid clipping behavior.)*
+1. **Overnight timed events in `Agenda`:** For `EventSpan.Timed` events that span past midnight, day 2 renders a clamped time label (`00:00 – end`), matching the day's `00:00..24:00` window and the #21 time-grid clipping behavior.

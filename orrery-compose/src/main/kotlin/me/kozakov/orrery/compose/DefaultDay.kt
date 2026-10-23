@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -74,6 +75,10 @@ import java.time.format.FormatStyle
  * connector band, the today Ring/Underline and Over decorators (e.g.
  * badges) draw outside that clip so they are never cropped by the cell
  * shape.
+ *
+ * Besides the date as content description, the cell reports range
+ * start / end / in range, today and unavailable as its accessibility
+ * state description, using [strings].
  */
 @Composable
 public fun DefaultDay(
@@ -90,6 +95,7 @@ public fun DefaultDay(
     selectedElevation: Dp = 0.dp,
     hapticsEnabled: Boolean = true,
     decorators: List<DayDecorator> = emptyList(),
+    strings: CalendarDayStrings = CalendarDefaults.dayStrings(),
     onClick: ((CalendarDay) -> Unit)? = null,
 ) {
     val hidden = !showOutDates && day.position != DayPosition.MonthDate
@@ -101,12 +107,14 @@ public fun DefaultDay(
     val available = enabled && selectionState?.isDisabled(day.date) != true
     val isSelected = selectionState?.isSelected(day.date) == true
     val isInRange = selectionState?.isInRange(day.date) == true
+    val isRangeStart = selectionState?.isRangeStart(day.date) == true
+    val isRangeEnd = selectionState?.isRangeEnd(day.date) == true
     val indicator = shapes.todayIndicator
     val bandMode =
         when {
             isInRange -> RangeBand.Full
-            selectionState?.isRangeStart(day.date) == true -> RangeBand.TowardEnd
-            selectionState?.isRangeEnd(day.date) == true -> RangeBand.TowardStart
+            isRangeStart -> RangeBand.TowardEnd
+            isRangeEnd -> RangeBand.TowardStart
             else -> RangeBand.None
         }
     val selectedScale by animateFloatAsState(
@@ -133,6 +141,14 @@ public fun DefaultDay(
         remember(day.date) {
             day.date.toJavaLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         }
+    val dayState =
+        listOfNotNull(
+            strings.rangeStart.takeIf { isRangeStart },
+            strings.rangeEnd.takeIf { isRangeEnd },
+            strings.inRange.takeIf { isInRange },
+            strings.today.takeIf { isToday },
+            strings.unavailable.takeIf { !available },
+        ).joinToString(", ")
     val haptics = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val contentColor =
@@ -172,7 +188,10 @@ public fun DefaultDay(
                         selectionState?.click(day.date)
                         onClick?.invoke(day)
                     },
-                ).semantics { contentDescription = description },
+                ).semantics {
+                    contentDescription = description
+                    if (dayState.isNotEmpty()) stateDescription = dayState
+                },
         contentAlignment = Alignment.Center,
     ) {
         // Shadow layer: same centered-square geometry as the ripple layer,

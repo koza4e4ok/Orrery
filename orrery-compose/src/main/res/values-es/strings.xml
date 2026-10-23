@@ -24,4 +24,9 @@
     <string name="orrery_heatmap_day_description_empty">%1$s, sin datos</string>
     <string name="orrery_heatmap_summary_active_days">Días activos: %d</string>
     <string name="orrery_heatmap_summary_streak">Días seguidos: %d</string>
+    <string name="orrery_day_state_range_start">Inicio del intervalo</string>
+    <string name="orrery_day_state_range_end">Fin del intervalo</string>
+    <string name="orrery_day_state_in_range">Dentro del intervalo</string>
+    <string name="orrery_day_state_today">Hoy</string>
+    <string name="orrery_day_state_unavailable">No disponible</string>
 </resources>

@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -52,6 +53,20 @@ public class CalendarDayShapes(
     public val selectedShape: Shape,
     public val inRangeShape: Shape,
     public val todayIndicator: TodayIndicator,
+)
+
+/**
+ * State descriptions [DefaultDay] reports to accessibility services
+ * (e.g. TalkBack announces "July 9, 2026, Range start, Today").
+ * Applicable states are joined with ", ".
+ */
+@Immutable
+public class CalendarDayStrings(
+    public val rangeStart: String,
+    public val rangeEnd: String,
+    public val inRange: String,
+    public val today: String,
+    public val unavailable: String,
 )
 
 /** How today's date is marked when it is not selected. */
@@ -110,6 +125,20 @@ public object CalendarDefaults {
         inRangeShape: Shape = RectangleShape,
         todayIndicator: TodayIndicator = TodayIndicator.Ring(),
     ): CalendarDayShapes = CalendarDayShapes(dayShape, selectedShape, inRangeShape, todayIndicator)
+
+    /**
+     * Builds [CalendarDayStrings]. Defaults are resolved from the current
+     * locale's resources; override any parameter to replace a string.
+     */
+    @Composable
+    @ReadOnlyComposable
+    public fun dayStrings(
+        rangeStart: String = orreryString(OrreryString.DayRangeStart),
+        rangeEnd: String = orreryString(OrreryString.DayRangeEnd),
+        inRange: String = orreryString(OrreryString.DayInRange),
+        today: String = orreryString(OrreryString.DayToday),
+        unavailable: String = orreryString(OrreryString.DayUnavailable),
+    ): CalendarDayStrings = CalendarDayStrings(rangeStart, rangeEnd, inRange, today, unavailable)
 
     /** Weekday header row with localized short names. */
     @Composable

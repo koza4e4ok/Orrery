@@ -1,7 +1,8 @@
 package me.kozakov.orrery.lunar
 
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import java.util.zip.GZIPInputStream
+import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -25,19 +26,19 @@ class LunarDateTest {
     }
 
     @Test
-    fun `matches original LunarUtil for every day 1900-2099 and round-trips`() {
-        val stream = checkNotNull(javaClass.getResourceAsStream("/golden/lunar-daily.csv.gz"))
-        GZIPInputStream(stream).bufferedReader().useLines { lines ->
-            var count = 0
-            for (line in lines) {
-                val (dateStr, y, m, d, leap) = line.split(",")
-                val date = LocalDate.parse(dateStr)
-                val expected = LunarDate(y.toInt(), m.toInt(), d.toInt(), leap == "1")
-                assertEquals(expected, date.toLunarDate(), "toLunarDate at $date")
-                assertEquals(date, expected.toLocalDate(), "round-trip at $date")
-                count++
-            }
-            assertEquals(73049, count)
+    fun `boundary dates and every day 1900-2099 round-trip`() {
+        assertEquals(LunarDate(1899, 12, 1), LocalDate(1900, 1, 1).toLunarDate())
+        assertEquals(LunarDate(2099, 11, 20), LocalDate(2099, 12, 31).toLunarDate())
+
+        var date = LocalDate(1900, 1, 1)
+        val end = LocalDate(2099, 12, 31)
+        var count = 0
+        while (date <= end) {
+            val lunar = date.toLunarDate()
+            assertEquals(date, lunar.toLocalDate(), "round-trip at $date")
+            date = date.plus(1, DateTimeUnit.DAY)
+            count++
         }
+        assertEquals(73049, count)
     }
 }

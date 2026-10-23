@@ -15,12 +15,12 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      # On Linux, :orrery-core:allTests runs jvmTest and wasmJsTest (headless Chrome);
+      # On Linux, allTests runs jvmTest and wasmJsTest (headless Chrome);
       # iOS klibs compile here, iOS tests run in the macos job below.
       - name: Lint, ABI check, tests, screenshots, sample build
         run: >
           ./gradlew ktlintCheck detekt checkKotlinAbi
-          :orrery-core:allTests :orrery-lunar:test
+          :orrery-core:allTests :orrery-lunar:allTests
           :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug
           :sample:assembleDebug
       - name: Check the Kotlin/Wasm yarn.lock is committed
@@ -30,9 +30,9 @@ jobs:
             echo "kotlin-js-store/ changed: run ./gradlew kotlinWasmUpgradeYarnLock and commit it."
             exit 1
           fi
-      - name: Publish orrery-core to Maven Local (KMP publication smoke test)
+      - name: Publish KMP modules to Maven Local (publication smoke test)
         run: |
-          ./gradlew :orrery-core:publishToMavenLocal
+          ./gradlew :orrery-core:publishToMavenLocal :orrery-lunar:publishToMavenLocal
           ls ~/.m2/repository/me/kozakov/orrery/
       - name: Regenerate ABI dumps on failure
         if: failure()
@@ -71,12 +71,12 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      - name: iOS simulator tests (orrery-core)
-        run: ./gradlew :orrery-core:iosSimulatorArm64Test
+      - name: iOS simulator tests (orrery-core, orrery-lunar)
+        run: ./gradlew :orrery-core:iosSimulatorArm64Test :orrery-lunar:iosSimulatorArm64Test
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ios-test-results
-          path: orrery-core/build/test-results/
+          path: "*/build/test-results/"
           if-no-files-found: ignore

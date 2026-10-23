@@ -2,7 +2,16 @@ package me.kozakov.orrery.lunar
 
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.DayInfo
+import me.kozakov.orrery.core.DayInfoPriority
 import me.kozakov.orrery.core.DayInfoProvider
+
+/** Structured lunisolar metadata attached to [DayInfo.payload] by [LunarDayInfoProvider]. */
+public data class LunarDayMetadata(
+    public val lunarDate: LunarDate,
+    public val solarTerm: SolarTerm? = null,
+    public val gregorianFestival: String? = null,
+    public val traditionalFestival: String? = null,
+)
 
 /**
  * [DayInfoProvider] backed by the Chinese lunisolar calendar: secondary labels follow the
@@ -39,10 +48,25 @@ public class LunarDayInfoProvider(
                 if (special != null) add("special-festival")
                 if (traditional != null) add("traditional-festival")
             }
+        val hasFestival = gregorian != null || special != null || traditional != null
+        val priority =
+            when {
+                hasFestival -> DayInfoPriority.FESTIVAL
+                term != null -> DayInfoPriority.SOLAR_TERM
+                else -> DayInfoPriority.DEFAULT
+            }
         return DayInfo(
             label = label,
-            isHoliday = gregorian != null || special != null || traditional != null,
+            isHoliday = hasFestival,
             tags = tags,
+            priority = priority,
+            payload =
+                LunarDayMetadata(
+                    lunarDate = lunar,
+                    solarTerm = term,
+                    gregorianFestival = gregorian ?: special,
+                    traditionalFestival = traditional,
+                ),
         )
     }
 }

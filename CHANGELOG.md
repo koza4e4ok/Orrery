@@ -4,6 +4,10 @@
 
 ### Added
 
+- `orrery-compose` ships a baseline profile, generated from the sample's
+  `HorizontalCalendar` and `VerticalCalendar` scroll journeys, so its calendar
+  code (and the `orrery-core` code it calls) is compiled ahead of time in apps
+  instead of being interpreted and JIT-compiled on first use (#17).
 - Localized built-in strings: date picker dialogs, `CalendarNavHeader`
   chevron descriptions, heatmap legend/summary/day descriptions and the
   `MonthYearPicker` decade labels now resolve from Android string resources.

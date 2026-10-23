@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.baselineprofile)
     id("orrery.lint")
 }
 
@@ -41,4 +42,5 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.core)
     implementation(libs.activity.compose)
+    implementation(libs.androidx.profileinstaller)
 }

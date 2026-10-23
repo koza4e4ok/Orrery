@@ -66,8 +66,7 @@ public data class CalendarEvent<out T>(
     public val payload: T? = null,
 ) {
     /** True if this event covers any part of [date]. */
-    public fun occursOn(date: LocalDate): Boolean =
-        date >= span.startDate && date <= span.endDate
+    public fun occursOn(date: LocalDate): Boolean = date >= span.startDate && date <= span.endDate
 }
 
 /**

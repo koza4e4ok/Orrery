@@ -20,7 +20,7 @@ jobs:
           ./gradlew ktlintCheck detekt :orrery-core:updateKotlinAbi
           :orrery-core:allTests :orrery-lunar:allTests
           :orrery-compose:testDebugUnitTest :orrery-compose:recordRoborazziDebug
-          :sample:assembleDebug
+          :sample:assembleDebug --continue
       - name: Upload generated ABI dumps and Roborazzi snapshots
         if: always()
         uses: actions/upload-artifact@v4

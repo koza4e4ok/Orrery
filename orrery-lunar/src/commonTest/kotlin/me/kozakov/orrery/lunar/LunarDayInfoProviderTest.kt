@@ -1,6 +1,8 @@
 package me.kozakov.orrery.lunar
 
 import kotlinx.datetime.LocalDate
+import me.kozakov.orrery.core.DayInfoPriority
+import me.kozakov.orrery.core.payloadAs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -17,6 +19,23 @@ class LunarDayInfoProviderTest {
         val info = checkNotNull(tw.info(LocalDate(2024, 4, 4)))
         assertEquals("清明", info.label)
         assertTrue("solar-term" in info.tags)
+        assertEquals(DayInfoPriority.FESTIVAL, info.priority)
+        val metadata = checkNotNull(info.payloadAs<LunarDayMetadata>())
+        assertEquals(SolarTerm.QINGMING, metadata.solarTerm)
+        assertEquals("兒童節", metadata.gregorianFestival)
+    }
+
+    @Test
+    fun `solar term without festival uses solar term priority`() {
+        // 2026-02-04 is 立春 and not a festival
+        val info = checkNotNull(provider.info(LocalDate(2026, 2, 4)))
+        assertEquals("立春", info.label)
+        assertFalse(info.isHoliday)
+        assertEquals(DayInfoPriority.SOLAR_TERM, info.priority)
+        val metadata = checkNotNull(info.payloadAs<LunarDayMetadata>())
+        assertEquals(SolarTerm.LICHUN, metadata.solarTerm)
+        assertNull(metadata.gregorianFestival)
+        assertNull(metadata.traditionalFestival)
     }
 
     @Test
@@ -25,13 +44,21 @@ class LunarDayInfoProviderTest {
         assertEquals("元旦", info.label)
         assertTrue(info.isHoliday)
         assertTrue("gregorian-festival" in info.tags)
+        assertEquals(DayInfoPriority.FESTIVAL, info.priority)
+        val metadata = checkNotNull(info.payloadAs<LunarDayMetadata>())
+        assertEquals("元旦", metadata.gregorianFestival)
     }
 
     @Test
     fun `chinese new year and eve`() {
-        assertEquals("春节", provider.info(LocalDate(2026, 2, 17))?.label)
+        val newYear = checkNotNull(provider.info(LocalDate(2026, 2, 17)))
+        assertEquals("春节", newYear.label)
         assertEquals("除夕", provider.info(LocalDate(2026, 2, 16))?.label)
-        assertTrue(checkNotNull(provider.info(LocalDate(2026, 2, 17))).isHoliday)
+        assertTrue(newYear.isHoliday)
+        assertEquals(DayInfoPriority.FESTIVAL, newYear.priority)
+        val metadata = checkNotNull(newYear.payloadAs<LunarDayMetadata>())
+        assertEquals(LunarDate(2026, 1, 1), metadata.lunarDate)
+        assertEquals("春节", metadata.traditionalFestival)
     }
 
     @Test
@@ -41,6 +68,12 @@ class LunarDayInfoProviderTest {
         assertEquals("初五", info.label)
         assertFalse(info.isHoliday)
         assertTrue(info.tags.isEmpty())
+        assertEquals(DayInfoPriority.DEFAULT, info.priority)
+        val metadata = checkNotNull(info.payloadAs<LunarDayMetadata>())
+        assertEquals(LunarDate(2026, 1, 5), metadata.lunarDate)
+        assertNull(metadata.solarTerm)
+        assertNull(metadata.gregorianFestival)
+        assertNull(metadata.traditionalFestival)
     }
 
     @Test
@@ -54,6 +87,8 @@ class LunarDayInfoProviderTest {
         val info = checkNotNull(provider.info(LocalDate(2026, 11, 26)))
         assertEquals("感恩节", info.label)
         assertTrue("special-festival" in info.tags)
+        assertEquals(DayInfoPriority.FESTIVAL, info.priority)
+        assertEquals("感恩节", info.payloadAs<LunarDayMetadata>()?.gregorianFestival)
     }
 
     @Test

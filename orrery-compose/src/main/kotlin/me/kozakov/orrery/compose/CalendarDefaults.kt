@@ -37,6 +37,7 @@ public class CalendarDayColors(
     public val unavailableContainerColor: Color,
     public val unavailableContentColor: Color,
     public val labelColor: Color,
+    public val holidayLabelColor: Color = labelColor,
 )
 
 /**
@@ -103,6 +104,7 @@ public object CalendarDefaults {
         unavailableContainerColor: Color = Color.Transparent,
         unavailableContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
         labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        holidayLabelColor: Color = MaterialTheme.colorScheme.primary,
     ): CalendarDayColors =
         CalendarDayColors(
             containerColor,
@@ -117,6 +119,7 @@ public object CalendarDefaults {
             unavailableContainerColor,
             unavailableContentColor,
             labelColor,
+            holidayLabelColor,
         )
 
     public fun dayShapes(

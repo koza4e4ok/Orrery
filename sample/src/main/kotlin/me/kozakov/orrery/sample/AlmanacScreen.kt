@@ -25,11 +25,11 @@ import me.kozakov.orrery.compose.rememberCalendarSelectionState
 import me.kozakov.orrery.compose.rememberCalendarState
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionMode
+import me.kozakov.orrery.core.payloadAs
 import me.kozakov.orrery.lunar.ChineseVariant
 import me.kozakov.orrery.lunar.LunarDayInfoProvider
+import me.kozakov.orrery.lunar.LunarDayMetadata
 import me.kozakov.orrery.lunar.displayName
-import me.kozakov.orrery.lunar.solarTermsFor
-import me.kozakov.orrery.lunar.toLunarDate
 import me.kozakov.orrery.lunar.trunkBranchYear
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -70,21 +70,23 @@ private fun AlmanacDetailCard(
     date: LocalDate,
     provider: LunarDayInfoProvider,
 ) {
-    val lunar = remember(date) { date.toLunarDate() }
-    val term = remember(date) { solarTermsFor(date.year)[date]?.displayName(ChineseVariant.SIMPLIFIED) }
     val info = remember(date) { provider.info(date) }
+    val metadata = info?.payloadAs<LunarDayMetadata>()
+    val lunar = metadata?.lunarDate
+    val term = metadata?.solarTerm?.displayName(ChineseVariant.SIMPLIFIED)
     Card(Modifier.fillMaxWidth().padding(16.dp)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 date.toJavaLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)),
                 style = MaterialTheme.typography.titleMedium,
             )
-            Text(
-                "Lunar ${lunar.month}/${lunar.day}${if (lunar.isLeapMonth) " (leap month)" else ""} · ${trunkBranchYear(
-                    lunar.year,
-                )}",
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            if (lunar != null) {
+                val leapSuffix = if (lunar.isLeapMonth) " (leap month)" else ""
+                Text(
+                    "Lunar ${lunar.month}/${lunar.day}$leapSuffix · ${trunkBranchYear(lunar.year)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
             if (term != null) {
                 Text("Solar term: $term", style = MaterialTheme.typography.bodyMedium)
             }

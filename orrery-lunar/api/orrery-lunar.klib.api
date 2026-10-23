@@ -79,6 +79,28 @@ final class me.kozakov.orrery.lunar/LunarDayInfoProvider : me.kozakov.orrery.cor
     final fun info(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/DayInfo? // me.kozakov.orrery.lunar/LunarDayInfoProvider.info|info(kotlinx.datetime.LocalDate){}[0]
 }
 
+final class me.kozakov.orrery.lunar/LunarDayMetadata { // me.kozakov.orrery.lunar/LunarDayMetadata|null[0]
+    constructor <init>(me.kozakov.orrery.lunar/LunarDate, me.kozakov.orrery.lunar/SolarTerm? = ..., kotlin/String? = ..., kotlin/String? = ...) // me.kozakov.orrery.lunar/LunarDayMetadata.<init>|<init>(me.kozakov.orrery.lunar.LunarDate;me.kozakov.orrery.lunar.SolarTerm?;kotlin.String?;kotlin.String?){}[0]
+
+    final val gregorianFestival // me.kozakov.orrery.lunar/LunarDayMetadata.gregorianFestival|{}gregorianFestival[0]
+        final fun <get-gregorianFestival>(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.gregorianFestival.<get-gregorianFestival>|<get-gregorianFestival>(){}[0]
+    final val lunarDate // me.kozakov.orrery.lunar/LunarDayMetadata.lunarDate|{}lunarDate[0]
+        final fun <get-lunarDate>(): me.kozakov.orrery.lunar/LunarDate // me.kozakov.orrery.lunar/LunarDayMetadata.lunarDate.<get-lunarDate>|<get-lunarDate>(){}[0]
+    final val solarTerm // me.kozakov.orrery.lunar/LunarDayMetadata.solarTerm|{}solarTerm[0]
+        final fun <get-solarTerm>(): me.kozakov.orrery.lunar/SolarTerm? // me.kozakov.orrery.lunar/LunarDayMetadata.solarTerm.<get-solarTerm>|<get-solarTerm>(){}[0]
+    final val traditionalFestival // me.kozakov.orrery.lunar/LunarDayMetadata.traditionalFestival|{}traditionalFestival[0]
+        final fun <get-traditionalFestival>(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.traditionalFestival.<get-traditionalFestival>|<get-traditionalFestival>(){}[0]
+
+    final fun component1(): me.kozakov.orrery.lunar/LunarDate // me.kozakov.orrery.lunar/LunarDayMetadata.component1|component1(){}[0]
+    final fun component2(): me.kozakov.orrery.lunar/SolarTerm? // me.kozakov.orrery.lunar/LunarDayMetadata.component2|component2(){}[0]
+    final fun component3(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.component3|component3(){}[0]
+    final fun component4(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.component4|component4(){}[0]
+    final fun copy(me.kozakov.orrery.lunar/LunarDate = ..., me.kozakov.orrery.lunar/SolarTerm? = ..., kotlin/String? = ..., kotlin/String? = ...): me.kozakov.orrery.lunar/LunarDayMetadata // me.kozakov.orrery.lunar/LunarDayMetadata.copy|copy(me.kozakov.orrery.lunar.LunarDate;me.kozakov.orrery.lunar.SolarTerm?;kotlin.String?;kotlin.String?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.lunar/LunarDayMetadata.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.lunar/LunarDayMetadata.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.lunar/LunarDayMetadata.toString|toString(){}[0]
+}
+
 final fun (kotlinx.datetime/LocalDate).me.kozakov.orrery.lunar/toLunarDate(): me.kozakov.orrery.lunar/LunarDate // me.kozakov.orrery.lunar/toLunarDate|toLunarDate@kotlinx.datetime.LocalDate(){}[0]
 final fun (me.kozakov.orrery.lunar/LunarDate).me.kozakov.orrery.lunar/toLocalDate(): kotlinx.datetime/LocalDate // me.kozakov.orrery.lunar/toLocalDate|toLocalDate@me.kozakov.orrery.lunar.LunarDate(){}[0]
 final fun (me.kozakov.orrery.lunar/SolarTerm).me.kozakov.orrery.lunar/displayName(me.kozakov.orrery.lunar/ChineseVariant): kotlin/String // me.kozakov.orrery.lunar/displayName|displayName@me.kozakov.orrery.lunar.SolarTerm(me.kozakov.orrery.lunar.ChineseVariant){}[0]

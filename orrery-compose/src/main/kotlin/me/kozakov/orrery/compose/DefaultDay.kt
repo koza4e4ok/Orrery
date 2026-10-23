@@ -255,10 +255,19 @@ public fun DefaultDay(
             )
             val label = info?.label
             if (label != null) {
+                val colorArgb = info.colorArgb
+                val resolvedLabelColor =
+                    when {
+                        !available -> colors.unavailableContentColor
+                        isSelected -> colors.selectedContentColor
+                        colorArgb != null -> Color(colorArgb)
+                        info.isHoliday -> colors.holidayLabelColor
+                        else -> colors.labelColor
+                    }
                 Text(
                     text = label,
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (isSelected) colors.selectedContentColor else colors.labelColor,
+                    color = resolvedLabelColor,
                 )
             }
         }

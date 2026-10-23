@@ -8,6 +8,14 @@
   `occursOn` and `eventsByDate` range indexing, plus `Agenda`, `AgendaState` /
   `rememberAgendaState`, `AgendaDefaults` / `AgendaStrings`, and
   `DayDecorators.eventDotsForEvents` in `orrery-compose` (#22).
+- Richer `DayInfo` and provider composition (#19): `DayInfo` adds `priority: Int`
+  (with standard tiers in `DayInfoPriority`), `colorArgb: Long?` and
+  `payload: Any?` (extracted via `info.payloadAs<T>()`), while preserving
+  binary compatibility with 0.5.x callers. `DayInfoProvider.plus` (`a + b`)
+  combines two providers by priority, merging `isHoliday` and deduplicating
+  `tags`. `LunarDayInfoProvider` populates `priority` and attaches a
+  `LunarDayMetadata` payload. `DefaultDay` tints holiday labels with
+  `CalendarDayColors.holidayLabelColor` and honors `DayInfo.colorArgb`.
 - `orrery-compose` ships a baseline profile, generated from the sample's
   `HorizontalCalendar` and `VerticalCalendar` scroll journeys, so its calendar
   code (and the `orrery-core` code it calls) is compiled ahead of time in apps

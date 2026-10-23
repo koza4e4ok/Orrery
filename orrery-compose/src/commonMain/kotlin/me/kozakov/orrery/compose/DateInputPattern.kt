@@ -40,7 +40,12 @@ private fun tokenize(pattern: String): List<PatternToken> {
                     var end = i
                     while (end < pattern.length && pattern[end] == c) end++
                     tokens.flushLiteral(literal)
-                    val canonical = if (c == 'L') 'M' else if (c == 'u') 'y' else c
+                    val canonical =
+                        when (c) {
+                            'L' -> 'M'
+                            'u' -> 'y'
+                            else -> c
+                        }
                     tokens += PatternToken.Field(canonical, end - i)
                     end
                 }

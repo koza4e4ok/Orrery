@@ -1,0 +1,238 @@
+package me.kozakov.orrery.compose
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.text.intl.Locale
+
+// Mirrors src/androidMain/res/values*/strings.xml; OrreryStringsTableTest keeps them in sync.
+
+@Composable
+@ReadOnlyComposable
+internal actual fun orreryString(string: OrreryString): String =
+    translationsFor(Locale.current)[string] ?: english.getValue(string)
+
+internal fun translationsFor(locale: Locale): Map<OrreryString, String> =
+    when (locale.language) {
+        "de" -> german
+        "es" -> spanish
+        "ja" -> japanese
+        "uk" -> ukrainian
+        "zh" -> if (locale.region in setOf("", "CN") || locale.script == "Hans") simplifiedChinese else english
+        else -> english
+    }
+
+private val english: Map<OrreryString, String> =
+    mapOf(
+        OrreryString.DatePickerTitle to "Select date",
+        OrreryString.DatePickerRangeTitle to "Select dates",
+        OrreryString.DatePickerHeadlinePlaceholder to "Selected date",
+        OrreryString.DatePickerRangeStartPlaceholder to "Start date",
+        OrreryString.DatePickerRangeEndPlaceholder to "End date",
+        OrreryString.DatePickerInputLabel to "Date",
+        OrreryString.DatePickerRangeStartInputLabel to "Start date",
+        OrreryString.DatePickerRangeEndInputLabel to "End date",
+        OrreryString.DatePickerInvalidFormatError to "Date must match %s",
+        OrreryString.DatePickerOutOfRangeError to "Date out of allowed range",
+        OrreryString.DatePickerDisabledDateError to "Date is unavailable",
+        OrreryString.DatePickerInvalidRangeError to "Invalid date range",
+        OrreryString.DatePickerSwitchToInput to "Switch to text input",
+        OrreryString.DatePickerSwitchToPicker to "Switch to calendar",
+        OrreryString.PreviousMonth to "Previous month",
+        OrreryString.NextMonth to "Next month",
+        OrreryString.Close to "Close",
+        OrreryString.MonthYearPickerDecade to "%ds",
+        OrreryString.HeatmapLegendLess to "Less",
+        OrreryString.HeatmapLegendMore to "More",
+        OrreryString.HeatmapDayDescription to "%1\$s, level %2\$d of %3\$d",
+        OrreryString.HeatmapDayDescriptionEmpty to "%1\$s, no data",
+        OrreryString.HeatmapSummaryActiveDays to "%d active days",
+        OrreryString.HeatmapSummaryStreak to "%d-day streak",
+        OrreryString.DayRangeStart to "Range start",
+        OrreryString.DayRangeEnd to "Range end",
+        OrreryString.DayInRange to "In range",
+        OrreryString.DayToday to "Today",
+        OrreryString.DayUnavailable to "Unavailable",
+        OrreryString.AgendaTodayPrefix to "TODAY",
+        OrreryString.AgendaAllDay to "All day",
+        OrreryString.AgendaNoEvents to "No events",
+    )
+
+private val german: Map<OrreryString, String> =
+    mapOf(
+        OrreryString.DatePickerTitle to "Datum auswählen",
+        OrreryString.DatePickerRangeTitle to "Daten auswählen",
+        OrreryString.DatePickerHeadlinePlaceholder to "Ausgewähltes Datum",
+        OrreryString.DatePickerRangeStartPlaceholder to "Startdatum",
+        OrreryString.DatePickerRangeEndPlaceholder to "Enddatum",
+        OrreryString.DatePickerInputLabel to "Datum",
+        OrreryString.DatePickerRangeStartInputLabel to "Startdatum",
+        OrreryString.DatePickerRangeEndInputLabel to "Enddatum",
+        OrreryString.DatePickerInvalidFormatError to "Datum muss dem Format %s entsprechen",
+        OrreryString.DatePickerOutOfRangeError to "Datum außerhalb des zulässigen Bereichs",
+        OrreryString.DatePickerDisabledDateError to "Datum ist nicht verfügbar",
+        OrreryString.DatePickerInvalidRangeError to "Ungültiger Zeitraum",
+        OrreryString.DatePickerSwitchToInput to "Zur Texteingabe wechseln",
+        OrreryString.DatePickerSwitchToPicker to "Zum Kalender wechseln",
+        OrreryString.PreviousMonth to "Vorheriger Monat",
+        OrreryString.NextMonth to "Nächster Monat",
+        OrreryString.Close to "Schließen",
+        OrreryString.MonthYearPickerDecade to "%der",
+        OrreryString.HeatmapLegendLess to "Weniger",
+        OrreryString.HeatmapLegendMore to "Mehr",
+        OrreryString.HeatmapDayDescription to "%1\$s, Stufe %2\$d von %3\$d",
+        OrreryString.HeatmapDayDescriptionEmpty to "%1\$s, keine Daten",
+        OrreryString.HeatmapSummaryActiveDays to "Aktive Tage: %d",
+        OrreryString.HeatmapSummaryStreak to "Tage in Folge: %d",
+        OrreryString.DayRangeStart to "Beginn des Zeitraums",
+        OrreryString.DayRangeEnd to "Ende des Zeitraums",
+        OrreryString.DayInRange to "Im Zeitraum",
+        OrreryString.DayToday to "Heute",
+        OrreryString.DayUnavailable to "Nicht verfügbar",
+        OrreryString.AgendaTodayPrefix to "HEUTE",
+        OrreryString.AgendaAllDay to "Ganztägig",
+        OrreryString.AgendaNoEvents to "Keine Termine",
+    )
+
+private val spanish: Map<OrreryString, String> =
+    mapOf(
+        OrreryString.DatePickerTitle to "Seleccionar fecha",
+        OrreryString.DatePickerRangeTitle to "Seleccionar fechas",
+        OrreryString.DatePickerHeadlinePlaceholder to "Fecha seleccionada",
+        OrreryString.DatePickerRangeStartPlaceholder to "Fecha de inicio",
+        OrreryString.DatePickerRangeEndPlaceholder to "Fecha de fin",
+        OrreryString.DatePickerInputLabel to "Fecha",
+        OrreryString.DatePickerRangeStartInputLabel to "Fecha de inicio",
+        OrreryString.DatePickerRangeEndInputLabel to "Fecha de fin",
+        OrreryString.DatePickerInvalidFormatError to "La fecha debe tener el formato %s",
+        OrreryString.DatePickerOutOfRangeError to "Fecha fuera del intervalo permitido",
+        OrreryString.DatePickerDisabledDateError to "Fecha no disponible",
+        OrreryString.DatePickerInvalidRangeError to "Intervalo de fechas no válido",
+        OrreryString.DatePickerSwitchToInput to "Cambiar a entrada de texto",
+        OrreryString.DatePickerSwitchToPicker to "Cambiar a calendario",
+        OrreryString.PreviousMonth to "Mes anterior",
+        OrreryString.NextMonth to "Mes siguiente",
+        OrreryString.Close to "Cerrar",
+        OrreryString.MonthYearPickerDecade to "Años %d",
+        OrreryString.HeatmapLegendLess to "Menos",
+        OrreryString.HeatmapLegendMore to "Más",
+        OrreryString.HeatmapDayDescription to "%1\$s, nivel %2\$d de %3\$d",
+        OrreryString.HeatmapDayDescriptionEmpty to "%1\$s, sin datos",
+        OrreryString.HeatmapSummaryActiveDays to "Días activos: %d",
+        OrreryString.HeatmapSummaryStreak to "Días seguidos: %d",
+        OrreryString.DayRangeStart to "Inicio del intervalo",
+        OrreryString.DayRangeEnd to "Fin del intervalo",
+        OrreryString.DayInRange to "Dentro del intervalo",
+        OrreryString.DayToday to "Hoy",
+        OrreryString.DayUnavailable to "No disponible",
+        OrreryString.AgendaTodayPrefix to "HOY",
+        OrreryString.AgendaAllDay to "Todo el día",
+        OrreryString.AgendaNoEvents to "Sin eventos",
+    )
+
+private val japanese: Map<OrreryString, String> =
+    mapOf(
+        OrreryString.DatePickerTitle to "日付を選択",
+        OrreryString.DatePickerRangeTitle to "期間を選択",
+        OrreryString.DatePickerHeadlinePlaceholder to "選択した日付",
+        OrreryString.DatePickerRangeStartPlaceholder to "開始日",
+        OrreryString.DatePickerRangeEndPlaceholder to "終了日",
+        OrreryString.DatePickerInputLabel to "日付",
+        OrreryString.DatePickerRangeStartInputLabel to "開始日",
+        OrreryString.DatePickerRangeEndInputLabel to "終了日",
+        OrreryString.DatePickerInvalidFormatError to "日付は %s の形式で入力してください",
+        OrreryString.DatePickerOutOfRangeError to "日付が許可された範囲外です",
+        OrreryString.DatePickerDisabledDateError to "この日付は選択できません",
+        OrreryString.DatePickerInvalidRangeError to "期間が無効です",
+        OrreryString.DatePickerSwitchToInput to "テキスト入力に切り替え",
+        OrreryString.DatePickerSwitchToPicker to "カレンダーに切り替え",
+        OrreryString.PreviousMonth to "前の月",
+        OrreryString.NextMonth to "次の月",
+        OrreryString.Close to "閉じる",
+        OrreryString.MonthYearPickerDecade to "%d年代",
+        OrreryString.HeatmapLegendLess to "少",
+        OrreryString.HeatmapLegendMore to "多",
+        OrreryString.HeatmapDayDescription to "%1\$s、レベル %2\$d/%3\$d",
+        OrreryString.HeatmapDayDescriptionEmpty to "%1\$s、データなし",
+        OrreryString.HeatmapSummaryActiveDays to "アクティブ日数: %d",
+        OrreryString.HeatmapSummaryStreak to "連続 %d 日",
+        OrreryString.DayRangeStart to "期間の開始日",
+        OrreryString.DayRangeEnd to "期間の終了日",
+        OrreryString.DayInRange to "期間内",
+        OrreryString.DayToday to "今日",
+        OrreryString.DayUnavailable to "選択不可",
+        OrreryString.AgendaTodayPrefix to "今日",
+        OrreryString.AgendaAllDay to "終日",
+        OrreryString.AgendaNoEvents to "予定なし",
+    )
+
+private val ukrainian: Map<OrreryString, String> =
+    mapOf(
+        OrreryString.DatePickerTitle to "Виберіть дату",
+        OrreryString.DatePickerRangeTitle to "Виберіть дати",
+        OrreryString.DatePickerHeadlinePlaceholder to "Вибрана дата",
+        OrreryString.DatePickerRangeStartPlaceholder to "Дата початку",
+        OrreryString.DatePickerRangeEndPlaceholder to "Дата завершення",
+        OrreryString.DatePickerInputLabel to "Дата",
+        OrreryString.DatePickerRangeStartInputLabel to "Дата початку",
+        OrreryString.DatePickerRangeEndInputLabel to "Дата завершення",
+        OrreryString.DatePickerInvalidFormatError to "Дата має бути у форматі %s",
+        OrreryString.DatePickerOutOfRangeError to "Дата поза дозволеним діапазоном",
+        OrreryString.DatePickerDisabledDateError to "Дата недоступна",
+        OrreryString.DatePickerInvalidRangeError to "Недійсний діапазон дат",
+        OrreryString.DatePickerSwitchToInput to "Перейти до введення тексту",
+        OrreryString.DatePickerSwitchToPicker to "Перейти до календаря",
+        OrreryString.PreviousMonth to "Попередній місяць",
+        OrreryString.NextMonth to "Наступний місяць",
+        OrreryString.Close to "Закрити",
+        OrreryString.MonthYearPickerDecade to "%d-ті",
+        OrreryString.HeatmapLegendLess to "Менше",
+        OrreryString.HeatmapLegendMore to "Більше",
+        OrreryString.HeatmapDayDescription to "%1\$s, рівень %2\$d з %3\$d",
+        OrreryString.HeatmapDayDescriptionEmpty to "%1\$s, немає даних",
+        OrreryString.HeatmapSummaryActiveDays to "Активних днів: %d",
+        OrreryString.HeatmapSummaryStreak to "Днів поспіль: %d",
+        OrreryString.DayRangeStart to "Початок діапазону",
+        OrreryString.DayRangeEnd to "Кінець діапазону",
+        OrreryString.DayInRange to "У діапазоні",
+        OrreryString.DayToday to "Сьогодні",
+        OrreryString.DayUnavailable to "Недоступно",
+        OrreryString.AgendaTodayPrefix to "СЬОГОДНІ",
+        OrreryString.AgendaAllDay to "Весь день",
+        OrreryString.AgendaNoEvents to "Немає подій",
+    )
+
+private val simplifiedChinese: Map<OrreryString, String> =
+    mapOf(
+        OrreryString.DatePickerTitle to "选择日期",
+        OrreryString.DatePickerRangeTitle to "选择日期范围",
+        OrreryString.DatePickerHeadlinePlaceholder to "所选日期",
+        OrreryString.DatePickerRangeStartPlaceholder to "开始日期",
+        OrreryString.DatePickerRangeEndPlaceholder to "结束日期",
+        OrreryString.DatePickerInputLabel to "日期",
+        OrreryString.DatePickerRangeStartInputLabel to "开始日期",
+        OrreryString.DatePickerRangeEndInputLabel to "结束日期",
+        OrreryString.DatePickerInvalidFormatError to "日期格式应为 %s",
+        OrreryString.DatePickerOutOfRangeError to "日期超出允许范围",
+        OrreryString.DatePickerDisabledDateError to "日期不可用",
+        OrreryString.DatePickerInvalidRangeError to "日期范围无效",
+        OrreryString.DatePickerSwitchToInput to "切换到文本输入",
+        OrreryString.DatePickerSwitchToPicker to "切换到日历",
+        OrreryString.PreviousMonth to "上个月",
+        OrreryString.NextMonth to "下个月",
+        OrreryString.Close to "关闭",
+        OrreryString.MonthYearPickerDecade to "%d年代",
+        OrreryString.HeatmapLegendLess to "少",
+        OrreryString.HeatmapLegendMore to "多",
+        OrreryString.HeatmapDayDescription to "%1\$s，第 %2\$d 级（共 %3\$d 级）",
+        OrreryString.HeatmapDayDescriptionEmpty to "%1\$s，无数据",
+        OrreryString.HeatmapSummaryActiveDays to "活跃 %d 天",
+        OrreryString.HeatmapSummaryStreak to "连续 %d 天",
+        OrreryString.DayRangeStart to "范围开始",
+        OrreryString.DayRangeEnd to "范围结束",
+        OrreryString.DayInRange to "在范围内",
+        OrreryString.DayToday to "今天",
+        OrreryString.DayUnavailable to "不可用",
+        OrreryString.AgendaTodayPrefix to "今天",
+        OrreryString.AgendaAllDay to "全天",
+        OrreryString.AgendaNoEvents to "无日程",
+    )

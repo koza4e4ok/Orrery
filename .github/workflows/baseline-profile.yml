@@ -40,8 +40,8 @@ jobs:
           if-no-files-found: error
       - name: Check the AAR ships the profile
         run: |
-          ./gradlew :orrery-compose:assembleRelease
-          unzip -l orrery-compose/build/outputs/aar/orrery-compose-release.aar | grep baseline-prof.txt
+          ./gradlew :orrery-compose:publishToMavenLocal
+          unzip -l ~/.m2/repository/me/kozakov/orrery/orrery-compose-android/*/orrery-compose-android-*.aar | grep baseline-prof.txt
       - name: Run scroll macrobenchmarks
         run: >
           ./gradlew :baselineprofile:pixel6Api34BenchmarkReleaseAndroidTest $GMD_FLAGS

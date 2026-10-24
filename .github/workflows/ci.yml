@@ -17,11 +17,14 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       # On Linux, allTests runs jvmTest and wasmJsTest (headless Chrome);
       # iOS klibs compile here, iOS tests run in the macos job below.
+      # testDebugUnitTest / verifyRoborazziDebug are aliases for the Android-KMP
+      # host-test tasks (testAndroidHostTest / verifyRoborazziAndroidHostTest).
       - name: Lint, ABI check, tests, screenshots, sample build
         run: >
           ./gradlew ktlintCheck detekt checkKotlinAbi
           :orrery-core:allTests :orrery-lunar:allTests
           :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug
+          :orrery-compose:desktopTest
           :sample:assembleDebug
       - name: Check the Kotlin/Wasm yarn.lock is committed
         run: |
@@ -32,8 +35,14 @@ jobs:
           fi
       - name: Publish KMP modules to Maven Local (publication smoke test)
         run: |
-          ./gradlew :orrery-core:publishToMavenLocal :orrery-lunar:publishToMavenLocal
+          ./gradlew :orrery-core:publishToMavenLocal :orrery-lunar:publishToMavenLocal :orrery-compose:publishToMavenLocal
           ls ~/.m2/repository/me/kozakov/orrery/
+      - name: Check the Android AAR ships the baseline profile and string resources
+        run: |
+          aar=$(ls ~/.m2/repository/me/kozakov/orrery/orrery-compose-android/*/orrery-compose-android-*.aar)
+          unzip -l "$aar"
+          unzip -l "$aar" | grep -q ' baseline-prof.txt$'
+          unzip -l "$aar" | grep -q ' res/values-uk/values-uk.xml$'
       - name: Regenerate ABI dumps on failure
         if: failure()
         run: ./gradlew updateKotlinAbi --continue

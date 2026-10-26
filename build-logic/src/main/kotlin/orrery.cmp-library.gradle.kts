@@ -45,9 +45,9 @@ kotlin {
     }
 
     jvm("desktop")
+    // No iosX64: Compose Multiplatform 1.11 no longer publishes Intel simulator klibs.
     iosArm64()
     iosSimulatorArm64()
-    iosX64()
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {

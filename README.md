@@ -514,8 +514,8 @@ useful for view-based UIs, widgets, or server-side rendering.
 ```
 
 `orrery-compose` is a Compose Multiplatform module targeting Android, Desktop
-(`jvm("desktop")`), iOS (`iosArm64`, `iosSimulatorArm64`, `iosX64`) and Web
-(`wasmJs`). Locale-sensitive dates come from the platform: java.time on Android
+(`jvm("desktop")`), iOS (`iosArm64`, `iosSimulatorArm64`; Compose Multiplatform
+has no Intel simulator build, so no `iosX64`) and Web (`wasmJs`). Locale-sensitive dates come from the platform: java.time on Android
 and Desktop, `NSDateFormatter` on iOS, `Intl.DateTimeFormat` on Web. Built-in
 strings are Android string resources on Android and bundled tables with the
 same six languages elsewhere. Tests shared by Desktop, iOS and Web live in

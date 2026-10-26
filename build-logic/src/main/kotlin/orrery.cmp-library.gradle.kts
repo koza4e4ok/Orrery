@@ -1,15 +1,20 @@
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
-// Compose Multiplatform library convention (#20, phase 3). AGP 9 no longer lets the
+// Compose Multiplatform library convention (#20, phases 3-4). AGP 9 no longer lets the
 // Kotlin Multiplatform plugin share a module with com.android.library, so the Android
 // target comes from the Android-KMP library plugin (single variant, host tests in
-// src/androidHostTest). Source sets added to the default hierarchy template:
+// src/androidHostTest). iOS klibs compile on Linux; iOS tests need a macOS host.
+// Source sets added to the default hierarchy template:
 //
 //   commonMain
-//   ├── jvmSharedMain   (android, desktop): java.time / java.util.Locale code
-//   └── nonAndroidMain  (desktop): built-in strings without Android resources
+//   ├── jvmSharedMain       (android, desktop): java.time / java.util.Locale code
+//   └── nonAndroidMain      (desktop, ios*, wasmJs): built-in strings without Android resources
+//       └── nonJvmMain      (ios*, wasmJs): pure-Kotlin string templates
+//
+// iosMain (NSDateFormatter) and wasmJsMain (Intl.DateTimeFormat) come from the template.
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
     id("com.android.kotlin.multiplatform.library")
@@ -40,6 +45,14 @@ kotlin {
     }
 
     jvm("desktop")
+    iosArm64()
+    iosSimulatorArm64()
+    iosX64()
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     applyDefaultHierarchyTemplate {
@@ -50,6 +63,10 @@ kotlin {
             }
             group("nonAndroid") {
                 withJvm()
+                group("nonJvm") {
+                    withIos()
+                    withWasmJs()
+                }
             }
         }
     }
@@ -59,7 +76,8 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
-    // Invoking the block enables ABI validation for every target.
+    // Invoking the block enables ABI validation: JVM dumps for android/desktop plus a
+    // merged klib dump for the iOS and wasmJs targets.
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
     }

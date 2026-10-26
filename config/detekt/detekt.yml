@@ -19,6 +19,8 @@ complexity:
       - "**/androidHostTest/**"
       - "**/androidDeviceTest/**"
       - "**/desktopTest/**"
+      - "**/nonAndroidTest/**"
+      - "**/wasmJsTest/**"
 naming:
   FunctionNaming:
     ignoreAnnotated: ["Composable"]

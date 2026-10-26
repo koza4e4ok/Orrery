@@ -33,6 +33,10 @@ The library ships three artifacts on **Maven Central** under the group
 | `me.kozakov.orrery:orrery-compose` | Jetpack Compose calendar composables with Material3 theming                |
 | `me.kozakov.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
 
+> **Multiplatform (next release):** `orrery-compose` also publishes Desktop (JVM), iOS
+> and Web (`wasmJs`) variants. In a Kotlin Multiplatform project, add it to
+> `commonMain` dependencies and Gradle picks the variant for each target.
+
 `orrery-compose` already depends on `orrery-core`, so most apps only need the two
 lines below. Make sure Maven Central is in your repositories (usually in
 `settings.gradle.kts` under `dependencyResolutionManagement`):
@@ -501,14 +505,23 @@ useful for view-based UIs, widgets, or server-side rendering.
 ./gradlew ktlintCheck detekt checkKotlinAbi \
   :orrery-core:allTests :orrery-lunar:allTests \
   :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug \
-  :orrery-compose:desktopTest \
+  :orrery-compose:desktopTest :orrery-compose:wasmJsTest \
   :sample:assembleDebug
+./gradlew :orrery-compose:iosSimulatorArm64Test    # iOS tests (macOS only)
 
 ./gradlew :orrery-compose:recordRoborazziDebug  # refresh screenshot goldens
 ./gradlew updateKotlinAbi                          # refresh ABI dumps after API changes
 ```
 
-`orrery-compose` is a Kotlin Multiplatform module (Android-KMP library plugin):
+`orrery-compose` is a Compose Multiplatform module targeting Android, Desktop
+(`jvm("desktop")`), iOS (`iosArm64`, `iosSimulatorArm64`, `iosX64`) and Web
+(`wasmJs`). Locale-sensitive dates come from the platform: java.time on Android
+and Desktop, `NSDateFormatter` on iOS, `Intl.DateTimeFormat` on Web. Built-in
+strings are Android string resources on Android and bundled tables with the
+same six languages elsewhere. Tests shared by Desktop, iOS and Web live in
+`src/nonAndroidTest`; iOS klibs compile on Linux, but iOS tests need macOS.
+
+On Android it uses the Android-KMP library plugin:
 Android tests live in `src/androidHostTest`, and `testDebugUnitTest` /
 `verifyRoborazziDebug` / `recordRoborazziDebug` are aliases for
 `testAndroidHostTest` / `verifyRoborazziAndroidHostTest` /

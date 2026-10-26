@@ -17,6 +17,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       # On Linux, allTests runs jvmTest and wasmJsTest (headless Chrome);
       # iOS klibs compile here, iOS tests run in the macos job below.
+      # orrery-compose runs its desktop and wasmJs (headless Chrome) tests explicitly.
       # testDebugUnitTest / verifyRoborazziDebug are aliases for the Android-KMP
       # host-test tasks (testAndroidHostTest / verifyRoborazziAndroidHostTest).
       - name: Lint, ABI check, tests, screenshots, sample build
@@ -24,7 +25,7 @@ jobs:
           ./gradlew ktlintCheck detekt checkKotlinAbi
           :orrery-core:allTests :orrery-lunar:allTests
           :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug
-          :orrery-compose:desktopTest
+          :orrery-compose:desktopTest :orrery-compose:wasmJsTest
           :sample:assembleDebug
       - name: Check the Kotlin/Wasm yarn.lock is committed
         run: |
@@ -80,8 +81,10 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      - name: iOS simulator tests (orrery-core, orrery-lunar)
-        run: ./gradlew :orrery-core:iosSimulatorArm64Test :orrery-lunar:iosSimulatorArm64Test
+      - name: iOS simulator tests (orrery-core, orrery-lunar, orrery-compose)
+        run: >
+          ./gradlew :orrery-core:iosSimulatorArm64Test :orrery-lunar:iosSimulatorArm64Test
+          :orrery-compose:iosSimulatorArm64Test
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4

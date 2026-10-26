@@ -4,6 +4,14 @@
 
 ### Added
 
+- `orrery-compose` targets iOS (`iosArm64`, `iosSimulatorArm64`) and Web
+  (`wasmJs`) through Compose Multiplatform, next to Android and Desktop (#20).
+  There is no `iosX64` (Intel simulator) variant: Compose Multiplatform 1.11
+  does not publish one. `orrery-core` and `orrery-lunar` keep `iosX64`. Month and weekday names, date headlines and the date input
+  pattern come from `NSDateFormatter` on iOS and `Intl.DateTimeFormat` on the
+  Web; built-in strings use the same six bundled translations as Desktop.
+  The Android and Desktop APIs are unchanged.
+
 - `CalendarEvent` and `EventSpan` (`AllDay`, `Timed`) in `orrery-core` with
   `occursOn` and `eventsByDate` range indexing, plus `Agenda`, `AgendaState` /
   `rememberAgendaState`, `AgendaDefaults` / `AgendaStrings`, and

@@ -7,7 +7,8 @@ import kotlinx.datetime.YearMonth
 
 /**
  * Locale-sensitive date text, resolved by the platform for the current default
- * locale: java.time on Android and Desktop. The only place library code turns
+ * locale: java.time on Android and Desktop, NSDateFormatter on iOS and
+ * Intl.DateTimeFormat on Web (wasmJs). The only place library code turns
  * dates into localized text.
  */
 internal expect object PlatformDateFormat {

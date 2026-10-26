@@ -55,6 +55,7 @@ private val english: Map<OrreryString, String> =
         OrreryString.AgendaTodayPrefix to "TODAY",
         OrreryString.AgendaAllDay to "All day",
         OrreryString.AgendaNoEvents to "No events",
+        OrreryString.ScheduleNow to "Now",
     )
 
 private val german: Map<OrreryString, String> =
@@ -91,6 +92,7 @@ private val german: Map<OrreryString, String> =
         OrreryString.AgendaTodayPrefix to "HEUTE",
         OrreryString.AgendaAllDay to "Ganztägig",
         OrreryString.AgendaNoEvents to "Keine Termine",
+        OrreryString.ScheduleNow to "Jetzt",
     )
 
 private val spanish: Map<OrreryString, String> =
@@ -127,6 +129,7 @@ private val spanish: Map<OrreryString, String> =
         OrreryString.AgendaTodayPrefix to "HOY",
         OrreryString.AgendaAllDay to "Todo el día",
         OrreryString.AgendaNoEvents to "Sin eventos",
+        OrreryString.ScheduleNow to "Ahora",
     )
 
 private val japanese: Map<OrreryString, String> =
@@ -163,6 +166,7 @@ private val japanese: Map<OrreryString, String> =
         OrreryString.AgendaTodayPrefix to "今日",
         OrreryString.AgendaAllDay to "終日",
         OrreryString.AgendaNoEvents to "予定なし",
+        OrreryString.ScheduleNow to "現在",
     )
 
 private val ukrainian: Map<OrreryString, String> =
@@ -199,6 +203,7 @@ private val ukrainian: Map<OrreryString, String> =
         OrreryString.AgendaTodayPrefix to "СЬОГОДНІ",
         OrreryString.AgendaAllDay to "Весь день",
         OrreryString.AgendaNoEvents to "Немає подій",
+        OrreryString.ScheduleNow to "Зараз",
     )
 
 private val simplifiedChinese: Map<OrreryString, String> =
@@ -235,4 +240,5 @@ private val simplifiedChinese: Map<OrreryString, String> =
         OrreryString.AgendaTodayPrefix to "今天",
         OrreryString.AgendaAllDay to "全天",
         OrreryString.AgendaNoEvents to "无日程",
+        OrreryString.ScheduleNow to "现在",
     )

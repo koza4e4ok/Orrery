@@ -45,4 +45,5 @@ private val OrreryString.resId: Int
             OrreryString.AgendaTodayPrefix -> R.string.orrery_agenda_today_prefix
             OrreryString.AgendaAllDay -> R.string.orrery_agenda_all_day
             OrreryString.AgendaNoEvents -> R.string.orrery_agenda_no_events
+            OrreryString.ScheduleNow -> R.string.orrery_schedule_now
         }

@@ -7,6 +7,7 @@ dependencies {
     implementation(plugin(libs.plugins.kotlin.multiplatform))
     implementation(plugin(libs.plugins.android.library))
     implementation(plugin(libs.plugins.compose.compiler))
+    implementation(plugin(libs.plugins.compose.multiplatform))
     implementation(plugin(libs.plugins.ktlint))
     implementation(plugin(libs.plugins.detekt))
     implementation(plugin(libs.plugins.maven.publish))

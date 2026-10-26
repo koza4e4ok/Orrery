@@ -19,6 +19,8 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
     id("com.android.kotlin.multiplatform.library")
     id("org.jetbrains.kotlin.plugin.compose")
+    // Supplies the Skiko Wasm runtime (skiko.mjs) that wasmJs test bundles import.
+    id("org.jetbrains.compose")
     id("orrery.lint")
 }
 

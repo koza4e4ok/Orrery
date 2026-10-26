@@ -1,7 +1,7 @@
 # Time-Grid Day/Week Schedule View (0.7.0) — Design
 
 **Date:** 2026-10-22
-**Status:** Approved by Andrii (2026-10-23); awaiting Rei visual pass
+**Status:** Ready (approved by Andrii 2026-10-23; Section 4 tokens finalized 2026-10-26)
 **Issue:** #21 (Co-designed with #22 event model & agenda; tracking roadmap: #26)
 **Owners:** Ritsuko (architecture & layout algorithm), Rei (visual spec), Maya (implementation), Asuka (review)
 
@@ -24,7 +24,7 @@ This specification is **co-designed with #22 (Event Model & Agenda)**:
 
 ## 1. Overlap Layout Algorithm (`orrery-core`)
 
-New file `orrery-core/src/main/kotlin/me/kozakov/orrery/core/ScheduleLayout.kt`:
+New file `orrery-core/src/commonMain/kotlin/me/kozakov/orrery/core/ScheduleLayout.kt`:
 
 ### Data Structures
 
@@ -111,7 +111,7 @@ Complexity: $O(N \log N + N \cdot C)$ per day where $C$ is the maximum concurren
 
 ## 2. State Holder: `ScheduleState` (`orrery-compose`)
 
-New file `orrery-compose/src/main/kotlin/me/kozakov/orrery/compose/ScheduleState.kt`:
+New file `orrery-compose/src/commonMain/kotlin/me/kozakov/orrery/compose/ScheduleState.kt`:
 
 ```kotlin
 @Stable
@@ -172,7 +172,7 @@ public fun rememberScheduleState(
 
 ## 3. Composables: `DaySchedule` & `WeekSchedule` (`orrery-compose`)
 
-New file `orrery-compose/src/main/kotlin/me/kozakov/orrery/compose/ScheduleView.kt`:
+New file `orrery-compose/src/commonMain/kotlin/me/kozakov/orrery/compose/ScheduleView.kt`:
 
 ```kotlin
 /**
@@ -198,18 +198,19 @@ public fun <T> DaySchedule(
         ScheduleDefaults.DayHeader(date, isToday, colors)
     },
     allDayEventContent: @Composable (CalendarEvent<T>) -> Unit = { event ->
-        ScheduleDefaults.AllDayEventChip(event, colors, onClick = onEventClick?.let { cb -> { cb(event) } })
+        ScheduleDefaults.AllDayEventChip(event, colors, dimensions, onClick = onEventClick?.let { cb -> { cb(event) } })
     },
     hourLabel: @Composable (Int) -> Unit = { hour ->
-        ScheduleDefaults.HourLabel(hour, strings, colors)
+        ScheduleDefaults.HourLabel(hour, colors)
     },
     nowIndicator: @Composable () -> Unit = {
-        ScheduleDefaults.NowIndicator(colors)
+        ScheduleDefaults.NowIndicator(colors, dimensions, contentDescription = strings.nowLabel)
     },
     eventContent: @Composable BoxScope.(PositionedEvent<T>) -> Unit = { positioned ->
         ScheduleDefaults.EventTile(
             positioned = positioned,
             colors = colors,
+            dimensions = dimensions,
             onClick = onEventClick?.let { cb -> { cb(positioned.event) } },
         )
     },
@@ -239,23 +240,28 @@ public fun <T> WeekSchedule(
         ScheduleDefaults.DayHeader(date, isToday, colors)
     },
     allDayEventContent: @Composable (CalendarEvent<T>) -> Unit = { event ->
-        ScheduleDefaults.AllDayEventChip(event, colors, onClick = onEventClick?.let { cb -> { cb(event) } })
+        ScheduleDefaults.AllDayEventChip(event, colors, dimensions, onClick = onEventClick?.let { cb -> { cb(event) } })
     },
     hourLabel: @Composable (Int) -> Unit = { hour ->
-        ScheduleDefaults.HourLabel(hour, strings, colors)
+        ScheduleDefaults.HourLabel(hour, colors)
     },
     nowIndicator: @Composable () -> Unit = {
-        ScheduleDefaults.NowIndicator(colors)
+        ScheduleDefaults.NowIndicator(colors, dimensions, contentDescription = strings.nowLabel)
     },
     eventContent: @Composable BoxScope.(PositionedEvent<T>) -> Unit = { positioned ->
         ScheduleDefaults.EventTile(
             positioned = positioned,
             colors = colors,
+            dimensions = dimensions,
             onClick = onEventClick?.let { cb -> { cb(positioned.event) } },
         )
     },
 )
 ```
+
+- `onEmptySlotClick` reports the tapped column's date and the tapped time floored to the hour (to the half hour when `showHalfHourLines = true`).
+- Each page is self-contained (day headers, all-day row, hour gutter, and day columns), so the gutter pages with the columns; the vertical `ScrollState` is shared by all pages.
+- `DaySchedule` pages one day per swipe. `WeekSchedule` with `daysPerPage = 7` pages whole weeks starting on `state.firstDayOfWeek`; other `daysPerPage` values page in blocks counted from the range start.
 
 ### Layout Anatomy
 
@@ -291,35 +297,45 @@ Each day column uses a lightweight custom `Layout` (inside the shared `Modifier.
 
 ## 4. Visual Spec Tokens (Handoff Contract with Rei)
 
-`ScheduleDefaults.kt` exposes theme-aware tokens that Rei (`rei_design`) will review/tune for visual hierarchy, contrast, and density:
+`ScheduleDefaults.kt` (`orrery-compose/src/commonMain/kotlin/me/kozakov/orrery/compose/`) exposes theme-aware tokens that Rei (`rei_design`) can tune for visual hierarchy, contrast, and density. They follow the existing `CalendarDefaults` / `AgendaDefaults` conventions: plain `@Immutable` classes without constructor defaults, built by `ScheduleDefaults.colors()` (`@Composable`, reads `MaterialTheme.colorScheme`), `ScheduleDefaults.dimensions()` (non-composable, like `CalendarDefaults.dayShapes()`), and `ScheduleDefaults.strings()` (`@Composable @ReadOnlyComposable`, resolved through `orreryString`).
 
 ```kotlin
 @Immutable
 public class ScheduleColors(
     public val gridLineColor: Color,              // outlineVariant.copy(alpha = 0.5f)
     public val halfHourLineColor: Color,          // outlineVariant.copy(alpha = 0.25f)
-    public val hourLabelColor: Color,             // onSurfaceVariant
-    public val nowIndicatorColor: Color,          // primary (or error)
-    public val defaultEventContainerColor: Color, // primaryContainer
+    public val hourLabelColor: Color,             // onSurfaceVariant (AgendaDefaults time label)
+    public val headerContentColor: Color,         // onSurfaceVariant (AgendaDefaults.DayHeader, non-today)
+    public val todayHeaderColor: Color,           // primary (AgendaDefaults.DayHeader today, CalendarDefaults todayContentColor)
+    public val nowIndicatorColor: Color,          // primary (CalendarDefaults todayIndicatorColor)
+    public val defaultEventContainerColor: Color, // primaryContainer (CalendarDefaults inRangeContainerColor)
     public val defaultEventContentColor: Color,   // onPrimaryContainer
-    public val defaultEventAccentColor: Color,    // primary
-    public val todayHeaderColor: Color,           // primary
+    public val defaultEventAccentColor: Color,    // primary (AgendaDefaults.EventRow bar fallback)
 )
 
 @Immutable
 public class ScheduleDimensions(
-    public val timeGutterWidth: Dp = 56.dp,
-    public val tileCornerRadius: Dp = 6.dp,
-    public val tileAccentBarWidth: Dp = 3.dp,
-    public val tileHorizontalGap: Dp = 2.dp,
-    public val tileVerticalGap: Dp = 1.dp,
-    public val nowLineStrokeWidth: Dp = 2.dp,
-    public val nowDotRadius: Dp = 4.dp,
-    public val maxVisibleAllDayRows: Int = 3,
+    public val timeGutterWidth: Dp,       // 56.dp
+    public val tileCornerRadius: Dp,      // 6.dp
+    public val tileAccentBarWidth: Dp,    // 3.dp
+    public val tileHorizontalGap: Dp,     // 2.dp
+    public val tileVerticalGap: Dp,       // 1.dp
+    public val nowLineStrokeWidth: Dp,    // 2.dp
+    public val nowDotRadius: Dp,          // 4.dp
+    public val allDayChipHeight: Dp,      // 20.dp
+    public val maxVisibleAllDayRows: Int, // 3; extra all-day events collapse into a "+N" label
+)
+
+@Immutable
+public class ScheduleStrings(
+    public val allDayLabel: String, // reuses orrery_agenda_all_day ("All day")
+    public val nowLabel: String,    // new orrery_schedule_now ("Now"), NowIndicator content description
 )
 ```
 
-When `event.colorArgb != null`, `ScheduleDefaults.EventTile` derives the tile fill as `Color(event.colorArgb).copy(alpha = 0.18f)` (light) / `0.28f` (dark), the leading accent stripe as `Color(event.colorArgb)`, and high-contrast text on top.
+Hour labels use the 24-hour `HH:00` form in v1 (no locale-specific 12-hour clock yet). New strings follow the localization rules from #15/#20: Android `res/values{,-uk,-de,-es,-zh-rCN,-ja}/strings.xml` with the `orrery_` prefix plus the matching `OrreryStrings.nonAndroid.kt` tables.
+
+When `event.colorArgb != null`, `ScheduleDefaults.EventTile` and `ScheduleDefaults.AllDayEventChip` derive the fill as `Color(event.colorArgb).copy(alpha = 0.18f)` (light) / `0.28f` (dark, detected from `MaterialTheme.colorScheme.surface.luminance() < 0.5f`), the leading accent stripe as `Color(event.colorArgb)`, and `onSurface` text on top. Without `colorArgb` they use `defaultEventContainerColor` / `defaultEventContentColor` / `defaultEventAccentColor`.
 
 ---
 
@@ -350,4 +366,4 @@ When `event.colorArgb != null`, `ScheduleDefaults.EventTile` derives the tile fi
 
 1. **All-day events in `WeekSchedule` (v1):** Render per-column all-day chips in each covered day's header (no multi-column spanning bars in v1).
 2. **`WeekSchedule` horizontal paging:** Page-snapping one week (`daysPerPage`) per swipe, matching `WeekCalendar`.
-3. **Visual spec review:** Pending Rei's (`rei_design`) visual pass on `ScheduleColors` and `ScheduleDimensions` before implementation.
+3. **Visual spec review:** `ScheduleColors` / `ScheduleDimensions` consolidated against `CalendarDefaults` / `AgendaDefaults` (2026-10-26): the now-line uses `primary` (not `error`), a `headerContentColor` token covers non-today headers, and dimension defaults moved into `ScheduleDefaults.dimensions()`. Rei can tune values against the implementation PR's Roborazzi snapshots.

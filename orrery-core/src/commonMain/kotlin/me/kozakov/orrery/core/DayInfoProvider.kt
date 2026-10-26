@@ -14,6 +14,8 @@ public interface DayInfoProvider {
      * for a date:
      * - The entry with the higher [DayInfo.priority] supplies the primary
      *   [DayInfo.label], [DayInfo.colorArgb], and [DayInfo.payload] (ties favor `this`).
+     * - If that entry's [DayInfo.label] is null, the other entry's label is used,
+     *   so a label-less holiday entry does not erase e.g. a lunar label.
      * - [DayInfo.isHoliday] is `this.isHoliday || other.isHoliday`.
      * - [DayInfo.tags] is the deduplicated union of both tag lists in order.
      */
@@ -29,6 +31,21 @@ public object DayInfoPriority {
     public const val PUBLIC_HOLIDAY: Int = 40
 }
 
+/**
+ * Secondary information for one day, returned by [DayInfoProvider.info].
+ *
+ * @property label Short text shown under the day number, or null for none.
+ * @property isHoliday Whether the day is a holiday (rendered with the holiday label color).
+ * @property tags Free-form tags for filtering or styling.
+ * @property priority Precedence when providers are combined with [DayInfoProvider.plus]: the
+ *   entry with the higher value supplies [label], [colorArgb] and [payload]. Use the tiers in
+ *   [DayInfoPriority]; defaults to [DayInfoPriority.DEFAULT].
+ * @property colorArgb Optional label color as a packed `0xAARRGGBB` ARGB value (for example
+ *   `0xFFC62828`), or null to use the theme color. The alpha byte is required: a 24-bit
+ *   `0xRRGGBB` value has alpha `0x00` and is fully transparent.
+ * @property payload Arbitrary data attached by the provider (for example `LunarDayMetadata` from
+ *   orrery-lunar), passed through unchanged. Read it with [payloadAs].
+ */
 public data class DayInfo(
     public val label: String?,
     public val isHoliday: Boolean = false,
@@ -86,8 +103,9 @@ internal class CompositeDayInfoProvider(
         val a = first.info(date) ?: return second.info(date)
         val b = second.info(date) ?: return a
         val primary = if (b.priority > a.priority) b else a
+        val secondary = if (primary === a) b else a
         return DayInfo(
-            label = primary.label,
+            label = primary.label ?: secondary.label,
             isHoliday = a.isHoliday || b.isHoliday,
             tags = (a.tags + b.tags).distinct(),
             priority = primary.priority,

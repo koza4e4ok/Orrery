@@ -5,7 +5,14 @@ import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DayInfoPriority
 import me.kozakov.orrery.core.DayInfoProvider
 
-/** Structured lunisolar metadata attached to [DayInfo.payload] by [LunarDayInfoProvider]. */
+/**
+ * Structured lunisolar metadata attached to [DayInfo.payload] by [LunarDayInfoProvider].
+ *
+ * @property gregorianFestival Gregorian-calendar festival on this date, if any. Besides
+ *   fixed-date festivals (e.g. New Year's Day) it also carries floating ones computed from the
+ *   weekday, such as Mother's Day, Father's Day and Thanksgiving.
+ * @property traditionalFestival Festival on the lunar calendar (e.g. Dragon Boat Festival), if any.
+ */
 public data class LunarDayMetadata(
     public val lunarDate: LunarDate,
     public val solarTerm: SolarTerm? = null,

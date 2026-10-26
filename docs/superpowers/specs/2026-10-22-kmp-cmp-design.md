@@ -34,7 +34,7 @@ All three published modules (`orrery-core`, `orrery-lunar`, `orrery-compose`) ta
 |---|---|---|
 | **Android** | `androidTarget()` (or `androidLibrary`) | `minSdk = 23`, `compileSdk = 36`, JVM target 17 |
 | **JVM / Desktop** | `jvm("desktop")` (or `jvm()` in core/lunar) | JDK 17 toolchain; backs Compose Desktop & server/CLI consumers |
-| **iOS** | `iosArm64()`, `iosSimulatorArm64()`, `iosX64()` | Static framework export for Xcode / SwiftPM |
+| **iOS** | `iosArm64()`, `iosSimulatorArm64()`, `iosX64()` | Static framework export for Xcode / SwiftPM. `orrery-compose` omits `iosX64()`: Compose Multiplatform 1.11 does not publish an `iosX64` variant. |
 | **Web (Wasm)** | `wasmJs { browser() }` | Kotlin/Wasm Skiko-backed Compose for Web |
 
 *Target naming note:* `orrery-core` and `orrery-lunar` do not depend on the Android SDK and therefore need only `jvm()` (usable by both Android and Desktop consumers) alongside `ios*` and `wasmJs`. `orrery-compose` declares both `androidTarget()` (for Android resources/Roborazzi/AAR metadata) and `jvm("desktop")`.
@@ -126,7 +126,7 @@ internal enum class DateFormattingStyle { Medium, Long, Full }
 - **Published artifacts:**
   - `orrery-core`: root KMP module (`me.kozakov.orrery:orrery-core`), `orrery-core-jvm`, `orrery-core-iosarm64`, `orrery-core-iossimulatorarm64`, `orrery-core-iosx64`, `orrery-core-wasm-js`.
   - `orrery-lunar`: same target artifacts as `orrery-core`.
-  - `orrery-compose`: root KMP module (`me.kozakov.orrery:orrery-compose`), `orrery-compose-android`, `orrery-compose-desktop`, `orrery-compose-iosarm64`, `orrery-compose-iossimulatorarm64`, `orrery-compose-iosx64`, `orrery-compose-wasm-js`.
+  - `orrery-compose`: root KMP module (`me.kozakov.orrery:orrery-compose`), `orrery-compose-android`, `orrery-compose-desktop`, `orrery-compose-iosarm64`, `orrery-compose-iossimulatorarm64`, `orrery-compose-wasm-js` (no `iosx64`, see the target matrix).
 - **CI matrix note for iOS:** Maven Central allows publishing iOS klibs from Linux hosts in Kotlin `2.1+` (`kotlin.native.enableKlibsCrossCompilation=true`) when no custom `cinterop` is used. Because Orrery uses only standard `platform.Foundation` APIs in `iosMain`, Linux CI (`ubuntu-latest`) can compile and publish all targets including iOS klibs, with a macOS job (`macos-latest`) optional only if running `iosSimulatorArm64Test`.
 
 ### ABI Validation
@@ -164,7 +164,7 @@ Each phase lands as an independently verifiable PR once this design is signed of
 
 ### Phase 3: `orrery-compose` to CMP
 1. Add JetBrains Compose Multiplatform plugin (`org.jetbrains.compose`) to `gradle/libs.versions.toml` and `build-logic`.
-2. Create `orrery.cmp-library.gradle.kts` with `androidTarget()`, `jvm("desktop")`, `ios*`, and `wasmJs`.
+2. Create `orrery.cmp-library.gradle.kts` with `androidTarget()`, `jvm("desktop")`, `iosArm64()`, `iosSimulatorArm64()` (no `iosX64()`), and `wasmJs`.
 3. Implement `PlatformDateFormat` (`commonMain`, `jvmSharedMain`, `androidMain`, `desktopMain`, `iosMain`, `wasmJsMain`) and the pure-Kotlin strict pattern parser in `DateInput.kt`.
 4. Move `orrery-compose` sources to `commonMain`; keep `java.util.Locale` extension overloads in `jvmSharedMain`.
 5. Migrate interaction tests to `runComposeUiTest` in `commonTest`/`desktopTest`; keep Roborazzi snapshot tests in `androidUnitTest`.

@@ -129,11 +129,13 @@ class DayInfoProviderTest {
     fun `plus keeps the higher priority label when the lower priority label is null`() {
         val unlabeled =
             object : DayInfoProvider {
-                override fun info(date: LocalDate): DayInfo = DayInfo(label = null, priority = DayInfoPriority.SECONDARY)
+                override fun info(date: LocalDate): DayInfo =
+                    DayInfo(label = null, priority = DayInfoPriority.SECONDARY)
             }
         val festival =
             object : DayInfoProvider {
-                override fun info(date: LocalDate): DayInfo = DayInfo(label = "端午", priority = DayInfoPriority.FESTIVAL)
+                override fun info(date: LocalDate): DayInfo =
+                    DayInfo(label = "端午", priority = DayInfoPriority.FESTIVAL)
             }
 
         assertEquals("端午", (unlabeled + festival).info(sampleDate)?.label)
@@ -144,7 +146,8 @@ class DayInfoProviderTest {
     fun `plus returns null label when both labels are null`() {
         val a =
             object : DayInfoProvider {
-                override fun info(date: LocalDate): DayInfo = DayInfo(label = null, priority = DayInfoPriority.FESTIVAL)
+                override fun info(date: LocalDate): DayInfo =
+                    DayInfo(label = null, priority = DayInfoPriority.FESTIVAL)
             }
         val b =
             object : DayInfoProvider {

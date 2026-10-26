@@ -17,7 +17,19 @@ plugins {
     // MavenCentralBuildService resolves in a single classloader scope across
     // sibling modules instead of failing with a cross-project provider error.
     alias(libs.plugins.maven.publish) apply false
-    alias(libs.plugins.dokka) apply false
+    // Applied here to aggregate the published modules' API docs into one site:
+    // ./gradlew :dokkaGeneratePublicationHtml -> build/dokka/html
+    alias(libs.plugins.dokka)
+}
+
+dokka {
+    moduleName.set("Orrery")
+}
+
+dependencies {
+    dokka(project(":orrery-core"))
+    dokka(project(":orrery-lunar"))
+    dokka(project(":orrery-compose"))
 }
 
 // Node.js, Yarn and Binaryen for the wasmJs target resolve from the repositories in

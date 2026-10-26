@@ -19,6 +19,9 @@ interfaces, and an optional Chinese lunisolar artifact.
   <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with event badges, trip range selection with per-day prices, habit progress rings, Chinese lunar almanac, and Material 3 date picker dialogs" />
 </p>
 
+**API reference:** [koza4e4ok.github.io/Orrery](https://koza4e4ok.github.io/Orrery/)
+(Dokka, published for each release).
+
 **Requirements:** Android `minSdk 23` · Jetpack Compose (Material 3) · Kotlin · JDK 17.
 Built on [`kotlinx-datetime`](https://github.com/Kotlin/kotlinx-datetime).
 
@@ -527,6 +530,11 @@ Android tests live in `src/androidHostTest`, and `testDebugUnitTest` /
 `testAndroidHostTest` / `verifyRoborazziAndroidHostTest` /
 `recordRoborazziAndroidHostTest`. To filter tests, call the real task, e.g.
 `./gradlew :orrery-compose:testAndroidHostTest --tests "*DateInputFieldTest"`.
+
+API docs: `./gradlew :dokkaGeneratePublicationHtml` writes the combined Dokka
+site for `orrery-core`, `orrery-lunar` and `orrery-compose` to
+`build/dokka/html`. The `Docs` workflow builds it on every `v*` tag (or by hand)
+and deploys it to the [hosted API reference](https://koza4e4ok.github.io/Orrery/).
 
 Releases are documented in [docs/RELEASING.md](docs/RELEASING.md).
 

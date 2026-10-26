@@ -22,7 +22,7 @@ jobs:
       # host-test tasks (testAndroidHostTest / verifyRoborazziAndroidHostTest).
       - name: "TEMP (#21): regenerate ABI dumps and record screenshots"
         continue-on-error: true
-        run: ./gradlew updateKotlinAbi :orrery-compose:recordRoborazziDebug --continue
+        run: ./gradlew updateKotlinAbi :orrery-compose:recordRoborazziDebug ktlintCheck detekt --continue
       - name: "TEMP (#21): upload generated files"
         if: always()
         uses: actions/upload-artifact@v4

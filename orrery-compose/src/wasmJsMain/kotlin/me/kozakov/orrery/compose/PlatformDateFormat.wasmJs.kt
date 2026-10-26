@@ -1,3 +1,6 @@
+// The js() bodies read their parameters by name, which detekt cannot see.
+@file:Suppress("UnusedParameter")
+
 package me.kozakov.orrery.compose
 
 import kotlinx.datetime.DayOfWeek

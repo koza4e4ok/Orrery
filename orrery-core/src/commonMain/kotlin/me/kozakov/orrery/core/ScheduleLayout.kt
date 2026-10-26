@@ -112,7 +112,8 @@ private fun EventSpan.Timed.clipTo(
     minDurationMinutes: Int,
 ): ClippedMinutes? {
     // An overnight event ending exactly at midnight does not reach into [date].
-    if (start.date < date && end.date == date && end.hour == 0 && end.minute == 0) return null
+    val endsAtMidnightOfDate = end.date == date && end.hour == 0 && end.minute == 0
+    if (start.date < date && endsAtMidnightOfDate) return null
     val startMinute = if (start.date < date) 0 else start.hour * 60 + start.minute
     val endMinute = if (end.date > date) MINUTES_PER_DAY else end.hour * 60 + end.minute
     val displayEnd = maxOf(endMinute, (startMinute + minDurationMinutes).coerceAtMost(MINUTES_PER_DAY))

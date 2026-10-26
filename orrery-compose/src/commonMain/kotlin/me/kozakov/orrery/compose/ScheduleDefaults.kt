@@ -24,12 +24,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -290,7 +293,7 @@ public object ScheduleDefaults {
                     .fillMaxHeight()
                     .background(palette.accent),
             )
-            Column(Modifier.padding(horizontal = 4.dp, vertical = 2.dp)) {
+            FittingColumn(Modifier.padding(horizontal = 4.dp, vertical = 2.dp)) {
                 Text(
                     text = event.title,
                     style = MaterialTheme.typography.labelMedium,
@@ -314,6 +317,41 @@ public object ScheduleDefaults {
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Stacks children top to bottom and drops every child after the first that
+ * would not fit completely, so short tiles never show half-clipped lines.
+ */
+@Composable
+private fun FittingColumn(
+    modifier: Modifier,
+    content: @Composable () -> Unit,
+) {
+    Layout(content = content, modifier = modifier) { measurables, constraints ->
+        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0, maxHeight = Constraints.Infinity)
+        val placeables = ArrayList<Placeable>(measurables.size)
+        var height = 0
+        for (measurable in measurables) {
+            val placeable = measurable.measure(childConstraints)
+            if (placeables.isNotEmpty() && height + placeable.height > constraints.maxHeight) break
+            placeables.add(placeable)
+            height += placeable.height
+        }
+        val width =
+            if (constraints.hasBoundedWidth) {
+                constraints.maxWidth
+            } else {
+                placeables.maxOfOrNull { it.width } ?: 0
+            }
+        layout(width, height.coerceIn(constraints.minHeight, constraints.maxHeight)) {
+            var y = 0
+            for (placeable in placeables) {
+                placeable.placeRelative(0, y)
+                y += placeable.height
             }
         }
     }

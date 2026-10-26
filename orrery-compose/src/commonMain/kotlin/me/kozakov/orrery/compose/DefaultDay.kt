@@ -318,7 +318,7 @@ private enum class RangeBand { None, Full, TowardEnd, TowardStart }
  * Draws the range connector band as a vertically centered bar whose
  * height matches the endpoint circle diameter, so a completed range
  * reads as one continuous pill capped by the endpoint fills. [mode]
- * picks the horizontal extent; [TowardEnd]/[TowardStart] fill the half
+ * picks the horizontal extent; [RangeBand.TowardEnd]/[RangeBand.TowardStart] fill the half
  * that faces the range interior (flipped in RTL).
  */
 private fun DrawScope.drawRangeBand(

@@ -16,6 +16,13 @@
   `occursOn` and `eventsByDate` range indexing, plus `Agenda`, `AgendaState` /
   `rememberAgendaState`, `AgendaDefaults` / `AgendaStrings`, and
   `DayDecorators.eventDotsForEvents` in `orrery-compose` (#22).
+- `DaySchedule` and `WeekSchedule` 24-hour time-grid views in `orrery-compose`
+  with `ScheduleState` / `rememberScheduleState` (paged dates, shared vertical
+  scroll, `scrollToTime`, pinch-to-zoom `hourHeight`) and `ScheduleDefaults`
+  (`ScheduleColors`, `ScheduleDimensions`, `ScheduleStrings` and default day
+  header, all-day chip, hour label, now line and event tile). Overlap packing
+  lives in `orrery-core` as `layoutDaySchedule`, `DayScheduleLayout` and
+  `PositionedEvent`. Adds the localized `orrery_schedule_now` string (#21).
 - Richer `DayInfo` and provider composition (#19): `DayInfo` adds `priority: Int`
   (with standard tiers in `DayInfoPriority`), `colorArgb: Long?` and
   `payload: Any?` (extracted via `info.payloadAs<T>()`), while preserving

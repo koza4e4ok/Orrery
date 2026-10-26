@@ -113,7 +113,7 @@ fun CalendarScreen() {
 ```
 
 The sample app (`sample/`) is five product-style screens: an Agenda with a
-collapsible calendar and named events, a Trips booking flow with drag-select,
+collapsible calendar and named events (switchable to Day and Week time grids), a Trips booking flow with drag-select,
 nightly prices and blackout dates, a Habits tracker with streaks and animated
 progress rings, a Chinese Almanac backed by `orrery-lunar`, and a Pickers screen
 demonstrating both date picker dialogs.
@@ -136,6 +136,10 @@ demonstrating both date picker dialogs.
 - Stackable day decorators: event dots, progress rings/bars, strikethrough,
   underline, and a GitHub-style heatmap — plus a raw `DayDecorator` DrawScope
   escape hatch
+- `DaySchedule` / `WeekSchedule` 24-hour time-grid views: overlapping events
+  packed side by side (`layoutDaySchedule` in orrery-core), all-day chips,
+  current-time line, pinch-to-zoom hour height, and tap callbacks for events
+  and empty slots
 - `HeatmapCalendar` contribution graph and `HeatmapMonth` heat tiles with
   active-day/streak summaries (`heatmapSummary` in orrery-core)
 - `CalendarNavHeader` prev/next navigation with animated title and
@@ -400,6 +404,35 @@ HeatmapMonth(yearMonth = YearMonth(2026, 7), intensity = { activity[it] }, showD
 The default color scale quantizes into five buckets from `surfaceVariant` to
 `primary`; pass any `colorScale: (Float) -> Color` (a continuous lerp works
 too). Cell accessibility descriptions bucket intensity into five spoken levels.
+
+### Time-grid schedules
+
+`DaySchedule` pages one day per swipe and `WeekSchedule` one week (`daysPerPage`,
+default 7) per swipe. Both take the same `CalendarEvent` lookup as `Agenda`, share
+a `ScheduleState` (visible date, vertical scroll, zoomable `hourHeight`), and
+draw the current-time line only when you pass `currentTime`, so tests and
+screenshots stay deterministic:
+
+```kotlin
+val events = remember(allEvents) { allEvents.eventsByDate(start..end) }
+val state = rememberScheduleState(initialScrollTime = LocalTime(8, 0))
+
+WeekSchedule(
+    events = { date -> events[date].orEmpty() },
+    state = state,
+    currentTime = now, // from your own clock; null hides the line
+    onEventClick = { event -> /* open */ },
+    onEmptySlotClick = { date, time -> /* create at date/time */ },
+)
+
+scope.launch { state.scrollToTime(LocalTime(14, 0), density) }
+```
+
+Overlapping timed events split the column into lanes and widen into free lanes
+to their right; overnight events are clipped to each day. The same packing is
+available without Compose as `layoutDaySchedule(date, events)` in `orrery-core`.
+Colors, sizes and every slot (day header, all-day chip, hour label, now line,
+event tile) can be replaced through `ScheduleDefaults`.
 
 ### Date picker dialogs
 

@@ -54,6 +54,7 @@ internal expect fun localizedDatePattern(locale: Locale): String
 /** Whether [locale] shows time of day on a 24-hour clock. */
 internal expect fun localeUses24HourClock(locale: Locale): Boolean
 
-internal actual fun is24HourClock(languageTag: String): Boolean = localeUses24HourClock(Locale.forLanguageTag(languageTag))
+internal actual fun is24HourClock(languageTag: String): Boolean =
+    localeUses24HourClock(Locale.forLanguageTag(languageTag))
 
 internal actual fun String.formatTemplate(vararg args: Any): String = format(*args)

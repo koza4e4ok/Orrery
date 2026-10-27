@@ -1,0 +1,122 @@
+# TEMPORARY: renders the README demo GIFs from the :demo module.
+# Removed again before the PR is marked ready for review.
+name: Demo GIFs
+
+on:
+  push:
+    branches: [feat/070-sample-and-platform-gifs]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install Xvfb and ffmpeg
+        run: sudo apt-get update -q && sudo apt-get install -yq xvfb ffmpeg
+      - name: Build desktop and web demos
+        run: ./gradlew -Porrery.demo=true :demo:desktopMainClasses :demo:wasmJsBrowserDistribution
+      - name: Record desktop (features)
+        run: |
+          Xvfb :99 -screen 0 800x1640x24 &
+          sleep 3
+          DISPLAY=:99 ./gradlew -Porrery.demo=true --console=plain :demo:runDesktopDemo > desktop.log 2>&1 &
+          demo/record.sh desktop.log desktop.mp4 \
+            ffmpeg -nostdin -y -loglevel error -f x11grab -video_size 800x1640 -framerate 30 -i :99 -pix_fmt yuv420p
+          pkill -f DesktopMainKt || true
+          pkill Xvfb || true
+      - name: Record web
+        run: |
+          dist=demo/build/dist/wasmJs/productionExecutable
+          ls -l "$dist"
+          (cd "$dist" && python3 -m http.server 8080 > /dev/null 2>&1 &)
+          Xvfb :98 -screen 0 800x1640x24 &
+          sleep 3
+          DISPLAY=:98 google-chrome --no-sandbox --no-first-run --no-default-browser-check \
+            --user-data-dir=/tmp/chrome --kiosk --force-device-scale-factor=2 \
+            --enable-unsafe-swiftshader --enable-logging=stderr --v=0 \
+            http://localhost:8080/ > web.log 2>&1 &
+          demo/record.sh web.log web.mp4 \
+            ffmpeg -nostdin -y -loglevel error -f x11grab -video_size 800x1640 -framerate 30 -i :98 -pix_fmt yuv420p
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-videos
+          path: |
+            *.mp4
+            *.log
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build the demo framework
+        run: ./gradlew -Porrery.demo=true :demo:linkReleaseFrameworkIosSimulatorArm64
+      - name: Build the demo app
+        run: |
+          fw=demo/build/bin/iosSimulatorArm64/releaseFramework
+          app=build/OrreryDemoApp.app
+          mkdir -p "$app/Frameworks"
+          cp demo/ios/Info.plist "$app/"
+          cp -R "$fw/OrreryDemo.framework" "$app/Frameworks/"
+          xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios16.0-simulator \
+            -F "$fw" -framework OrreryDemo \
+            -Xlinker -rpath -Xlinker @executable_path/Frameworks \
+            demo/ios/main.swift -o "$app/OrreryDemoApp"
+          codesign --force --sign - "$app/Frameworks/OrreryDemo.framework"
+          codesign --force --sign - "$app"
+      - name: Boot a simulator
+        run: |
+          xcrun simctl list devices available
+          udid=$(xcrun simctl list devices available -j | jq -r '[.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.name | test("^iPhone [0-9]+( Pro)?$"))] | last | .udid')
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl status_bar "$udid" override --time 9:41 --dataNetwork wifi --wifiBars 3 --cellularBars 4 --batteryState charged --batteryLevel 100
+          xcrun simctl install "$udid" build/OrreryDemoApp.app
+      - name: Record iOS
+        run: |
+          xcrun simctl launch --console-pty "$UDID" me.kozakov.orrery.demo > ios.log 2>&1 &
+          demo/record.sh ios.log ios.mov xcrun simctl io "$UDID" recordVideo --codec=h264 --force
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-video
+          path: |
+            ios.mov
+            ios.log
+
+  gifs:
+    needs: [linux, ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: videos
+          merge-multiple: true
+      - name: Install ffmpeg and gifsicle
+        run: sudo apt-get update -q && sudo apt-get install -yq ffmpeg gifsicle
+      - name: Convert to GIFs
+        run: |
+          mkdir -p art
+          togif() {
+            ffmpeg -nostdin -y -loglevel error -i "$1" -vf "fps=12,scale=320:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle" -loop 0 "$2"
+            gifsicle -O3 --lossy=40 -b "$2"
+          }
+          togif videos/desktop.mp4 art/orrery-features-demo.gif
+          togif videos/web.mp4 art/orrery-web-demo.gif
+          togif videos/ios.mov art/orrery-ios-demo.gif
+          ls -l art
+      - uses: actions/upload-artifact@v4
+        with:
+          name: demo-gifs
+          path: art/

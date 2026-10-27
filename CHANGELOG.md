@@ -4,6 +4,13 @@
 
 ### Added
 
+- Preset chips in `OrreryDateRangePickerDialog`: the new `presets` parameter
+  (default empty, so the dialog looks the same) shows a scrollable row of
+  `DateRangePreset(label, range)` chips in calendar mode; tapping one selects
+  its range through the selection engine and scrolls to it.
+  `DatePickerDefaults.rangePresets(today, firstDayOfWeek)` builds "Last 7
+  days", "Last 30 days", "This week" and "This month" from `SelectionPresets`,
+  with labels in the six bundled languages (#24).
 - `orrery-compose` targets iOS (`iosArm64`, `iosSimulatorArm64`) and Web
   (`wasmJs`) through Compose Multiplatform, next to Android and Desktop (#20).
   There is no `iosX64` (Intel simulator) variant: Compose Multiplatform 1.11

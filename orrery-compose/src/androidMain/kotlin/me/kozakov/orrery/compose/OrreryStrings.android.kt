@@ -46,4 +46,8 @@ private val OrreryString.resId: Int
             OrreryString.AgendaAllDay -> R.string.orrery_agenda_all_day
             OrreryString.AgendaNoEvents -> R.string.orrery_agenda_no_events
             OrreryString.ScheduleNow -> R.string.orrery_schedule_now
+            OrreryString.DatePickerPresetLast7Days -> R.string.orrery_date_picker_preset_last_7_days
+            OrreryString.DatePickerPresetLast30Days -> R.string.orrery_date_picker_preset_last_30_days
+            OrreryString.DatePickerPresetThisWeek -> R.string.orrery_date_picker_preset_this_week
+            OrreryString.DatePickerPresetThisMonth -> R.string.orrery_date_picker_preset_this_month
         }

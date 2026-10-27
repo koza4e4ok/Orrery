@@ -11,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,7 +59,7 @@ private fun SingleDateCard() {
         OrreryDatePickerDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
-                Button(
+                TextButton(
                     onClick = {
                         result = state.selectedDate?.toString()
                         showDialog = false
@@ -66,7 +67,7 @@ private fun SingleDateCard() {
                     enabled = state.selectedDate != null,
                 ) { Text("OK") }
             },
-            dismissButton = { Button(onClick = { showDialog = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } },
             state = state,
         )
     }
@@ -94,12 +95,16 @@ private fun DateRangeCard() {
         OrreryDateRangePickerDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
-                Button(onClick = {
-                    val start = state.selectedStartDate
-                    val end = state.selectedEndDate
-                    result = if (start != null && end != null) "$start – $end" else null
-                    showDialog = false
-                }) { Text("Save") }
+                val start = state.selectedStartDate
+                val end = state.selectedEndDate
+                // Saving needs a complete range; otherwise it would wipe the previous result.
+                TextButton(
+                    onClick = {
+                        if (start != null && end != null) result = "$start – $end"
+                        showDialog = false
+                    },
+                    enabled = start != null && end != null,
+                ) { Text("Save") }
             },
             state = state,
             presets = DatePickerDefaults.rangePresets(),

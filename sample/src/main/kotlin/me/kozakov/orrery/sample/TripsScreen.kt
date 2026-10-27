@@ -3,6 +3,7 @@ package me.kozakov.orrery.sample
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -68,7 +69,9 @@ internal fun TripsScreen() {
         )
     val startMonth = remember(today) { YearMonth(today.year, today.month) }
 
+    // The app-level Scaffold already pads for the system bars.
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             TripSummaryBar(

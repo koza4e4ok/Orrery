@@ -170,6 +170,19 @@ sealed interface me.kozakov.orrery.core/SelectionEvent { // me.kozakov.orrery.co
 }
 
 sealed interface me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode|null[0]
+    final class Month : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.Month|null[0]
+        constructor <init>(kotlin/Boolean = ...) // me.kozakov.orrery.core/SelectionMode.Month.<init>|<init>(kotlin.Boolean){}[0]
+
+        final val allowClear // me.kozakov.orrery.core/SelectionMode.Month.allowClear|{}allowClear[0]
+            final fun <get-allowClear>(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Month.allowClear.<get-allowClear>|<get-allowClear>(){}[0]
+
+        final fun component1(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Month.component1|component1(){}[0]
+        final fun copy(kotlin/Boolean = ...): me.kozakov.orrery.core/SelectionMode.Month // me.kozakov.orrery.core/SelectionMode.Month.copy|copy(kotlin.Boolean){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Month.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.Month.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionMode.Month.toString|toString(){}[0]
+    }
+
     final class Multi : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.Multi|null[0]
         constructor <init>(kotlin/Int? = ...) // me.kozakov.orrery.core/SelectionMode.Multi.<init>|<init>(kotlin.Int?){}[0]
 
@@ -217,6 +230,22 @@ sealed interface me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.cor
         final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.Single.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionMode.Single.toString|toString(){}[0]
+    }
+
+    final class Week : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.Week|null[0]
+        constructor <init>(kotlinx.datetime/DayOfWeek = ..., kotlin/Boolean = ...) // me.kozakov.orrery.core/SelectionMode.Week.<init>|<init>(kotlinx.datetime.DayOfWeek;kotlin.Boolean){}[0]
+
+        final val allowClear // me.kozakov.orrery.core/SelectionMode.Week.allowClear|{}allowClear[0]
+            final fun <get-allowClear>(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Week.allowClear.<get-allowClear>|<get-allowClear>(){}[0]
+        final val firstDayOfWeek // me.kozakov.orrery.core/SelectionMode.Week.firstDayOfWeek|{}firstDayOfWeek[0]
+            final fun <get-firstDayOfWeek>(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.core/SelectionMode.Week.firstDayOfWeek.<get-firstDayOfWeek>|<get-firstDayOfWeek>(){}[0]
+
+        final fun component1(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.core/SelectionMode.Week.component1|component1(){}[0]
+        final fun component2(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Week.component2|component2(){}[0]
+        final fun copy(kotlinx.datetime/DayOfWeek = ..., kotlin/Boolean = ...): me.kozakov.orrery.core/SelectionMode.Week // me.kozakov.orrery.core/SelectionMode.Week.copy|copy(kotlinx.datetime.DayOfWeek;kotlin.Boolean){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Week.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.Week.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionMode.Week.toString|toString(){}[0]
     }
 
     final object None : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.None|null[0]

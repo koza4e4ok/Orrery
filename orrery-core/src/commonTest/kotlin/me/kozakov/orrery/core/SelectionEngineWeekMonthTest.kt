@@ -65,11 +65,12 @@ class SelectionEngineWeekMonthTest {
     @Test
     fun `tapping the tapped day itself when disabled is intercepted`() {
         val engine = SelectionEngine(SelectionMode.Week(), disabled = DisabledDates { dates(wed8) })
-        assertEquals(listOf<SelectionEvent>(SelectionEvent.Intercepted(wed8)), engine.click(Selection.Empty, wed8).events)
+        val events = engine.click(Selection.Empty, wed8).events
+        assertEquals(listOf<SelectionEvent>(SelectionEvent.Intercepted(wed8)), events)
     }
 
     @Test
-    fun `tapping inside the selected week clears it, tapping another week moves it`() {
+    fun `tapping inside the selected week clears it and tapping another week moves it`() {
         val engine = SelectionEngine(SelectionMode.Week())
         val selected = engine.click(Selection.Empty, wed8).selection
         assertEquals(Selection.Empty, engine.click(selected, LocalDate(2026, 7, 12)).selection)

@@ -1,5 +1,6 @@
 package me.kozakov.orrery.core
 
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
 public sealed interface SelectionMode {
@@ -36,6 +37,31 @@ public sealed interface SelectionMode {
     /** Toggle set of days, optionally capped at [maxCount]. */
     public data class Multi(
         val maxCount: Int? = null,
+    ) : SelectionMode
+
+    /**
+     * Tapping any day selects the whole 7-day week containing it, starting
+     * at [firstDayOfWeek], as a range ([Selection.rangeStart]..[Selection.rangeEnd]).
+     * Pass the same [firstDayOfWeek] as the calendar so the selected week
+     * matches the visible row. The week is clamped to the engine bounds and
+     * the click is rejected with [SelectionEvent.Intercepted] when any day
+     * in it is disabled. Tapping a day inside the selected week clears the
+     * selection when [allowClear] is true.
+     */
+    public data class Week(
+        val firstDayOfWeek: DayOfWeek = DayOfWeek.MONDAY,
+        val allowClear: Boolean = true,
+    ) : SelectionMode
+
+    /**
+     * Tapping any day selects its whole month (first..last day) as a range,
+     * clamped to the engine bounds. The click is rejected with
+     * [SelectionEvent.Intercepted] when any day in it is disabled. Tapping a
+     * day inside the selected month clears the selection when [allowClear]
+     * is true.
+     */
+    public data class Month(
+        val allowClear: Boolean = true,
     ) : SelectionMode
 }
 

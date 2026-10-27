@@ -287,7 +287,17 @@ Modes (`orrery-core`):
 - `SelectionMode.Range(minDays, maxDays)` — start/end range with inclusive
   day-count limits
 - `SelectionMode.Multi(maxCount)` — toggle set, optionally capped
+- `SelectionMode.Week(firstDayOfWeek, allowClear = true)` — a tap selects the
+  whole 7-day week as a range; pass the calendar's `firstDayOfWeek` so it
+  matches the visible row
+- `SelectionMode.Month(allowClear = true)` — a tap selects the whole month as
+  a range
 - `SelectionMode.None` — display only
+
+In `Week` and `Month` modes the period is clamped to `bounds`, a period that
+contains a disabled day is rejected with `Intercepted`, tapping inside the
+selected period clears it (unless `allowClear = false`), and long-press drag is
+off.
 
 Read and write programmatically — writes go through the same validation as taps,
 so an invalid proposal is rejected and reported through `onEvent`:

@@ -43,6 +43,10 @@ public class CalendarSelectionState internal constructor(
 
     public fun isDisabled(date: LocalDate): Boolean = date in disabled
 
+    /** Week and Month select a whole period per tap, so calendars skip the drag gesture. */
+    internal val supportsDrag: Boolean
+        get() = mode !is SelectionMode.Week && mode !is SelectionMode.Month
+
     public fun click(date: LocalDate) {
         val result = SelectionEngine(mode, bounds, disabled).click(selection, date)
         selection = result.selection
@@ -66,7 +70,11 @@ public class CalendarSelectionState internal constructor(
         result.events.forEach(onEvent)
     }
 
-    /** Begins a drag range selection at [date]. Only acts in [SelectionMode.Range]. */
+    /**
+     * Begins a drag range selection at [date]. Only acts in [SelectionMode.Range];
+     * [SelectionMode.Week] and [SelectionMode.Month] select their whole period
+     * on a single tap and ignore drags.
+     */
     public fun dragStart(date: LocalDate) {
         if (mode !is SelectionMode.Range || isDisabled(date)) return
         dragAnchor = date

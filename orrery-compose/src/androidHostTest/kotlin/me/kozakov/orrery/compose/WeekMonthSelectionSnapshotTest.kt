@@ -62,7 +62,7 @@ class WeekMonthSelectionSnapshotTest {
 
     @Test
     fun weekSelection() {
-        content(SelectionMode.Week(), LocalDate(2026, 7, 15))
+        content(SelectionMode.Week(firstDayOfWeek = DayOfWeek.MONDAY), LocalDate(2026, 7, 15))
         rule.onRoot().captureRoboImage()
     }
 

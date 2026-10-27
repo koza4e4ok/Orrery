@@ -24,6 +24,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 class WeekMonthSelectionTest {
@@ -74,6 +75,30 @@ class WeekMonthSelectionTest {
 
         rule.onNodeWithTag("day-2026-07-10").performClick()
         assertEquals(Selection.Empty, state.selection)
+    }
+
+    @Test
+    fun defaultWeekModeMatchesASundayFirstLocaleCalendar() {
+        val savedLocale = Locale.getDefault()
+        Locale.setDefault(Locale.US)
+        try {
+            lateinit var state: CalendarSelectionState
+            // Week() leaves firstDayOfWeek null; the en-US calendar row starts on Sunday.
+            setCalendar(SelectionMode.Week(), firstDayOfWeek = DayOfWeek.SUNDAY) { state = it }
+            assertEquals(SelectionMode.Week(firstDayOfWeek = DayOfWeek.SUNDAY), state.mode)
+            rule.onNodeWithTag("day-2026-07-08").performClick()
+            assertEquals(LocalDate(2026, 7, 5)..LocalDate(2026, 7, 11), state.selection.range)
+        } finally {
+            Locale.setDefault(savedLocale)
+        }
+    }
+
+    @Test
+    fun setSnapsAPartialRangeToTheWholeWeek() {
+        lateinit var state: CalendarSelectionState
+        setCalendar(SelectionMode.Week(firstDayOfWeek = DayOfWeek.SUNDAY)) { state = it }
+        rule.runOnIdle { state.set(Selection(rangeStart = LocalDate(2026, 7, 8), rangeEnd = LocalDate(2026, 7, 9))) }
+        assertEquals(LocalDate(2026, 7, 5)..LocalDate(2026, 7, 11), state.selection.range)
     }
 
     @Test

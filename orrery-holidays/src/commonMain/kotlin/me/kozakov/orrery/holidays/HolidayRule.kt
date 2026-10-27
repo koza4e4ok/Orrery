@@ -77,7 +77,8 @@ public enum class Observance {
 
     /**
      * The next weekday that is not already a holiday gets a substitute day (UK and UA rule).
-     * Several holidays on one weekend get successive substitute days.
+     * Several holidays on one weekend get successive substitute days; two holidays on the
+     * same day give a single substitute day.
      */
     NextWorkingDay,
 

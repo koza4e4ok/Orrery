@@ -47,6 +47,8 @@ private fun feiertag(
     type: HolidayType = HolidayType.Public,
 ) = HolidayRule(id, names(en, "de" to de), date, type, years, subdivisions = subdivisions)
 
+// One flat table of rules reads better than splitting it to satisfy LongMethod.
+@Suppress("LongMethod")
 internal fun germany(): HolidayCalendar =
     HolidayCalendar(
         country = "DE",

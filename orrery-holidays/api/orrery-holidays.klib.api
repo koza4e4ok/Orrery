@@ -1,0 +1,251 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <Orrery:orrery-holidays>
+final enum class me.kozakov.orrery.holidays/Church : kotlin/Enum<me.kozakov.orrery.holidays/Church> { // me.kozakov.orrery.holidays/Church|null[0]
+    enum entry Orthodox // me.kozakov.orrery.holidays/Church.Orthodox|null[0]
+    enum entry Western // me.kozakov.orrery.holidays/Church.Western|null[0]
+
+    final val entries // me.kozakov.orrery.holidays/Church.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.holidays/Church> // me.kozakov.orrery.holidays/Church.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.holidays/Church // me.kozakov.orrery.holidays/Church.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.holidays/Church> // me.kozakov.orrery.holidays/Church.values|values#static(){}[0]
+}
+
+final enum class me.kozakov.orrery.holidays/HolidayType : kotlin/Enum<me.kozakov.orrery.holidays/HolidayType> { // me.kozakov.orrery.holidays/HolidayType|null[0]
+    enum entry Bank // me.kozakov.orrery.holidays/HolidayType.Bank|null[0]
+    enum entry Observance // me.kozakov.orrery.holidays/HolidayType.Observance|null[0]
+    enum entry Optional // me.kozakov.orrery.holidays/HolidayType.Optional|null[0]
+    enum entry Public // me.kozakov.orrery.holidays/HolidayType.Public|null[0]
+
+    final val entries // me.kozakov.orrery.holidays/HolidayType.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.holidays/HolidayType> // me.kozakov.orrery.holidays/HolidayType.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.holidays/HolidayType // me.kozakov.orrery.holidays/HolidayType.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.holidays/HolidayType> // me.kozakov.orrery.holidays/HolidayType.values|values#static(){}[0]
+}
+
+final enum class me.kozakov.orrery.holidays/Observance : kotlin/Enum<me.kozakov.orrery.holidays/Observance> { // me.kozakov.orrery.holidays/Observance|null[0]
+    enum entry NearestWeekday // me.kozakov.orrery.holidays/Observance.NearestWeekday|null[0]
+    enum entry NextWorkingDay // me.kozakov.orrery.holidays/Observance.NextWorkingDay|null[0]
+    enum entry None // me.kozakov.orrery.holidays/Observance.None|null[0]
+    enum entry SundayToMonday // me.kozakov.orrery.holidays/Observance.SundayToMonday|null[0]
+
+    final val entries // me.kozakov.orrery.holidays/Observance.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.holidays/Observance> // me.kozakov.orrery.holidays/Observance.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.holidays/Observance // me.kozakov.orrery.holidays/Observance.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.holidays/Observance> // me.kozakov.orrery.holidays/Observance.values|values#static(){}[0]
+}
+
+sealed interface me.kozakov.orrery.holidays/HolidayDate { // me.kozakov.orrery.holidays/HolidayDate|null[0]
+    final class EasterOffset : me.kozakov.orrery.holidays/HolidayDate { // me.kozakov.orrery.holidays/HolidayDate.EasterOffset|null[0]
+        constructor <init>(kotlin/Int, me.kozakov.orrery.holidays/Church = ...) // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.<init>|<init>(kotlin.Int;me.kozakov.orrery.holidays.Church){}[0]
+
+        final val church // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.church|{}church[0]
+            final fun <get-church>(): me.kozakov.orrery.holidays/Church // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.church.<get-church>|<get-church>(){}[0]
+        final val days // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.days|{}days[0]
+            final fun <get-days>(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.days.<get-days>|<get-days>(){}[0]
+
+        final fun component1(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.component1|component1(){}[0]
+        final fun component2(): me.kozakov.orrery.holidays/Church // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.component2|component2(){}[0]
+        final fun copy(kotlin/Int = ..., me.kozakov.orrery.holidays/Church = ...): me.kozakov.orrery.holidays/HolidayDate.EasterOffset // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.copy|copy(kotlin.Int;me.kozakov.orrery.holidays.Church){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.holidays/HolidayDate.EasterOffset.toString|toString(){}[0]
+    }
+
+    final class Fixed : me.kozakov.orrery.holidays/HolidayDate { // me.kozakov.orrery.holidays/HolidayDate.Fixed|null[0]
+        constructor <init>(kotlinx.datetime/Month, kotlin/Int) // me.kozakov.orrery.holidays/HolidayDate.Fixed.<init>|<init>(kotlinx.datetime.Month;kotlin.Int){}[0]
+
+        final val day // me.kozakov.orrery.holidays/HolidayDate.Fixed.day|{}day[0]
+            final fun <get-day>(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.Fixed.day.<get-day>|<get-day>(){}[0]
+        final val month // me.kozakov.orrery.holidays/HolidayDate.Fixed.month|{}month[0]
+            final fun <get-month>(): kotlinx.datetime/Month // me.kozakov.orrery.holidays/HolidayDate.Fixed.month.<get-month>|<get-month>(){}[0]
+
+        final fun component1(): kotlinx.datetime/Month // me.kozakov.orrery.holidays/HolidayDate.Fixed.component1|component1(){}[0]
+        final fun component2(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.Fixed.component2|component2(){}[0]
+        final fun copy(kotlinx.datetime/Month = ..., kotlin/Int = ...): me.kozakov.orrery.holidays/HolidayDate.Fixed // me.kozakov.orrery.holidays/HolidayDate.Fixed.copy|copy(kotlinx.datetime.Month;kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.Fixed.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.Fixed.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.holidays/HolidayDate.Fixed.toString|toString(){}[0]
+    }
+
+    final class HijriFixed : me.kozakov.orrery.holidays/HolidayDate { // me.kozakov.orrery.holidays/HolidayDate.HijriFixed|null[0]
+        constructor <init>(kotlin/Int, kotlin/Int) // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
+
+        final val day // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.day|{}day[0]
+            final fun <get-day>(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.day.<get-day>|<get-day>(){}[0]
+        final val month // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.month|{}month[0]
+            final fun <get-month>(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.month.<get-month>|<get-month>(){}[0]
+
+        final fun component1(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.component1|component1(){}[0]
+        final fun component2(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.component2|component2(){}[0]
+        final fun copy(kotlin/Int = ..., kotlin/Int = ...): me.kozakov.orrery.holidays/HolidayDate.HijriFixed // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.copy|copy(kotlin.Int;kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.holidays/HolidayDate.HijriFixed.toString|toString(){}[0]
+    }
+
+    final class NthWeekday : me.kozakov.orrery.holidays/HolidayDate { // me.kozakov.orrery.holidays/HolidayDate.NthWeekday|null[0]
+        constructor <init>(kotlinx.datetime/Month, kotlinx.datetime/DayOfWeek, kotlin/Int) // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.<init>|<init>(kotlinx.datetime.Month;kotlinx.datetime.DayOfWeek;kotlin.Int){}[0]
+
+        final val dayOfWeek // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.dayOfWeek|{}dayOfWeek[0]
+            final fun <get-dayOfWeek>(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.dayOfWeek.<get-dayOfWeek>|<get-dayOfWeek>(){}[0]
+        final val month // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.month|{}month[0]
+            final fun <get-month>(): kotlinx.datetime/Month // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.month.<get-month>|<get-month>(){}[0]
+        final val n // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.n|{}n[0]
+            final fun <get-n>(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.n.<get-n>|<get-n>(){}[0]
+
+        final fun component1(): kotlinx.datetime/Month // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.component1|component1(){}[0]
+        final fun component2(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.component2|component2(){}[0]
+        final fun component3(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.component3|component3(){}[0]
+        final fun copy(kotlinx.datetime/Month = ..., kotlinx.datetime/DayOfWeek = ..., kotlin/Int = ...): me.kozakov.orrery.holidays/HolidayDate.NthWeekday // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.copy|copy(kotlinx.datetime.Month;kotlinx.datetime.DayOfWeek;kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.holidays/HolidayDate.NthWeekday.toString|toString(){}[0]
+    }
+
+    final class OneOff : me.kozakov.orrery.holidays/HolidayDate { // me.kozakov.orrery.holidays/HolidayDate.OneOff|null[0]
+        constructor <init>(kotlinx.datetime/LocalDate) // me.kozakov.orrery.holidays/HolidayDate.OneOff.<init>|<init>(kotlinx.datetime.LocalDate){}[0]
+
+        final val date // me.kozakov.orrery.holidays/HolidayDate.OneOff.date|{}date[0]
+            final fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.holidays/HolidayDate.OneOff.date.<get-date>|<get-date>(){}[0]
+
+        final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.holidays/HolidayDate.OneOff.component1|component1(){}[0]
+        final fun copy(kotlinx.datetime/LocalDate = ...): me.kozakov.orrery.holidays/HolidayDate.OneOff // me.kozakov.orrery.holidays/HolidayDate.OneOff.copy|copy(kotlinx.datetime.LocalDate){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.OneOff.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.OneOff.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.holidays/HolidayDate.OneOff.toString|toString(){}[0]
+    }
+
+    final class PersianFixed : me.kozakov.orrery.holidays/HolidayDate { // me.kozakov.orrery.holidays/HolidayDate.PersianFixed|null[0]
+        constructor <init>(kotlin/Int, kotlin/Int) // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
+
+        final val day // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.day|{}day[0]
+            final fun <get-day>(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.day.<get-day>|<get-day>(){}[0]
+        final val month // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.month|{}month[0]
+            final fun <get-month>(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.month.<get-month>|<get-month>(){}[0]
+
+        final fun component1(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.component1|component1(){}[0]
+        final fun component2(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.component2|component2(){}[0]
+        final fun copy(kotlin/Int = ..., kotlin/Int = ...): me.kozakov.orrery.holidays/HolidayDate.PersianFixed // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.copy|copy(kotlin.Int;kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.holidays/HolidayDate.PersianFixed.toString|toString(){}[0]
+    }
+
+    final class WeekdayRelative : me.kozakov.orrery.holidays/HolidayDate { // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative|null[0]
+        constructor <init>(kotlinx.datetime/Month, kotlin/Int, kotlinx.datetime/DayOfWeek, kotlin/Boolean) // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.<init>|<init>(kotlinx.datetime.Month;kotlin.Int;kotlinx.datetime.DayOfWeek;kotlin.Boolean){}[0]
+
+        final val after // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.after|{}after[0]
+            final fun <get-after>(): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.after.<get-after>|<get-after>(){}[0]
+        final val day // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.day|{}day[0]
+            final fun <get-day>(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.day.<get-day>|<get-day>(){}[0]
+        final val dayOfWeek // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.dayOfWeek|{}dayOfWeek[0]
+            final fun <get-dayOfWeek>(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.dayOfWeek.<get-dayOfWeek>|<get-dayOfWeek>(){}[0]
+        final val month // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.month|{}month[0]
+            final fun <get-month>(): kotlinx.datetime/Month // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.month.<get-month>|<get-month>(){}[0]
+
+        final fun component1(): kotlinx.datetime/Month // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.component1|component1(){}[0]
+        final fun component2(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.component2|component2(){}[0]
+        final fun component3(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.component3|component3(){}[0]
+        final fun component4(): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.component4|component4(){}[0]
+        final fun copy(kotlinx.datetime/Month = ..., kotlin/Int = ..., kotlinx.datetime/DayOfWeek = ..., kotlin/Boolean = ...): me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.copy|copy(kotlinx.datetime.Month;kotlin.Int;kotlinx.datetime.DayOfWeek;kotlin.Boolean){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // me.kozakov.orrery.holidays/HolidayDate.WeekdayRelative.toString|toString(){}[0]
+    }
+}
+
+final class me.kozakov.orrery.holidays/HolidayCalendar { // me.kozakov.orrery.holidays/HolidayCalendar|null[0]
+    constructor <init>(kotlin/String, kotlin.collections/List<me.kozakov.orrery.holidays/HolidayRule>) // me.kozakov.orrery.holidays/HolidayCalendar.<init>|<init>(kotlin.String;kotlin.collections.List<me.kozakov.orrery.holidays.HolidayRule>){}[0]
+
+    final val country // me.kozakov.orrery.holidays/HolidayCalendar.country|{}country[0]
+        final fun <get-country>(): kotlin/String // me.kozakov.orrery.holidays/HolidayCalendar.country.<get-country>|<get-country>(){}[0]
+    final val rules // me.kozakov.orrery.holidays/HolidayCalendar.rules|{}rules[0]
+        final fun <get-rules>(): kotlin.collections/List<me.kozakov.orrery.holidays/HolidayRule> // me.kozakov.orrery.holidays/HolidayCalendar.rules.<get-rules>|<get-rules>(){}[0]
+
+    final fun holidaysIn(kotlin/Int, kotlin/String? = ..., kotlin/String? = ...): kotlin.collections/List<me.kozakov.orrery.holidays/PublicHoliday> // me.kozakov.orrery.holidays/HolidayCalendar.holidaysIn|holidaysIn(kotlin.Int;kotlin.String?;kotlin.String?){}[0]
+    final fun holidaysOn(kotlinx.datetime/LocalDate, kotlin/String? = ..., kotlin/String? = ...): kotlin.collections/List<me.kozakov.orrery.holidays/PublicHoliday> // me.kozakov.orrery.holidays/HolidayCalendar.holidaysOn|holidaysOn(kotlinx.datetime.LocalDate;kotlin.String?;kotlin.String?){}[0]
+}
+
+final class me.kozakov.orrery.holidays/HolidayRule { // me.kozakov.orrery.holidays/HolidayRule|null[0]
+    constructor <init>(kotlin/String, kotlin.collections/Map<kotlin/String, kotlin/String>, me.kozakov.orrery.holidays/HolidayDate, me.kozakov.orrery.holidays/HolidayType = ..., kotlin.ranges/IntRange = ..., me.kozakov.orrery.holidays/Observance = ..., kotlin.collections/Set<kotlin/String>? = ...) // me.kozakov.orrery.holidays/HolidayRule.<init>|<init>(kotlin.String;kotlin.collections.Map<kotlin.String,kotlin.String>;me.kozakov.orrery.holidays.HolidayDate;me.kozakov.orrery.holidays.HolidayType;kotlin.ranges.IntRange;me.kozakov.orrery.holidays.Observance;kotlin.collections.Set<kotlin.String>?){}[0]
+
+    final val date // me.kozakov.orrery.holidays/HolidayRule.date|{}date[0]
+        final fun <get-date>(): me.kozakov.orrery.holidays/HolidayDate // me.kozakov.orrery.holidays/HolidayRule.date.<get-date>|<get-date>(){}[0]
+    final val id // me.kozakov.orrery.holidays/HolidayRule.id|{}id[0]
+        final fun <get-id>(): kotlin/String // me.kozakov.orrery.holidays/HolidayRule.id.<get-id>|<get-id>(){}[0]
+    final val names // me.kozakov.orrery.holidays/HolidayRule.names|{}names[0]
+        final fun <get-names>(): kotlin.collections/Map<kotlin/String, kotlin/String> // me.kozakov.orrery.holidays/HolidayRule.names.<get-names>|<get-names>(){}[0]
+    final val observance // me.kozakov.orrery.holidays/HolidayRule.observance|{}observance[0]
+        final fun <get-observance>(): me.kozakov.orrery.holidays/Observance // me.kozakov.orrery.holidays/HolidayRule.observance.<get-observance>|<get-observance>(){}[0]
+    final val subdivisions // me.kozakov.orrery.holidays/HolidayRule.subdivisions|{}subdivisions[0]
+        final fun <get-subdivisions>(): kotlin.collections/Set<kotlin/String>? // me.kozakov.orrery.holidays/HolidayRule.subdivisions.<get-subdivisions>|<get-subdivisions>(){}[0]
+    final val type // me.kozakov.orrery.holidays/HolidayRule.type|{}type[0]
+        final fun <get-type>(): me.kozakov.orrery.holidays/HolidayType // me.kozakov.orrery.holidays/HolidayRule.type.<get-type>|<get-type>(){}[0]
+    final val years // me.kozakov.orrery.holidays/HolidayRule.years|{}years[0]
+        final fun <get-years>(): kotlin.ranges/IntRange // me.kozakov.orrery.holidays/HolidayRule.years.<get-years>|<get-years>(){}[0]
+
+    final fun component1(): kotlin/String // me.kozakov.orrery.holidays/HolidayRule.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/Map<kotlin/String, kotlin/String> // me.kozakov.orrery.holidays/HolidayRule.component2|component2(){}[0]
+    final fun component3(): me.kozakov.orrery.holidays/HolidayDate // me.kozakov.orrery.holidays/HolidayRule.component3|component3(){}[0]
+    final fun component4(): me.kozakov.orrery.holidays/HolidayType // me.kozakov.orrery.holidays/HolidayRule.component4|component4(){}[0]
+    final fun component5(): kotlin.ranges/IntRange // me.kozakov.orrery.holidays/HolidayRule.component5|component5(){}[0]
+    final fun component6(): me.kozakov.orrery.holidays/Observance // me.kozakov.orrery.holidays/HolidayRule.component6|component6(){}[0]
+    final fun component7(): kotlin.collections/Set<kotlin/String>? // me.kozakov.orrery.holidays/HolidayRule.component7|component7(){}[0]
+    final fun copy(kotlin/String = ..., kotlin.collections/Map<kotlin/String, kotlin/String> = ..., me.kozakov.orrery.holidays/HolidayDate = ..., me.kozakov.orrery.holidays/HolidayType = ..., kotlin.ranges/IntRange = ..., me.kozakov.orrery.holidays/Observance = ..., kotlin.collections/Set<kotlin/String>? = ...): me.kozakov.orrery.holidays/HolidayRule // me.kozakov.orrery.holidays/HolidayRule.copy|copy(kotlin.String;kotlin.collections.Map<kotlin.String,kotlin.String>;me.kozakov.orrery.holidays.HolidayDate;me.kozakov.orrery.holidays.HolidayType;kotlin.ranges.IntRange;me.kozakov.orrery.holidays.Observance;kotlin.collections.Set<kotlin.String>?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/HolidayRule.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/HolidayRule.hashCode|hashCode(){}[0]
+    final fun name(kotlin/String?): kotlin/String // me.kozakov.orrery.holidays/HolidayRule.name|name(kotlin.String?){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.holidays/HolidayRule.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.holidays/PublicHoliday { // me.kozakov.orrery.holidays/PublicHoliday|null[0]
+    constructor <init>(kotlinx.datetime/LocalDate, kotlin/String, kotlin/String, me.kozakov.orrery.holidays/HolidayType, kotlin/Boolean = ..., kotlin/Boolean = ...) // me.kozakov.orrery.holidays/PublicHoliday.<init>|<init>(kotlinx.datetime.LocalDate;kotlin.String;kotlin.String;me.kozakov.orrery.holidays.HolidayType;kotlin.Boolean;kotlin.Boolean){}[0]
+
+    final val date // me.kozakov.orrery.holidays/PublicHoliday.date|{}date[0]
+        final fun <get-date>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.holidays/PublicHoliday.date.<get-date>|<get-date>(){}[0]
+    final val isEstimated // me.kozakov.orrery.holidays/PublicHoliday.isEstimated|{}isEstimated[0]
+        final fun <get-isEstimated>(): kotlin/Boolean // me.kozakov.orrery.holidays/PublicHoliday.isEstimated.<get-isEstimated>|<get-isEstimated>(){}[0]
+    final val isSubstitute // me.kozakov.orrery.holidays/PublicHoliday.isSubstitute|{}isSubstitute[0]
+        final fun <get-isSubstitute>(): kotlin/Boolean // me.kozakov.orrery.holidays/PublicHoliday.isSubstitute.<get-isSubstitute>|<get-isSubstitute>(){}[0]
+    final val name // me.kozakov.orrery.holidays/PublicHoliday.name|{}name[0]
+        final fun <get-name>(): kotlin/String // me.kozakov.orrery.holidays/PublicHoliday.name.<get-name>|<get-name>(){}[0]
+    final val ruleId // me.kozakov.orrery.holidays/PublicHoliday.ruleId|{}ruleId[0]
+        final fun <get-ruleId>(): kotlin/String // me.kozakov.orrery.holidays/PublicHoliday.ruleId.<get-ruleId>|<get-ruleId>(){}[0]
+    final val type // me.kozakov.orrery.holidays/PublicHoliday.type|{}type[0]
+        final fun <get-type>(): me.kozakov.orrery.holidays/HolidayType // me.kozakov.orrery.holidays/PublicHoliday.type.<get-type>|<get-type>(){}[0]
+
+    final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.holidays/PublicHoliday.component1|component1(){}[0]
+    final fun component2(): kotlin/String // me.kozakov.orrery.holidays/PublicHoliday.component2|component2(){}[0]
+    final fun component3(): kotlin/String // me.kozakov.orrery.holidays/PublicHoliday.component3|component3(){}[0]
+    final fun component4(): me.kozakov.orrery.holidays/HolidayType // me.kozakov.orrery.holidays/PublicHoliday.component4|component4(){}[0]
+    final fun component5(): kotlin/Boolean // me.kozakov.orrery.holidays/PublicHoliday.component5|component5(){}[0]
+    final fun component6(): kotlin/Boolean // me.kozakov.orrery.holidays/PublicHoliday.component6|component6(){}[0]
+    final fun copy(kotlinx.datetime/LocalDate = ..., kotlin/String = ..., kotlin/String = ..., me.kozakov.orrery.holidays/HolidayType = ..., kotlin/Boolean = ..., kotlin/Boolean = ...): me.kozakov.orrery.holidays/PublicHoliday // me.kozakov.orrery.holidays/PublicHoliday.copy|copy(kotlinx.datetime.LocalDate;kotlin.String;kotlin.String;me.kozakov.orrery.holidays.HolidayType;kotlin.Boolean;kotlin.Boolean){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.holidays/PublicHoliday.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.holidays/PublicHoliday.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.holidays/PublicHoliday.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.holidays/PublicHolidayDayInfoProvider : me.kozakov.orrery.core/DayInfoProvider { // me.kozakov.orrery.holidays/PublicHolidayDayInfoProvider|null[0]
+    constructor <init>(me.kozakov.orrery.holidays/HolidayCalendar, kotlin/String? = ..., kotlin/String? = ..., kotlin.collections/Set<me.kozakov.orrery.holidays/HolidayType> = ...) // me.kozakov.orrery.holidays/PublicHolidayDayInfoProvider.<init>|<init>(me.kozakov.orrery.holidays.HolidayCalendar;kotlin.String?;kotlin.String?;kotlin.collections.Set<me.kozakov.orrery.holidays.HolidayType>){}[0]
+
+    final fun info(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/DayInfo? // me.kozakov.orrery.holidays/PublicHolidayDayInfoProvider.info|info(kotlinx.datetime.LocalDate){}[0]
+}
+
+final object me.kozakov.orrery.holidays/PublicHolidays { // me.kozakov.orrery.holidays/PublicHolidays|null[0]
+    final val supportedCountries // me.kozakov.orrery.holidays/PublicHolidays.supportedCountries|{}supportedCountries[0]
+        final fun <get-supportedCountries>(): kotlin.collections/Set<kotlin/String> // me.kozakov.orrery.holidays/PublicHolidays.supportedCountries.<get-supportedCountries>|<get-supportedCountries>(){}[0]
+
+    final fun forCountry(kotlin/String): me.kozakov.orrery.holidays/HolidayCalendar? // me.kozakov.orrery.holidays/PublicHolidays.forCountry|forCountry(kotlin.String){}[0]
+}
+
+final fun me.kozakov.orrery.holidays/easterSunday(kotlin/Int, me.kozakov.orrery.holidays/Church = ...): kotlinx.datetime/LocalDate // me.kozakov.orrery.holidays/easterSunday|easterSunday(kotlin.Int;me.kozakov.orrery.holidays.Church){}[0]

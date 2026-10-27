@@ -39,34 +39,42 @@ public class HolidayCalendar(
     ): List<PublicHoliday> {
         // Neighbouring years are included because a substitute can cross the year boundary
         // (US: New Year's Day on a Saturday is observed on 31 December).
-        val actual =
-            (year - 1..year + 1).flatMap { y ->
-                rules
-                    .filter { rule -> y in rule.years && rule.appliesTo(subdivision) }
-                    .flatMap { rule ->
-                        rule.date.datesIn(y).map { date ->
-                            rule to
-                                PublicHoliday(
-                                    date = date,
-                                    ruleId = rule.id,
-                                    name = rule.name(language),
-                                    type = rule.type,
-                                    isEstimated = rule.date is HolidayDate.HijriFixed,
-                                )
-                        }
-                    }
-            }.distinctBy { it.second }
+        val actual = (year - 1..year + 1).flatMap { occurrencesIn(it, subdivision, language) }.distinctBy { it.second }
         val taken = actual.mapTo(mutableSetOf()) { it.second.date }
+        // One substitute per weekend day: two holidays on the same Sunday give one day off.
+        val substituted = mutableSetOf<LocalDate>()
         val substitutes = mutableListOf<PublicHoliday>()
         actual.sortedBy { it.second.date }.forEach { (rule, holiday) ->
+            if (holiday.date in substituted) return@forEach
             val substitute = substituteDate(holiday.date, rule.observance, taken) ?: return@forEach
             taken += substitute
+            substituted += holiday.date
             substitutes += holiday.copy(date = substitute, isSubstitute = true)
         }
         return (actual.map { it.second } + substitutes)
             .filter { it.date.year == year }
             .sortedWith(compareBy({ it.date }, { it.isSubstitute }, { ruleOrder[it.ruleId] }))
     }
+
+    private fun occurrencesIn(
+        year: Int,
+        subdivision: String?,
+        language: String?,
+    ): List<Pair<HolidayRule, PublicHoliday>> =
+        rules
+            .filter { rule -> year in rule.years && rule.appliesTo(subdivision) }
+            .flatMap { rule ->
+                rule.date.datesIn(year).map { date ->
+                    rule to
+                        PublicHoliday(
+                            date = date,
+                            ruleId = rule.id,
+                            name = rule.name(language),
+                            type = rule.type,
+                            isEstimated = rule.date is HolidayDate.HijriFixed,
+                        )
+                }
+            }
 
     /** Holidays on [date] (usually zero or one). */
     public fun holidaysOn(
@@ -153,10 +161,16 @@ private fun hijriDatesIn(
     day: Int,
 ): List<LocalDate> {
     // Outside the Umm al-Qura range the rule produces nothing rather than a tabular guess.
-    val first = runCatching { LocalDate(year, Month.JANUARY, 1).toHijriDate().year }.getOrNull() ?: return emptyList()
-    return (first..first + 1).mapNotNull { hijriYear ->
-        runCatching { HijriDate(hijriYear, month, day).toLocalDate() }.getOrNull()
-    }.filter { it.year == year }
+    // A Gregorian year can touch three Hijri years (2008: 1 Muharram on 10 January and 29 December).
+    val hijriYears =
+        runCatching {
+            LocalDate(year, Month.JANUARY, 1).toHijriDate().year..LocalDate(year, Month.DECEMBER, 31).toHijriDate().year
+        }.getOrNull() ?: return emptyList()
+    val dates =
+        hijriYears.mapNotNull { hijriYear ->
+            runCatching { HijriDate(hijriYear, month, day).toLocalDate() }.getOrNull()
+        }
+    return dates.filter { it.year == year }
 }
 
 internal fun nthWeekday(

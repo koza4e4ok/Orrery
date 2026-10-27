@@ -109,6 +109,12 @@ class PublicHolidaysTest {
             ),
             ua.substitutes(2021).filter { it.first.month == Month.MAY },
         )
+        // 1 May 2005 was both Labour Day and Easter Sunday: one substitute day, on 3 May
+        // because 2 May was a holiday too.
+        assertEquals(
+            listOf(LocalDate(2005, 5, 3) to "ua.easter"),
+            ua.substitutes(2005).filter { it.first.month == Month.MAY },
+        )
         assertEquals(listOf(LocalDate(2022, 1, 3) to "ua.new-years-day"), ua.substitutes(2022))
         assertEquals(emptyList(), ua.substitutes(2023))
         val ids2024 = ua.holidaysIn(2024).associate { it.ruleId to it.date }

@@ -65,6 +65,8 @@ private fun holiday(
 private val ORTHODOX_EASTER = EasterOffset(0, Church.Orthodox)
 private val ORTHODOX_TRINITY = EasterOffset(49, Church.Orthodox)
 
+// One flat table of rules reads better than splitting it to satisfy LongMethod.
+@Suppress("LongMethod")
 internal fun ukraine(): HolidayCalendar =
     HolidayCalendar(
         country = "UA",

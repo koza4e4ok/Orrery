@@ -1,3 +1,6 @@
+// The Easter tables keep ten dates per line.
+@file:Suppress("ktlint:standard:argument-list-wrapping")
+
 package me.kozakov.orrery.holidays
 
 import kotlinx.datetime.DayOfWeek

@@ -54,13 +54,17 @@ public class OrreryMonthPickerState internal constructor(
         internal fun decode(value: Int): YearMonth =
             YearMonth(value.floorDiv(MONTHS_PER_YEAR), value.mod(MONTHS_PER_YEAR) + 1)
 
+        // listSaver drops an empty list, so a cleared selection is saved as NO_MONTH.
         internal fun saver(range: ClosedRange<YearMonth>): Saver<OrreryMonthPickerState, Any> =
             listSaver(
-                save = { state -> listOfNotNull(state.selectedMonth?.let(::encode)) },
-                restore = { saved -> OrreryMonthPickerState(saved.firstOrNull()?.let(::decode), range) },
+                save = { state -> listOf(state.selectedMonth?.let(::encode) ?: NO_MONTH) },
+                restore = { saved ->
+                    OrreryMonthPickerState(saved[0].takeIf { it != NO_MONTH }?.let(::decode), range)
+                },
             )
 
         private const val MONTHS_PER_YEAR = 12
+        private const val NO_MONTH = Int.MIN_VALUE
     }
 }
 

@@ -56,9 +56,9 @@ dependencyResolutionManagement {
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("me.kozakov.orrery:orrery-compose:0.5.0")
+    implementation("me.kozakov.orrery:orrery-compose:0.6.0")
     // Optional Chinese lunisolar labels:
-    implementation("me.kozakov.orrery:orrery-lunar:0.5.0")
+    implementation("me.kozakov.orrery:orrery-lunar:0.6.0")
 }
 ```
 
@@ -67,7 +67,7 @@ Using a [version catalog](https://docs.gradle.org/current/userguide/version_cata
 
 ```toml
 [versions]
-orrery = "0.5.0"
+orrery = "0.6.0"
 
 [libraries]
 orrery-compose = { module = "me.kozakov.orrery:orrery-compose", version.ref = "orrery" }
@@ -82,7 +82,7 @@ dependencies {
 }
 ```
 
-> **Snapshots:** development builds are published as `0.5.1-SNAPSHOT` to the Central
+> **Snapshots:** development builds are published as `0.6.1-SNAPSHOT` to the Central
 > snapshots repository. To use them, add
 > `maven("https://central.sonatype.com/repository/maven-snapshots/")` to your repositories
 > and depend on the `-SNAPSHOT` version.

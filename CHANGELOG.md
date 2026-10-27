@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-27
+
 ### Added
 
 - Preset chips in `OrreryDateRangePickerDialog`: the new `presets` parameter
@@ -216,3 +218,10 @@
 - **Breaking:** `DefaultDay`'s `decorator: (DrawScope.(CalendarDay) -> Unit)?`
   is replaced by `decorators: List<DayDecorator>`. Migrate
   `decorator = { day -> ... }` to `decorators = listOf(DayDecorator { day -> ... })`.
+
+[Unreleased]: https://github.com/koza4e4ok/Orrery/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/koza4e4ok/Orrery/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/koza4e4ok/Orrery/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/koza4e4ok/Orrery/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/koza4e4ok/Orrery/compare/v0.1.0...v0.3.0
+[0.1.0]: https://github.com/koza4e4ok/Orrery/releases/tag/v0.1.0

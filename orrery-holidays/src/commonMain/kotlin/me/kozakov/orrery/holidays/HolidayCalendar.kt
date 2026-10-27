@@ -150,8 +150,7 @@ internal fun HolidayDate.datesIn(year: Int): List<LocalDate> =
             listOf(year - 622, year - 621)
                 .mapNotNull { persianYear ->
                     runCatching { PersianDate(persianYear, month, day).toLocalDate() }.getOrNull()
-                }
-                .filter { it.year == year }
+                }.filter { it.year == year }
         }
 
         is HolidayDate.HijriFixed -> {

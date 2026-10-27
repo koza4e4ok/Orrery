@@ -186,19 +186,6 @@ public class SelectionEngine(
         return SelectionResult(current.copy(rangeEnd = date), emptyList())
     }
 
-    private fun weekOf(
-        date: LocalDate,
-        mode: SelectionMode.Week,
-    ): ClosedRange<LocalDate> {
-        val start = CalendarPages.weekStart(date, mode.firstDayOfWeek)
-        return start..start.plus(6, DateTimeUnit.DAY)
-    }
-
-    private fun monthOf(date: LocalDate): ClosedRange<LocalDate> {
-        val first = LocalDate(date.year, date.month, 1)
-        return first..first.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
-    }
-
     /**
      * Week and Month clicks: [date] has already passed the bounds and
      * disabled checks. Selects [period] clamped to the bounds, or clears
@@ -224,4 +211,17 @@ public class SelectionEngine(
         }
         return SelectionResult(Selection(rangeStart = start, rangeEnd = end), emptyList())
     }
+}
+
+private fun weekOf(
+    date: LocalDate,
+    mode: SelectionMode.Week,
+): ClosedRange<LocalDate> {
+    val start = CalendarPages.weekStart(date, mode.firstDayOfWeek)
+    return start..start.plus(6, DateTimeUnit.DAY)
+}
+
+private fun monthOf(date: LocalDate): ClosedRange<LocalDate> {
+    val first = LocalDate(date.year, date.month, 1)
+    return first..first.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
 }

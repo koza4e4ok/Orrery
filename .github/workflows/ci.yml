@@ -23,7 +23,7 @@ jobs:
       - name: Lint, ABI check, tests, screenshots, sample build
         run: >
           ./gradlew ktlintCheck detekt checkKotlinAbi
-          :orrery-core:allTests :orrery-lunar:allTests
+          :orrery-core:allTests :orrery-lunar:allTests :orrery-calendars:allTests :orrery-holidays:allTests
           :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug
           :orrery-compose:desktopTest :orrery-compose:wasmJsTest
           :sample:assembleDebug
@@ -36,7 +36,8 @@ jobs:
           fi
       - name: Publish KMP modules to Maven Local (publication smoke test)
         run: |
-          ./gradlew :orrery-core:publishToMavenLocal :orrery-lunar:publishToMavenLocal :orrery-compose:publishToMavenLocal
+          ./gradlew :orrery-core:publishToMavenLocal :orrery-lunar:publishToMavenLocal :orrery-calendars:publishToMavenLocal \
+            :orrery-holidays:publishToMavenLocal :orrery-compose:publishToMavenLocal
           ls ~/.m2/repository/me/kozakov/orrery/
       - name: Check the Android AAR ships the baseline profile and string resources
         run: |
@@ -81,9 +82,10 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      - name: iOS simulator tests (orrery-core, orrery-lunar, orrery-compose)
+      - name: iOS simulator tests (orrery-core, orrery-lunar, orrery-calendars, orrery-holidays, orrery-compose)
         run: >
           ./gradlew :orrery-core:iosSimulatorArm64Test :orrery-lunar:iosSimulatorArm64Test
+          :orrery-calendars:iosSimulatorArm64Test :orrery-holidays:iosSimulatorArm64Test
           :orrery-compose:iosSimulatorArm64Test
       - name: Upload test results
         if: always()

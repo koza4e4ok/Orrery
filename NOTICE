@@ -5,3 +5,9 @@ This product ports algorithms and data tables (lunar calendar conversion,
 solar-term astronomy, calendar grid math) from CalendarView
 (https://github.com/huanghaibin-dev/CalendarView) and its angcyo fork,
 Copyright (C) 2016 huanghaibin_dev, licensed under the Apache License 2.0.
+
+orrery-calendars encodes the Umm al-Qura month lengths for 1300-1600 AH from the
+UMALQURA_MONTHLENGTH table in ICU4J's com.ibm.icu.util.IslamicCalendar
+(https://github.com/unicode-org/icu), Copyright (C) 2016 and later Unicode, Inc.
+and others, licensed under the Unicode License v3
+(https://www.unicode.org/license.txt).

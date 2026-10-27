@@ -34,7 +34,7 @@ jobs:
         run: |
           ls build/dokka/html
           test -f build/dokka/html/index.html
-          for module in orrery-core orrery-lunar orrery-compose; do
+          for module in orrery-core orrery-lunar orrery-calendars orrery-holidays orrery-compose; do
             test -d "build/dokka/html/$module"
           done
       - uses: actions/upload-pages-artifact@v3

@@ -15,6 +15,17 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
+      - name: TEMP regenerate ABI dumps and screenshots
+        run: ./gradlew updateKotlinAbi :orrery-compose:recordRoborazziDebug --continue
+      - name: TEMP upload generated files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated
+          path: |
+            */api/
+            orrery-compose/src/androidHostTest/snapshots/
+          if-no-files-found: ignore
       # On Linux, allTests runs jvmTest and wasmJsTest (headless Chrome);
       # iOS klibs compile here, iOS tests run in the macos job below.
       # orrery-compose runs its desktop and wasmJs (headless Chrome) tests explicitly.

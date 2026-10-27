@@ -23,5 +23,11 @@ wait_for 2
 rec=$!
 wait_for 3
 kill -INT "$rec"
+# simctl recordVideo can hang on SIGINT; give it 10 s to finalize the file, then kill it.
+for _ in $(seq 1 100); do
+  kill -0 "$rec" 2>/dev/null || break
+  sleep 0.1
+done
+kill -9 "$rec" 2>/dev/null || true
 wait "$rec" || true
 ls -l "$out"

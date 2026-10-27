@@ -53,6 +53,7 @@ jobs:
 
   ios:
     runs-on: macos-latest
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -85,6 +86,7 @@ jobs:
           xcrun simctl status_bar "$udid" override --time 9:41 --dataNetwork wifi --wifiBars 3 --cellularBars 4 --batteryState charged --batteryLevel 100
           xcrun simctl install "$udid" build/OrreryDemoApp.app
       - name: Record iOS
+        timeout-minutes: 10
         run: |
           xcrun simctl launch --console-pty "$UDID" me.kozakov.orrery.demo > ios.log 2>&1 &
           demo/record.sh ios.log ios.mov xcrun simctl io "$UDID" recordVideo --codec=h264 --force

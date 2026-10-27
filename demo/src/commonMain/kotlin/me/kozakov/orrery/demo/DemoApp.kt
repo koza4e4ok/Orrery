@@ -241,7 +241,7 @@ public fun DemoApp(platform: String) {
                 pickerState.setSelection(preset.range.start, preset.range.endInclusive)
                 delay(2200)
                 showPicker = false
-                picked = "${preset.label}: ${preset.range.start} – ${preset.range.endInclusive}"
+                picked = "${preset.label}: ${preset.range.start} to ${preset.range.endInclusive}"
                 delay(2200)
             }
         }
@@ -302,7 +302,7 @@ public fun DemoApp(platform: String) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                     Text("Trip", style = MaterialTheme.typography.titleMedium)
                                     Text(
-                                        if (range == null) "Drag to select a range" else "${range.start} → ${range.endInclusive}",
+                                        if (range == null) "Drag to select a range" else "${range.start} to ${range.endInclusive}",
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )

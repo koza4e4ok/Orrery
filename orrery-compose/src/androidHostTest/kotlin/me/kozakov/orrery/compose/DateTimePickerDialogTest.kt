@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import me.kozakov.orrery.core.DisabledDates
@@ -19,8 +20,12 @@ import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
+// The two-step dialog is taller than Robolectric's default 470dp window, which
+// leaves Next outside it; a Pixel 5 screen keeps every button clickable.
 @RunWith(AndroidJUnit4::class)
+@Config(qualifiers = RobolectricDeviceQualifiers.Pixel5)
 class DateTimePickerDialogTest {
     @get:Rule val rule = createComposeRule()
 

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Build: Kotlin 2.4.21, Android Gradle Plugin 9.4.1, Compose BOM 2026.09.00,
+  Compose Multiplatform 1.12.2, detekt 2.0.0-alpha.6, Roborazzi 1.77.0 and
+  Robolectric 4.17 (#35).
+
 ## [0.6.0] - 2026-10-27
 
 ### Added

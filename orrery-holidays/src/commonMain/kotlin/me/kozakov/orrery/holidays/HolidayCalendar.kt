@@ -129,7 +129,7 @@ internal fun HolidayDate.datesIn(year: Int): List<LocalDate> =
         }
 
         is HolidayDate.NthWeekday -> {
-            listOf(nthWeekday(year, month, dayOfWeek, n))
+            listOfNotNull(nthWeekday(year, month, dayOfWeek, n))
         }
 
         is HolidayDate.WeekdayRelative -> {
@@ -145,8 +145,12 @@ internal fun HolidayDate.datesIn(year: Int): List<LocalDate> =
         }
 
         is HolidayDate.PersianFixed -> {
-            // Farvardin 1 falls in March, so the Persian year starting in [year] is year - 621.
-            listOfNotNull(runCatching { PersianDate(year - 621, month, day).toLocalDate() }.getOrNull())
+            // Farvardin 1 falls in March, so Gregorian [year] holds the end of Persian year
+            // year - 622 (January to about 20 March) and the start of year - 621.
+            listOf(year - 622, year - 621)
+                .mapNotNull { persianYear ->
+                    runCatching { PersianDate(persianYear, month, day).toLocalDate() }.getOrNull()
+                }
                 .filter { it.year == year }
         }
 
@@ -178,12 +182,13 @@ internal fun nthWeekday(
     month: Month,
     dayOfWeek: DayOfWeek,
     n: Int,
-): LocalDate {
+): LocalDate? {
     require(n in 1..5 || n == -1) { "n must be 1..5 or -1, was $n" }
     return if (n > 0) {
         val first = LocalDate(year, month, 1)
         val offset = (dayOfWeek.isoDayNumber - first.dayOfWeek.isoDayNumber).mod(7)
-        first.plus(offset + (n - 1) * 7, DateTimeUnit.DAY)
+        // A 5th occurrence does not exist in every month; never spill into the next one.
+        first.plus(offset + (n - 1) * 7, DateTimeUnit.DAY).takeIf { it.month == month }
     } else {
         val last = LocalDate(year, month, 1).plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
         last.minus((last.dayOfWeek.isoDayNumber - dayOfWeek.isoDayNumber).mod(7), DateTimeUnit.DAY)

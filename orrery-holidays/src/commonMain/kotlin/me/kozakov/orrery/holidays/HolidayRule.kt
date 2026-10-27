@@ -12,7 +12,10 @@ public sealed interface HolidayDate {
         val day: Int,
     ) : HolidayDate
 
-    /** The [n]th [dayOfWeek] of [month]; n = -1 is the last one. */
+    /**
+     * The [n]th [dayOfWeek] of [month]; n = -1 is the last one. With n = 5 the rule produces
+     * no date in years where [month] has only four such weekdays.
+     */
     public data class NthWeekday(
         val month: Month,
         val dayOfWeek: DayOfWeek,
@@ -124,8 +127,15 @@ public data class HolidayRule(
         require("en" in names) { "names must contain \"en\" ($id)" }
     }
 
-    /** The name in [language], falling back to English. */
-    public fun name(language: String?): String = language?.let { names[it] } ?: names.getValue("en")
+    /**
+     * The name in [language], falling back to its primary language subtag (`"de-DE"` and
+     * `"de_AT"` find `"de"`) and then to English.
+     */
+    public fun name(language: String?): String {
+        if (language == null) return names.getValue("en")
+        val primary = language.substringBefore('-').substringBefore('_').lowercase()
+        return names[language] ?: names[primary] ?: names.getValue("en")
+    }
 }
 
 /**

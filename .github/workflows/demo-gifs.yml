@@ -34,15 +34,16 @@ jobs:
           dist=demo/build/dist/wasmJs/productionExecutable
           ls -l "$dist"
           (cd "$dist" && python3 -m http.server 8080 > /dev/null 2>&1 &)
-          # Chrome will not open a window narrower than ~500 DIP, so the web viewport is 500x1025.
-          Xvfb :98 -screen 0 1000x2050x24 &
+          # Chrome will not open a window narrower than ~500 DIP, so the web viewport is
+          # 500x1025 DIP at a 1.6 scale factor (larger GPU surfaces fail under SwiftShader).
+          Xvfb :98 -screen 0 800x1640x24 &
           sleep 3
           DISPLAY=:98 google-chrome --no-sandbox --no-first-run --no-default-browser-check \
-            --user-data-dir=/tmp/chrome --kiosk --window-position=0,0 --window-size=500,1025 --force-device-scale-factor=2 \
+            --user-data-dir=/tmp/chrome --kiosk --window-position=0,0 --window-size=500,1025 --force-device-scale-factor=1.6 \
             --enable-unsafe-swiftshader --enable-logging=stderr --v=0 \
             http://localhost:8080/ > web.log 2>&1 &
           demo/record.sh web.log web.mp4 \
-            ffmpeg -nostdin -y -loglevel error -f x11grab -draw_mouse 0 -video_size 1000x2050 -framerate 30 -i :98 -pix_fmt yuv420p
+            ffmpeg -nostdin -y -loglevel error -f x11grab -draw_mouse 0 -video_size 800x1640 -framerate 30 -i :98 -pix_fmt yuv420p
       - uses: actions/upload-artifact@v4
         if: always()
         with:

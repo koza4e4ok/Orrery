@@ -48,6 +48,12 @@ internal enum class OrreryString(
     AgendaAllDay("orrery_agenda_all_day"),
     AgendaNoEvents("orrery_agenda_no_events"),
     ScheduleNow("orrery_schedule_now"),
+    DateTimePickerTitle("orrery_date_time_picker_title"),
+    DateTimePickerNext("orrery_date_time_picker_next"),
+    DateTimePickerBack("orrery_date_time_picker_back"),
+    DateTimePickerTimeTitle("orrery_date_time_picker_time_title"),
+    DateTimePickerSwitchToClock("orrery_date_time_picker_switch_to_clock"),
+    DateTimePickerSwitchToKeyboard("orrery_date_time_picker_switch_to_keyboard"),
 }
 
 /**

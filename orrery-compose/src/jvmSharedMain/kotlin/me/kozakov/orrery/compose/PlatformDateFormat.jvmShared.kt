@@ -44,9 +44,16 @@ internal actual object PlatformDateFormat {
     actual fun inputDatePattern(): String = localizedDatePattern(Locale.getDefault())
 
     actual fun uppercase(text: String): String = text.uppercase(Locale.getDefault())
+
+    actual fun is24HourClock(): Boolean = localeUses24HourClock(Locale.getDefault())
 }
 
 /** Locale-ordered date pattern with 4-digit years (e.g. MM/dd/yyyy for en-US). */
 internal expect fun localizedDatePattern(locale: Locale): String
+
+/** Whether [locale] shows time of day on a 24-hour clock. */
+internal expect fun localeUses24HourClock(locale: Locale): Boolean
+
+internal actual fun is24HourClock(languageTag: String): Boolean = localeUses24HourClock(Locale.forLanguageTag(languageTag))
 
 internal actual fun String.formatTemplate(vararg args: Any): String = format(*args)

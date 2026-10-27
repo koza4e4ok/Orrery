@@ -60,6 +60,12 @@ private val english: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "Last 30 days",
         OrreryString.DatePickerPresetThisWeek to "This week",
         OrreryString.DatePickerPresetThisMonth to "This month",
+        OrreryString.DateTimePickerTitle to "Select date and time",
+        OrreryString.DateTimePickerNext to "Next",
+        OrreryString.DateTimePickerBack to "Back",
+        OrreryString.DateTimePickerTimeTitle to "Select time",
+        OrreryString.DateTimePickerSwitchToClock to "Switch to clock",
+        OrreryString.DateTimePickerSwitchToKeyboard to "Switch to keyboard input",
     )
 
 private val german: Map<OrreryString, String> =
@@ -101,6 +107,12 @@ private val german: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "Letzte 30 Tage",
         OrreryString.DatePickerPresetThisWeek to "Diese Woche",
         OrreryString.DatePickerPresetThisMonth to "Dieser Monat",
+        OrreryString.DateTimePickerTitle to "Datum und Uhrzeit auswählen",
+        OrreryString.DateTimePickerNext to "Weiter",
+        OrreryString.DateTimePickerBack to "Zurück",
+        OrreryString.DateTimePickerTimeTitle to "Uhrzeit auswählen",
+        OrreryString.DateTimePickerSwitchToClock to "Zur Uhr wechseln",
+        OrreryString.DateTimePickerSwitchToKeyboard to "Zur Tastatureingabe wechseln",
     )
 
 private val spanish: Map<OrreryString, String> =
@@ -142,6 +154,12 @@ private val spanish: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "Últimos 30 días",
         OrreryString.DatePickerPresetThisWeek to "Esta semana",
         OrreryString.DatePickerPresetThisMonth to "Este mes",
+        OrreryString.DateTimePickerTitle to "Seleccionar fecha y hora",
+        OrreryString.DateTimePickerNext to "Siguiente",
+        OrreryString.DateTimePickerBack to "Atrás",
+        OrreryString.DateTimePickerTimeTitle to "Seleccionar hora",
+        OrreryString.DateTimePickerSwitchToClock to "Cambiar a reloj",
+        OrreryString.DateTimePickerSwitchToKeyboard to "Cambiar a entrada de teclado",
     )
 
 private val japanese: Map<OrreryString, String> =
@@ -183,6 +201,12 @@ private val japanese: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "過去30日間",
         OrreryString.DatePickerPresetThisWeek to "今週",
         OrreryString.DatePickerPresetThisMonth to "今月",
+        OrreryString.DateTimePickerTitle to "日時を選択",
+        OrreryString.DateTimePickerNext to "次へ",
+        OrreryString.DateTimePickerBack to "戻る",
+        OrreryString.DateTimePickerTimeTitle to "時刻を選択",
+        OrreryString.DateTimePickerSwitchToClock to "時計に切り替え",
+        OrreryString.DateTimePickerSwitchToKeyboard to "キーボード入力に切り替え",
     )
 
 private val ukrainian: Map<OrreryString, String> =
@@ -224,6 +248,12 @@ private val ukrainian: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "Останні 30 днів",
         OrreryString.DatePickerPresetThisWeek to "Цей тиждень",
         OrreryString.DatePickerPresetThisMonth to "Цей місяць",
+        OrreryString.DateTimePickerTitle to "Виберіть дату й час",
+        OrreryString.DateTimePickerNext to "Далі",
+        OrreryString.DateTimePickerBack to "Назад",
+        OrreryString.DateTimePickerTimeTitle to "Виберіть час",
+        OrreryString.DateTimePickerSwitchToClock to "Перейти до годинника",
+        OrreryString.DateTimePickerSwitchToKeyboard to "Перейти до введення з клавіатури",
     )
 
 private val simplifiedChinese: Map<OrreryString, String> =
@@ -265,4 +295,10 @@ private val simplifiedChinese: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "最近30天",
         OrreryString.DatePickerPresetThisWeek to "本周",
         OrreryString.DatePickerPresetThisMonth to "本月",
+        OrreryString.DateTimePickerTitle to "选择日期和时间",
+        OrreryString.DateTimePickerNext to "下一步",
+        OrreryString.DateTimePickerBack to "返回",
+        OrreryString.DateTimePickerTimeTitle to "选择时间",
+        OrreryString.DateTimePickerSwitchToClock to "切换到时钟",
+        OrreryString.DateTimePickerSwitchToKeyboard to "切换到键盘输入",
     )

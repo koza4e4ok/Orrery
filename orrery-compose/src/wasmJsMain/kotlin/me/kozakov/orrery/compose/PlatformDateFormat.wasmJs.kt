@@ -58,7 +58,23 @@ internal actual object PlatformDateFormat {
     actual fun inputDatePattern(): String = normalizeInputPattern(jsInputDatePattern())
 
     actual fun uppercase(text: String): String = jsUppercase(text)
+
+    actual fun is24HourClock(): Boolean = jsIs24HourClock("")
 }
+
+internal actual fun is24HourClock(languageTag: String): Boolean = jsIs24HourClock(languageTag)
+
+/** hourCycle h23/h24 of Intl.DateTimeFormat for [tag] (empty = default locale); hour12 in older engines. */
+private fun jsIs24HourClock(tag: String): Boolean =
+    js(
+        """{
+    const options = new Intl.DateTimeFormat(tag ? tag : undefined, { hour: 'numeric' }).resolvedOptions();
+    if (options.hourCycle) {
+        return options.hourCycle === 'h23' || options.hourCycle === 'h24';
+    }
+    return options.hour12 === false;
+}""",
+    )
 
 private fun intlFormat(
     year: Int,

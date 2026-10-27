@@ -77,7 +77,16 @@ internal actual object PlatformDateFormat {
 
     @Suppress("CAST_NEVER_SUCCEEDS")
     actual fun uppercase(text: String): String = (text as NSString).uppercaseStringWithLocale(NSLocale.currentLocale)
+
+    actual fun is24HourClock(): Boolean = uses24HourClock(NSLocale.currentLocale)
 }
+
+internal actual fun is24HourClock(languageTag: String): Boolean =
+    uses24HourClock(NSLocale(localeIdentifier = languageTag.replace('-', '_')))
+
+/** "j" asks for the locale's preferred hour field: "h a" in en-US, "HH" in de-DE. */
+private fun uses24HourClock(locale: NSLocale): Boolean =
+    patternUses24HourClock(NSDateFormatter.dateFormatFromTemplate("j", 0u, locale) ?: "")
 
 private fun gregorian(): NSCalendar =
     checkNotNull(NSCalendar.calendarWithIdentifier(NSCalendarIdentifierGregorian)) {

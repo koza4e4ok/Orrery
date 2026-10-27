@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- `OrreryDateTimePickerDialog`: a date, then a time of day, in one dialog. The
+  Date step is the `OrreryDatePickerDialog` body (calendar or text input,
+  unchanged); **Next** opens a Material 3 `TimePicker` dial with a toggle to
+  `TimeInput`. Adds `DateTimePickerStep`, `OrreryDateTimePickerState` /
+  `rememberOrreryDateTimePickerState(initialDateTime, bounds, disabled, is24Hour)`
+  (the result is a `LocalDateTime`; bounds and disabled dates apply to the date)
+  and `DateTimePickerStrings` / `DatePickerDefaults.dateTimeStrings()` in the six
+  bundled languages. `is24Hour` defaults to the locale's clock on Android,
+  Desktop, iOS and Web. Consumers need no Material 3 experimental opt-in (#24).
+
 ## [0.6.0] - 2026-10-27
 
 ### Added

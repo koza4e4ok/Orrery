@@ -20,3 +20,14 @@ internal actual fun localizedDatePattern(locale: Locale): String {
         )
     return normalizeInputPattern(short)
 }
+
+/** The locale's SHORT time pattern, e.g. "h:mm a" for en-US or "HH:mm" for de-DE. */
+internal actual fun localeUses24HourClock(locale: Locale): Boolean =
+    patternUses24HourClock(
+        DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+            null,
+            FormatStyle.SHORT,
+            IsoChronology.INSTANCE,
+            locale,
+        ),
+    )

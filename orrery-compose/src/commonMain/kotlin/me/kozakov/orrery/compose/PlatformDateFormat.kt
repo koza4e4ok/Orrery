@@ -44,9 +44,21 @@ internal expect object PlatformDateFormat {
 
     /** Upper-cases [text] with the rules of the current locale. */
     fun uppercase(text: String): String
+
+    /** Whether the current locale shows time of day on a 24-hour clock (e.g. false in en-US, true in de-DE). */
+    fun is24HourClock(): Boolean
 }
 
 internal enum class DateFormattingStyle { Medium, Long, Full }
+
+/** Whether [languageTag] (BCP 47, e.g. "de-DE") shows time of day on a 24-hour clock. */
+internal expect fun is24HourClock(languageTag: String): Boolean
+
+/** True when a date-format [pattern] uses a 0-23 or 1-24 hour field, ignoring quoted literals. */
+internal fun patternUses24HourClock(pattern: String): Boolean {
+    val fields = pattern.replace(Regex("'[^']*'"), "")
+    return 'H' in fields || 'k' in fields
+}
 
 /** printf-style formatting of a built-in string template ("%s", "%1\$d", ...). */
 internal expect fun String.formatTemplate(vararg args: Any): String

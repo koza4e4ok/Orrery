@@ -34,9 +34,11 @@ public class OrreryDatePickerState internal constructor(
     initialDisplayMode: DatePickerDisplayMode,
     disabledDates: DisabledDates,
     firstDayOfWeek: DayOfWeek,
+    // Narrower selectable dates inside yearRange (OrreryDateTimePickerState's bounds).
+    dateBounds: ClosedRange<LocalDate>? = null,
 ) {
     internal val bounds: ClosedRange<LocalDate> =
-        LocalDate(yearRange.first, 1, 1)..LocalDate(yearRange.last, 12, 31)
+        dateBounds ?: (LocalDate(yearRange.first, 1, 1)..LocalDate(yearRange.last, 12, 31))
 
     internal val calendar: CalendarState =
         CalendarState(

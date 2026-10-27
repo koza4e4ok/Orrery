@@ -131,6 +131,8 @@ demonstrating both date picker dialogs.
   plus long-press **drag-to-select**
 - `OrreryDatePickerDialog` / `OrreryDateRangePickerDialog`: Material 3-shaped dialogs
   (slot-based confirm/dismiss buttons) with calendar and locale-aware text-input modes
+- `OrreryDateTimePickerDialog`: date step, then a Material 3 time dial or keyboard
+  input, returning a `LocalDateTime`
 - First-class unavailable dates: `DisabledDates` (dates, ranges, days of week,
   before/after, predicates) blocks selection and renders disabled automatically
 - Per-state day styling: `CalendarDayColors` + `CalendarDayShapes` with
@@ -503,6 +505,27 @@ OrreryDateRangePickerDialog(
     state = range,
     presets = DatePickerDefaults.rangePresets() +
         DateRangePreset("Next 14 days", today..today.plus(13, DateTimeUnit.DAY)),
+)
+```
+
+For a date and a time of day, `OrreryDateTimePickerDialog` shows the date picker
+first, then **Next** opens a Material 3 time dial (with a keyboard toggle). Tap the
+date or time in the headline to jump back. `bounds` and `disabled` restrict the date;
+`is24Hour` defaults to the locale's clock. The result is a `LocalDateTime`, so attach
+the `TimeZone` you need:
+
+```kotlin
+val state = rememberOrreryDateTimePickerState(bounds = today..today.plus(90, DateTimeUnit.DAY))
+
+OrreryDateTimePickerDialog(
+    onDismissRequest = { showDialog = false },
+    confirmButton = {
+        TextButton(onClick = { book(state.selectedDateTime?.toInstant(TimeZone.currentSystemDefault())) }) {
+            Text("Book")
+        }
+    },
+    dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } },
+    state = state,
 )
 ```
 

@@ -20,11 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.kozakov.orrery.compose.DatePickerDefaults
 import me.kozakov.orrery.compose.OrreryDatePickerDialog
+import me.kozakov.orrery.compose.OrreryDateTimePickerDialog
 import me.kozakov.orrery.compose.OrreryDateRangePickerDialog
 import me.kozakov.orrery.compose.rememberOrreryDatePickerState
+import me.kozakov.orrery.compose.rememberOrreryDateTimePickerState
 import me.kozakov.orrery.compose.rememberOrreryDateRangePickerState
 
-/** Dialog gallery: single-date and date-range picker dialogs opened from buttons. */
+/** Dialog gallery: single-date, date-range and date+time picker dialogs opened from buttons. */
 @Composable
 internal fun PickersScreen() {
     Column(
@@ -33,6 +35,7 @@ internal fun PickersScreen() {
     ) {
         SingleDateCard()
         DateRangeCard()
+        DateTimeCard()
     }
 }
 
@@ -103,6 +106,39 @@ private fun DateRangeCard() {
             },
             state = state,
             presets = DatePickerDefaults.rangePresets(),
+        )
+    }
+}
+
+@Composable
+private fun DateTimeCard() {
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    var result by rememberSaveable { mutableStateOf<String?>(null) }
+
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Date and time", style = MaterialTheme.typography.titleMedium)
+            Text(
+                result?.let { "Selected: $it" } ?: "No date and time selected",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Button(onClick = { showDialog = true }) { Text("Pick date and time") }
+        }
+    }
+
+    if (showDialog) {
+        val state = rememberOrreryDateTimePickerState()
+        OrreryDateTimePickerDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                Button(onClick = {
+                    result = state.selectedDateTime?.toString()
+                    showDialog = false
+                }) { Text("OK") }
+            },
+            dismissButton = { Button(onClick = { showDialog = false }) { Text("Cancel") } },
+            state = state,
         )
     }
 }

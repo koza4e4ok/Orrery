@@ -50,4 +50,10 @@ private val OrreryString.resId: Int
             OrreryString.DatePickerPresetLast30Days -> R.string.orrery_date_picker_preset_last_30_days
             OrreryString.DatePickerPresetThisWeek -> R.string.orrery_date_picker_preset_this_week
             OrreryString.DatePickerPresetThisMonth -> R.string.orrery_date_picker_preset_this_month
+            OrreryString.DateTimePickerTitle -> R.string.orrery_date_time_picker_title
+            OrreryString.DateTimePickerNext -> R.string.orrery_date_time_picker_next
+            OrreryString.DateTimePickerBack -> R.string.orrery_date_time_picker_back
+            OrreryString.DateTimePickerTimeTitle -> R.string.orrery_date_time_picker_time_title
+            OrreryString.DateTimePickerSwitchToClock -> R.string.orrery_date_time_picker_switch_to_clock
+            OrreryString.DateTimePickerSwitchToKeyboard -> R.string.orrery_date_time_picker_switch_to_keyboard
         }

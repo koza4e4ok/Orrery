@@ -37,4 +37,10 @@
     <string name="orrery_date_picker_preset_last_30_days">Letzte 30 Tage</string>
     <string name="orrery_date_picker_preset_this_week">Diese Woche</string>
     <string name="orrery_date_picker_preset_this_month">Dieser Monat</string>
+    <string name="orrery_date_time_picker_title">Datum und Uhrzeit auswählen</string>
+    <string name="orrery_date_time_picker_next">Weiter</string>
+    <string name="orrery_date_time_picker_back">Zurück</string>
+    <string name="orrery_date_time_picker_time_title">Uhrzeit auswählen</string>
+    <string name="orrery_date_time_picker_switch_to_clock">Zur Uhr wechseln</string>
+    <string name="orrery_date_time_picker_switch_to_keyboard">Zur Tastatureingabe wechseln</string>
 </resources>

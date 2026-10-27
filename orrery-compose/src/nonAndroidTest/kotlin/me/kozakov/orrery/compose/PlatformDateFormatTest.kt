@@ -64,6 +64,14 @@ class PlatformDateFormatTest {
     }
 
     @Test
+    fun hourClockFollowsTheLocale() {
+        assertEquals(false, is24HourClock("en-US"))
+        assertEquals(true, is24HourClock("de-DE"))
+        // The current locale resolves without throwing; its value depends on the host.
+        PlatformDateFormat.is24HourClock()
+    }
+
+    @Test
     fun uppercasesLatinText() {
         assertEquals("TODAY", PlatformDateFormat.uppercase("today"))
     }

@@ -37,4 +37,10 @@
     <string name="orrery_date_picker_preset_last_30_days">Останні 30 днів</string>
     <string name="orrery_date_picker_preset_this_week">Цей тиждень</string>
     <string name="orrery_date_picker_preset_this_month">Цей місяць</string>
+    <string name="orrery_date_time_picker_title">Виберіть дату й час</string>
+    <string name="orrery_date_time_picker_next">Далі</string>
+    <string name="orrery_date_time_picker_back">Назад</string>
+    <string name="orrery_date_time_picker_time_title">Виберіть час</string>
+    <string name="orrery_date_time_picker_switch_to_clock">Перейти до годинника</string>
+    <string name="orrery_date_time_picker_switch_to_keyboard">Перейти до введення з клавіатури</string>
 </resources>

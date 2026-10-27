@@ -43,6 +43,14 @@
 
 ### Changed
 
+- **Breaking:** `CalendarDayColors` gained a `holidayLabelColor` constructor
+  parameter (#19), and `CalendarDefaults.dayColors()` a matching parameter.
+  Source using defaults still compiles, but the change is binary-incompatible:
+  code compiled against 0.5.x that calls either one must be recompiled
+  (#45).
+- `DayInfoProvider.plus` falls back to the lower-priority entry's `label` when
+  the higher-priority entry has none, so a label-less holiday no longer hides
+  e.g. the lunar date label (#45).
 - **Breaking:** `DatePickerDefaults.strings()` and `HeatmapDefaults.strings()`
   are now `@Composable` (they read the current locale's resources), so they
   must be called from composition. Calls from non-composable code no longer

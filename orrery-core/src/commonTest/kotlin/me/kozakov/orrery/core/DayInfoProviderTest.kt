@@ -97,6 +97,65 @@ class DayInfoProviderTest {
     }
 
     @Test
+    fun `plus falls back to the lower priority label when the higher priority label is null`() {
+        val lunar =
+            object : DayInfoProvider {
+                override fun info(date: LocalDate): DayInfo =
+                    DayInfo(label = "初一", priority = DayInfoPriority.SECONDARY, payload = "lunar")
+            }
+        val holiday =
+            object : DayInfoProvider {
+                override fun info(date: LocalDate): DayInfo =
+                    DayInfo(
+                        label = null,
+                        isHoliday = true,
+                        priority = DayInfoPriority.PUBLIC_HOLIDAY,
+                        colorArgb = 0xFFC62828,
+                        payload = "holiday",
+                    )
+            }
+
+        for (merged in listOf((lunar + holiday).info(sampleDate), (holiday + lunar).info(sampleDate))) {
+            checkNotNull(merged)
+            assertEquals("初一", merged.label)
+            assertTrue(merged.isHoliday)
+            assertEquals(DayInfoPriority.PUBLIC_HOLIDAY, merged.priority)
+            assertEquals(0xFFC62828, merged.colorArgb)
+            assertEquals("holiday", merged.payloadAs<String>())
+        }
+    }
+
+    @Test
+    fun `plus keeps the higher priority label when the lower priority label is null`() {
+        val unlabeled =
+            object : DayInfoProvider {
+                override fun info(date: LocalDate): DayInfo =
+                    DayInfo(label = null, priority = DayInfoPriority.SECONDARY)
+            }
+        val festival =
+            object : DayInfoProvider {
+                override fun info(date: LocalDate): DayInfo = DayInfo(label = "端午", priority = DayInfoPriority.FESTIVAL)
+            }
+
+        assertEquals("端午", (unlabeled + festival).info(sampleDate)?.label)
+        assertEquals("端午", (festival + unlabeled).info(sampleDate)?.label)
+    }
+
+    @Test
+    fun `plus returns null label when both labels are null`() {
+        val a =
+            object : DayInfoProvider {
+                override fun info(date: LocalDate): DayInfo = DayInfo(label = null, priority = DayInfoPriority.FESTIVAL)
+            }
+        val b =
+            object : DayInfoProvider {
+                override fun info(date: LocalDate): DayInfo = DayInfo(label = null)
+            }
+
+        assertNull((a + b).info(sampleDate)?.label)
+    }
+
+    @Test
     fun `plus favors left provider on priority ties`() {
         val first =
             object : DayInfoProvider {

@@ -17,11 +17,13 @@ class DateTimeFormatTest {
     }
 
     @Test
-    fun formatsHeadlineTimes() {
-        assertEquals("14:05", formatTimeOfDay(14, 5, is24Hour = true))
-        assertEquals("00:00", formatTimeOfDay(0, 0, is24Hour = true))
-        assertEquals("2:05 PM", formatTimeOfDay(14, 5, is24Hour = false))
-        assertEquals("12:00 AM", formatTimeOfDay(0, 0, is24Hour = false))
-        assertEquals("12:30 PM", formatTimeOfDay(12, 30, is24Hour = false))
+    fun rewritesTimePatternsToTheRequestedClock() {
+        assertEquals("h:mm a", timePatternForClock("h:mm a", is24Hour = false))
+        assertEquals("HH:mm", timePatternForClock("HH:mm", is24Hour = true))
+        assertEquals("HH:mm", timePatternForClock("h:mm a", is24Hour = true))
+        assertEquals("HH:mm", timePatternForClock("ah:mm", is24Hour = true))
+        assertEquals("h:mm a", timePatternForClock("HH:mm", is24Hour = false))
+        assertEquals("h 'h' mm a", timePatternForClock("HH 'h' mm", is24Hour = false))
+        assertEquals("HH 'Uhr' mm", timePatternForClock("h 'Uhr' mm a", is24Hour = true))
     }
 }

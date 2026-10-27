@@ -511,8 +511,11 @@ OrreryDateRangePickerDialog(
 For a date and a time of day, `OrreryDateTimePickerDialog` shows the date picker
 first, then **Next** opens a Material 3 time dial (with a keyboard toggle). Tap the
 date or time in the headline to jump back. `bounds` and `disabled` restrict the date;
-`is24Hour` defaults to the locale's clock. The result is a `LocalDateTime`, so attach
-the `TimeZone` you need:
+`is24Hour` defaults to the device's clock (the "Use 24-hour format" setting on Android,
+the locale elsewhere), and the headline time is localized ("14:05", "2:05 PM",
+"下午2:05"). Initial values are read once; write to `state.hour`, `state.minute` or
+`state.is24Hour` to change them later. Pass `dateStrings` to localize the date step.
+The result is a `LocalDateTime`, so attach the `TimeZone` you need:
 
 ```kotlin
 val state = rememberOrreryDateTimePickerState(bounds = today..today.plus(90, DateTimeUnit.DAY))

@@ -11,8 +11,12 @@
   `rememberOrreryDateTimePickerState(initialDateTime, bounds, disabled, is24Hour)`
   (the result is a `LocalDateTime`; bounds and disabled dates apply to the date)
   and `DateTimePickerStrings` / `DatePickerDefaults.dateTimeStrings()` in the six
-  bundled languages. `is24Hour` defaults to the locale's clock on Android,
-  Desktop, iOS and Web. Consumers need no Material 3 experimental opt-in (#24).
+  bundled languages; the dialog's `dateStrings: DatePickerStrings` parameter
+  (default `DatePickerDefaults.strings()`) localizes the date step. `is24Hour`
+  defaults to the "Use 24-hour format" setting on Android and to the locale's
+  clock on Desktop, iOS and Web; it and `initialDateTime` are read once. The
+  headline time uses the locale's format and AM/PM text ("2:05 PM", "下午2:05").
+  Consumers need no Material 3 experimental opt-in (#24).
 
 ## [0.6.0] - 2026-10-27
 

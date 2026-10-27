@@ -117,7 +117,10 @@ class DateTimePickerDialogTest {
     @Test
     fun twelveHourClockIsHonored() {
         content(initialDateTime = LocalDateTime(2026, 7, 8, 14, 5), is24Hour = false)
-        rule.onNodeWithText("2:05 PM").assertExists()
+        // The headline uses the locale's 12-hour format ("2:05 PM", with a narrow no-break space on newer ICU).
+        val headline = PlatformDateFormat.formatTime(14, 5, is24Hour = false)
+        assertEquals("2:05 PM", headline.replace('\u202F', ' '))
+        rule.onNodeWithText(headline).assertExists()
         rule.runOnIdle { assertEquals(false, state.is24Hour) }
     }
 

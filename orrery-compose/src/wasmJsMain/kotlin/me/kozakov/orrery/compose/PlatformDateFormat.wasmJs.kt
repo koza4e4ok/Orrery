@@ -60,9 +60,42 @@ internal actual object PlatformDateFormat {
     actual fun uppercase(text: String): String = jsUppercase(text)
 
     actual fun is24HourClock(): Boolean = jsIs24HourClock("")
+
+    actual fun formatTime(
+        hour: Int,
+        minute: Int,
+        is24Hour: Boolean,
+    ): String = jsFormatTime(hour, minute, is24Hour, "")
 }
 
 internal actual fun is24HourClock(languageTag: String): Boolean = jsIs24HourClock(languageTag)
+
+internal actual fun formatTime(
+    hour: Int,
+    minute: Int,
+    is24Hour: Boolean,
+    languageTag: String,
+): String = jsFormatTime(hour, minute, is24Hour, languageTag)
+
+/** Hour and minute on hourCycle h23 or h12 for [tag] (empty = default locale), as a UTC wall time. */
+private fun jsFormatTime(
+    hour: Int,
+    minute: Int,
+    is24Hour: Boolean,
+    tag: String,
+): String =
+    js(
+        """{
+    const options = {
+        hour: is24Hour ? '2-digit' : 'numeric',
+        minute: '2-digit',
+        hourCycle: is24Hour ? 'h23' : 'h12',
+        timeZone: 'UTC',
+    };
+    const time = new Date(Date.UTC(2000, 0, 1, hour, minute));
+    return new Intl.DateTimeFormat(tag ? tag : undefined, options).format(time);
+}""",
+    )
 
 /** hourCycle h23/h24 of Intl.DateTimeFormat for [tag] (empty = default locale); hour12 in older engines. */
 private fun jsIs24HourClock(tag: String): Boolean =

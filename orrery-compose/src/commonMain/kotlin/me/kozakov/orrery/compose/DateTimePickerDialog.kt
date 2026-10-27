@@ -89,6 +89,11 @@ public class OrreryDateTimePickerState internal constructor(
     /** Shows the time step on a 24-hour dial (true) or a 12-hour dial with AM/PM (false). */
     public var is24Hour: Boolean by mutableStateOf(is24Hour)
 
+    /**
+     * The visible step. Setting [DateTimePickerStep.Time] before a date is
+     * picked is allowed: the Time step then shows its confirm button while
+     * [selectedDateTime] is still null, so handle null in confirmButton.
+     */
     public var step: DateTimePickerStep by mutableStateOf(initialStep)
 
     /** The picked date at [hour]:[minute], or null until a date is picked. Snapshot-observable. */
@@ -141,15 +146,20 @@ public class OrreryDateTimePickerState internal constructor(
 
 /**
  * Remembers saveable [OrreryDateTimePickerState] for [OrreryDateTimePickerDialog].
- * [bounds] and [disabled] restrict the date only; [is24Hour] defaults to the
- * current locale's clock.
+ * [bounds] and [disabled] restrict the date only. [is24Hour] defaults to the
+ * device's clock: the "Use 24-hour format" setting on Android, the current
+ * locale's clock on Desktop, iOS and Web.
+ *
+ * [initialDateTime] and [is24Hour] are read once, when the state is first
+ * created (as with rememberOrreryDatePickerState); changing them later has no
+ * effect. Write to the state's hour, minute or is24Hour properties instead.
  */
 @Composable
 public fun rememberOrreryDateTimePickerState(
     initialDateTime: LocalDateTime? = null,
     bounds: ClosedRange<LocalDate>? = null,
     disabled: DisabledDates = DisabledDates.None,
-    is24Hour: Boolean = PlatformDateFormat.is24HourClock(),
+    is24Hour: Boolean = systemUses24HourClock(),
 ): OrreryDateTimePickerState {
     val yearRange = bounds?.let { it.start.year..it.endInclusive.year } ?: DEFAULT_YEAR_RANGE
     val firstDayOfWeek = PlatformDateFormat.firstDayOfWeek()
@@ -251,7 +261,7 @@ public fun OrreryDateTimePickerDialog(
                     )
                     Spacer(Modifier.width(12.dp))
                     Text(
-                        formatTimeOfDay(state.hour, state.minute, state.is24Hour),
+                        PlatformDateFormat.formatTime(state.hour, state.minute, state.is24Hour),
                         style = MaterialTheme.typography.headlineSmall,
                         color = headlinePartColor(active = !onDateStep),
                         modifier = Modifier.clickable(enabled = date != null) { state.step = DateTimePickerStep.Time },
@@ -332,16 +342,4 @@ private fun TimeStep(
             TimePicker(state = timeState, layoutType = TimePickerLayoutType.Vertical)
         }
     }
-}
-
-/** Headline time: "14:05" on a 24-hour clock, "2:05 PM" on a 12-hour one. */
-internal fun formatTimeOfDay(
-    hour: Int,
-    minute: Int,
-    is24Hour: Boolean,
-): String {
-    val mm = minute.toString().padStart(2, '0')
-    if (is24Hour) return "${hour.toString().padStart(2, '0')}:$mm"
-    val hour12 = (hour + 11) % 12 + 1
-    return "$hour12:$mm ${if (hour < 12) "AM" else "PM"}"
 }

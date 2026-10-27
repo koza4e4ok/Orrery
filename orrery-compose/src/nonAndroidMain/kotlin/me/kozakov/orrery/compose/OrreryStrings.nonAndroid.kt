@@ -56,6 +56,10 @@ private val english: Map<OrreryString, String> =
         OrreryString.AgendaAllDay to "All day",
         OrreryString.AgendaNoEvents to "No events",
         OrreryString.ScheduleNow to "Now",
+        OrreryString.DatePickerPresetLast7Days to "Last 7 days",
+        OrreryString.DatePickerPresetLast30Days to "Last 30 days",
+        OrreryString.DatePickerPresetThisWeek to "This week",
+        OrreryString.DatePickerPresetThisMonth to "This month",
     )
 
 private val german: Map<OrreryString, String> =
@@ -93,6 +97,10 @@ private val german: Map<OrreryString, String> =
         OrreryString.AgendaAllDay to "Ganztägig",
         OrreryString.AgendaNoEvents to "Keine Termine",
         OrreryString.ScheduleNow to "Jetzt",
+        OrreryString.DatePickerPresetLast7Days to "Letzte 7 Tage",
+        OrreryString.DatePickerPresetLast30Days to "Letzte 30 Tage",
+        OrreryString.DatePickerPresetThisWeek to "Diese Woche",
+        OrreryString.DatePickerPresetThisMonth to "Dieser Monat",
     )
 
 private val spanish: Map<OrreryString, String> =
@@ -130,6 +138,10 @@ private val spanish: Map<OrreryString, String> =
         OrreryString.AgendaAllDay to "Todo el día",
         OrreryString.AgendaNoEvents to "Sin eventos",
         OrreryString.ScheduleNow to "Ahora",
+        OrreryString.DatePickerPresetLast7Days to "Últimos 7 días",
+        OrreryString.DatePickerPresetLast30Days to "Últimos 30 días",
+        OrreryString.DatePickerPresetThisWeek to "Esta semana",
+        OrreryString.DatePickerPresetThisMonth to "Este mes",
     )
 
 private val japanese: Map<OrreryString, String> =
@@ -167,6 +179,10 @@ private val japanese: Map<OrreryString, String> =
         OrreryString.AgendaAllDay to "終日",
         OrreryString.AgendaNoEvents to "予定なし",
         OrreryString.ScheduleNow to "現在",
+        OrreryString.DatePickerPresetLast7Days to "過去7日間",
+        OrreryString.DatePickerPresetLast30Days to "過去30日間",
+        OrreryString.DatePickerPresetThisWeek to "今週",
+        OrreryString.DatePickerPresetThisMonth to "今月",
     )
 
 private val ukrainian: Map<OrreryString, String> =
@@ -204,6 +220,10 @@ private val ukrainian: Map<OrreryString, String> =
         OrreryString.AgendaAllDay to "Весь день",
         OrreryString.AgendaNoEvents to "Немає подій",
         OrreryString.ScheduleNow to "Зараз",
+        OrreryString.DatePickerPresetLast7Days to "Останні 7 днів",
+        OrreryString.DatePickerPresetLast30Days to "Останні 30 днів",
+        OrreryString.DatePickerPresetThisWeek to "Цей тиждень",
+        OrreryString.DatePickerPresetThisMonth to "Цей місяць",
     )
 
 private val simplifiedChinese: Map<OrreryString, String> =
@@ -241,4 +261,8 @@ private val simplifiedChinese: Map<OrreryString, String> =
         OrreryString.AgendaAllDay to "全天",
         OrreryString.AgendaNoEvents to "无日程",
         OrreryString.ScheduleNow to "现在",
+        OrreryString.DatePickerPresetLast7Days to "最近7天",
+        OrreryString.DatePickerPresetLast30Days to "最近30天",
+        OrreryString.DatePickerPresetThisWeek to "本周",
+        OrreryString.DatePickerPresetThisMonth to "本月",
     )

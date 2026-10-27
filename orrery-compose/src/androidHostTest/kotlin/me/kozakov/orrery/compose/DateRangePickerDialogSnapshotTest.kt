@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.junit.Rule
@@ -25,7 +26,10 @@ import org.robolectric.annotation.GraphicsMode
 class DateRangePickerDialogSnapshotTest {
     @get:Rule val rule = createComposeRule()
 
-    private fun content(initialDisplayMode: DatePickerDisplayMode = DatePickerDisplayMode.Picker) {
+    private fun content(
+        initialDisplayMode: DatePickerDisplayMode = DatePickerDisplayMode.Picker,
+        withPresets: Boolean = false,
+    ) {
         rule.setContent {
             MaterialTheme(
                 colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(),
@@ -43,6 +47,12 @@ class DateRangePickerDialogSnapshotTest {
                     confirmButton = { TextButton(onClick = {}) { Text("Save") } },
                     state = state,
                     today = LocalDate(2026, 7, 15),
+                    presets =
+                        if (withPresets) {
+                            DatePickerDefaults.rangePresets(LocalDate(2026, 7, 15), DayOfWeek.MONDAY)
+                        } else {
+                            emptyList()
+                        },
                 )
             }
         }
@@ -71,6 +81,12 @@ class DateRangePickerDialogSnapshotTest {
     @Config(qualifiers = "+night")
     fun rangeInputDark() {
         content(initialDisplayMode = DatePickerDisplayMode.Input)
+        rule.onNode(isDialog()).captureRoboImage()
+    }
+
+    @Test
+    fun rangePickerWithPresetsLight() {
+        content(withPresets = true)
         rule.onNode(isDialog()).captureRoboImage()
     }
 }

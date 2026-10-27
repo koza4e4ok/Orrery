@@ -33,4 +33,8 @@
     <string name="orrery_agenda_all_day">終日</string>
     <string name="orrery_agenda_no_events">予定なし</string>
     <string name="orrery_schedule_now">現在</string>
+    <string name="orrery_date_picker_preset_last_7_days">過去7日間</string>
+    <string name="orrery_date_picker_preset_last_30_days">過去30日間</string>
+    <string name="orrery_date_picker_preset_this_week">今週</string>
+    <string name="orrery_date_picker_preset_this_month">今月</string>
 </resources>

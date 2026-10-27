@@ -3,6 +3,10 @@ package me.kozakov.orrery.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import me.kozakov.orrery.core.Selection
+import me.kozakov.orrery.core.SelectionPresets
 
 /**
  * Strings for the date picker dialogs. [DatePickerDefaults.strings]
@@ -77,4 +81,37 @@ public object DatePickerDefaults {
             nextMonthDescription = nextMonthDescription,
             closeDescription = closeDescription,
         )
+
+    /**
+     * Standard presets for [OrreryDateRangePickerDialog]'s `presets`, built
+     * from [SelectionPresets] around [today]: last 7 days, last 30 days,
+     * this week (starting at [firstDayOfWeek]) and this month. Labels come
+     * from the current locale's resources.
+     */
+    @Composable
+    @ReadOnlyComposable
+    public fun rangePresets(
+        today: LocalDate = currentDate(),
+        firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
+    ): List<DateRangePreset> =
+        listOf(
+            DateRangePreset(
+                orreryString(OrreryString.DatePickerPresetLast7Days),
+                SelectionPresets.lastNDays(today, 7).requireRange(),
+            ),
+            DateRangePreset(
+                orreryString(OrreryString.DatePickerPresetLast30Days),
+                SelectionPresets.lastNDays(today, 30).requireRange(),
+            ),
+            DateRangePreset(
+                orreryString(OrreryString.DatePickerPresetThisWeek),
+                SelectionPresets.thisWeek(today, firstDayOfWeek).requireRange(),
+            ),
+            DateRangePreset(
+                orreryString(OrreryString.DatePickerPresetThisMonth),
+                SelectionPresets.thisMonth(today).requireRange(),
+            ),
+        )
 }
+
+private fun Selection.requireRange(): ClosedRange<LocalDate> = checkNotNull(range)

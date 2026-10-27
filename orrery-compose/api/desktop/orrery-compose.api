@@ -188,6 +188,7 @@ public final class me/kozakov/orrery/compose/ComposableSingletons$YearCalendarKt
 public final class me/kozakov/orrery/compose/DatePickerDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Lme/kozakov/orrery/compose/DatePickerDefaults;
+	public final fun rangePresets (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;Landroidx/compose/runtime/Composer;II)Ljava/util/List;
 	public final fun strings (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;III)Lme/kozakov/orrery/compose/DatePickerStrings;
 }
 
@@ -231,7 +232,18 @@ public final class me/kozakov/orrery/compose/DatePickerStrings {
 }
 
 public final class me/kozakov/orrery/compose/DateRangePickerDialogKt {
-	public static final fun OrreryDateRangePickerDialog (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lme/kozakov/orrery/compose/OrreryDateRangePickerState;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/CalendarDayColors;Lme/kozakov/orrery/compose/CalendarDayShapes;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/compose/DatePickerStrings;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun OrreryDateRangePickerDialog (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lme/kozakov/orrery/compose/OrreryDateRangePickerState;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/CalendarDayColors;Lme/kozakov/orrery/compose/CalendarDayShapes;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/compose/DatePickerStrings;Landroidx/compose/runtime/Composer;II)V
+	public static final fun OrreryDateRangePickerDialog (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lme/kozakov/orrery/compose/OrreryDateRangePickerState;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/CalendarDayColors;Lme/kozakov/orrery/compose/CalendarDayShapes;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/compose/DatePickerStrings;Ljava/util/List;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class me/kozakov/orrery/compose/DateRangePreset {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Lkotlin/ranges/ClosedRange;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getRange ()Lkotlin/ranges/ClosedRange;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public abstract interface class me/kozakov/orrery/compose/DayDecorator {

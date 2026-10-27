@@ -4,12 +4,16 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +43,11 @@ import kotlinx.datetime.YearMonth
  * between calendar picking and locale-formatted text input for both
  * endpoints. There is no dismiss-button slot — the close glyph in the
  * top bar dismisses. Strings localize via [strings].
+ *
+ * [presets] adds a horizontally scrolling row of chips above the calendar
+ * (calendar mode only); tapping one selects its range and scrolls to it.
+ * Pass [DatePickerDefaults.rangePresets] for the standard set; the default
+ * empty list shows no row.
  */
 @Composable
 public fun OrreryDateRangePickerDialog(
@@ -50,6 +59,7 @@ public fun OrreryDateRangePickerDialog(
     shapes: CalendarDayShapes = CalendarDefaults.dayShapes(),
     today: LocalDate = currentDate(),
     strings: DatePickerStrings = DatePickerDefaults.strings(),
+    presets: List<DateRangePreset> = emptyList(),
 ) {
     val scope = rememberCoroutineScope()
     Dialog(
@@ -116,18 +126,26 @@ public fun OrreryDateRangePickerDialog(
                 ) { mode ->
                     when (mode) {
                         DatePickerDisplayMode.Picker -> {
-                            VerticalCalendar(
-                                state = state.calendar,
-                                stickyMonthHeaders = true,
-                                dragSelection = state.selection,
-                            ) { day ->
-                                DefaultDay(
-                                    day = day,
-                                    selectionState = state.selection,
-                                    today = today,
-                                    colors = colors,
-                                    shapes = shapes,
-                                )
+                            Column {
+                                if (presets.isNotEmpty()) {
+                                    RangePresetChips(presets, state) { start ->
+                                        val month = YearMonth(start.year, start.month)
+                                        scope.launch { state.calendar.scrollToMonth(month) }
+                                    }
+                                }
+                                VerticalCalendar(
+                                    state = state.calendar,
+                                    stickyMonthHeaders = true,
+                                    dragSelection = state.selection,
+                                ) { day ->
+                                    DefaultDay(
+                                        day = day,
+                                        selectionState = state.selection,
+                                        today = today,
+                                        colors = colors,
+                                        shapes = shapes,
+                                    )
+                                }
                             }
                         }
 
@@ -137,6 +155,65 @@ public fun OrreryDateRangePickerDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+@Deprecated("Kept for binary compatibility; use the overload with presets.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun OrreryDateRangePickerDialog(
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    state: OrreryDateRangePickerState = rememberOrreryDateRangePickerState(),
+    modifier: Modifier = Modifier,
+    colors: CalendarDayColors = CalendarDefaults.dayColors(),
+    shapes: CalendarDayShapes = CalendarDefaults.dayShapes(),
+    today: LocalDate = currentDate(),
+    strings: DatePickerStrings = DatePickerDefaults.strings(),
+) {
+    OrreryDateRangePickerDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = confirmButton,
+        state = state,
+        modifier = modifier,
+        colors = colors,
+        shapes = shapes,
+        today = today,
+        strings = strings,
+        presets = emptyList(),
+    )
+}
+
+/**
+ * Preset chip row of the range dialog. A chip shows as selected while the
+ * state's range equals its preset; [onApplied] receives the new start date
+ * when the selection engine accepted the preset.
+ */
+@Composable
+private fun RangePresetChips(
+    presets: List<DateRangePreset>,
+    state: OrreryDateRangePickerState,
+    onApplied: (LocalDate) -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp),
+    ) {
+        presets.forEach { preset ->
+            val start = preset.range.start
+            val end = preset.range.endInclusive
+            FilterChip(
+                selected = state.selectedStartDate == start && state.selectedEndDate == end,
+                onClick = {
+                    state.setSelection(start, end)
+                    if (state.selectedStartDate == start && state.selectedEndDate == end) onApplied(start)
+                },
+                label = { Text(preset.label) },
+            )
         }
     }
 }

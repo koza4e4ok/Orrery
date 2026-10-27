@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import me.kozakov.orrery.compose.DatePickerDefaults
 import me.kozakov.orrery.compose.OrreryDatePickerDialog
 import me.kozakov.orrery.compose.OrreryDateRangePickerDialog
 import me.kozakov.orrery.compose.rememberOrreryDatePickerState
@@ -101,6 +102,7 @@ private fun DateRangeCard() {
                 }) { Text("Save") }
             },
             state = state,
+            presets = DatePickerDefaults.rangePresets(),
         )
     }
 }

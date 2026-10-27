@@ -33,4 +33,8 @@
     <string name="orrery_agenda_all_day">Ganztägig</string>
     <string name="orrery_agenda_no_events">Keine Termine</string>
     <string name="orrery_schedule_now">Jetzt</string>
+    <string name="orrery_date_picker_preset_last_7_days">Letzte 7 Tage</string>
+    <string name="orrery_date_picker_preset_last_30_days">Letzte 30 Tage</string>
+    <string name="orrery_date_picker_preset_this_week">Diese Woche</string>
+    <string name="orrery_date_picker_preset_this_month">Dieser Monat</string>
 </resources>

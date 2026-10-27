@@ -490,6 +490,22 @@ OrreryDateRangePickerDialog(
 )
 ```
 
+Add quick-pick chips above the range calendar with `presets`.
+`DatePickerDefaults.rangePresets()` gives localized "Last 7 days", "Last 30 days",
+"This week" and "This month" built from `SelectionPresets`; mix in your own
+`DateRangePreset(label, range)`. A chip that breaks `minDays`/`maxDays`, bounds or
+disabled dates is ignored on tap:
+
+```kotlin
+OrreryDateRangePickerDialog(
+    onDismissRequest = { showDialog = false },
+    confirmButton = { /* ... */ },
+    state = range,
+    presets = DatePickerDefaults.rangePresets() +
+        DateRangePreset("Next 14 days", today..today.plus(13, DateTimeUnit.DAY)),
+)
+```
+
 ### Day info and the lunar module
 
 `DayInfoProvider` (in `orrery-core`) supplies a secondary per-day label —

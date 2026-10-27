@@ -15,6 +15,11 @@
    - `SIGNING_KEY` — the armored secret key
    - `SIGNING_KEY_ID` — last 8 hex digits of the key fingerprint
    - `SIGNING_KEY_PASSWORD` — the key passphrase
+6. To host the API docs: Settings → Pages → Source **GitHub Actions**, then in
+   Settings → Environments → `github-pages` allow the `v*` tag pattern (by default
+   the environment only accepts deployments from `main`). The `Docs` workflow
+   (`.github/workflows/docs.yml`) then deploys Dokka to
+   https://koza4e4ok.github.io/Orrery/ on every `v*` tag.
 
 ## Release flow
 

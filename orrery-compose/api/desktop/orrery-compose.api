@@ -362,6 +362,87 @@ public final class me/kozakov/orrery/compose/OrreryDateRangePickerState {
 	public final fun setSelection (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;)V
 }
 
+public final class me/kozakov/orrery/compose/ScheduleColors {
+	public static final field $stable I
+	public synthetic fun <init> (JJJJJJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDefaultEventAccentColor-0d7_KjU ()J
+	public final fun getDefaultEventContainerColor-0d7_KjU ()J
+	public final fun getDefaultEventContentColor-0d7_KjU ()J
+	public final fun getGridLineColor-0d7_KjU ()J
+	public final fun getHalfHourLineColor-0d7_KjU ()J
+	public final fun getHeaderContentColor-0d7_KjU ()J
+	public final fun getHourLabelColor-0d7_KjU ()J
+	public final fun getNowIndicatorColor-0d7_KjU ()J
+	public final fun getTodayHeaderColor-0d7_KjU ()J
+}
+
+public final class me/kozakov/orrery/compose/ScheduleDefaults {
+	public static final field $stable I
+	public static final field INSTANCE Lme/kozakov/orrery/compose/ScheduleDefaults;
+	public final fun AllDayEventChip (Lme/kozakov/orrery/core/CalendarEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public final fun DayHeader (Lkotlinx/datetime/LocalDate;ZLme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public final fun EventTile (Lme/kozakov/orrery/core/PositionedEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public final fun HourLabel (ILme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public final fun NowIndicator (Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)V
+	public final fun colors-J08w3-E (JJJJJJJJJLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/ScheduleColors;
+	public final fun dimensions-IzGr3o8 (FFFFFFFFI)Lme/kozakov/orrery/compose/ScheduleDimensions;
+	public static synthetic fun dimensions-IzGr3o8$default (Lme/kozakov/orrery/compose/ScheduleDefaults;FFFFFFFFIILjava/lang/Object;)Lme/kozakov/orrery/compose/ScheduleDimensions;
+	public final fun strings (Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/ScheduleStrings;
+}
+
+public final class me/kozakov/orrery/compose/ScheduleDimensions {
+	public static final field $stable I
+	public synthetic fun <init> (FFFFFFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getAllDayChipHeight-D9Ej5fM ()F
+	public final fun getMaxVisibleAllDayRows ()I
+	public final fun getNowDotRadius-D9Ej5fM ()F
+	public final fun getNowLineStrokeWidth-D9Ej5fM ()F
+	public final fun getTileAccentBarWidth-D9Ej5fM ()F
+	public final fun getTileCornerRadius-D9Ej5fM ()F
+	public final fun getTileHorizontalGap-D9Ej5fM ()F
+	public final fun getTileVerticalGap-D9Ej5fM ()F
+	public final fun getTimeGutterWidth-D9Ej5fM ()F
+}
+
+public final class me/kozakov/orrery/compose/ScheduleState {
+	public static final field $stable I
+	public static final field Companion Lme/kozakov/orrery/compose/ScheduleState$Companion;
+	public final fun animateScrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun animateScrollToTime (Lkotlinx/datetime/LocalTime;Landroidx/compose/ui/unit/Density;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getEndDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getFirstDayOfWeek ()Lkotlinx/datetime/DayOfWeek;
+	public final fun getFirstVisibleDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getHourHeight-D9Ej5fM ()F
+	public final fun getMaxHourHeight-D9Ej5fM ()F
+	public final fun getMinHourHeight-D9Ej5fM ()F
+	public final fun getStartDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getVerticalScrollState ()Landroidx/compose/foundation/ScrollState;
+	public final fun scrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun scrollToTime (Lkotlinx/datetime/LocalTime;Landroidx/compose/ui/unit/Density;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun setFirstDayOfWeek (Lkotlinx/datetime/DayOfWeek;)V
+	public final fun setHourHeight-0680j_4 (F)V
+}
+
+public final class me/kozakov/orrery/compose/ScheduleState$Companion {
+	public final fun getSaver ()Landroidx/compose/runtime/saveable/Saver;
+}
+
+public final class me/kozakov/orrery/compose/ScheduleStateKt {
+	public static final fun rememberScheduleState-Zv8xjqY (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;FFFLkotlinx/datetime/LocalTime;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/ScheduleState;
+}
+
+public final class me/kozakov/orrery/compose/ScheduleStrings {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun getAllDayLabel ()Ljava/lang/String;
+	public final fun getNowLabel ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/compose/ScheduleViewKt {
+	public static final fun DaySchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
+	public static final fun WeekSchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;ILkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
+}
+
 public final class me/kozakov/orrery/compose/SelectionStateKt {
 	public static final fun rememberCalendarSelectionState (Lme/kozakov/orrery/core/SelectionMode;Lme/kozakov/orrery/core/Selection;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarSelectionState;
 }

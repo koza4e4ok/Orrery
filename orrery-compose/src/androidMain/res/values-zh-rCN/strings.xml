@@ -32,4 +32,5 @@
     <string name="orrery_agenda_today_prefix">今天</string>
     <string name="orrery_agenda_all_day">全天</string>
     <string name="orrery_agenda_no_events">无日程</string>
+    <string name="orrery_schedule_now">现在</string>
 </resources>

@@ -43,6 +43,7 @@ internal enum class OrreryString(
     AgendaTodayPrefix("orrery_agenda_today_prefix"),
     AgendaAllDay("orrery_agenda_all_day"),
     AgendaNoEvents("orrery_agenda_no_events"),
+    ScheduleNow("orrery_schedule_now"),
 }
 
 /**

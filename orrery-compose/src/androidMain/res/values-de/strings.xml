@@ -32,4 +32,5 @@
     <string name="orrery_agenda_today_prefix">HEUTE</string>
     <string name="orrery_agenda_all_day">Ganztägig</string>
     <string name="orrery_agenda_no_events">Keine Termine</string>
+    <string name="orrery_schedule_now">Jetzt</string>
 </resources>

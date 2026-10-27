@@ -138,6 +138,21 @@ public final class me/kozakov/orrery/core/DayPosition : java/lang/Enum {
 	public static fun values ()[Lme/kozakov/orrery/core/DayPosition;
 }
 
+public final class me/kozakov/orrery/core/DayScheduleLayout {
+	public fun <init> (Lkotlinx/datetime/LocalDate;Ljava/util/List;Ljava/util/List;)V
+	public final fun component1 ()Lkotlinx/datetime/LocalDate;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Lkotlinx/datetime/LocalDate;Ljava/util/List;Ljava/util/List;)Lme/kozakov/orrery/core/DayScheduleLayout;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/DayScheduleLayout;Lkotlinx/datetime/LocalDate;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/DayScheduleLayout;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAllDayEvents ()Ljava/util/List;
+	public final fun getDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getTimedEvents ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class me/kozakov/orrery/core/DaysOfWeekKt {
 	public static final fun daysOfWeek (Lkotlinx/datetime/DayOfWeek;)Ljava/util/List;
 	public static synthetic fun daysOfWeek$default (Lkotlinx/datetime/DayOfWeek;ILjava/lang/Object;)Ljava/util/List;
@@ -233,6 +248,38 @@ public final class me/kozakov/orrery/core/OutDateStyle : java/lang/Enum {
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/core/OutDateStyle;
 	public static fun values ()[Lme/kozakov/orrery/core/OutDateStyle;
+}
+
+public final class me/kozakov/orrery/core/PositionedEvent {
+	public fun <init> (Lme/kozakov/orrery/core/CalendarEvent;Lkotlinx/datetime/LocalDate;IIIIIFF)V
+	public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent;
+	public final fun component2 ()Lkotlinx/datetime/LocalDate;
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun component5 ()I
+	public final fun component6 ()I
+	public final fun component7 ()I
+	public final fun component8 ()F
+	public final fun component9 ()F
+	public final fun copy (Lme/kozakov/orrery/core/CalendarEvent;Lkotlinx/datetime/LocalDate;IIIIIFF)Lme/kozakov/orrery/core/PositionedEvent;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/PositionedEvent;Lme/kozakov/orrery/core/CalendarEvent;Lkotlinx/datetime/LocalDate;IIIIIFFILjava/lang/Object;)Lme/kozakov/orrery/core/PositionedEvent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getColumnCount ()I
+	public final fun getColumnIndex ()I
+	public final fun getDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getDisplayEndMinute ()I
+	public final fun getEndMinute ()I
+	public final fun getEvent ()Lme/kozakov/orrery/core/CalendarEvent;
+	public final fun getLeftFraction ()F
+	public final fun getStartMinute ()I
+	public final fun getWidthFraction ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/ScheduleLayoutKt {
+	public static final fun layoutDaySchedule (Lkotlinx/datetime/LocalDate;Ljava/lang/Iterable;I)Lme/kozakov/orrery/core/DayScheduleLayout;
+	public static synthetic fun layoutDaySchedule$default (Lkotlinx/datetime/LocalDate;Ljava/lang/Iterable;IILjava/lang/Object;)Lme/kozakov/orrery/core/DayScheduleLayout;
 }
 
 public final class me/kozakov/orrery/core/Selection {

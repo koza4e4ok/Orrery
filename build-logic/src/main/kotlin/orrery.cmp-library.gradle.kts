@@ -54,6 +54,10 @@ kotlin {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
+        // Compose Multiplatform 1.12 fails checkComposeUiTestConfigurationForWasmJs unless
+        // the wasmJs tests are bundled with webpack, which needs an executable binary to
+        // load the Skiko runtime (CMP-4906). The published klib is unaffected.
+        binaries.executable()
     }
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)

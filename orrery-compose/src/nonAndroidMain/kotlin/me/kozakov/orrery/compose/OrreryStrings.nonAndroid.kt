@@ -60,6 +60,8 @@ private val english: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "Last 30 days",
         OrreryString.DatePickerPresetThisWeek to "This week",
         OrreryString.DatePickerPresetThisMonth to "This month",
+        OrreryString.MonthPickerTitle to "Select month",
+        OrreryString.MonthPickerHeadlinePlaceholder to "Month",
     )
 
 private val german: Map<OrreryString, String> =
@@ -101,6 +103,8 @@ private val german: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "Letzte 30 Tage",
         OrreryString.DatePickerPresetThisWeek to "Diese Woche",
         OrreryString.DatePickerPresetThisMonth to "Dieser Monat",
+        OrreryString.MonthPickerTitle to "Monat auswählen",
+        OrreryString.MonthPickerHeadlinePlaceholder to "Monat",
     )
 
 private val spanish: Map<OrreryString, String> =
@@ -142,6 +146,8 @@ private val spanish: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "Últimos 30 días",
         OrreryString.DatePickerPresetThisWeek to "Esta semana",
         OrreryString.DatePickerPresetThisMonth to "Este mes",
+        OrreryString.MonthPickerTitle to "Seleccionar mes",
+        OrreryString.MonthPickerHeadlinePlaceholder to "Mes",
     )
 
 private val japanese: Map<OrreryString, String> =
@@ -183,6 +189,8 @@ private val japanese: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "過去30日間",
         OrreryString.DatePickerPresetThisWeek to "今週",
         OrreryString.DatePickerPresetThisMonth to "今月",
+        OrreryString.MonthPickerTitle to "月を選択",
+        OrreryString.MonthPickerHeadlinePlaceholder to "月",
     )
 
 private val ukrainian: Map<OrreryString, String> =
@@ -224,6 +232,8 @@ private val ukrainian: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "Останні 30 днів",
         OrreryString.DatePickerPresetThisWeek to "Цей тиждень",
         OrreryString.DatePickerPresetThisMonth to "Цей місяць",
+        OrreryString.MonthPickerTitle to "Виберіть місяць",
+        OrreryString.MonthPickerHeadlinePlaceholder to "Місяць",
     )
 
 private val simplifiedChinese: Map<OrreryString, String> =
@@ -265,4 +275,6 @@ private val simplifiedChinese: Map<OrreryString, String> =
         OrreryString.DatePickerPresetLast30Days to "最近30天",
         OrreryString.DatePickerPresetThisWeek to "本周",
         OrreryString.DatePickerPresetThisMonth to "本月",
+        OrreryString.MonthPickerTitle to "选择月份",
+        OrreryString.MonthPickerHeadlinePlaceholder to "月份",
     )

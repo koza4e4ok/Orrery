@@ -50,4 +50,6 @@ private val OrreryString.resId: Int
             OrreryString.DatePickerPresetLast30Days -> R.string.orrery_date_picker_preset_last_30_days
             OrreryString.DatePickerPresetThisWeek -> R.string.orrery_date_picker_preset_this_week
             OrreryString.DatePickerPresetThisMonth -> R.string.orrery_date_picker_preset_this_month
+            OrreryString.MonthPickerTitle -> R.string.orrery_month_picker_title
+            OrreryString.MonthPickerHeadlinePlaceholder -> R.string.orrery_month_picker_headline_placeholder
         }

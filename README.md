@@ -131,6 +131,8 @@ demonstrating both date picker dialogs.
   plus long-press **drag-to-select**
 - `OrreryDatePickerDialog` / `OrreryDateRangePickerDialog`: Material 3-shaped dialogs
   (slot-based confirm/dismiss buttons) with calendar and locale-aware text-input modes
+- `OrreryMonthPickerDialog`: month/year-only dialog (e.g. card expiry) on the
+  `MonthYearPicker` grids
 - First-class unavailable dates: `DisabledDates` (dates, ranges, days of week,
   before/after, predicates) blocks selection and renders disabled automatically
 - Per-state day styling: `CalendarDayColors` + `CalendarDayShapes` with
@@ -503,6 +505,28 @@ OrreryDateRangePickerDialog(
     state = range,
     presets = DatePickerDefaults.rangePresets() +
         DateRangePreset("Next 14 days", today..today.plus(13, DateTimeUnit.DAY)),
+)
+```
+
+For a month and year without a day, such as a card expiry date, use
+`OrreryMonthPickerDialog`. It opens on the month grid of the selected (or current)
+year; tap the year to zoom out to years and decades. Months outside `range` are
+disabled, and `DatePickerDefaults.monthRange()` (the default) spans the current
+year ±100:
+
+```kotlin
+val thisMonth = currentYearMonth()
+val expiry = rememberOrreryMonthPickerState(range = thisMonth..thisMonth.plus(20, DateTimeUnit.YEAR))
+
+OrreryMonthPickerDialog(
+    onDismissRequest = { showDialog = false },
+    confirmButton = {
+        TextButton(
+            onClick = { save(expiry.selectedMonth) },
+            enabled = expiry.selectedMonth != null,
+        ) { Text("OK") }
+    },
+    state = expiry,
 )
 ```
 

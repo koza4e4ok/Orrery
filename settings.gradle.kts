@@ -53,5 +53,3 @@ include(":orrery-lunar")
 include(":orrery-compose")
 include(":sample")
 include(":baselineprofile")
-// TEMPORARY: README demo GIF renderer, see demo/build.gradle.kts.
-if (providers.gradleProperty("orrery.demo").orNull == "true") include(":demo")

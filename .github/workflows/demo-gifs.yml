@@ -26,7 +26,7 @@ jobs:
           sleep 3
           DISPLAY=:99 ./gradlew -Porrery.demo=true --console=plain :demo:runDesktopDemo > desktop.log 2>&1 &
           demo/record.sh desktop.log desktop.mp4 \
-            ffmpeg -nostdin -y -loglevel error -f x11grab -video_size 800x1640 -framerate 30 -i :99 -pix_fmt yuv420p
+            ffmpeg -nostdin -y -loglevel error -f x11grab -draw_mouse 0 -video_size 800x1640 -framerate 30 -i :99 -pix_fmt yuv420p
           pkill -f DesktopMainKt || true
           pkill Xvfb || true
       - name: Record web
@@ -37,11 +37,11 @@ jobs:
           Xvfb :98 -screen 0 800x1640x24 &
           sleep 3
           DISPLAY=:98 google-chrome --no-sandbox --no-first-run --no-default-browser-check \
-            --user-data-dir=/tmp/chrome --kiosk --force-device-scale-factor=2 \
+            --user-data-dir=/tmp/chrome --kiosk --window-position=0,0 --window-size=400,820 --force-device-scale-factor=2 \
             --enable-unsafe-swiftshader --enable-logging=stderr --v=0 \
             http://localhost:8080/ > web.log 2>&1 &
           demo/record.sh web.log web.mp4 \
-            ffmpeg -nostdin -y -loglevel error -f x11grab -video_size 800x1640 -framerate 30 -i :98 -pix_fmt yuv420p
+            ffmpeg -nostdin -y -loglevel error -f x11grab -draw_mouse 0 -video_size 800x1640 -framerate 30 -i :98 -pix_fmt yuv420p
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -11,6 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.intl.Locale
 import kotlinx.datetime.LocalDate
 
@@ -18,7 +20,9 @@ import kotlinx.datetime.LocalDate
  * One date text field: strict locale-pattern parsing with error
  * supporting-text. [onValueChange] receives the parsed date, or null
  * while the text is blank or invalid. [externalError] overlays
- * cross-field validation from the range dialog.
+ * cross-field validation from the range dialog. With
+ * [requestInitialFocus] the field takes focus when it enters the
+ * composition, i.e. when a dialog opens in or switches to input mode.
  */
 @Composable
 internal fun DateInputField(
@@ -31,7 +35,12 @@ internal fun DateInputField(
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     externalError: String? = null,
+    requestInitialFocus: Boolean = false,
 ) {
+    val focusRequester = remember { FocusRequester() }
+    if (requestInitialFocus) {
+        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+    }
     val locale = Locale.current
     val pattern = remember(locale) { PlatformDateFormat.inputDatePattern() }
     val displayPattern = remember(pattern) { PlatformDateFormat.uppercase(pattern) }
@@ -72,6 +81,6 @@ internal fun DateInputField(
         supportingText = { (error ?: externalError)?.let { Text(it) } },
         singleLine = true,
         keyboardOptions = keyboardOptions,
-        modifier = modifier,
+        modifier = modifier.focusRequester(focusRequester),
     )
 }

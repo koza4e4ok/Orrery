@@ -133,6 +133,7 @@ public fun OrreryDateRangePickerDialog(
                                         scope.launch { state.calendar.scrollToMonth(month) }
                                     }
                                 }
+                                val initialFocus = rememberInitialDayFocus(state.selectedStartDate ?: today)
                                 VerticalCalendar(
                                     state = state.calendar,
                                     stickyMonthHeaders = true,
@@ -140,6 +141,7 @@ public fun OrreryDateRangePickerDialog(
                                 ) { day ->
                                     DefaultDay(
                                         day = day,
+                                        modifier = initialFocus(day),
                                         selectionState = state.selection,
                                         today = today,
                                         colors = colors,
@@ -259,6 +261,7 @@ private fun RangeInputPane(
             strings = strings,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            requestInitialFocus = true,
         )
         DateInputField(
             value = end,

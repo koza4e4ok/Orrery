@@ -103,7 +103,36 @@ public class CalendarSelectionState internal constructor(
         if (dragAnchor == null) return
         dragAnchor = null
         val range = selection.range ?: return
-        val rangeMode = mode as? SelectionMode.Range ?: return
+        val violation = rangeViolation(range) ?: return
+        onEvent(violation)
+        selection = Selection(rangeStart = range.start)
+    }
+
+    /**
+     * Keyboard range extension (Shift+Arrow): selects [anchor]..[target]
+     * (ordered) in [SelectionMode.Range], validated like a drag. A
+     * violation fires its event and keeps only [anchor] selected, so the
+     * next extension still grows from the same fixed end.
+     */
+    internal fun extendRange(
+        anchor: LocalDate,
+        target: LocalDate,
+    ) {
+        if (mode !is SelectionMode.Range || isDisabled(anchor)) return
+        if (bounds != null && target !in bounds) return
+        val proposed = Selection(rangeStart = minOf(anchor, target), rangeEnd = maxOf(anchor, target))
+        val violation = proposed.range?.let(::rangeViolation)
+        if (violation == null) {
+            selection = proposed
+        } else {
+            onEvent(violation)
+            selection = Selection(rangeStart = anchor)
+        }
+    }
+
+    /** The min/max length or disabled-date violation of [range], or null when it is valid. */
+    private fun rangeViolation(range: ClosedRange<LocalDate>): SelectionEvent? {
+        val rangeMode = mode as? SelectionMode.Range ?: return null
         val days = range.start.daysUntil(range.endInclusive) + 1
         val min = rangeMode.effectiveMin
         val max = rangeMode.effectiveMax
@@ -123,25 +152,11 @@ public class CalendarSelectionState internal constructor(
             }
         }
 
-        when {
-            min != null && days < min -> {
-                onEvent(SelectionEvent.RangeTooShort(range.endInclusive, min))
-                selection = Selection(rangeStart = range.start)
-            }
-
-            max != null && days > max -> {
-                onEvent(SelectionEvent.RangeTooLong(range.endInclusive, max))
-                selection = Selection(rangeStart = range.start)
-            }
-
-            blocked != null -> {
-                onEvent(SelectionEvent.Intercepted(blocked))
-                selection = Selection(rangeStart = range.start)
-            }
-
-            else -> {
-                Unit
-            }
+        return when {
+            min != null && days < min -> SelectionEvent.RangeTooShort(range.endInclusive, min)
+            max != null && days > max -> SelectionEvent.RangeTooLong(range.endInclusive, max)
+            blocked != null -> SelectionEvent.Intercepted(blocked)
+            else -> null
         }
     }
 

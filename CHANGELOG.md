@@ -16,6 +16,27 @@
   Interactive `HeatmapCalendar` cells (with `onDayClick`) draw a 2.dp
   `onSurface` ring just outside the focused tile, and `YearCalendar`
   mini-month cells a 2.dp `primary` ring inside the focused cell.
+- Full keyboard navigation in `HorizontalCalendar` and `WeekCalendar` (#62).
+  `Up` / `Down` on the top / bottom row page to the previous / next month
+  (week in `WeekCalendar`) and focus the date 7 days earlier / later;
+  `PageUp` / `PageDown` jump one month (one year with `Shift`) and focus the
+  same day, clamped to the month's length; `Home` / `End` focus the first /
+  last day of the week row. With a `SelectionMode.Range` `dragSelection`,
+  `Shift` + arrow keys move focus and extend the range from its fixed end to
+  the newly focused day, validated like a drag (min / max length, disabled
+  days, bounds).
+- Picker dialogs place initial focus (#62): `OrreryDatePickerDialog`,
+  `OrreryDateTimePickerDialog` and `OrreryDateRangePickerDialog` focus the
+  date (or start-date) text field when opened in or switched to input mode,
+  and, in keyboard input mode, the selected (or today's) day cell of the
+  visible month in calendar mode.
+- `Escape` / Back in `MonthYearPicker` and `OrreryMonthPickerDialog` drills up
+  from a year's month grid or from the decade grid to the year grid before
+  the host dialog dismisses (#62).
+- Clickable event items in `DaySchedule` / `WeekSchedule`
+  (`ScheduleDefaults.EventTile`, `ScheduleDefaults.AllDayEventChip`) and
+  `Agenda` (`AgendaDefaults.EventRow`) draw a 2.dp `onSurface` focus ring
+  inside the item when keyboard-focused (#62).
 
 ### Changed
 

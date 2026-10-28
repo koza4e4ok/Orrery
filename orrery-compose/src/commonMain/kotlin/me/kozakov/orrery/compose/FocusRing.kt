@@ -9,6 +9,28 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+/** Focus ring width of clickable schedule and agenda event items. */
+internal val EventFocusRingWidth: Dp = 2.dp
+
+/**
+ * Focus ring of a clickable schedule or agenda event item: an inside
+ * [EventFocusRingWidth] stroke (callers pass the theme's onSurface, which
+ * reads on any event container color), never clipped by neighbors.
+ */
+internal fun Modifier.eventFocusRing(
+    focused: Boolean,
+    shape: Shape,
+    color: Color,
+): Modifier =
+    focusRing(
+        focused = focused,
+        color = color,
+        width = EventFocusRingWidth,
+        shape = shape,
+        placement = FocusRingPlacement.Inside,
+    )
 
 /** Where [focusRing] draws its stroke relative to the node's bounds. */
 internal enum class FocusRingPlacement {

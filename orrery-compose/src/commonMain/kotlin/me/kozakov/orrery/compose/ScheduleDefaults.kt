@@ -1,8 +1,11 @@
 package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -177,16 +182,25 @@ public object ScheduleDefaults {
         onClick: (() -> Unit)? = null,
     ) {
         val palette = eventPalette(event, colors)
+        val shape = RoundedCornerShape(dimensions.tileCornerRadius)
+        val interactionSource = remember { MutableInteractionSource() }
+        val isFocused by interactionSource.collectIsFocusedAsState()
         Row(
             modifier =
                 modifier
                     .fillMaxWidth()
                     .height(dimensions.allDayChipHeight)
-                    .clip(RoundedCornerShape(dimensions.tileCornerRadius))
+                    .eventFocusRing(onClick != null && isFocused, shape, MaterialTheme.colorScheme.onSurface)
+                    .clip(shape)
                     .background(palette.container)
                     .then(
                         if (onClick != null) {
-                            Modifier.clickable(role = Role.Button, onClick = onClick)
+                            Modifier.clickable(
+                                interactionSource = interactionSource,
+                                indication = LocalIndication.current,
+                                role = Role.Button,
+                                onClick = onClick,
+                            )
                         } else {
                             Modifier
                         },
@@ -273,15 +287,24 @@ public object ScheduleDefaults {
     ) {
         val event = positioned.event
         val palette = eventPalette(event, colors)
+        val shape = RoundedCornerShape(dimensions.tileCornerRadius)
+        val interactionSource = remember { MutableInteractionSource() }
+        val isFocused by interactionSource.collectIsFocusedAsState()
         Row(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(dimensions.tileCornerRadius))
+                    .eventFocusRing(onClick != null && isFocused, shape, MaterialTheme.colorScheme.onSurface)
+                    .clip(shape)
                     .background(palette.container)
                     .then(
                         if (onClick != null) {
-                            Modifier.clickable(role = Role.Button, onClick = onClick)
+                            Modifier.clickable(
+                                interactionSource = interactionSource,
+                                indication = LocalIndication.current,
+                                role = Role.Button,
+                                onClick = onClick,
+                            )
                         } else {
                             Modifier
                         },

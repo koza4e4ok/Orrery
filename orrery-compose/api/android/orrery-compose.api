@@ -286,9 +286,12 @@ public final class me/kozakov/orrery/compose/DayDecorator$DefaultImpls {
 public final class me/kozakov/orrery/compose/DayDecorators {
 	public static final field $stable I
 	public static final field INSTANCE Lme/kozakov/orrery/compose/DayDecorators;
-	public final fun badge-eopBjH0 (IJJLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
+	public final fun badge-YiRMAXg (IJJLandroidx/compose/ui/graphics/Color;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
+	public final synthetic fun badge-eopBjH0 (IJJLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun eventDots-ghNngFA (IFFLkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/compose/DayDecorator;
 	public static synthetic fun eventDots-ghNngFA$default (Lme/kozakov/orrery/compose/DayDecorators;IFFLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lme/kozakov/orrery/compose/DayDecorator;
+	public final fun eventDots-pCHte4A (JIFFLkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/compose/DayDecorator;
+	public static synthetic fun eventDots-pCHte4A$default (Lme/kozakov/orrery/compose/DayDecorators;JIFFLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun eventDotsForEvents-zpKGrMw (Lkotlin/jvm/functions/Function1;JIFFLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun heatmap (Landroidx/compose/ui/graphics/Shape;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun progressBar-Sk5a5R4 (FJJLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;

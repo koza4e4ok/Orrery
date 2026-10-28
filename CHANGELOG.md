@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### Changed
+
+- `DefaultDay` keeps the secondary `DayInfo.label` on one centered line with
+  2 dp side padding and an ellipsis, so long holiday or calendar names ("Day of
+  Defenders and Defendresses of Ukraine") no longer wrap or shift the day
+  number (#63).
+- `DefaultDay` fades each half of the range connector band on its own, so
+  range start and end connectors now fade in and out like in-range days when a
+  range is completed, changed or cleared, instead of appearing or vanishing at
+  once (#63).
+- In `DefaultDay`, `DayDecorators.eventDots` draw in the selected content color
+  on selected days (a new `eventDots(selectedColor, ...)` overload picks the
+  color) and sit closer
+  to the bottom edge on days with a secondary label; `DayDecorators.badge` gets
+  a 1 dp outline on selected days (new `selectedOutlineColor` parameter, default
+  the selected content color) so it stays distinct from the selection fill. The
+  previous overloads stay for binary compatibility (#63).
+
 ## [0.7.0] - 2026-10-28
 
 ### Added

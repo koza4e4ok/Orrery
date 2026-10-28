@@ -1,5 +1,6 @@
 package me.kozakov.orrery.core
 
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -73,5 +74,48 @@ class SelectionEngineReplaceTest {
         val engine = SelectionEngine(SelectionMode.Range())
         val proposed = Selection(rangeStart = d5)
         assertEquals(proposed, engine.replace(Selection.Empty, proposed).selection)
+    }
+
+    // July 2026: the 5th is a Sunday, the 6th a Monday, the 8th a Wednesday.
+    @Test
+    fun `week mode snaps a partial range to the whole week of rangeStart`() {
+        val engine = SelectionEngine(SelectionMode.Week(firstDayOfWeek = DayOfWeek.SUNDAY))
+        val result = engine.replace(Selection.Empty, Selection(rangeStart = d8, rangeEnd = LocalDate(2026, 7, 9)))
+        assertEquals(Selection(rangeStart = d5, rangeEnd = LocalDate(2026, 7, 11)), result.selection)
+        assertTrue(result.events.isEmpty())
+    }
+
+    @Test
+    fun `week mode snaps a half-open range and defaults to Monday`() {
+        val engine = SelectionEngine(SelectionMode.Week())
+        val result = engine.replace(Selection.Empty, Selection(rangeStart = d8))
+        assertEquals(Selection(rangeStart = LocalDate(2026, 7, 6), rangeEnd = LocalDate(2026, 7, 12)), result.selection)
+    }
+
+    @Test
+    fun `month mode snaps to the whole month clamped to the bounds`() {
+        val bounds = LocalDate(2026, 7, 3)..LocalDate(2026, 7, 20)
+        val engine = SelectionEngine(SelectionMode.Month(), bounds = bounds)
+        val result = engine.replace(Selection.Empty, Selection(rangeStart = d8, rangeEnd = LocalDate(2026, 8, 30)))
+        assertEquals(Selection(rangeStart = bounds.start, rangeEnd = bounds.endInclusive), result.selection)
+        assertTrue(result.events.isEmpty())
+    }
+
+    @Test
+    fun `snapped week containing a disabled day is rejected with Intercepted`() {
+        val sunday12 = LocalDate(2026, 7, 12)
+        val engine = SelectionEngine(SelectionMode.Week(), disabled = DisabledDates { dates(sunday12) })
+        val current = Selection(rangeStart = LocalDate(2026, 6, 29), rangeEnd = d5)
+        val result = engine.replace(current, Selection(rangeStart = d8, rangeEnd = LocalDate(2026, 7, 9)))
+        assertEquals(current, result.selection)
+        assertEquals(listOf<SelectionEvent>(SelectionEvent.Intercepted(sunday12)), result.events)
+    }
+
+    @Test
+    fun `week mode rangeStart outside the bounds is rejected with OutOfRange`() {
+        val engine = SelectionEngine(SelectionMode.Week(), bounds = d10..LocalDate(2026, 7, 31))
+        val result = engine.replace(Selection.Empty, Selection(rangeStart = d8, rangeEnd = d10))
+        assertEquals(Selection.Empty, result.selection)
+        assertEquals(listOf<SelectionEvent>(SelectionEvent.OutOfRange(d8)), result.events)
     }
 }

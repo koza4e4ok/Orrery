@@ -53,7 +53,7 @@ internal fun MonthContent(
         monthHeader?.invoke(this, month)
         Column(
             Modifier.then(
-                if (dragSelection != null) {
+                if (dragSelection != null && dragSelection.supportsDrag) {
                     Modifier.pointerInput(month, weekNumber != null, hapticsEnabled) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
 

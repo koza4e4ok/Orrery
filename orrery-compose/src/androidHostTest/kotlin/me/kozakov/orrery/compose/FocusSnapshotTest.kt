@@ -6,8 +6,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -36,11 +41,22 @@ import org.robolectric.annotation.GraphicsMode
 class FocusSnapshotTest {
     @get:Rule val rule = createComposeRule()
 
+    private lateinit var inputModeManager: InputModeManager
+
+    /** Clickable cells are focusable only in keyboard mode, as on Desktop / Android TV. */
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun SemanticsNodeInteraction.keyboardFocus() {
+        rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Keyboard) }
+        requestFocus()
+        rule.waitForIdle()
+    }
+
     private fun setThemedContent(content: @Composable () -> Unit) {
         rule.setContent {
             MaterialTheme(
                 colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(),
             ) {
+                inputModeManager = LocalInputModeManager.current
                 Surface { content() }
             }
         }
@@ -75,8 +91,7 @@ class FocusSnapshotTest {
     }
 
     private fun focus(date: String) {
-        rule.onNodeWithTag("day-$date").requestFocus()
-        rule.waitForIdle()
+        rule.onNodeWithTag("day-$date").keyboardFocus()
     }
 
     @Test
@@ -139,8 +154,7 @@ class FocusSnapshotTest {
                 onDayClick = {},
             )
         }
-        rule.onNodeWithContentDescription("Jul 8, 2026", substring = true).requestFocus()
-        rule.waitForIdle()
+        rule.onNodeWithContentDescription("Jul 8, 2026", substring = true).keyboardFocus()
         rule.onRoot().captureRoboImage()
     }
 
@@ -153,8 +167,7 @@ class FocusSnapshotTest {
                 monthContent = { CalendarDefaults.MiniMonth(it, today = LocalDate(2026, 7, 15)) },
             )
         }
-        rule.onNodeWithText("Mar").requestFocus()
-        rule.waitForIdle()
+        rule.onNodeWithText("Mar").keyboardFocus()
         rule.onRoot().captureRoboImage()
     }
 }

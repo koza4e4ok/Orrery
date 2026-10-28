@@ -5,9 +5,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
@@ -22,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.Selection
@@ -48,6 +51,16 @@ class FocusHoverTest {
     private val day = CalendarDay(LocalDate(2026, 7, 9), DayPosition.MonthDate)
     private val marker = Color(0xFFFF0000)
 
+    private lateinit var inputModeManager: InputModeManager
+
+    /** Clickable cells are focusable only in keyboard mode, as on Desktop / Android TV. */
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun SemanticsNodeInteraction.keyboardFocus() {
+        rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Keyboard) }
+        requestFocus()
+        rule.waitForIdle()
+    }
+
     private fun SemanticsNodeInteraction.markerPixels(): Int {
         val pixels = captureToImage().toPixelMap()
         var count = 0
@@ -67,6 +80,7 @@ class FocusHoverTest {
     ) {
         rule.setContent {
             MaterialTheme {
+                inputModeManager = LocalInputModeManager.current
                 val selection =
                     rememberCalendarSelectionState(
                         mode = SelectionMode.Single(),
@@ -109,16 +123,14 @@ class FocusHoverTest {
     fun focusedDayDrawsFocusRing() {
         dayContent({ CalendarDefaults.dayColors(focusedBorderColor = marker) })
         assertEquals(0, rule.onRoot().markerPixels())
-        rule.onNodeWithTag("day").requestFocus()
-        rule.waitForIdle()
+        rule.onNodeWithTag("day").keyboardFocus()
         assertTrue(rule.onRoot().markerPixels() > 0)
     }
 
     @Test
     fun focusedSelectedDayStillDrawsFocusRing() {
         dayContent({ CalendarDefaults.dayColors(focusedBorderColor = marker) }, selected = true)
-        rule.onNodeWithTag("day").requestFocus()
-        rule.waitForIdle()
+        rule.onNodeWithTag("day").keyboardFocus()
         assertTrue(rule.onRoot().markerPixels() > 0)
     }
 
@@ -154,6 +166,7 @@ class FocusHoverTest {
     fun focusedHeatmapCellDrawsFocusRing() {
         rule.setContent {
             MaterialTheme(colorScheme = lightColorScheme(onSurface = marker)) {
+                inputModeManager = LocalInputModeManager.current
                 HeatmapCalendar(
                     intensity = { 0.5f },
                     state =
@@ -171,8 +184,7 @@ class FocusHoverTest {
             }
         }
         assertEquals(0, rule.onRoot().markerPixels())
-        rule.onNodeWithContentDescription("Jul 8, 2026", substring = true).requestFocus()
-        rule.waitForIdle()
+        rule.onNodeWithContentDescription("Jul 8, 2026", substring = true).keyboardFocus()
         assertTrue(rule.onRoot().markerPixels() > 0)
     }
 
@@ -180,6 +192,7 @@ class FocusHoverTest {
     fun focusedMiniMonthDrawsFocusRing() {
         rule.setContent {
             MaterialTheme(colorScheme = lightColorScheme(primary = marker)) {
+                inputModeManager = LocalInputModeManager.current
                 YearCalendar(
                     state = rememberYearCalendarState(startYear = 2026, endYear = 2026, firstVisibleYear = 2026),
                     onMonthClick = {},
@@ -189,8 +202,7 @@ class FocusHoverTest {
         }
         assertEquals(0, rule.onRoot().markerPixels())
         // clickable month cells merge descendants, so the merged node is the focus target
-        rule.onNodeWithText("2026-03").requestFocus()
-        rule.waitForIdle()
+        rule.onNodeWithText("2026-03").keyboardFocus()
         assertTrue(rule.onRoot().markerPixels() > 0)
     }
 

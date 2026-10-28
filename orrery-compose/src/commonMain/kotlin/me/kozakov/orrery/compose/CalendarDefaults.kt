@@ -180,7 +180,10 @@ public object CalendarDefaults {
             hoverContainerColor,
         )
 
-    @Deprecated("Kept for binary compatibility; use the overload with focus and hover colors.", level = DeprecationLevel.HIDDEN)
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with focus and hover colors.",
+        level = DeprecationLevel.HIDDEN,
+    )
     @Composable
     public fun dayColors(
         containerColor: Color = Color.Transparent,
@@ -223,7 +226,10 @@ public object CalendarDefaults {
         focusedBorderWidth: Dp = 2.dp,
     ): CalendarDayShapes = CalendarDayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, focusedBorderWidth)
 
-    @Deprecated("Kept for binary compatibility; use the overload with focusedBorderWidth.", level = DeprecationLevel.HIDDEN)
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with focusedBorderWidth.",
+        level = DeprecationLevel.HIDDEN,
+    )
     public fun dayShapes(
         dayShape: Shape = CircleShape,
         selectedShape: Shape = CircleShape,

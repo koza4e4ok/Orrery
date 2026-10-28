@@ -8,7 +8,10 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
@@ -51,6 +54,8 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.DayInfo
@@ -158,6 +163,8 @@ public fun DefaultDay(
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     val isHovered by interactionSource.collectIsHoveredAsState()
+    // The ripple shows presses only; hover and focus have their own fill and ring.
+    val pressInteractions = remember(interactionSource) { PressOnlyInteractionSource(interactionSource) }
     val showFocusRing = isFocused && available
     val showHover = isHovered && available && !isSelected
     val contentColor =
@@ -257,7 +264,7 @@ public fun DefaultDay(
                     .fillMaxSize()
                     .aspectRatio(1f)
                     .clip(shapes.dayShape)
-                    .indication(interactionSource, ripple()),
+                    .indication(pressInteractions, ripple()),
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -332,6 +339,13 @@ public fun DefaultDay(
             )
         }
     }
+}
+
+/** Forwards only [PressInteraction]s from [source]. */
+private class PressOnlyInteractionSource(
+    source: InteractionSource,
+) : InteractionSource {
+    override val interactions: Flow<Interaction> = source.interactions.filter { it is PressInteraction }
 }
 
 /** Which portion of the in-range connector band a cell fills. */

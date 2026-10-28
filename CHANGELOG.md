@@ -4,6 +4,16 @@
 
 ### Added
 
+- New `orrery-calendars` module: Hijri (`HijriVariant.UmmAlQura` for
+  1300–1600 AH, `HijriVariant.Tabular` unbounded) and Persian (Jalali,
+  -61–3177 AP) conversions with `HijriDayInfoProvider` and
+  `PersianDayInfoProvider` (English, Arabic and Persian strings). Checked for
+  every day against java.time `HijrahDate` and ICU4J (#23).
+- New `orrery-holidays` module: a rule engine (`HolidayRule`, `HolidayDate`,
+  `Observance`, `HolidayCalendar`), built-in calendars for US, GB, DE and UA in
+  `PublicHolidays`, and `PublicHolidayDayInfoProvider`. Checked against
+  python-holidays for 2000–2050 (UA 2000–2021) (#23).
+
 - `OrreryDateTimePickerDialog`: a date, then a time of day, in one dialog. The
   Date step is the `OrreryDatePickerDialog` body (calendar or text input,
   unchanged); **Next** opens a Material 3 `TimePicker` dial with a toggle to

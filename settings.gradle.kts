@@ -50,6 +50,8 @@ dependencyResolutionManagement {
 rootProject.name = "Orrery"
 include(":orrery-core")
 include(":orrery-lunar")
+include(":orrery-calendars")
+include(":orrery-holidays")
 include(":orrery-compose")
 include(":sample")
 include(":baselineprofile")

@@ -1,0 +1,202 @@
+public final class me/kozakov/orrery/holidays/Church : java/lang/Enum {
+	public static final field Orthodox Lme/kozakov/orrery/holidays/Church;
+	public static final field Western Lme/kozakov/orrery/holidays/Church;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/holidays/Church;
+	public static fun values ()[Lme/kozakov/orrery/holidays/Church;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayCalendar {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun getCountry ()Ljava/lang/String;
+	public final fun getRules ()Ljava/util/List;
+	public final fun holidaysIn (ILjava/lang/String;Ljava/lang/String;)Ljava/util/List;
+	public static synthetic fun holidaysIn$default (Lme/kozakov/orrery/holidays/HolidayCalendar;ILjava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/util/List;
+	public final fun holidaysOn (Lkotlinx/datetime/LocalDate;Ljava/lang/String;Ljava/lang/String;)Ljava/util/List;
+	public static synthetic fun holidaysOn$default (Lme/kozakov/orrery/holidays/HolidayCalendar;Lkotlinx/datetime/LocalDate;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/util/List;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayCalendarKt {
+	public static final fun easterSunday (ILme/kozakov/orrery/holidays/Church;)Lkotlinx/datetime/LocalDate;
+	public static synthetic fun easterSunday$default (ILme/kozakov/orrery/holidays/Church;ILjava/lang/Object;)Lkotlinx/datetime/LocalDate;
+}
+
+public abstract interface class me/kozakov/orrery/holidays/HolidayDate {
+}
+
+public final class me/kozakov/orrery/holidays/HolidayDate$EasterOffset : me/kozakov/orrery/holidays/HolidayDate {
+	public fun <init> (ILme/kozakov/orrery/holidays/Church;)V
+	public synthetic fun <init> (ILme/kozakov/orrery/holidays/Church;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Lme/kozakov/orrery/holidays/Church;
+	public final fun copy (ILme/kozakov/orrery/holidays/Church;)Lme/kozakov/orrery/holidays/HolidayDate$EasterOffset;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/HolidayDate$EasterOffset;ILme/kozakov/orrery/holidays/Church;ILjava/lang/Object;)Lme/kozakov/orrery/holidays/HolidayDate$EasterOffset;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChurch ()Lme/kozakov/orrery/holidays/Church;
+	public final fun getDays ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayDate$Fixed : me/kozakov/orrery/holidays/HolidayDate {
+	public fun <init> (Lkotlinx/datetime/Month;I)V
+	public final fun component1 ()Lkotlinx/datetime/Month;
+	public final fun component2 ()I
+	public final fun copy (Lkotlinx/datetime/Month;I)Lme/kozakov/orrery/holidays/HolidayDate$Fixed;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/HolidayDate$Fixed;Lkotlinx/datetime/Month;IILjava/lang/Object;)Lme/kozakov/orrery/holidays/HolidayDate$Fixed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDay ()I
+	public final fun getMonth ()Lkotlinx/datetime/Month;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayDate$HijriFixed : me/kozakov/orrery/holidays/HolidayDate {
+	public fun <init> (II)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun copy (II)Lme/kozakov/orrery/holidays/HolidayDate$HijriFixed;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/HolidayDate$HijriFixed;IIILjava/lang/Object;)Lme/kozakov/orrery/holidays/HolidayDate$HijriFixed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDay ()I
+	public final fun getMonth ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayDate$NthWeekday : me/kozakov/orrery/holidays/HolidayDate {
+	public fun <init> (Lkotlinx/datetime/Month;Lkotlinx/datetime/DayOfWeek;I)V
+	public final fun component1 ()Lkotlinx/datetime/Month;
+	public final fun component2 ()Lkotlinx/datetime/DayOfWeek;
+	public final fun component3 ()I
+	public final fun copy (Lkotlinx/datetime/Month;Lkotlinx/datetime/DayOfWeek;I)Lme/kozakov/orrery/holidays/HolidayDate$NthWeekday;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/HolidayDate$NthWeekday;Lkotlinx/datetime/Month;Lkotlinx/datetime/DayOfWeek;IILjava/lang/Object;)Lme/kozakov/orrery/holidays/HolidayDate$NthWeekday;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDayOfWeek ()Lkotlinx/datetime/DayOfWeek;
+	public final fun getMonth ()Lkotlinx/datetime/Month;
+	public final fun getN ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayDate$OneOff : me/kozakov/orrery/holidays/HolidayDate {
+	public fun <init> (Lkotlinx/datetime/LocalDate;)V
+	public final fun component1 ()Lkotlinx/datetime/LocalDate;
+	public final fun copy (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/holidays/HolidayDate$OneOff;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/HolidayDate$OneOff;Lkotlinx/datetime/LocalDate;ILjava/lang/Object;)Lme/kozakov/orrery/holidays/HolidayDate$OneOff;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDate ()Lkotlinx/datetime/LocalDate;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayDate$PersianFixed : me/kozakov/orrery/holidays/HolidayDate {
+	public fun <init> (II)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun copy (II)Lme/kozakov/orrery/holidays/HolidayDate$PersianFixed;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/HolidayDate$PersianFixed;IIILjava/lang/Object;)Lme/kozakov/orrery/holidays/HolidayDate$PersianFixed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDay ()I
+	public final fun getMonth ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayDate$WeekdayRelative : me/kozakov/orrery/holidays/HolidayDate {
+	public fun <init> (Lkotlinx/datetime/Month;ILkotlinx/datetime/DayOfWeek;Z)V
+	public final fun component1 ()Lkotlinx/datetime/Month;
+	public final fun component2 ()I
+	public final fun component3 ()Lkotlinx/datetime/DayOfWeek;
+	public final fun component4 ()Z
+	public final fun copy (Lkotlinx/datetime/Month;ILkotlinx/datetime/DayOfWeek;Z)Lme/kozakov/orrery/holidays/HolidayDate$WeekdayRelative;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/HolidayDate$WeekdayRelative;Lkotlinx/datetime/Month;ILkotlinx/datetime/DayOfWeek;ZILjava/lang/Object;)Lme/kozakov/orrery/holidays/HolidayDate$WeekdayRelative;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAfter ()Z
+	public final fun getDay ()I
+	public final fun getDayOfWeek ()Lkotlinx/datetime/DayOfWeek;
+	public final fun getMonth ()Lkotlinx/datetime/Month;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayRule {
+	public fun <init> (Ljava/lang/String;Ljava/util/Map;Lme/kozakov/orrery/holidays/HolidayDate;Lme/kozakov/orrery/holidays/HolidayType;Lkotlin/ranges/IntRange;Lme/kozakov/orrery/holidays/Observance;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Lme/kozakov/orrery/holidays/HolidayDate;Lme/kozakov/orrery/holidays/HolidayType;Lkotlin/ranges/IntRange;Lme/kozakov/orrery/holidays/Observance;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Lme/kozakov/orrery/holidays/HolidayDate;
+	public final fun component4 ()Lme/kozakov/orrery/holidays/HolidayType;
+	public final fun component5 ()Lkotlin/ranges/IntRange;
+	public final fun component6 ()Lme/kozakov/orrery/holidays/Observance;
+	public final fun component7 ()Ljava/util/Set;
+	public final fun copy (Ljava/lang/String;Ljava/util/Map;Lme/kozakov/orrery/holidays/HolidayDate;Lme/kozakov/orrery/holidays/HolidayType;Lkotlin/ranges/IntRange;Lme/kozakov/orrery/holidays/Observance;Ljava/util/Set;)Lme/kozakov/orrery/holidays/HolidayRule;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/HolidayRule;Ljava/lang/String;Ljava/util/Map;Lme/kozakov/orrery/holidays/HolidayDate;Lme/kozakov/orrery/holidays/HolidayType;Lkotlin/ranges/IntRange;Lme/kozakov/orrery/holidays/Observance;Ljava/util/Set;ILjava/lang/Object;)Lme/kozakov/orrery/holidays/HolidayRule;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDate ()Lme/kozakov/orrery/holidays/HolidayDate;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getNames ()Ljava/util/Map;
+	public final fun getObservance ()Lme/kozakov/orrery/holidays/Observance;
+	public final fun getSubdivisions ()Ljava/util/Set;
+	public final fun getType ()Lme/kozakov/orrery/holidays/HolidayType;
+	public final fun getYears ()Lkotlin/ranges/IntRange;
+	public fun hashCode ()I
+	public final fun name (Ljava/lang/String;)Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/HolidayType : java/lang/Enum {
+	public static final field Bank Lme/kozakov/orrery/holidays/HolidayType;
+	public static final field Observance Lme/kozakov/orrery/holidays/HolidayType;
+	public static final field Optional Lme/kozakov/orrery/holidays/HolidayType;
+	public static final field Public Lme/kozakov/orrery/holidays/HolidayType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/holidays/HolidayType;
+	public static fun values ()[Lme/kozakov/orrery/holidays/HolidayType;
+}
+
+public final class me/kozakov/orrery/holidays/Observance : java/lang/Enum {
+	public static final field NearestWeekday Lme/kozakov/orrery/holidays/Observance;
+	public static final field NextWorkingDay Lme/kozakov/orrery/holidays/Observance;
+	public static final field None Lme/kozakov/orrery/holidays/Observance;
+	public static final field SundayToMonday Lme/kozakov/orrery/holidays/Observance;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/holidays/Observance;
+	public static fun values ()[Lme/kozakov/orrery/holidays/Observance;
+}
+
+public final class me/kozakov/orrery/holidays/PublicHoliday {
+	public fun <init> (Lkotlinx/datetime/LocalDate;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/holidays/HolidayType;ZZ)V
+	public synthetic fun <init> (Lkotlinx/datetime/LocalDate;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/holidays/HolidayType;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlinx/datetime/LocalDate;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Lme/kozakov/orrery/holidays/HolidayType;
+	public final fun component5 ()Z
+	public final fun component6 ()Z
+	public final fun copy (Lkotlinx/datetime/LocalDate;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/holidays/HolidayType;ZZ)Lme/kozakov/orrery/holidays/PublicHoliday;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/holidays/PublicHoliday;Lkotlinx/datetime/LocalDate;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/holidays/HolidayType;ZZILjava/lang/Object;)Lme/kozakov/orrery/holidays/PublicHoliday;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getRuleId ()Ljava/lang/String;
+	public final fun getType ()Lme/kozakov/orrery/holidays/HolidayType;
+	public fun hashCode ()I
+	public final fun isEstimated ()Z
+	public final fun isSubstitute ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/holidays/PublicHolidayDayInfoProvider : me/kozakov/orrery/core/DayInfoProvider {
+	public fun <init> (Lme/kozakov/orrery/holidays/HolidayCalendar;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;)V
+	public synthetic fun <init> (Lme/kozakov/orrery/holidays/HolidayCalendar;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun info (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/DayInfo;
+	public fun plus (Lme/kozakov/orrery/core/DayInfoProvider;)Lme/kozakov/orrery/core/DayInfoProvider;
+}
+
+public final class me/kozakov/orrery/holidays/PublicHolidays {
+	public static final field INSTANCE Lme/kozakov/orrery/holidays/PublicHolidays;
+	public final fun forCountry (Ljava/lang/String;)Lme/kozakov/orrery/holidays/HolidayCalendar;
+	public final fun getSupportedCountries ()Ljava/util/Set;
+}
+

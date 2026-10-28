@@ -1,0 +1,115 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <Orrery:orrery-calendars>
+final enum class me.kozakov.orrery.calendars.hijri/HijriVariant : kotlin/Enum<me.kozakov.orrery.calendars.hijri/HijriVariant> { // me.kozakov.orrery.calendars.hijri/HijriVariant|null[0]
+    enum entry Tabular // me.kozakov.orrery.calendars.hijri/HijriVariant.Tabular|null[0]
+    enum entry UmmAlQura // me.kozakov.orrery.calendars.hijri/HijriVariant.UmmAlQura|null[0]
+
+    final val entries // me.kozakov.orrery.calendars.hijri/HijriVariant.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.calendars.hijri/HijriVariant> // me.kozakov.orrery.calendars.hijri/HijriVariant.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.calendars.hijri/HijriVariant // me.kozakov.orrery.calendars.hijri/HijriVariant.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.calendars.hijri/HijriVariant> // me.kozakov.orrery.calendars.hijri/HijriVariant.values|values#static(){}[0]
+}
+
+final class me.kozakov.orrery.calendars.hijri/HijriDate { // me.kozakov.orrery.calendars.hijri/HijriDate|null[0]
+    constructor <init>(kotlin/Int, kotlin/Int, kotlin/Int, me.kozakov.orrery.calendars.hijri/HijriVariant = ...) // me.kozakov.orrery.calendars.hijri/HijriDate.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Int;me.kozakov.orrery.calendars.hijri.HijriVariant){}[0]
+
+    final val day // me.kozakov.orrery.calendars.hijri/HijriDate.day|{}day[0]
+        final fun <get-day>(): kotlin/Int // me.kozakov.orrery.calendars.hijri/HijriDate.day.<get-day>|<get-day>(){}[0]
+    final val month // me.kozakov.orrery.calendars.hijri/HijriDate.month|{}month[0]
+        final fun <get-month>(): kotlin/Int // me.kozakov.orrery.calendars.hijri/HijriDate.month.<get-month>|<get-month>(){}[0]
+    final val variant // me.kozakov.orrery.calendars.hijri/HijriDate.variant|{}variant[0]
+        final fun <get-variant>(): me.kozakov.orrery.calendars.hijri/HijriVariant // me.kozakov.orrery.calendars.hijri/HijriDate.variant.<get-variant>|<get-variant>(){}[0]
+    final val year // me.kozakov.orrery.calendars.hijri/HijriDate.year|{}year[0]
+        final fun <get-year>(): kotlin/Int // me.kozakov.orrery.calendars.hijri/HijriDate.year.<get-year>|<get-year>(){}[0]
+
+    final fun component1(): kotlin/Int // me.kozakov.orrery.calendars.hijri/HijriDate.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // me.kozakov.orrery.calendars.hijri/HijriDate.component2|component2(){}[0]
+    final fun component3(): kotlin/Int // me.kozakov.orrery.calendars.hijri/HijriDate.component3|component3(){}[0]
+    final fun component4(): me.kozakov.orrery.calendars.hijri/HijriVariant // me.kozakov.orrery.calendars.hijri/HijriDate.component4|component4(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., me.kozakov.orrery.calendars.hijri/HijriVariant = ...): me.kozakov.orrery.calendars.hijri/HijriDate // me.kozakov.orrery.calendars.hijri/HijriDate.copy|copy(kotlin.Int;kotlin.Int;kotlin.Int;me.kozakov.orrery.calendars.hijri.HijriVariant){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.calendars.hijri/HijriDate.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.calendars.hijri/HijriDate.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.calendars.hijri/HijriDate.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.calendars.hijri/HijriDayInfoProvider : me.kozakov.orrery.core/DayInfoProvider { // me.kozakov.orrery.calendars.hijri/HijriDayInfoProvider|null[0]
+    constructor <init>(me.kozakov.orrery.calendars.hijri/HijriVariant = ..., me.kozakov.orrery.calendars.hijri/HijriStrings = ...) // me.kozakov.orrery.calendars.hijri/HijriDayInfoProvider.<init>|<init>(me.kozakov.orrery.calendars.hijri.HijriVariant;me.kozakov.orrery.calendars.hijri.HijriStrings){}[0]
+
+    final fun info(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/DayInfo? // me.kozakov.orrery.calendars.hijri/HijriDayInfoProvider.info|info(kotlinx.datetime.LocalDate){}[0]
+}
+
+final class me.kozakov.orrery.calendars.hijri/HijriStrings { // me.kozakov.orrery.calendars.hijri/HijriStrings|null[0]
+    constructor <init>(kotlin.collections/List<kotlin/String>, kotlin/String = ...) // me.kozakov.orrery.calendars.hijri/HijriStrings.<init>|<init>(kotlin.collections.List<kotlin.String>;kotlin.String){}[0]
+
+    final val digits // me.kozakov.orrery.calendars.hijri/HijriStrings.digits|{}digits[0]
+        final fun <get-digits>(): kotlin/String // me.kozakov.orrery.calendars.hijri/HijriStrings.digits.<get-digits>|<get-digits>(){}[0]
+    final val monthNames // me.kozakov.orrery.calendars.hijri/HijriStrings.monthNames|{}monthNames[0]
+        final fun <get-monthNames>(): kotlin.collections/List<kotlin/String> // me.kozakov.orrery.calendars.hijri/HijriStrings.monthNames.<get-monthNames>|<get-monthNames>(){}[0]
+
+    final fun dayLabel(kotlin/Int): kotlin/String // me.kozakov.orrery.calendars.hijri/HijriStrings.dayLabel|dayLabel(kotlin.Int){}[0]
+
+    final object Companion { // me.kozakov.orrery.calendars.hijri/HijriStrings.Companion|null[0]
+        final val Arabic // me.kozakov.orrery.calendars.hijri/HijriStrings.Companion.Arabic|{}Arabic[0]
+            final fun <get-Arabic>(): me.kozakov.orrery.calendars.hijri/HijriStrings // me.kozakov.orrery.calendars.hijri/HijriStrings.Companion.Arabic.<get-Arabic>|<get-Arabic>(){}[0]
+        final val English // me.kozakov.orrery.calendars.hijri/HijriStrings.Companion.English|{}English[0]
+            final fun <get-English>(): me.kozakov.orrery.calendars.hijri/HijriStrings // me.kozakov.orrery.calendars.hijri/HijriStrings.Companion.English.<get-English>|<get-English>(){}[0]
+    }
+}
+
+final class me.kozakov.orrery.calendars.persian/PersianDate { // me.kozakov.orrery.calendars.persian/PersianDate|null[0]
+    constructor <init>(kotlin/Int, kotlin/Int, kotlin/Int) // me.kozakov.orrery.calendars.persian/PersianDate.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Int){}[0]
+
+    final val day // me.kozakov.orrery.calendars.persian/PersianDate.day|{}day[0]
+        final fun <get-day>(): kotlin/Int // me.kozakov.orrery.calendars.persian/PersianDate.day.<get-day>|<get-day>(){}[0]
+    final val month // me.kozakov.orrery.calendars.persian/PersianDate.month|{}month[0]
+        final fun <get-month>(): kotlin/Int // me.kozakov.orrery.calendars.persian/PersianDate.month.<get-month>|<get-month>(){}[0]
+    final val year // me.kozakov.orrery.calendars.persian/PersianDate.year|{}year[0]
+        final fun <get-year>(): kotlin/Int // me.kozakov.orrery.calendars.persian/PersianDate.year.<get-year>|<get-year>(){}[0]
+
+    final fun component1(): kotlin/Int // me.kozakov.orrery.calendars.persian/PersianDate.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // me.kozakov.orrery.calendars.persian/PersianDate.component2|component2(){}[0]
+    final fun component3(): kotlin/Int // me.kozakov.orrery.calendars.persian/PersianDate.component3|component3(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ...): me.kozakov.orrery.calendars.persian/PersianDate // me.kozakov.orrery.calendars.persian/PersianDate.copy|copy(kotlin.Int;kotlin.Int;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.calendars.persian/PersianDate.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.calendars.persian/PersianDate.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.calendars.persian/PersianDate.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.calendars.persian/PersianDayInfoProvider : me.kozakov.orrery.core/DayInfoProvider { // me.kozakov.orrery.calendars.persian/PersianDayInfoProvider|null[0]
+    constructor <init>(me.kozakov.orrery.calendars.persian/PersianStrings = ...) // me.kozakov.orrery.calendars.persian/PersianDayInfoProvider.<init>|<init>(me.kozakov.orrery.calendars.persian.PersianStrings){}[0]
+
+    final fun info(kotlinx.datetime/LocalDate): me.kozakov.orrery.core/DayInfo? // me.kozakov.orrery.calendars.persian/PersianDayInfoProvider.info|info(kotlinx.datetime.LocalDate){}[0]
+}
+
+final class me.kozakov.orrery.calendars.persian/PersianStrings { // me.kozakov.orrery.calendars.persian/PersianStrings|null[0]
+    constructor <init>(kotlin.collections/List<kotlin/String>, kotlin/String = ...) // me.kozakov.orrery.calendars.persian/PersianStrings.<init>|<init>(kotlin.collections.List<kotlin.String>;kotlin.String){}[0]
+
+    final val digits // me.kozakov.orrery.calendars.persian/PersianStrings.digits|{}digits[0]
+        final fun <get-digits>(): kotlin/String // me.kozakov.orrery.calendars.persian/PersianStrings.digits.<get-digits>|<get-digits>(){}[0]
+    final val monthNames // me.kozakov.orrery.calendars.persian/PersianStrings.monthNames|{}monthNames[0]
+        final fun <get-monthNames>(): kotlin.collections/List<kotlin/String> // me.kozakov.orrery.calendars.persian/PersianStrings.monthNames.<get-monthNames>|<get-monthNames>(){}[0]
+
+    final fun dayLabel(kotlin/Int): kotlin/String // me.kozakov.orrery.calendars.persian/PersianStrings.dayLabel|dayLabel(kotlin.Int){}[0]
+
+    final object Companion { // me.kozakov.orrery.calendars.persian/PersianStrings.Companion|null[0]
+        final val English // me.kozakov.orrery.calendars.persian/PersianStrings.Companion.English|{}English[0]
+            final fun <get-English>(): me.kozakov.orrery.calendars.persian/PersianStrings // me.kozakov.orrery.calendars.persian/PersianStrings.Companion.English.<get-English>|<get-English>(){}[0]
+        final val Persian // me.kozakov.orrery.calendars.persian/PersianStrings.Companion.Persian|{}Persian[0]
+            final fun <get-Persian>(): me.kozakov.orrery.calendars.persian/PersianStrings // me.kozakov.orrery.calendars.persian/PersianStrings.Companion.Persian.<get-Persian>|<get-Persian>(){}[0]
+    }
+}
+
+final fun (kotlinx.datetime/LocalDate).me.kozakov.orrery.calendars.hijri/toHijriDate(me.kozakov.orrery.calendars.hijri/HijriVariant = ...): me.kozakov.orrery.calendars.hijri/HijriDate // me.kozakov.orrery.calendars.hijri/toHijriDate|toHijriDate@kotlinx.datetime.LocalDate(me.kozakov.orrery.calendars.hijri.HijriVariant){}[0]
+final fun (kotlinx.datetime/LocalDate).me.kozakov.orrery.calendars.persian/toPersianDate(): me.kozakov.orrery.calendars.persian/PersianDate // me.kozakov.orrery.calendars.persian/toPersianDate|toPersianDate@kotlinx.datetime.LocalDate(){}[0]
+final fun (me.kozakov.orrery.calendars.hijri/HijriDate).me.kozakov.orrery.calendars.hijri/monthLength(): kotlin/Int // me.kozakov.orrery.calendars.hijri/monthLength|monthLength@me.kozakov.orrery.calendars.hijri.HijriDate(){}[0]
+final fun (me.kozakov.orrery.calendars.hijri/HijriDate).me.kozakov.orrery.calendars.hijri/toLocalDate(): kotlinx.datetime/LocalDate // me.kozakov.orrery.calendars.hijri/toLocalDate|toLocalDate@me.kozakov.orrery.calendars.hijri.HijriDate(){}[0]
+final fun (me.kozakov.orrery.calendars.persian/PersianDate).me.kozakov.orrery.calendars.persian/isLeapYear(): kotlin/Boolean // me.kozakov.orrery.calendars.persian/isLeapYear|isLeapYear@me.kozakov.orrery.calendars.persian.PersianDate(){}[0]
+final fun (me.kozakov.orrery.calendars.persian/PersianDate).me.kozakov.orrery.calendars.persian/monthLength(): kotlin/Int // me.kozakov.orrery.calendars.persian/monthLength|monthLength@me.kozakov.orrery.calendars.persian.PersianDate(){}[0]
+final fun (me.kozakov.orrery.calendars.persian/PersianDate).me.kozakov.orrery.calendars.persian/toLocalDate(): kotlinx.datetime/LocalDate // me.kozakov.orrery.calendars.persian/toLocalDate|toLocalDate@me.kozakov.orrery.calendars.persian.PersianDate(){}[0]

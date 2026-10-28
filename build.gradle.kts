@@ -29,6 +29,8 @@ dokka {
 dependencies {
     dokka(project(":orrery-core"))
     dokka(project(":orrery-lunar"))
+    dokka(project(":orrery-calendars"))
+    dokka(project(":orrery-holidays"))
     dokka(project(":orrery-compose"))
 }
 

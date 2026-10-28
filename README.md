@@ -37,7 +37,7 @@ Built on [`kotlinx-datetime`](https://github.com/Kotlin/kotlinx-datetime).
 
 ## Installation
 
-The library ships three artifacts on **Maven Central** under the group
+The library ships these artifacts on **Maven Central** under the group
 `me.kozakov.orrery`:
 
 | Artifact                           | Contents                                                                   |
@@ -45,6 +45,8 @@ The library ships three artifacts on **Maven Central** under the group
 | `me.kozakov.orrery:orrery-core`    | Pure-Kotlin calendar models, grid math and selection engine                |
 | `me.kozakov.orrery:orrery-compose` | Jetpack Compose calendar composables with Material3 theming                |
 | `me.kozakov.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
+| `me.kozakov.orrery:orrery-calendars` | Hijri (Umm al-Qura, tabular) and Persian calendars as DayInfoProviders (next release) |
+| `me.kozakov.orrery:orrery-holidays` | Rule-based public holidays for US, GB, DE and UA as a DayInfoProvider (next release) |
 
 > **Multiplatform (next release):** `orrery-compose` also publishes Desktop (JVM), iOS
 > and Web (`wasmJs`) variants. In a Kotlin Multiplatform project, add it to
@@ -172,6 +174,11 @@ demonstrating both date picker dialogs.
 - `orrery-lunar`: Gregorian↔lunar conversion (golden-tested against the original
   for all 73,049 days of 1900–2099), astronomical 24 solar terms, traditional and
   Gregorian festivals, 干支 year names, zh-CN/zh-TW/zh-HK string variants
+- `orrery-calendars`: Hijri (Umm al-Qura 1300–1600 AH and tabular) and Persian
+  (Jalali) conversions, checked day by day against java.time and ICU4J
+- `orrery-holidays`: public holidays for US, GB, DE and UA (with subdivisions,
+  substitute days and law changes by year), checked against python-holidays for
+  2000–2050, plus your own rules for company calendars
 
 ## Usage
 
@@ -607,6 +614,30 @@ val holidays = object : DayInfoProvider {
 }
 ```
 
+
+### Other calendars and public holidays
+
+`orrery-calendars` labels days with Hijri or Persian dates, and `orrery-holidays`
+marks public holidays. Both are `DayInfoProvider`s, so they compose with `+`;
+the holiday wins the label and the other provider fills the rest:
+
+```kotlin
+val info = remember {
+    PublicHolidayDayInfoProvider(PublicHolidays.forCountry("DE")!!, subdivision = "DE-BY", language = "de") +
+        HijriDayInfoProvider(strings = HijriStrings.Arabic) // or PersianDayInfoProvider()
+}
+
+LocalDate(2026, 2, 18).toHijriDate()   // HijriDate(1447, 9, 1, UmmAlQura)
+LocalDate(2026, 3, 21).toPersianDate() // PersianDate(1405, 1, 1)
+PublicHolidays.forCountry("GB")!!.holidaysIn(2026, subdivision = "GB-SCT")
+```
+
+Umm al-Qura is a calculated calendar; dates announced after a moon sighting can
+differ by a day, and holidays from Hijri rules are marked `isEstimated`. Build
+your own `HolidayCalendar` (company days off) from the same `HolidayRule` types:
+fixed dates, nth weekdays, Easter offsets (Western or Orthodox), Hijri or Persian
+dates, one-off days, year ranges and weekend substitutes.
+
 ### Utilities
 
 - `currentDate()` / `currentYearMonth()` — today in the system time zone
@@ -627,7 +658,7 @@ useful for view-based UIs, widgets, or server-side rendering.
 ```bash
 # Full verification (what CI runs):
 ./gradlew ktlintCheck detekt checkKotlinAbi \
-  :orrery-core:allTests :orrery-lunar:allTests \
+  :orrery-core:allTests :orrery-lunar:allTests :orrery-calendars:allTests :orrery-holidays:allTests \
   :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug \
   :orrery-compose:desktopTest :orrery-compose:wasmJsTest \
   :sample:assembleDebug
@@ -653,7 +684,7 @@ Android tests live in `src/androidHostTest`, and `testDebugUnitTest` /
 `./gradlew :orrery-compose:testAndroidHostTest --tests "*DateInputFieldTest"`.
 
 API docs: `./gradlew :dokkaGeneratePublicationHtml` writes the combined Dokka
-site for `orrery-core`, `orrery-lunar` and `orrery-compose` to
+site for `orrery-core`, `orrery-lunar`, `orrery-calendars`, `orrery-holidays` and `orrery-compose` to
 `build/dokka/html`. The `Docs` workflow builds it on every `v*` tag (or by hand)
 and deploys it to the [hosted API reference](https://koza4e4ok.github.io/Orrery/).
 

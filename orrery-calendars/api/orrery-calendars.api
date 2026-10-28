@@ -1,0 +1,99 @@
+public final class me/kozakov/orrery/calendars/hijri/HijriDate {
+	public fun <init> (IIILme/kozakov/orrery/calendars/hijri/HijriVariant;)V
+	public synthetic fun <init> (IIILme/kozakov/orrery/calendars/hijri/HijriVariant;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()Lme/kozakov/orrery/calendars/hijri/HijriVariant;
+	public final fun copy (IIILme/kozakov/orrery/calendars/hijri/HijriVariant;)Lme/kozakov/orrery/calendars/hijri/HijriDate;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/calendars/hijri/HijriDate;IIILme/kozakov/orrery/calendars/hijri/HijriVariant;ILjava/lang/Object;)Lme/kozakov/orrery/calendars/hijri/HijriDate;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDay ()I
+	public final fun getMonth ()I
+	public final fun getVariant ()Lme/kozakov/orrery/calendars/hijri/HijriVariant;
+	public final fun getYear ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/calendars/hijri/HijriDateKt {
+	public static final fun monthLength (Lme/kozakov/orrery/calendars/hijri/HijriDate;)I
+	public static final fun toHijriDate (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/calendars/hijri/HijriVariant;)Lme/kozakov/orrery/calendars/hijri/HijriDate;
+	public static synthetic fun toHijriDate$default (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/calendars/hijri/HijriVariant;ILjava/lang/Object;)Lme/kozakov/orrery/calendars/hijri/HijriDate;
+	public static final fun toLocalDate (Lme/kozakov/orrery/calendars/hijri/HijriDate;)Lkotlinx/datetime/LocalDate;
+}
+
+public final class me/kozakov/orrery/calendars/hijri/HijriDayInfoProvider : me/kozakov/orrery/core/DayInfoProvider {
+	public fun <init> ()V
+	public fun <init> (Lme/kozakov/orrery/calendars/hijri/HijriVariant;Lme/kozakov/orrery/calendars/hijri/HijriStrings;)V
+	public synthetic fun <init> (Lme/kozakov/orrery/calendars/hijri/HijriVariant;Lme/kozakov/orrery/calendars/hijri/HijriStrings;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun info (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/DayInfo;
+	public fun plus (Lme/kozakov/orrery/core/DayInfoProvider;)Lme/kozakov/orrery/core/DayInfoProvider;
+}
+
+public final class me/kozakov/orrery/calendars/hijri/HijriStrings {
+	public static final field Companion Lme/kozakov/orrery/calendars/hijri/HijriStrings$Companion;
+	public fun <init> (Ljava/util/List;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun dayLabel (I)Ljava/lang/String;
+	public final fun getDigits ()Ljava/lang/String;
+	public final fun getMonthNames ()Ljava/util/List;
+}
+
+public final class me/kozakov/orrery/calendars/hijri/HijriStrings$Companion {
+	public final fun getArabic ()Lme/kozakov/orrery/calendars/hijri/HijriStrings;
+	public final fun getEnglish ()Lme/kozakov/orrery/calendars/hijri/HijriStrings;
+}
+
+public final class me/kozakov/orrery/calendars/hijri/HijriVariant : java/lang/Enum {
+	public static final field Tabular Lme/kozakov/orrery/calendars/hijri/HijriVariant;
+	public static final field UmmAlQura Lme/kozakov/orrery/calendars/hijri/HijriVariant;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/calendars/hijri/HijriVariant;
+	public static fun values ()[Lme/kozakov/orrery/calendars/hijri/HijriVariant;
+}
+
+public final class me/kozakov/orrery/calendars/persian/PersianDate {
+	public fun <init> (III)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun copy (III)Lme/kozakov/orrery/calendars/persian/PersianDate;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/calendars/persian/PersianDate;IIIILjava/lang/Object;)Lme/kozakov/orrery/calendars/persian/PersianDate;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDay ()I
+	public final fun getMonth ()I
+	public final fun getYear ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/calendars/persian/PersianDateKt {
+	public static final fun isLeapYear (Lme/kozakov/orrery/calendars/persian/PersianDate;)Z
+	public static final fun monthLength (Lme/kozakov/orrery/calendars/persian/PersianDate;)I
+	public static final fun toLocalDate (Lme/kozakov/orrery/calendars/persian/PersianDate;)Lkotlinx/datetime/LocalDate;
+	public static final fun toPersianDate (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/calendars/persian/PersianDate;
+}
+
+public final class me/kozakov/orrery/calendars/persian/PersianDayInfoProvider : me/kozakov/orrery/core/DayInfoProvider {
+	public fun <init> ()V
+	public fun <init> (Lme/kozakov/orrery/calendars/persian/PersianStrings;)V
+	public synthetic fun <init> (Lme/kozakov/orrery/calendars/persian/PersianStrings;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun info (Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/DayInfo;
+	public fun plus (Lme/kozakov/orrery/core/DayInfoProvider;)Lme/kozakov/orrery/core/DayInfoProvider;
+}
+
+public final class me/kozakov/orrery/calendars/persian/PersianStrings {
+	public static final field Companion Lme/kozakov/orrery/calendars/persian/PersianStrings$Companion;
+	public fun <init> (Ljava/util/List;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun dayLabel (I)Ljava/lang/String;
+	public final fun getDigits ()Ljava/lang/String;
+	public final fun getMonthNames ()Ljava/util/List;
+}
+
+public final class me/kozakov/orrery/calendars/persian/PersianStrings$Companion {
+	public final fun getEnglish ()Lme/kozakov/orrery/calendars/persian/PersianStrings;
+	public final fun getPersian ()Lme/kozakov/orrery/calendars/persian/PersianStrings;
+}
+

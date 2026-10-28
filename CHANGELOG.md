@@ -16,6 +16,15 @@
   Programmatic writes (`set`, `SelectionEngine.replace`, `initialSelection`)
   are snapped to the whole week or month containing `rangeStart`.
 
+### Changed
+
+- Build: Kotlin 2.4.21, Android Gradle Plugin 9.4.1, Compose BOM 2026.09.00,
+  Compose Multiplatform 1.12.2, detekt 2.0.0-alpha.6, Roborazzi 1.77.0 and
+  Robolectric 4.17 (#35).
+- `compileSdk` is 37, because the Compose 1.12 artifacts require it; apps
+  depending on `orrery-compose` must also compile against API 37. `minSdk`
+  stays 23.
+
 ## [0.6.0] - 2026-10-27
 
 ### Added

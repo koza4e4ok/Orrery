@@ -64,6 +64,33 @@ class PlatformDateFormatTest {
     }
 
     @Test
+    fun hourClockFollowsTheLocale() {
+        assertEquals(false, is24HourClock("en-US"))
+        assertEquals(true, is24HourClock("de-DE"))
+        // The current locale resolves without throwing; its value depends on the host.
+        PlatformDateFormat.is24HourClock()
+    }
+
+    @Test
+    fun formatsTimeOfDayForTheLocale() {
+        // Newer CLDR data puts a narrow no-break space before AM/PM.
+        fun time(
+            hour: Int,
+            minute: Int,
+            is24Hour: Boolean,
+            tag: String,
+        ) = formatTime(hour, minute, is24Hour, tag).replace('\u202F', ' ').replace('\u00A0', ' ')
+        assertEquals("2:05 PM", time(14, 5, is24Hour = false, tag = "en-US"))
+        assertEquals("12:00 AM", time(0, 0, is24Hour = false, tag = "en-US"))
+        assertEquals("14:05", time(14, 5, is24Hour = true, tag = "en-US"))
+        assertEquals("00:00", time(0, 0, is24Hour = true, tag = "de-DE"))
+        val zh = time(14, 5, is24Hour = false, tag = "zh-CN")
+        assertTrue("下午" in zh && "2:05" in zh && "PM" !in zh, zh)
+        // The current locale resolves without throwing; its value depends on the host.
+        PlatformDateFormat.formatTime(9, 30, is24Hour = false)
+    }
+
+    @Test
     fun uppercasesLatinText() {
         assertEquals("TODAY", PlatformDateFormat.uppercase("today"))
     }

@@ -110,3 +110,23 @@ internal fun CloseGlyph(
         drawLine(color, Offset(17.dp.toPx(), 7.dp.toPx()), Offset(7.dp.toPx(), 17.dp.toPx()), stroke, StrokeCap.Round)
     }
 }
+
+/** Canvas clock icon — material3 1.4 no longer bundles material-icons. */
+@Composable
+internal fun ClockGlyph(
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+) {
+    val color = LocalContentColor.current
+    Canvas(
+        modifier
+            .size(24.dp)
+            .semantics { contentDescription?.let { this.contentDescription = it } },
+    ) {
+        val stroke = 2.dp.toPx()
+        val center = Offset(12.dp.toPx(), 12.dp.toPx())
+        drawCircle(color, radius = 8.dp.toPx(), center = center, style = Stroke(width = stroke))
+        drawLine(color, center, Offset(12.dp.toPx(), 7.5f.dp.toPx()), stroke, StrokeCap.Round)
+        drawLine(color, center, Offset(15.dp.toPx(), 14.dp.toPx()), stroke, StrokeCap.Round)
+    }
+}

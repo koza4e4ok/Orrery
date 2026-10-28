@@ -188,6 +188,10 @@ public final class me/kozakov/orrery/compose/ComposableSingletons$YearCalendarKt
 public final class me/kozakov/orrery/compose/DatePickerDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Lme/kozakov/orrery/compose/DatePickerDefaults;
+	public final fun dateTimeStrings (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DateTimePickerStrings;
+	public final fun monthPickerStrings (Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/MonthPickerStrings;
+	public final fun monthRange (Lkotlinx/datetime/LocalDate;)Lkotlin/ranges/ClosedRange;
+	public static synthetic fun monthRange$default (Lme/kozakov/orrery/compose/DatePickerDefaults;Lkotlinx/datetime/LocalDate;ILjava/lang/Object;)Lkotlin/ranges/ClosedRange;
 	public final fun rangePresets (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;Landroidx/compose/runtime/Composer;II)Ljava/util/List;
 	public final fun strings (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;III)Lme/kozakov/orrery/compose/DatePickerStrings;
 }
@@ -244,6 +248,30 @@ public final class me/kozakov/orrery/compose/DateRangePreset {
 	public final fun getRange ()Lkotlin/ranges/ClosedRange;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/compose/DateTimePickerDialogKt {
+	public static final fun OrreryDateTimePickerDialog (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lme/kozakov/orrery/compose/OrreryDateTimePickerState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lme/kozakov/orrery/compose/CalendarDayColors;Lme/kozakov/orrery/compose/CalendarDayShapes;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/compose/DateTimePickerStrings;Lme/kozakov/orrery/compose/DatePickerStrings;Landroidx/compose/runtime/Composer;II)V
+	public static final fun rememberOrreryDateTimePickerState (Lkotlinx/datetime/LocalDateTime;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;ZLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/OrreryDateTimePickerState;
+}
+
+public final class me/kozakov/orrery/compose/DateTimePickerStep : java/lang/Enum {
+	public static final field Date Lme/kozakov/orrery/compose/DateTimePickerStep;
+	public static final field Time Lme/kozakov/orrery/compose/DateTimePickerStep;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/compose/DateTimePickerStep;
+	public static fun values ()[Lme/kozakov/orrery/compose/DateTimePickerStep;
+}
+
+public final class me/kozakov/orrery/compose/DateTimePickerStrings {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun getBack ()Ljava/lang/String;
+	public final fun getNext ()Ljava/lang/String;
+	public final fun getSwitchToClock ()Ljava/lang/String;
+	public final fun getSwitchToKeyboard ()Ljava/lang/String;
+	public final fun getTimeTitle ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
 }
 
 public abstract interface class me/kozakov/orrery/compose/DayDecorator {
@@ -339,6 +367,18 @@ public final class me/kozakov/orrery/compose/LocaleKt {
 	public static synthetic fun firstDayOfWeekFromLocale$default (Ljava/util/Locale;ILjava/lang/Object;)Lkotlinx/datetime/DayOfWeek;
 }
 
+public final class me/kozakov/orrery/compose/MonthPickerDialogKt {
+	public static final fun OrreryMonthPickerDialog (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lme/kozakov/orrery/compose/OrreryMonthPickerState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/compose/MonthPickerStrings;Landroidx/compose/runtime/Composer;II)V
+	public static final fun rememberOrreryMonthPickerState (Lkotlinx/datetime/YearMonth;Lkotlin/ranges/ClosedRange;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/OrreryMonthPickerState;
+}
+
+public final class me/kozakov/orrery/compose/MonthPickerStrings {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun getHeadlinePlaceholder ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
+}
+
 public final class me/kozakov/orrery/compose/MonthYearPickerKt {
 	public static final fun MonthYearPicker (Lkotlinx/datetime/YearMonth;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
 }
@@ -372,6 +412,27 @@ public final class me/kozakov/orrery/compose/OrreryDateRangePickerState {
 	public final fun getYearRange ()Lkotlin/ranges/IntRange;
 	public final fun setDisplayMode (Lme/kozakov/orrery/compose/DatePickerDisplayMode;)V
 	public final fun setSelection (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;)V
+}
+
+public final class me/kozakov/orrery/compose/OrreryDateTimePickerState {
+	public static final field $stable I
+	public final fun getDateState ()Lme/kozakov/orrery/compose/OrreryDatePickerState;
+	public final fun getHour ()I
+	public final fun getMinute ()I
+	public final fun getSelectedDateTime ()Lkotlinx/datetime/LocalDateTime;
+	public final fun getStep ()Lme/kozakov/orrery/compose/DateTimePickerStep;
+	public final fun is24Hour ()Z
+	public final fun set24Hour (Z)V
+	public final fun setHour (I)V
+	public final fun setMinute (I)V
+	public final fun setStep (Lme/kozakov/orrery/compose/DateTimePickerStep;)V
+}
+
+public final class me/kozakov/orrery/compose/OrreryMonthPickerState {
+	public static final field $stable I
+	public final fun getRange ()Lkotlin/ranges/ClosedRange;
+	public final fun getSelectedMonth ()Lkotlinx/datetime/YearMonth;
+	public final fun select (Lkotlinx/datetime/YearMonth;)V
 }
 
 public final class me/kozakov/orrery/compose/ScheduleColors {

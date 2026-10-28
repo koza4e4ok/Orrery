@@ -36,6 +36,21 @@ public class DatePickerStrings(
 )
 
 /**
+ * Strings for [OrreryDateTimePickerDialog]'s two steps and buttons.
+ * [DatePickerDefaults.dateTimeStrings] resolves them from the current
+ * locale's resources; callers can override any of them.
+ */
+@Immutable
+public class DateTimePickerStrings(
+    public val title: String,
+    public val next: String,
+    public val back: String,
+    public val timeTitle: String,
+    public val switchToClock: String,
+    public val switchToKeyboard: String,
+)
+
+/**
  * Strings for [OrreryMonthPickerDialog]. [DatePickerDefaults.monthPickerStrings]
  * resolves them from the current locale's resources; callers can override
  * any of them.
@@ -92,6 +107,29 @@ public object DatePickerDefaults {
             previousMonthDescription = previousMonthDescription,
             nextMonthDescription = nextMonthDescription,
             closeDescription = closeDescription,
+        )
+
+    /**
+     * Builds [DateTimePickerStrings]. Defaults are resolved from the current
+     * locale's resources; override any parameter to replace a string.
+     */
+    @Composable
+    @ReadOnlyComposable
+    public fun dateTimeStrings(
+        title: String = orreryString(OrreryString.DateTimePickerTitle),
+        next: String = orreryString(OrreryString.DateTimePickerNext),
+        back: String = orreryString(OrreryString.DateTimePickerBack),
+        timeTitle: String = orreryString(OrreryString.DateTimePickerTimeTitle),
+        switchToClock: String = orreryString(OrreryString.DateTimePickerSwitchToClock),
+        switchToKeyboard: String = orreryString(OrreryString.DateTimePickerSwitchToKeyboard),
+    ): DateTimePickerStrings =
+        DateTimePickerStrings(
+            title = title,
+            next = next,
+            back = back,
+            timeTitle = timeTitle,
+            switchToClock = switchToClock,
+            switchToKeyboard = switchToKeyboard,
         )
 
     /**

@@ -37,6 +37,12 @@
     <string name="orrery_date_picker_preset_last_30_days">最近30天</string>
     <string name="orrery_date_picker_preset_this_week">本周</string>
     <string name="orrery_date_picker_preset_this_month">本月</string>
+    <string name="orrery_date_time_picker_title">选择日期和时间</string>
+    <string name="orrery_date_time_picker_next">下一步</string>
+    <string name="orrery_date_time_picker_back">返回</string>
+    <string name="orrery_date_time_picker_time_title">选择时间</string>
+    <string name="orrery_date_time_picker_switch_to_clock">切换到时钟</string>
+    <string name="orrery_date_time_picker_switch_to_keyboard">切换到键盘输入</string>
     <string name="orrery_month_picker_title">选择月份</string>
     <string name="orrery_month_picker_headline_placeholder">月份</string>
 </resources>

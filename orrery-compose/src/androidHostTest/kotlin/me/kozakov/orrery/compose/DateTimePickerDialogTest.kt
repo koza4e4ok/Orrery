@@ -1,0 +1,166 @@
+package me.kozakov.orrery.compose
+
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.junit4.StateRestorationTester
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import me.kozakov.orrery.core.DisabledDates
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+
+// The two-step dialog is taller than Robolectric's default 470dp window, which
+// leaves Next outside it; a Pixel 5 screen keeps every button clickable.
+@RunWith(AndroidJUnit4::class)
+@Config(qualifiers = RobolectricDeviceQualifiers.Pixel5)
+class DateTimePickerDialogTest {
+    @get:Rule val rule = createComposeRule()
+
+    private lateinit var state: OrreryDateTimePickerState
+    private lateinit var strings: DateTimePickerStrings
+
+    private fun content(
+        initialDateTime: LocalDateTime? = null,
+        is24Hour: Boolean = true,
+        bounds: ClosedRange<LocalDate>? = LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31),
+        disabled: DisabledDates = DisabledDates.None,
+    ) {
+        rule.setContent {
+            MaterialTheme {
+                strings = DatePickerDefaults.dateTimeStrings()
+                state =
+                    rememberOrreryDateTimePickerState(
+                        initialDateTime = initialDateTime,
+                        bounds = bounds,
+                        disabled = disabled,
+                        is24Hour = is24Hour,
+                    )
+                OrreryDateTimePickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = { TextButton(onClick = {}) { Text("OK") } },
+                    dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
+                    state = state,
+                    today = LocalDate(2026, 7, 15),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun nextIsDisabledUntilADateIsPicked() {
+        content()
+        rule.onNodeWithText(strings.next).assertIsNotEnabled()
+        rule.onNodeWithText("OK").assertDoesNotExist()
+        rule.onNodeWithText("10").performClick()
+        rule.onNodeWithText(strings.next).assertIsEnabled()
+        rule.runOnIdle { assertEquals(LocalDateTime(2026, 7, 10, 0, 0), state.selectedDateTime) }
+    }
+
+    @Test
+    fun nextOpensTheTimeStepAndBackKeepsTheDate() {
+        content()
+        rule.onNodeWithText("10").performClick()
+        rule.onNodeWithText(strings.next).performClick()
+        rule.onNodeWithText(strings.timeTitle).assertExists()
+        rule.onNodeWithText("OK").assertExists()
+        rule.onNodeWithText(strings.back).performClick()
+        rule.onNodeWithText(strings.title).assertExists()
+        rule.runOnIdle {
+            assertEquals(DateTimePickerStep.Date, state.step)
+            assertEquals(LocalDate(2026, 7, 10), state.dateState.selectedDate)
+        }
+    }
+
+    @Test
+    fun headlineTimeJumpsToTheTimeStep() {
+        content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
+        rule.onNodeWithText("09:30").performClick()
+        rule.runOnIdle { assertEquals(DateTimePickerStep.Time, state.step) }
+    }
+
+    @Test
+    fun timeEditsUpdateSelectedDateTime() {
+        content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
+        rule.runOnIdle { state.step = DateTimePickerStep.Time }
+        rule.runOnIdle {
+            state.hour = 14
+            state.minute = 5
+        }
+        rule.onNodeWithText("14:05").assertExists()
+        rule.runOnIdle { assertEquals(LocalDateTime(2026, 7, 8, 14, 5), state.selectedDateTime) }
+    }
+
+    @Test
+    fun outOfRangeTimeWritesAreIgnored() {
+        content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
+        rule.runOnIdle {
+            state.hour = 24
+            state.minute = -1
+            assertEquals(9, state.hour)
+            assertEquals(30, state.minute)
+        }
+    }
+
+    @Test
+    fun twelveHourClockIsHonored() {
+        content(initialDateTime = LocalDateTime(2026, 7, 8, 14, 5), is24Hour = false)
+        // The headline uses the locale's 12-hour format ("2:05 PM", with a narrow no-break space on newer ICU).
+        val headline = PlatformDateFormat.formatTime(14, 5, is24Hour = false)
+        assertEquals("2:05 PM", headline.replace('\u202F', ' '))
+        rule.onNodeWithText(headline).assertExists()
+        rule.runOnIdle { assertEquals(false, state.is24Hour) }
+    }
+
+    @Test
+    fun timeStepTogglesBetweenDialAndKeyboard() {
+        content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
+        rule.onNodeWithText(strings.next).performClick()
+        rule.onNodeWithContentDescription(strings.switchToKeyboard).performClick()
+        rule.onNodeWithContentDescription(strings.switchToClock).assertExists()
+    }
+
+    @Test
+    fun boundsAndDisabledDatesApplyToTheDate() {
+        content(disabled = DisabledDates { dates(LocalDate(2026, 7, 10)) })
+        rule.runOnIdle {
+            state.dateState.selectedDate = LocalDate(2026, 8, 1)
+            assertNull(state.selectedDateTime)
+            state.dateState.selectedDate = LocalDate(2026, 7, 10)
+            assertNull(state.selectedDateTime)
+            state.dateState.selectedDate = LocalDate(2026, 7, 12)
+            assertEquals(LocalDate(2026, 7, 12), state.selectedDateTime?.date)
+        }
+    }
+
+    @Test
+    fun stateSurvivesRestoration() {
+        val restorationTester = StateRestorationTester(rule)
+        restorationTester.setContent { state = rememberOrreryDateTimePickerState(is24Hour = true) }
+        rule.runOnIdle {
+            state.dateState.selectedDate = LocalDate(2026, 7, 15)
+            state.hour = 18
+            state.minute = 45
+            state.step = DateTimePickerStep.Time
+            state.is24Hour = false
+        }
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.runOnIdle {
+            assertEquals(LocalDateTime(2026, 7, 15, 18, 45), state.selectedDateTime)
+            assertEquals(DateTimePickerStep.Time, state.step)
+            assertEquals(false, state.is24Hour)
+        }
+    }
+}

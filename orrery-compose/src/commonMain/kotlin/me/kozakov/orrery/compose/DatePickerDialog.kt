@@ -5,13 +5,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -79,7 +82,11 @@ public fun OrreryDatePickerDialog(
                     DisplayModeToggle(state, strings)
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                DatePickerContent(state, colors, shapes, today, strings)
+                // On short windows (landscape phones, split screen) the body scrolls so the
+                // button row below always stays inside the dialog.
+                Box(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    DatePickerContent(state, colors, shapes, today, strings)
+                }
                 Row(
                     Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.End,

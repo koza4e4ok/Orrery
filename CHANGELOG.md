@@ -46,6 +46,19 @@
   a 1 dp outline on selected days (new `selectedOutlineColor` parameter, default
   the selected content color) so it stays distinct from the selection fill. The
   previous overloads stay for binary compatibility (#63).
+- `OrreryDatePickerDialog`, `OrreryDateTimePickerDialog` and
+  `OrreryMonthPickerDialog` scroll their body on short windows (for example a
+  420 dp tall landscape phone), and `OrreryDateRangePickerDialog` fits its
+  calendar or scrolling text-input pane into the height left under the top bar,
+  so the confirm and dismiss buttons are never pushed out of the dialog (#65).
+- `OrreryDateTimePickerDialog` slides and fades between the Date and Time steps
+  and puts the active step's headline part (date or time) on a
+  `secondaryContainer` pill with `onSecondaryContainer` text; both parts are
+  selectable tabs for accessibility services (#65).
+- `DaySchedule` / `WeekSchedule` default event tiles and all-day chips with a
+  custom `CalendarEvent.colorArgb` pick `onSurface` or `inverseOnSurface`
+  text, whichever contrasts more with the tinted background, so pale or very
+  bright event colors stay legible in light and dark themes (#65).
 
 ## [0.7.0] - 2026-10-28
 

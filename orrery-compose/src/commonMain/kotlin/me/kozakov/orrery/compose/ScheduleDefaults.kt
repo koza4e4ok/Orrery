@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
@@ -378,13 +379,49 @@ private fun eventPalette(
         )
     }
     val accent = Color(argb)
-    val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val surface = MaterialTheme.colorScheme.surface
+    val dark = surface.luminance() < 0.5f
+    val container = accent.copy(alpha = if (dark) 0.28f else 0.18f)
     return EventPalette(
-        container = accent.copy(alpha = if (dark) 0.28f else 0.18f),
-        content = MaterialTheme.colorScheme.onSurface,
+        container = container,
+        content =
+            readableContentColor(
+                background = container.compositeOver(surface),
+                onSurface = MaterialTheme.colorScheme.onSurface,
+                inverseOnSurface = MaterialTheme.colorScheme.inverseOnSurface,
+            ),
         accent = accent,
     )
 }
+
+/**
+ * Picks whichever of the theme's text colors, [onSurface] or
+ * [inverseOnSurface], has the higher WCAG contrast ratio against the
+ * (opaque) [background]: a bright custom event color tinting a dark surface
+ * gets dark text instead of washed-out light text, and vice versa.
+ */
+internal fun readableContentColor(
+    background: Color,
+    onSurface: Color,
+    inverseOnSurface: Color,
+): Color {
+    val backgroundLuminance = background.luminance()
+    return if (contrastRatio(onSurface.luminance(), backgroundLuminance) >=
+        contrastRatio(inverseOnSurface.luminance(), backgroundLuminance)
+    ) {
+        onSurface
+    } else {
+        inverseOnSurface
+    }
+}
+
+/** WCAG 2 contrast ratio between two relative luminances, 1..21. */
+internal fun contrastRatio(
+    a: Float,
+    b: Float,
+): Float = (maxOf(a, b) + WCAG_FLARE) / (minOf(a, b) + WCAG_FLARE)
+
+private const val WCAG_FLARE = 0.05f
 
 private fun minuteLabel(minuteOfDay: Int): String =
     (minuteOfDay / 60).toString().padStart(2, '0') + ":" + (minuteOfDay % 60).toString().padStart(2, '0')

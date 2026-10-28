@@ -80,7 +80,19 @@ class ScheduleViewSnapshotTest {
             timed("brunch", "Brunch", 18, LocalTime(11, 0), LocalTime(12, 30), 0xFFBA68C8),
         ).eventsByDate(LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31))
 
-    private fun content(week: Boolean) {
+    // Pale and very bright custom colors: event text must stay legible on both themes.
+    private val paleEvents =
+        listOf(
+            timed("sun", "Sunrise walk", 15, LocalTime(8, 0), LocalTime(9, 0), 0xFFFFFF00, "Park"),
+            timed("mint", "Mint review", 15, LocalTime(9, 0), LocalTime(10, 0), 0xFFB9F6CA, "Room 1"),
+            timed("snow", "Snow day", 15, LocalTime(10, 0), LocalTime(11, 0), 0xFFFFFFFF, "Remote"),
+            timed("cyan", "Cyan sync", 15, LocalTime(11, 0), LocalTime(12, 0), 0xFF00FFFF, "Room 2"),
+        ).eventsByDate(LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31))
+
+    private fun content(
+        week: Boolean,
+        events: Map<LocalDate, List<CalendarEvent<Nothing>>> = this.events,
+    ) {
         rule.setContent {
             MaterialTheme(
                 colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(),
@@ -139,6 +151,19 @@ class ScheduleViewSnapshotTest {
     @Config(qualifiers = "+night")
     fun weekScheduleDark() {
         content(week = true)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun paleEventColorsLight() {
+        content(week = false, events = paleEvents)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun paleEventColorsDark() {
+        content(week = false, events = paleEvents)
         rule.onRoot().captureRoboImage()
     }
 }

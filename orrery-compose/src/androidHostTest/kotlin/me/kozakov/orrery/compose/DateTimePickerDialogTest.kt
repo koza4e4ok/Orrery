@@ -3,8 +3,11 @@ package me.kozakov.orrery.compose
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -17,6 +20,7 @@ import kotlinx.datetime.LocalDateTime
 import me.kozakov.orrery.core.DisabledDates
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +35,7 @@ class DateTimePickerDialogTest {
 
     private lateinit var state: OrreryDateTimePickerState
     private lateinit var strings: DateTimePickerStrings
+    private lateinit var dateStrings: DatePickerStrings
 
     private fun content(
         initialDateTime: LocalDateTime? = null,
@@ -41,6 +46,7 @@ class DateTimePickerDialogTest {
         rule.setContent {
             MaterialTheme {
                 strings = DatePickerDefaults.dateTimeStrings()
+                dateStrings = DatePickerDefaults.strings()
                 state =
                     rememberOrreryDateTimePickerState(
                         initialDateTime = initialDateTime,
@@ -162,5 +168,65 @@ class DateTimePickerDialogTest {
             assertEquals(DateTimePickerStep.Time, state.step)
             assertEquals(false, state.is24Hour)
         }
+    }
+
+    @Test
+    fun headlinePillMarksTheActiveStep() {
+        content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
+        val dateText = PlatformDateFormat.formatDate(LocalDate(2026, 7, 8), DateFormattingStyle.Medium)
+        rule.onNodeWithText(dateText).assertIsSelected()
+        rule.onNodeWithText("09:30").assertIsNotSelected().performClick()
+        rule.onNodeWithText("09:30").assertIsSelected()
+        rule.onNodeWithText(dateText).assertIsNotSelected().performClick()
+        rule.onNodeWithText(dateText).assertIsSelected()
+        rule.runOnIdle { assertEquals(DateTimePickerStep.Date, state.step) }
+    }
+
+    @Test
+    fun timePillIsDisabledUntilADateIsPicked() {
+        content()
+        rule.onNodeWithText("00:00").assertIsNotEnabled().assertIsNotSelected()
+        rule.onNodeWithText("10").performClick()
+        rule.onNodeWithText("00:00").assertIsEnabled()
+    }
+
+    // The step body is tested outside the Dialog: the dialog window does not
+    // re-lay out while the test clock is paused, so mid-transition frames are
+    // only observable on the main root.
+    @Test
+    fun switchingStepsSlidesTheDateBodyOut() {
+        rule.setContent {
+            MaterialTheme {
+                dateStrings = DatePickerDefaults.strings()
+                state =
+                    rememberOrreryDateTimePickerState(
+                        initialDateTime = LocalDateTime(2026, 7, 8, 9, 30),
+                        is24Hour = true,
+                    )
+                DateTimeStepBody(
+                    state = state,
+                    timeInput = false,
+                    colors = CalendarDefaults.dayColors(),
+                    shapes = CalendarDefaults.dayShapes(),
+                    today = LocalDate(2026, 7, 15),
+                    dateStrings = dateStrings,
+                )
+            }
+        }
+        val nextMonth = rule.onNodeWithContentDescription(dateStrings.nextMonthDescription)
+        val restingLeft = nextMonth.fetchSemanticsNode().boundsInRoot.left
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle { Snapshot.withMutableSnapshot { state.step = DateTimePickerStep.Time } }
+        rule.mainClock.advanceTimeBy(MIDWAY_MS)
+        // Mid-transition the outgoing Date body is still there, sliding towards the start.
+        val midwayLeft = nextMonth.fetchSemanticsNode().boundsInRoot.left
+        assertTrue("expected the date body to slide left: $restingLeft -> $midwayLeft", midwayLeft < restingLeft)
+        rule.mainClock.advanceTimeBy(SETTLED_MS)
+        nextMonth.assertDoesNotExist()
+    }
+
+    private companion object {
+        const val MIDWAY_MS = 100L
+        const val SETTLED_MS = 1_000L
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -16,8 +17,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -40,16 +45,30 @@ import me.kozakov.orrery.core.SelectionMode
 import me.kozakov.orrery.core.SelectionPresets
 import java.time.format.DateTimeFormatter
 
-/** Hotel-booking flow: drag-select a stay, nightly prices, blackout dates. */
+/**
+ * How a tap picks the stay: a drag-selected range, a whole week or a whole month.
+ * Week leaves firstDayOfWeek null, so it follows the locale like the calendar.
+ */
+private enum class StayMode(
+    val label: String,
+    val mode: SelectionMode,
+) {
+    Range("Range", SelectionMode.Range(minDays = 2)),
+    Week("Week", SelectionMode.Week()),
+    Month("Month", SelectionMode.Month()),
+}
+
+/** Hotel-booking flow: drag-select a stay (or a week/month), nightly prices, blackout dates. */
 @Composable
 internal fun TripsScreen() {
     val today = remember { currentDate() }
     val disabled = remember(today) { SampleData.blackoutDates(today) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var stayMode by rememberSaveable { mutableStateOf(StayMode.Range) }
     val selection =
         rememberCalendarSelectionState(
-            mode = SelectionMode.Range(minDays = 2),
+            mode = stayMode.mode,
             disabled = disabled,
             onEvent = { event ->
                 val message =
@@ -89,6 +108,19 @@ internal fun TripsScreen() {
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            Row(
+                Modifier.padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                StayMode.entries.forEach { option ->
+                    FilterChip(
+                        selected = option == stayMode,
+                        onClick = { stayMode = option },
+                        label = { Text(option.label) },
+                        modifier = Modifier.testTag("stay_mode_${option.name.lowercase()}"),
+                    )
+                }
+            }
             Row(
                 Modifier.padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

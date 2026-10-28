@@ -76,11 +76,11 @@ dependencyResolutionManagement {
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("me.kozakov.orrery:orrery-compose:0.7.0")
+    implementation("me.kozakov.orrery:orrery-compose:0.8.0")
     // Optional DayInfoProvider modules:
-    implementation("me.kozakov.orrery:orrery-lunar:0.7.0")
-    implementation("me.kozakov.orrery:orrery-calendars:0.7.0")
-    implementation("me.kozakov.orrery:orrery-holidays:0.7.0")
+    implementation("me.kozakov.orrery:orrery-lunar:0.8.0")
+    implementation("me.kozakov.orrery:orrery-calendars:0.8.0")
+    implementation("me.kozakov.orrery:orrery-holidays:0.8.0")
 }
 ```
 
@@ -89,7 +89,7 @@ Using a [version catalog](https://docs.gradle.org/current/userguide/version_cata
 
 ```toml
 [versions]
-orrery = "0.7.0"
+orrery = "0.8.0"
 
 [libraries]
 orrery-compose   = { module = "me.kozakov.orrery:orrery-compose",   version.ref = "orrery" }
@@ -106,7 +106,7 @@ dependencies {
 }
 ```
 
-> **Snapshots:** development builds are published as `0.7.1-SNAPSHOT` to the Central
+> **Snapshots:** development builds are published as `0.8.1-SNAPSHOT` to the Central
 > snapshots repository. To use them, add
 > `maven("https://central.sonatype.com/repository/maven-snapshots/")` to your repositories
 > and depend on the `-SNAPSHOT` version.

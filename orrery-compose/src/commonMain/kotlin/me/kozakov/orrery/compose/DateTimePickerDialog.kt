@@ -299,20 +299,15 @@ public fun OrreryDateTimePickerDialog(
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 // Takes only the height left over by the headline and buttons, scrolling
                 // on short windows so the button row is never pushed out of the dialog.
-                AnimatedContent(
-                    targetState = state.step,
-                    transitionSpec = { stepTransition() },
-                    label = "dateTimeStep",
+                DateTimeStepBody(
+                    state = state,
+                    timeInput = timeInput,
+                    colors = colors,
+                    shapes = shapes,
+                    today = today,
+                    dateStrings = dateStrings,
                     modifier = Modifier.weight(1f, fill = false),
-                ) { step ->
-                    Box(Modifier.verticalScroll(rememberScrollState())) {
-                        if (step == DateTimePickerStep.Date) {
-                            DatePickerContent(state.dateState, colors, shapes, today, dateStrings)
-                        } else {
-                            TimeStep(state, timeInput)
-                        }
-                    }
-                }
+                )
                 Row(
                     Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.End,
@@ -332,6 +327,33 @@ public fun OrreryDateTimePickerDialog(
                         confirmButton()
                     }
                 }
+            }
+        }
+    }
+}
+
+/** The Date or Time body of [OrreryDateTimePickerDialog], sliding between steps and scrolling when short. */
+@Composable
+internal fun DateTimeStepBody(
+    state: OrreryDateTimePickerState,
+    timeInput: Boolean,
+    colors: CalendarDayColors,
+    shapes: CalendarDayShapes,
+    today: LocalDate,
+    dateStrings: DatePickerStrings,
+    modifier: Modifier = Modifier,
+) {
+    AnimatedContent(
+        targetState = state.step,
+        transitionSpec = { stepTransition() },
+        label = "dateTimeStep",
+        modifier = modifier,
+    ) { step ->
+        Box(Modifier.verticalScroll(rememberScrollState())) {
+            if (step == DateTimePickerStep.Date) {
+                DatePickerContent(state.dateState, colors, shapes, today, dateStrings)
+            } else {
+                TimeStep(state, timeInput)
             }
         }
     }

@@ -1,13 +1,17 @@
 package me.kozakov.orrery.compose
 
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -18,8 +22,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.shadows.ShadowLooper
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -63,16 +65,35 @@ class DateTimePickerDialogSnapshotTest {
         rule.onNode(isDialog()).captureRoboImage()
     }
 
+    // Captured on the step body alone: the dialog window does not re-lay out
+    // while the test clock is paused.
     @Test
     fun stepTransitionMidway() {
-        content()
+        rule.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                Surface {
+                    state =
+                        rememberOrreryDateTimePickerState(
+                            initialDateTime = LocalDateTime(2026, 7, 8, 9, 30),
+                            bounds = LocalDate(2026, 1, 1)..LocalDate(2026, 12, 31),
+                            is24Hour = false,
+                        )
+                    DateTimeStepBody(
+                        state = state,
+                        timeInput = false,
+                        colors = CalendarDefaults.dayColors(),
+                        shapes = CalendarDefaults.dayShapes(),
+                        today = LocalDate(2026, 7, 15),
+                        dateStrings = DatePickerDefaults.strings(),
+                        modifier = Modifier.width(360.dp),
+                    )
+                }
+            }
+        }
         rule.mainClock.autoAdvance = false
-        // Clicking (rather than writing state) goes through the frame clock the test drives.
-        rule.onNodeWithText(PlatformDateFormat.formatTime(9, 30, is24Hour = false)).performClick()
+        rule.runOnIdle { Snapshot.withMutableSnapshot { state.step = DateTimePickerStep.Time } }
         rule.mainClock.advanceTimeBy(MIDWAY_MS)
-        // The dialog lays out in its own window, driven by the Robolectric main looper.
-        ShadowLooper.idleMainLooper(MIDWAY_MS, TimeUnit.MILLISECONDS)
-        rule.onNode(isDialog()).captureRoboImage()
+        rule.onRoot().captureRoboImage()
     }
 
     private companion object {

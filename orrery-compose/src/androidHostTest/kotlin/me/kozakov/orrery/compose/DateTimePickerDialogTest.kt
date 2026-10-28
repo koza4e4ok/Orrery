@@ -3,6 +3,7 @@ package me.kozakov.orrery.compose
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
@@ -19,12 +20,11 @@ import kotlinx.datetime.LocalDateTime
 import me.kozakov.orrery.core.DisabledDates
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLooper
-import java.util.concurrent.TimeUnit
 
 // The two-step dialog is taller than Robolectric's default 470dp window, which
 // leaves Next outside it; a Pixel 5 screen keeps every button clickable.
@@ -190,22 +190,39 @@ class DateTimePickerDialogTest {
         rule.onNodeWithText("00:00").assertIsEnabled()
     }
 
+    // The step body is tested outside the Dialog: the dialog window does not
+    // re-lay out while the test clock is paused, so mid-transition frames are
+    // only observable on the main root.
     @Test
-    fun switchingStepsAnimatesBetweenTheBodies() {
-        content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
-        val nextMonth = dateStrings.nextMonthDescription
-        rule.onNodeWithContentDescription(nextMonth).assertExists()
+    fun switchingStepsSlidesTheDateBodyOut() {
+        rule.setContent {
+            MaterialTheme {
+                dateStrings = DatePickerDefaults.strings()
+                state =
+                    rememberOrreryDateTimePickerState(
+                        initialDateTime = LocalDateTime(2026, 7, 8, 9, 30),
+                        is24Hour = true,
+                    )
+                DateTimeStepBody(
+                    state = state,
+                    timeInput = false,
+                    colors = CalendarDefaults.dayColors(),
+                    shapes = CalendarDefaults.dayShapes(),
+                    today = LocalDate(2026, 7, 15),
+                    dateStrings = dateStrings,
+                )
+            }
+        }
+        val nextMonth = rule.onNodeWithContentDescription(dateStrings.nextMonthDescription)
+        val restingLeft = nextMonth.fetchSemanticsNode().boundsInRoot.left
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithText("09:30").performClick()
+        rule.runOnIdle { Snapshot.withMutableSnapshot { state.step = DateTimePickerStep.Time } }
         rule.mainClock.advanceTimeBy(MIDWAY_MS)
-        // The dialog lays out in its own window, driven by the Robolectric main looper.
-        ShadowLooper.idleMainLooper(MIDWAY_MS, TimeUnit.MILLISECONDS)
-        // Mid-transition the outgoing Date body is still on screen while the Time step's buttons show.
-        rule.onNodeWithContentDescription(nextMonth).assertExists()
-        rule.onNodeWithText("OK").assertExists()
+        // Mid-transition the outgoing Date body is still there, sliding towards the start.
+        val midwayLeft = nextMonth.fetchSemanticsNode().boundsInRoot.left
+        assertTrue("expected the date body to slide left: $restingLeft -> $midwayLeft", midwayLeft < restingLeft)
         rule.mainClock.advanceTimeBy(SETTLED_MS)
-        ShadowLooper.idleMainLooper(SETTLED_MS, TimeUnit.MILLISECONDS)
-        rule.onNodeWithContentDescription(nextMonth).assertDoesNotExist()
+        nextMonth.assertDoesNotExist()
     }
 
     private companion object {

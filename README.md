@@ -19,6 +19,16 @@ interfaces, and an optional Chinese lunisolar artifact.
   <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with event badges, trip range selection with per-day prices, habit progress rings, Chinese lunar almanac, and Material 3 date picker dialogs" />
 </p>
 
+The same tour on Desktop (JVM), iOS and Web (Kotlin/Wasm), rendered from one shared
+Compose Multiplatform UI: trip range selection with holidays and paydays, Agenda, the
+Day/Week schedule, and the range picker presets.
+
+<p align="center">
+  <img src="art/orrery-features-demo.gif" width="250" alt="Desktop demo: range selection with holiday and payday labels, Agenda list, Day and Week schedule views, and the date range picker with presets" />
+  <img src="art/orrery-ios-demo.gif" width="250" alt="iOS simulator demo: the same calendar tour running on iOS" />
+  <img src="art/orrery-web-demo.gif" width="250" alt="Web demo: the same calendar tour running on Kotlin/Wasm in Chrome" />
+</p>
+
 **API reference:** [koza4e4ok.github.io/Orrery](https://koza4e4ok.github.io/Orrery/)
 (Dokka, published for each release).
 

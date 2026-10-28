@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,17 +44,27 @@ import me.kozakov.orrery.compose.rememberHeatmapCalendarState
 internal fun HabitsScreen() {
     val today = remember { currentDate() }
     val month = remember(today) { YearMonth(today.year, today.month) }
-    var selectedHabit by remember { mutableStateOf(SampleData.habits.first()) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    val selectedHabit = SampleData.habits[selectedIndex]
     val progress =
         remember(selectedHabit, month, today) {
             SampleData.habitProgress(selectedHabit, month, today)
         }
-    val animatedProgress = rememberAnimatedDayValues(progress)
+    // Each calendar shows data for the month it is paged to, not only the current one.
+    val ringState = rememberCalendarState()
+    val heatState = rememberCalendarState()
+    val ringMonth = ringState.firstVisibleMonth
+    val heatMonth = heatState.firstVisibleMonth
+    val ringProgress =
+        remember(selectedHabit, ringMonth, today) {
+            SampleData.habitProgress(selectedHabit, ringMonth, today)
+        }
+    val animatedProgress = rememberAnimatedDayValues(ringProgress)
     val ringDecorators =
         listOf(DayDecorators.progressRing(color = selectedHabit.color, progress = animatedProgress))
     val overall =
-        remember(month, today) {
-            val maps = SampleData.habits.map { SampleData.habitProgress(it, month, today) }
+        remember(heatMonth, today) {
+            val maps = SampleData.habits.map { SampleData.habitProgress(it, heatMonth, today) }
             buildMap<LocalDate, Float> {
                 maps.flatMap { it.keys }.distinct().forEach { date ->
                     put(date, maps.mapNotNull { it[date] }.average().toFloat())
@@ -69,10 +80,10 @@ internal fun HabitsScreen() {
             Modifier.padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            SampleData.habits.forEach { habit ->
+            SampleData.habits.forEachIndexed { index, habit ->
                 FilterChip(
-                    selected = habit == selectedHabit,
-                    onClick = { selectedHabit = habit },
+                    selected = index == selectedIndex,
+                    onClick = { selectedIndex = index },
                     label = { Text(habit.name) },
                 )
             }
@@ -91,14 +102,14 @@ internal fun HabitsScreen() {
             )
         }
         HorizontalCalendar(
-            state = rememberCalendarState(),
+            state = ringState,
             dayContent = { day ->
                 DefaultDay(day = day, today = today, decorators = ringDecorators)
             },
         )
         Text("All habits", Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
         HorizontalCalendar(
-            state = rememberCalendarState(),
+            state = heatState,
             dayContent = { day ->
                 val heat = overall[day.date]
                 val colors =

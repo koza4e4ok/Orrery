@@ -68,6 +68,7 @@ private val english: Map<OrreryString, String> =
         OrreryString.DateTimePickerSwitchToKeyboard to "Switch to keyboard input",
         OrreryString.MonthPickerTitle to "Select month",
         OrreryString.MonthPickerHeadlinePlaceholder to "Month",
+        OrreryString.Today to "Today",
     )
 
 private val german: Map<OrreryString, String> =
@@ -117,6 +118,7 @@ private val german: Map<OrreryString, String> =
         OrreryString.DateTimePickerSwitchToKeyboard to "Zur Tastatureingabe wechseln",
         OrreryString.MonthPickerTitle to "Monat auswählen",
         OrreryString.MonthPickerHeadlinePlaceholder to "Monat",
+        OrreryString.Today to "Heute",
     )
 
 private val spanish: Map<OrreryString, String> =
@@ -166,6 +168,7 @@ private val spanish: Map<OrreryString, String> =
         OrreryString.DateTimePickerSwitchToKeyboard to "Cambiar a entrada de teclado",
         OrreryString.MonthPickerTitle to "Seleccionar mes",
         OrreryString.MonthPickerHeadlinePlaceholder to "Mes",
+        OrreryString.Today to "Hoy",
     )
 
 private val japanese: Map<OrreryString, String> =
@@ -215,6 +218,7 @@ private val japanese: Map<OrreryString, String> =
         OrreryString.DateTimePickerSwitchToKeyboard to "キーボード入力に切り替え",
         OrreryString.MonthPickerTitle to "月を選択",
         OrreryString.MonthPickerHeadlinePlaceholder to "月",
+        OrreryString.Today to "今日",
     )
 
 private val ukrainian: Map<OrreryString, String> =
@@ -264,6 +268,7 @@ private val ukrainian: Map<OrreryString, String> =
         OrreryString.DateTimePickerSwitchToKeyboard to "Перейти до введення з клавіатури",
         OrreryString.MonthPickerTitle to "Виберіть місяць",
         OrreryString.MonthPickerHeadlinePlaceholder to "Місяць",
+        OrreryString.Today to "Сьогодні",
     )
 
 private val simplifiedChinese: Map<OrreryString, String> =
@@ -313,4 +318,5 @@ private val simplifiedChinese: Map<OrreryString, String> =
         OrreryString.DateTimePickerSwitchToKeyboard to "切换到键盘输入",
         OrreryString.MonthPickerTitle to "选择月份",
         OrreryString.MonthPickerHeadlinePlaceholder to "月份",
+        OrreryString.Today to "今天",
     )

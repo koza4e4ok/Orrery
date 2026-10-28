@@ -397,7 +397,8 @@ public final class me/kozakov/orrery/compose/MonthYearPickerKt {
 }
 
 public final class me/kozakov/orrery/compose/NavHeaderKt {
-	public static final fun CalendarNavHeader (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun CalendarNavHeader (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CalendarNavHeader (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;ZLkotlinx/datetime/YearMonth;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class me/kozakov/orrery/compose/ObservationKt {
@@ -596,7 +597,8 @@ public final class me/kozakov/orrery/compose/WeekCalendarStateKt {
 }
 
 public final class me/kozakov/orrery/compose/YearCalendarKt {
-	public static final fun MiniMonth (Lme/kozakov/orrery/compose/CalendarDefaults;Lkotlinx/datetime/YearMonth;Landroidx/compose/ui/Modifier;Lkotlinx/datetime/DayOfWeek;Lkotlinx/datetime/LocalDate;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun MiniMonth (Lme/kozakov/orrery/compose/CalendarDefaults;Lkotlinx/datetime/YearMonth;Landroidx/compose/ui/Modifier;Lkotlinx/datetime/DayOfWeek;Lkotlinx/datetime/LocalDate;Landroidx/compose/runtime/Composer;II)V
+	public static final fun MiniMonth (Lme/kozakov/orrery/compose/CalendarDefaults;Lkotlinx/datetime/YearMonth;Landroidx/compose/ui/Modifier;Lkotlinx/datetime/DayOfWeek;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/Selection;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 	public static final fun YearCalendar (Lme/kozakov/orrery/compose/YearCalendarState;Landroidx/compose/ui/Modifier;ZILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
 	public static final fun rememberYearCalendarState (IIILandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/YearCalendarState;
 }

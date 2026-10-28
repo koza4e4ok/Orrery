@@ -37,6 +37,18 @@
   (`ScheduleDefaults.EventTile`, `ScheduleDefaults.AllDayEventChip`) and
   `Agenda` (`AgendaDefaults.EventRow`) draw a 2.dp `onSurface` focus ring
   inside the item when keyboard-focused (#62).
+- `CalendarNavHeader` "Today" action (#64): with `showTodayButton = true` a
+  compact, localized (`todayLabel`, EN/DE/ES/JA/UK/ZH-CN) text button appears
+  after the next-month chevron while the visible month differs from `today`
+  (default `currentYearMonth()`) and `today` lies within the state's month range;
+  clicking it animates back to `today`. The previous overload stays as a hidden
+  binary-compatible bridge.
+- Richer `CalendarDefaults.MiniMonth` in `YearCalendar` (#64): `today` is drawn
+  on a filled `primary` circle with `onPrimary` text, the new optional
+  `selection: Selection?` shows selected dates and ranges on a subtle
+  `primaryContainer` pill, and day numbers whose optional
+  `dayInfo: ((LocalDate) -> DayInfo?)?` reports `isHoliday` use the `primary`
+  color. The previous overload stays as a hidden binary-compatible bridge.
 
 ### Changed
 
@@ -55,6 +67,19 @@
   a 1 dp outline on selected days (new `selectedOutlineColor` parameter, default
   the selected content color) so it stays distinct from the selection fill. The
   previous overloads stay for binary compatibility (#63).
+- `OrreryDatePickerDialog`, `OrreryDateTimePickerDialog` and
+  `OrreryMonthPickerDialog` scroll their body on short windows (for example a
+  420 dp tall landscape phone), and `OrreryDateRangePickerDialog` fits its
+  calendar or scrolling text-input pane into the height left under the top bar,
+  so the confirm and dismiss buttons are never pushed out of the dialog (#65).
+- `OrreryDateTimePickerDialog` slides and fades between the Date and Time steps
+  and puts the active step's headline part (date or time) on a
+  `secondaryContainer` pill with `onSecondaryContainer` text; both parts are
+  selectable tabs for accessibility services (#65).
+- `DaySchedule` / `WeekSchedule` default event tiles and all-day chips with a
+  custom `CalendarEvent.colorArgb` pick `onSurface` or `inverseOnSurface`
+  text, whichever contrasts more with the tinted background, so pale or very
+  bright event colors stay legible in light and dark themes (#65).
 
 ## [0.7.0] - 2026-10-28
 

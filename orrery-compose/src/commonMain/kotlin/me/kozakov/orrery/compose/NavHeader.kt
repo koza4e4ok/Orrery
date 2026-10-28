@@ -1,6 +1,7 @@
 package me.kozakov.orrery.compose
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -9,6 +10,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -41,6 +44,11 @@ import me.kozakov.orrery.core.CalendarPages
  * same [CalendarState]; buttons disable at the state's month range
  * bounds. When [onTitleClick] is set the title becomes clickable and
  * shows a dropdown affordance — the hook for hosting [MonthYearPicker].
+ *
+ * With [showTodayButton] a compact [todayLabel] text button appears after
+ * the next-month chevron while the visible month differs from [today]
+ * (and [today] lies within the state's month range); clicking it animates
+ * the calendar back to [today].
  */
 @Composable
 public fun CalendarNavHeader(
@@ -49,6 +57,9 @@ public fun CalendarNavHeader(
     onTitleClick: (() -> Unit)? = null,
     previousMonthContentDescription: String = orreryString(OrreryString.PreviousMonth),
     nextMonthContentDescription: String = orreryString(OrreryString.NextMonth),
+    showTodayButton: Boolean = false,
+    today: YearMonth = currentYearMonth(),
+    todayLabel: String = orreryString(OrreryString.Today),
     title: @Composable (YearMonth) -> Unit = { month ->
         NavHeaderTitle(month, showDropdown = onTitleClick != null)
     },
@@ -57,6 +68,7 @@ public fun CalendarNavHeader(
     val visibleMonth = state.firstVisibleMonth
     val startBound = state.startMonth
     val endBound = state.endMonth
+    val todayInRange = (startBound == null || today >= startBound) && (endBound == null || today <= endBound)
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             onClick = {
@@ -104,8 +116,41 @@ public fun CalendarNavHeader(
         ) {
             NavChevron(forward = true, contentDescription = nextMonthContentDescription)
         }
+        AnimatedVisibility(visible = showTodayButton && todayInRange && visibleMonth != today) {
+            TextButton(
+                onClick = { scope.launch { state.animateScrollToMonth(today) } },
+                contentPadding = TodayButtonPadding,
+            ) {
+                Text(todayLabel, maxLines = 1)
+            }
+        }
     }
 }
+
+@Deprecated("Kept for binary compatibility; use the overload with showTodayButton.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun CalendarNavHeader(
+    state: CalendarState,
+    modifier: Modifier = Modifier,
+    onTitleClick: (() -> Unit)? = null,
+    previousMonthContentDescription: String = orreryString(OrreryString.PreviousMonth),
+    nextMonthContentDescription: String = orreryString(OrreryString.NextMonth),
+    title: @Composable (YearMonth) -> Unit = { month ->
+        NavHeaderTitle(month, showDropdown = onTitleClick != null)
+    },
+) {
+    CalendarNavHeader(
+        state = state,
+        modifier = modifier,
+        onTitleClick = onTitleClick,
+        previousMonthContentDescription = previousMonthContentDescription,
+        nextMonthContentDescription = nextMonthContentDescription,
+        showTodayButton = false,
+        title = title,
+    )
+}
+
+private val TodayButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
 
 @Composable
 private fun NavHeaderTitle(

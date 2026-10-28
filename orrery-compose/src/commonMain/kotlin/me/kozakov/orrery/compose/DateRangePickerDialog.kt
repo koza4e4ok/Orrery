@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
@@ -119,10 +120,14 @@ public fun OrreryDateRangePickerDialog(
                     }
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                // The body takes only the height left under the top bar, so on short
+                // windows the calendar (or the scrolling input pane) shrinks instead of
+                // pushing anything out of the dialog.
                 AnimatedContent(
                     targetState = state.displayMode,
                     transitionSpec = { fadeIn().togetherWith(fadeOut()) },
                     label = "rangePickerMode",
+                    modifier = Modifier.weight(1f),
                 ) { mode ->
                     when (mode) {
                         DatePickerDisplayMode.Picker -> {
@@ -248,7 +253,7 @@ private fun RangeInputPane(
     // proposed pair apply?" is a comparison, not a null check.
     val pairApplied = state.selectedStartDate == start && state.selectedEndDate == end
     val rangeError = if (start != null && end != null && !pairApplied) strings.invalidRangeError else null
-    Column(Modifier.padding(horizontal = 24.dp)) {
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
         DateInputField(
             value = start,
             onValueChange = {

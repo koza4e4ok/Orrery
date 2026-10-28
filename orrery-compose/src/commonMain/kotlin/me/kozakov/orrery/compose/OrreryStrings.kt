@@ -56,6 +56,7 @@ internal enum class OrreryString(
     DateTimePickerSwitchToKeyboard("orrery_date_time_picker_switch_to_keyboard"),
     MonthPickerTitle("orrery_month_picker_title"),
     MonthPickerHeadlinePlaceholder("orrery_month_picker_headline_placeholder"),
+    Today("orrery_today"),
 }
 
 /**

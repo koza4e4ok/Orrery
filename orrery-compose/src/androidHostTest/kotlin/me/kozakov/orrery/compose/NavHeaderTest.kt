@@ -5,11 +5,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
@@ -30,6 +32,9 @@ class NavHeaderTest {
         firstVisible: YearMonth = YearMonth(2026, 8),
         startMonth: YearMonth? = YearMonth(2026, 7),
         endMonth: YearMonth? = YearMonth(2026, 9),
+        showTodayButton: Boolean = false,
+        today: YearMonth = YearMonth(2026, 7),
+        todayLabel: String? = null,
     ): () -> CalendarState {
         lateinit var state: CalendarState
         rule.setContent {
@@ -42,11 +47,24 @@ class NavHeaderTest {
                         firstDayOfWeek = DayOfWeek.MONDAY,
                     )
                 Column {
-                    CalendarNavHeader(
-                        state = state,
-                        onTitleClick = onTitleClick,
-                        title = { month -> Text(month.toString(), Modifier.testTag("title")) },
-                    )
+                    if (todayLabel != null) {
+                        CalendarNavHeader(
+                            state = state,
+                            onTitleClick = onTitleClick,
+                            showTodayButton = showTodayButton,
+                            today = today,
+                            todayLabel = todayLabel,
+                            title = { month -> Text(month.toString(), Modifier.testTag("title")) },
+                        )
+                    } else {
+                        CalendarNavHeader(
+                            state = state,
+                            onTitleClick = onTitleClick,
+                            showTodayButton = showTodayButton,
+                            today = today,
+                            title = { month -> Text(month.toString(), Modifier.testTag("title")) },
+                        )
+                    }
                     HorizontalCalendar(
                         state = state,
                         dayContent = { day -> DefaultDay(day = day, animateSelection = false) },
@@ -91,5 +109,46 @@ class NavHeaderTest {
         // the clickable title Box merges its children's semantics
         rule.onNodeWithTag("title", useUnmergedTree = true).performClick()
         rule.runOnIdle { assertTrue(clicked) }
+    }
+
+    @Test
+    fun todayButtonIsHiddenByDefault() {
+        content(firstVisible = YearMonth(2026, 9))
+        rule.onNodeWithText("Today").assertDoesNotExist()
+    }
+
+    @Test
+    fun todayButtonJumpsBackToTodayAndHides() {
+        val state = content(firstVisible = YearMonth(2026, 9), showTodayButton = true, today = YearMonth(2026, 7))
+        rule.onNodeWithText("Today").assertIsDisplayed().performClick()
+        rule.waitForIdle()
+        assertEquals(YearMonth(2026, 7), state().firstVisibleMonth)
+        rule.onNodeWithText("Today").assertDoesNotExist()
+    }
+
+    @Test
+    fun todayButtonAppearsAfterPagingAwayFromToday() {
+        content(firstVisible = YearMonth(2026, 7), showTodayButton = true, today = YearMonth(2026, 7))
+        rule.onNodeWithText("Today").assertDoesNotExist()
+        rule.onNodeWithContentDescription("Next month").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Today").assertIsDisplayed()
+    }
+
+    @Test
+    fun todayButtonHidesWhenTodayIsOutsideTheMonthRange() {
+        content(firstVisible = YearMonth(2026, 8), showTodayButton = true, today = YearMonth(2027, 1))
+        rule.onNodeWithText("Today").assertDoesNotExist()
+    }
+
+    @Test
+    fun todayButtonUsesCustomLabel() {
+        content(
+            firstVisible = YearMonth(2026, 9),
+            showTodayButton = true,
+            today = YearMonth(2026, 7),
+            todayLabel = "Back to now",
+        )
+        rule.onNodeWithText("Back to now").assertIsDisplayed()
     }
 }

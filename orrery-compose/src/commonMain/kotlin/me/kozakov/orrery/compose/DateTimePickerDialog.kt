@@ -4,7 +4,16 @@
 
 package me.kozakov.orrery.compose
 
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +22,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
@@ -41,6 +53,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -212,8 +227,10 @@ private fun YearMonth.coerceInBounds(
  * Material-3-shaped dialog that picks a date, then a time of day, in one
  * surface: the Date step is the [OrreryDatePickerDialog] body (calendar or
  * text input); **Next** opens the Time step, a Material 3 TimePicker dial
- * with a toggle to TimeInput. The headline shows both parts; tap either to
- * jump to its step. Read state.selectedDateTime in [confirmButton], which
+ * with a toggle to TimeInput. The headline shows both parts, with the
+ * active step's part on a secondaryContainer pill; tap either to jump to its
+ * step. Steps slide and fade into each other, and on short windows the body
+ * scrolls so the button row stays visible. Read state.selectedDateTime in [confirmButton], which
  * shows on the Time step. [dateStrings] localizes the date step.
  */
 @Composable
@@ -249,24 +266,24 @@ public fun OrreryDateTimePickerDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
-                            ?: dateStrings.headlinePlaceholder,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = headlinePartColor(active = onDateStep),
-                        modifier =
-                            Modifier
-                                .weight(1f, fill = false)
-                                .clickable { state.step = DateTimePickerStep.Date },
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        PlatformDateFormat.formatTime(state.hour, state.minute, state.is24Hour),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = headlinePartColor(active = !onDateStep),
-                        modifier = Modifier.clickable(enabled = date != null) { state.step = DateTimePickerStep.Time },
-                    )
-                    Spacer(Modifier.weight(1f))
+                    // The pills share one weighted row so the date only wraps when the
+                    // time and the toggle leave it too little room.
+                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                        HeadlineStepPill(
+                            text =
+                                date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
+                                    ?: dateStrings.headlinePlaceholder,
+                            active = onDateStep,
+                            onClick = { state.step = DateTimePickerStep.Date },
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        HeadlineStepPill(
+                            text = PlatformDateFormat.formatTime(state.hour, state.minute, state.is24Hour),
+                            active = !onDateStep,
+                            enabled = date != null,
+                            onClick = { state.step = DateTimePickerStep.Time },
+                        )
+                    }
                     if (onDateStep) {
                         DisplayModeToggle(state.dateState, dateStrings)
                     } else {
@@ -280,11 +297,17 @@ public fun OrreryDateTimePickerDialog(
                     }
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                if (onDateStep) {
-                    DatePickerContent(state.dateState, colors, shapes, today, dateStrings)
-                } else {
-                    TimeStep(state, timeInput)
-                }
+                // Takes only the height left over by the headline and buttons, scrolling
+                // on short windows so the button row is never pushed out of the dialog.
+                DateTimeStepBody(
+                    state = state,
+                    timeInput = timeInput,
+                    colors = colors,
+                    shapes = shapes,
+                    today = today,
+                    dateStrings = dateStrings,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
                 Row(
                     Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.End,
@@ -309,9 +332,77 @@ public fun OrreryDateTimePickerDialog(
     }
 }
 
+/** The Date or Time body of [OrreryDateTimePickerDialog], sliding between steps and scrolling when short. */
 @Composable
-private fun headlinePartColor(active: Boolean) =
-    if (active) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+internal fun DateTimeStepBody(
+    state: OrreryDateTimePickerState,
+    timeInput: Boolean,
+    colors: CalendarDayColors,
+    shapes: CalendarDayShapes,
+    today: LocalDate,
+    dateStrings: DatePickerStrings,
+    modifier: Modifier = Modifier,
+) {
+    AnimatedContent(
+        targetState = state.step,
+        transitionSpec = { stepTransition() },
+        label = "dateTimeStep",
+        modifier = modifier,
+    ) { step ->
+        Box(Modifier.verticalScroll(rememberScrollState())) {
+            if (step == DateTimePickerStep.Date) {
+                DatePickerContent(state.dateState, colors, shapes, today, dateStrings)
+            } else {
+                TimeStep(state, timeInput)
+            }
+        }
+    }
+}
+
+/** Date slides in from the left, Time from the right, each with a fade. */
+private fun AnimatedContentTransitionScope<DateTimePickerStep>.stepTransition(): ContentTransform {
+    val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
+    return (slideInHorizontally { width -> direction * width / STEP_SLIDE_DIVISOR } + fadeIn())
+        .togetherWith(slideOutHorizontally { width -> -direction * width / STEP_SLIDE_DIVISOR } + fadeOut())
+}
+
+/** Slide by a quarter of the body width: enough to read as direction, short enough to stay calm. */
+private const val STEP_SLIDE_DIVISOR = 4
+
+/**
+ * One headline part (date or time). The active step's part sits on a
+ * secondaryContainer pill; it is selectable, so accessibility services
+ * announce which step is showing.
+ */
+@Composable
+private fun HeadlineStepPill(
+    text: String,
+    active: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val container by animateColorAsState(
+        if (active) colorScheme.secondaryContainer else Color.Transparent,
+        label = "stepPillContainer",
+    )
+    val content by animateColorAsState(
+        if (active) colorScheme.onSecondaryContainer else colorScheme.onSurfaceVariant,
+        label = "stepPillContent",
+    )
+    Text(
+        text,
+        style = MaterialTheme.typography.headlineSmall,
+        color = content,
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(container)
+                .selectable(selected = active, enabled = enabled, role = Role.Tab, onClick = onClick)
+                .padding(horizontal = 6.dp, vertical = 2.dp),
+    )
+}
 
 /** Material 3 dial or keyboard input, kept in sync with [state] both ways. */
 @Composable

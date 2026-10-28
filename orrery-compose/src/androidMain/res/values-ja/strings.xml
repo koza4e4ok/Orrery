@@ -45,4 +45,5 @@
     <string name="orrery_date_time_picker_switch_to_keyboard">キーボード入力に切り替え</string>
     <string name="orrery_month_picker_title">月を選択</string>
     <string name="orrery_month_picker_headline_placeholder">月</string>
+    <string name="orrery_today">今日</string>
 </resources>

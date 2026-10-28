@@ -18,6 +18,11 @@ import com.github.takahirom.roborazzi.captureRoboImage
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import me.kozakov.orrery.core.CalendarEvent
+import me.kozakov.orrery.core.EventSpan
+import me.kozakov.orrery.core.Selection
+import me.kozakov.orrery.core.SelectionMode
+import me.kozakov.orrery.core.eventsByDate
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -161,6 +166,82 @@ class DecoratorsSnapshotTest {
     @Test
     fun stackedRtl() {
         setThemedContent(layoutDirection = LayoutDirection.Rtl) { StackedCalendar() }
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun spanningEventBars() {
+        val events =
+            listOf(
+                CalendarEvent<Nothing>(
+                    id = "conf",
+                    title = "KotlinConf",
+                    span = EventSpan.AllDay(LocalDate(2026, 7, 6), LocalDate(2026, 7, 9)),
+                    colorArgb = 0xFF1E88E5L,
+                ),
+                CalendarEvent<Nothing>(
+                    id = "workshop",
+                    title = "Compose Workshop",
+                    span = EventSpan.AllDay(LocalDate(2026, 7, 8), LocalDate(2026, 7, 11)),
+                    colorArgb = 0xFFE53935L,
+                ),
+                CalendarEvent<Nothing>(
+                    id = "release",
+                    title = "Release Cut",
+                    span = EventSpan.AllDay(LocalDate(2026, 7, 20), LocalDate(2026, 7, 22)),
+                    colorArgb = 0xFF43A047L,
+                ),
+            ).eventsByDate(LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31))
+        setThemedContent {
+            DecoratedCalendar(
+                listOf(DayDecorators.spanningEventBars(eventsByDate = { events[it].orEmpty() })),
+            )
+        }
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun stackedBars() {
+        setThemedContent {
+            DecoratedCalendar(
+                listOf(DayDecorators.stackedBars(colors = ::dotColors)),
+            )
+        }
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun rangePreview() {
+        setThemedContent {
+            val selectionState =
+                rememberCalendarSelectionState(
+                    mode = SelectionMode.Range(),
+                    initialSelection = Selection(rangeStart = LocalDate(2026, 7, 8)),
+                )
+            val preview =
+                DayDecorators.rangePreview(
+                    selectionState = selectionState,
+                    targetDate = LocalDate(2026, 7, 16),
+                )
+            HorizontalCalendar(
+                state =
+                    rememberCalendarState(
+                        startMonth = YearMonth(2026, 7),
+                        endMonth = YearMonth(2026, 7),
+                        firstVisibleMonth = YearMonth(2026, 7),
+                        firstDayOfWeek = DayOfWeek.MONDAY,
+                    ),
+                dayContent = { day ->
+                    DefaultDay(
+                        day = day,
+                        selectionState = selectionState,
+                        today = LocalDate(2026, 7, 15),
+                        animateSelection = false,
+                        decorators = listOf(preview),
+                    )
+                },
+            )
+        }
         rule.onRoot().captureRoboImage()
     }
 }

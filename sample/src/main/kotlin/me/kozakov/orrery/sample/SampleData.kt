@@ -31,9 +31,10 @@ private data class EventTemplate(
 
 /** Deterministic fake data anchored to the current date — no randomness. */
 internal object SampleData {
-    private const val WORK_COLOR = 0xFF64B5F6L
-    private const val PERSONAL_COLOR = 0xFFE57373L
-    private const val HEALTH_COLOR = 0xFF81C784L
+    private const val WORK_COLOR = 0xFF1E88E5L
+    private const val PERSONAL_COLOR = 0xFFE53935L
+    private const val HEALTH_COLOR = 0xFF43A047L
+    private const val TRAVEL_COLOR = 0xFF8E24AAL
 
     val habits =
         listOf(
@@ -91,8 +92,53 @@ internal object SampleData {
                     }
                 }
             }
-        return rawEvents.eventsByDate(range)
+        return (spanningEventsFor(range) + rawEvents).eventsByDate(range)
     }
+
+    private fun spanningEventsFor(range: ClosedRange<LocalDate>): List<CalendarEvent<Nothing>> =
+        buildList {
+            var cursor = YearMonth(range.start.year, range.start.month)
+            val endMonth = YearMonth(range.endInclusive.year, range.endInclusive.month)
+            while (cursor <= endMonth) {
+                val mStart = cursor.firstDay
+                add(
+                    CalendarEvent(
+                        id = "span-summit-$cursor",
+                        title = "Architecture Summit",
+                        subtitle = "Multi-day offsite",
+                        span = EventSpan.AllDay(mStart.plus(5, DateTimeUnit.DAY), mStart.plus(8, DateTimeUnit.DAY)),
+                        colorArgb = WORK_COLOR,
+                    ),
+                )
+                add(
+                    CalendarEvent(
+                        id = "span-release-$cursor",
+                        title = "Release Freeze & QA",
+                        subtitle = "Cross-platform verification",
+                        span =
+                            EventSpan.AllDay(
+                                mStart.plus(14, DateTimeUnit.DAY),
+                                mStart.plus(17, DateTimeUnit.DAY),
+                            ),
+                        colorArgb = TRAVEL_COLOR,
+                    ),
+                )
+                add(
+                    CalendarEvent(
+                        id = "span-hackathon-$cursor",
+                        title = "Compose UI Sprint",
+                        subtitle = "Design & animation",
+                        span =
+                            EventSpan.AllDay(
+                                mStart.plus(16, DateTimeUnit.DAY),
+                                mStart.plus(19, DateTimeUnit.DAY),
+                            ),
+                        colorArgb = PERSONAL_COLOR,
+                    ),
+                )
+                cursor = cursor.plus(1, DateTimeUnit.MONTH)
+            }
+        }
 
     /** Progress for past days and today; the most recent days are complete so streaks show. */
     fun habitProgress(

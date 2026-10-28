@@ -306,6 +306,10 @@ public final class me/kozakov/orrery/compose/DayDecorators {
 	public final fun heatmap (Landroidx/compose/ui/graphics/Shape;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun progressBar-Sk5a5R4 (FJJLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun progressRing-Sk5a5R4 (FJJLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
+	public final fun rangePreview-FNF3uiM (Lme/kozakov/orrery/compose/CalendarSelectionState;Lkotlinx/datetime/LocalDate;JLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
+	public final fun spanningEventBars--gZXFtk (Lkotlin/jvm/functions/Function1;IFFJLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
+	public final fun stackedBars-rSX6ZAs (IFFFLkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/compose/DayDecorator;
+	public static synthetic fun stackedBars-rSX6ZAs$default (Lme/kozakov/orrery/compose/DayDecorators;IFFFLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun strikethrough-vJenqF0 (JFLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun underline-vJenqF0 (JFLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 }

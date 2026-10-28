@@ -89,6 +89,7 @@ internal fun DrawScope.drawDecorator(
  * (once, outside dayContent, ideally remembered) and pass the resulting
  * list to [DefaultDay].
  */
+@Suppress("TooManyFunctions")
 public object DayDecorators {
     /**
      * Up to [maxDots] colored dots centered near the cell bottom.
@@ -238,31 +239,50 @@ public object DayDecorators {
             active.forEach { event ->
                 val continuesFromPrev = event.span.startDate <= prevDate && event.id in prevIds
                 val continuesToNext = event.span.endDate >= nextDate && event.id in nextIds
-                val leftFlush = if (isLtr) continuesFromPrev else continuesToNext
-                val rightFlush = if (isLtr) continuesToNext else continuesFromPrev
-                val leftX = if (leftFlush) 0f else insetPx
-                val rightX = if (rightFlush) size.width else (size.width - insetPx).coerceAtLeast(leftX)
-                if (rightX > leftX) {
-                    val leftRadius = if (leftFlush) CornerRadius.Zero else radius
-                    val rightRadius = if (rightFlush) CornerRadius.Zero else radius
-                    path.reset()
-                    path.addRoundRect(
-                        RoundRect(
-                            left = leftX,
-                            top = topY,
-                            right = rightX,
-                            bottom = topY + heightPx,
-                            topLeftCornerRadius = leftRadius,
-                            bottomLeftCornerRadius = leftRadius,
-                            topRightCornerRadius = rightRadius,
-                            bottomRightCornerRadius = rightRadius,
-                        ),
-                    )
-                    val color = selectedBarColor ?: event.colorArgb?.let(::Color) ?: defaultColor
-                    drawPath(path = path, color = color)
-                }
+                val color = selectedBarColor ?: event.colorArgb?.let(::Color) ?: defaultColor
+                drawSpanningBar(
+                    path = path,
+                    topY = topY,
+                    heightPx = heightPx,
+                    insetPx = insetPx,
+                    radius = radius,
+                    leftFlush = if (isLtr) continuesFromPrev else continuesToNext,
+                    rightFlush = if (isLtr) continuesToNext else continuesFromPrev,
+                    color = color,
+                )
                 topY += heightPx + spacingPx
             }
+        }
+
+        private fun DrawScope.drawSpanningBar(
+            path: Path,
+            topY: Float,
+            heightPx: Float,
+            insetPx: Float,
+            radius: CornerRadius,
+            leftFlush: Boolean,
+            rightFlush: Boolean,
+            color: Color,
+        ) {
+            val leftX = if (leftFlush) 0f else insetPx
+            val rightX = if (rightFlush) size.width else (size.width - insetPx).coerceAtLeast(leftX)
+            if (rightX <= leftX) return
+            val leftRadius = if (leftFlush) CornerRadius.Zero else radius
+            val rightRadius = if (rightFlush) CornerRadius.Zero else radius
+            path.reset()
+            path.addRoundRect(
+                RoundRect(
+                    left = leftX,
+                    top = topY,
+                    right = rightX,
+                    bottom = topY + heightPx,
+                    topLeftCornerRadius = leftRadius,
+                    bottomLeftCornerRadius = leftRadius,
+                    topRightCornerRadius = rightRadius,
+                    bottomRightCornerRadius = rightRadius,
+                ),
+            )
+            drawPath(path = path, color = color)
         }
     }
 

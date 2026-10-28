@@ -173,19 +173,19 @@ class DecoratorsSnapshotTest {
     fun spanningEventBars() {
         val events =
             listOf(
-                CalendarEvent(
+                CalendarEvent<Nothing>(
                     id = "conf",
                     title = "KotlinConf",
                     span = EventSpan.AllDay(LocalDate(2026, 7, 6), LocalDate(2026, 7, 9)),
                     colorArgb = 0xFF1E88E5L,
                 ),
-                CalendarEvent(
+                CalendarEvent<Nothing>(
                     id = "workshop",
                     title = "Compose Workshop",
                     span = EventSpan.AllDay(LocalDate(2026, 7, 8), LocalDate(2026, 7, 11)),
                     colorArgb = 0xFFE53935L,
                 ),
-                CalendarEvent(
+                CalendarEvent<Nothing>(
                     id = "release",
                     title = "Release Cut",
                     span = EventSpan.AllDay(LocalDate(2026, 7, 20), LocalDate(2026, 7, 22)),

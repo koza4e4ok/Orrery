@@ -779,7 +779,11 @@ private fun RichMiniMonth(
     val isCurrentMonth = yearMonth.year == today.year && yearMonth.month == today.month
     Column(Modifier.padding(6.dp)) {
         Text(
-            text = yearMonth.month.name.take(3).lowercase().replaceFirstChar { it.titlecase(Locale.ENGLISH) },
+            text =
+                yearMonth.month.name
+                    .take(3)
+                    .lowercase()
+                    .replaceFirstChar { it.titlecase(Locale.ENGLISH) },
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
             color = if (isCurrentMonth) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
         )

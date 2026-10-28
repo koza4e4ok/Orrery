@@ -127,7 +127,7 @@ class DayDecoratorsTest {
         val d3 = LocalDate(2026, 7, 8)
         val events =
             listOf(
-                CalendarEvent(
+                CalendarEvent<Nothing>(
                     id = "trip",
                     title = "Conference",
                     span = EventSpan.AllDay(startDate = d1, endDate = d3),
@@ -179,14 +179,14 @@ class DayDecoratorsTest {
         val d1 = LocalDate(2026, 7, 6)
         val d2 = LocalDate(2026, 7, 7)
         val earlier =
-            CalendarEvent(
+            CalendarEvent<Nothing>(
                 id = "b",
                 title = "Earlier",
                 span = EventSpan.AllDay(startDate = d1, endDate = d2),
                 colorArgb = 0xFFFF0000L, // Red -> top track
             )
         val later =
-            CalendarEvent(
+            CalendarEvent<Nothing>(
                 id = "a",
                 title = "Later",
                 span = EventSpan.AllDay(startDate = d2, endDate = d2),

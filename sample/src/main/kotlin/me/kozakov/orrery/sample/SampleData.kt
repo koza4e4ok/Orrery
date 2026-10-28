@@ -112,7 +112,11 @@ internal object SampleData {
                             id = "span-release-$cursor",
                             title = "Release Freeze & QA",
                             subtitle = "Cross-platform verification",
-                            span = EventSpan.AllDay(mStart.plus(14, DateTimeUnit.DAY), mStart.plus(17, DateTimeUnit.DAY)),
+                            span =
+                                EventSpan.AllDay(
+                                    mStart.plus(14, DateTimeUnit.DAY),
+                                    mStart.plus(17, DateTimeUnit.DAY),
+                                ),
                             colorArgb = TRAVEL_COLOR,
                         ),
                     )
@@ -121,7 +125,11 @@ internal object SampleData {
                             id = "span-hackathon-$cursor",
                             title = "Compose UI Sprint",
                             subtitle = "Design & animation",
-                            span = EventSpan.AllDay(mStart.plus(16, DateTimeUnit.DAY), mStart.plus(19, DateTimeUnit.DAY)),
+                            span =
+                                EventSpan.AllDay(
+                                    mStart.plus(16, DateTimeUnit.DAY),
+                                    mStart.plus(19, DateTimeUnit.DAY),
+                                ),
                             colorArgb = PERSONAL_COLOR,
                         ),
                     )

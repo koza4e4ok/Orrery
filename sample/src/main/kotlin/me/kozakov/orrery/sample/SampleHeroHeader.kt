@@ -235,9 +235,7 @@ internal fun TodayBadgeButton(
  * the top-end corner of a day cell for the Meizu / Almanac Badges showcase theme.
  */
 @Composable
-internal fun meizuTagDecorator(
-    tagForDate: (LocalDate) -> Pair<String, Color>?,
-): DayDecorator {
+internal fun meizuTagDecorator(tagForDate: (LocalDate) -> Pair<String, Color>?): DayDecorator {
     val textMeasurer = rememberTextMeasurer()
     val baseStyle =
         MaterialTheme.typography.labelSmall.copy(

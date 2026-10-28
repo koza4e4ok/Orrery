@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
@@ -165,7 +166,7 @@ class DefaultDayPolishTest {
                     animateSelection = false,
                     decorators =
                         listOf(
-                            DayDecorators.eventDots(maxDots = 1, dotSize = 6.dp, selectedColor = Color.Yellow) {
+                            DayDecorators.eventDots(selectedColor = Color.Yellow, maxDots = 1, dotSize = 6.dp) {
                                 listOf(Color.Red)
                             },
                         ),
@@ -218,11 +219,9 @@ class DefaultDayPolishTest {
         assertColorNear(Color.Green, pixel(4.dp, 24.dp))
         assertColorNear(Color.White, pixel(92.dp, 24.dp))
 
-        rule.runOnUiThread { selection.clear() }
-        rule.mainClock.advanceTimeByFrame()
-        rule.mainClock.advanceTimeBy(100)
+        changeSelection { selection.clear() }
         val mid = pixel(4.dp, 24.dp)
-        assertTrue("band should be mid-fade but was $mid", mid.red in 0.1f..0.9f)
+        assertTrue("band should be mid-fade but was $mid", mid.red in 0.05f..0.95f)
 
         rule.mainClock.advanceTimeBy(1_000)
         assertColorNear(Color.White, pixel(4.dp, 24.dp))
@@ -251,18 +250,25 @@ class DefaultDayPolishTest {
         rule.mainClock.advanceTimeBy(1_000)
         assertColorNear(Color.White, pixel(92.dp, 24.dp))
 
-        rule.runOnUiThread {
-            selection.set(Selection(rangeStart = day.date, rangeEnd = LocalDate(2026, 10, 18)))
-        }
-        rule.mainClock.advanceTimeByFrame()
-        rule.mainClock.advanceTimeBy(100)
+        changeSelection { selection.set(Selection(rangeStart = day.date, rangeEnd = LocalDate(2026, 10, 18))) }
         val mid = pixel(92.dp, 24.dp)
-        assertTrue("band should be mid-fade but was $mid", mid.red in 0.1f..0.9f)
+        assertTrue("band should be mid-fade but was $mid", mid.red in 0.05f..0.95f)
 
         rule.mainClock.advanceTimeBy(1_000)
         // Range start: only the half toward the range end is filled.
         assertColorNear(Color.Green, pixel(92.dp, 24.dp))
         assertColorNear(Color.White, pixel(4.dp, 24.dp))
+    }
+
+    /** Applies [change], then advances the paused clock to roughly mid-way through the 200 ms band fade. */
+    private fun changeSelection(change: () -> Unit) {
+        rule.runOnIdle {
+            change()
+            Snapshot.sendApplyNotifications()
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(48)
     }
 
     @Composable

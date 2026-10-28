@@ -343,6 +343,7 @@ private fun DrawScope.drawRangeBand(
     val top = (size.height - height) / 2f
     val center = size.width / 2f
     val ltr = layoutDirection == LayoutDirection.Ltr
+
     fun half(
         left: Float,
         right: Float,
@@ -356,6 +357,7 @@ private fun DrawScope.drawRangeBand(
             )
         }
     }
+
     when {
         startAlpha == endAlpha -> {
             half(0f, size.width, startAlpha)

@@ -88,57 +88,61 @@ public object DayDecorators {
     /**
      * Up to [maxDots] colored dots centered near the cell bottom.
      *
-     * In [DefaultDay], dots on a selected day draw in [selectedColor] (null
-     * uses the cell's selected content color) so they stay visible on the
-     * selection fill, and dots on a day with a secondary label sit closer
-     * to the bottom edge so they do not touch the label.
+     * In [DefaultDay], dots on a selected day draw in the cell's selected
+     * content color so they stay visible on the selection fill (pass a
+     * selectedColor to the other overload to pick it), and dots on a day
+     * with a secondary label sit closer to the bottom edge so they do not
+     * touch the label.
      */
     public fun eventDots(
         maxDots: Int = 3,
         dotSize: Dp = 4.dp,
         spacing: Dp = 2.dp,
-        selectedColor: Color? = null,
         colors: (LocalDate) -> List<Color>,
-    ): DayDecorator =
-        object : CellAwareDayDecorator {
-            override fun DrawScope.draw(
-                day: CalendarDay,
-                cell: DayCellDrawState,
-            ) {
-                val dots = colors(day.date).take(maxDots)
-                if (dots.isEmpty()) return
-                val selectedDotColor =
-                    if (cell.selected) {
-                        selectedColor ?: cell.selectedContentColor.takeIf { it.isSpecified }
-                    } else {
-                        null
-                    }
-                val diameter = dotSize.toPx()
-                val gap = spacing.toPx()
-                val total = dots.size * diameter + (dots.size - 1) * gap
-                val y = size.height - (if (cell.hasLabel) 3.dp else 6.dp).toPx()
-                var x = (size.width - total) / 2f + diameter / 2f
-                dots.forEach { color ->
-                    drawCircle(color = selectedDotColor ?: color, radius = diameter / 2f, center = Offset(x, y))
-                    x += diameter + gap
-                }
-            }
-        }
+    ): DayDecorator = EventDots(maxDots, dotSize, spacing, selectedColor = null, colors)
 
-    @Deprecated("Kept for binary compatibility; use the overload with selectedColor.", level = DeprecationLevel.HIDDEN)
+    /**
+     * [eventDots] whose dots draw in [selectedColor] on a selected day in
+     * [DefaultDay].
+     */
     public fun eventDots(
+        selectedColor: Color,
         maxDots: Int = 3,
         dotSize: Dp = 4.dp,
         spacing: Dp = 2.dp,
         colors: (LocalDate) -> List<Color>,
-    ): DayDecorator =
-        eventDots(
-            maxDots = maxDots,
-            dotSize = dotSize,
-            spacing = spacing,
-            selectedColor = null,
-            colors = colors,
-        )
+    ): DayDecorator = EventDots(maxDots, dotSize, spacing, selectedColor, colors)
+
+    private class EventDots(
+        private val maxDots: Int,
+        private val dotSize: Dp,
+        private val spacing: Dp,
+        private val selectedColor: Color?,
+        private val colors: (LocalDate) -> List<Color>,
+    ) : CellAwareDayDecorator {
+        override fun DrawScope.draw(
+            day: CalendarDay,
+            cell: DayCellDrawState,
+        ) {
+            val dots = colors(day.date).take(maxDots)
+            if (dots.isEmpty()) return
+            val selectedDotColor =
+                if (cell.selected) {
+                    selectedColor ?: cell.selectedContentColor.takeIf { it.isSpecified }
+                } else {
+                    null
+                }
+            val diameter = dotSize.toPx()
+            val gap = spacing.toPx()
+            val total = dots.size * diameter + (dots.size - 1) * gap
+            val y = size.height - (if (cell.hasLabel) 3.dp else 6.dp).toPx()
+            var x = (size.width - total) / 2f + diameter / 2f
+            dots.forEach { color ->
+                drawCircle(color = selectedDotColor ?: color, radius = diameter / 2f, center = Offset(x, y))
+                x += diameter + gap
+            }
+        }
+    }
 
     /** Up to [maxDots] distinct event colors for each day from [eventsByDate]. */
     @Composable

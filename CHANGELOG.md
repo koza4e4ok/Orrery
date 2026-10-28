@@ -13,7 +13,8 @@
   range is completed, changed or cleared, instead of appearing or vanishing at
   once (#63).
 - In `DefaultDay`, `DayDecorators.eventDots` draw in the selected content color
-  on selected days (new `selectedColor` parameter overrides it) and sit closer
+  on selected days (a new `eventDots(selectedColor, ...)` overload picks the
+  color) and sit closer
   to the bottom edge on days with a secondary label; `DayDecorators.badge` gets
   a 1 dp outline on selected days (new `selectedOutlineColor` parameter, default
   the selected content color) so it stays distinct from the selection fill. The

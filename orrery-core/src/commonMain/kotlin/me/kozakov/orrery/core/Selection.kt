@@ -1,5 +1,6 @@
 package me.kozakov.orrery.core
 
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
 public sealed interface SelectionMode {
@@ -36,6 +37,47 @@ public sealed interface SelectionMode {
     /** Toggle set of days, optionally capped at [maxCount]. */
     public data class Multi(
         val maxCount: Int? = null,
+    ) : SelectionMode
+
+    /**
+     * Tapping any day selects the whole 7-day week containing it, starting
+     * at [firstDayOfWeek], as a range ([Selection.rangeStart]..[Selection.rangeEnd]).
+     * The week is clamped to the engine bounds and the click is rejected
+     * with [SelectionEvent.Intercepted] when any day in it is disabled.
+     * Tapping a day inside the selected week clears the selection when
+     * [allowClear] is true.
+     *
+     * [firstDayOfWeek] = null (the default) follows the calendar's default:
+     * `rememberCalendarSelectionState` in orrery-compose resolves it to the
+     * locale's first day of week, the same default `rememberCalendarState`
+     * uses, so the selected week matches the visible row. A bare
+     * [SelectionEngine] resolves null to [DayOfWeek.MONDAY]. Pass an explicit
+     * value when the calendar overrides its own `firstDayOfWeek`.
+     *
+     * Programmatic writes ([SelectionEngine.replace], `CalendarSelectionState.set`
+     * and `initialSelection`) are snapped to the whole week containing
+     * [Selection.rangeStart] (clamped to the bounds), then validated like a tap;
+     * [Selection.rangeEnd] of the proposal is ignored.
+     */
+    public data class Week(
+        val firstDayOfWeek: DayOfWeek? = null,
+        val allowClear: Boolean = true,
+    ) : SelectionMode
+
+    /**
+     * Tapping any day selects its whole month (first..last day) as a range,
+     * clamped to the engine bounds. The click is rejected with
+     * [SelectionEvent.Intercepted] when any day in it is disabled. Tapping a
+     * day inside the selected month clears the selection when [allowClear]
+     * is true.
+     *
+     * Programmatic writes ([SelectionEngine.replace], `CalendarSelectionState.set`
+     * and `initialSelection`) are snapped to the whole month containing
+     * [Selection.rangeStart] (clamped to the bounds), then validated like a tap;
+     * [Selection.rangeEnd] of the proposal is ignored.
+     */
+    public data class Month(
+        val allowClear: Boolean = true,
     ) : SelectionMode
 }
 

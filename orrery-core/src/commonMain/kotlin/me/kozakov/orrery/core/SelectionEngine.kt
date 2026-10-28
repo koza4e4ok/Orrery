@@ -1,7 +1,10 @@
 package me.kozakov.orrery.core
 
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 
 /**
@@ -30,6 +33,8 @@ public class SelectionEngine(
             is SelectionMode.Single -> SelectionResult(current.copy(single = date), emptyList())
             is SelectionMode.Multi -> clickMulti(mode, current, date)
             is SelectionMode.Range -> clickRange(mode, current, date)
+            is SelectionMode.Week -> clickPeriod(mode.allowClear, current, date, weekOf(date, mode))
+            is SelectionMode.Month -> clickPeriod(mode.allowClear, current, date, monthOf(date))
         }
     }
 
@@ -38,6 +43,14 @@ public class SelectionEngine(
      * the proposed selection (no events) or [current] plus the first
      * violation. The proposal's shape must match the mode ([Selection.Empty]
      * matches every mode); a mismatch throws [IllegalArgumentException].
+     *
+     * In [SelectionMode.Week] and [SelectionMode.Month] the proposal is first
+     * snapped to the whole period containing [Selection.rangeStart], clamped
+     * to the bounds (its [Selection.rangeEnd] is ignored), so the result is
+     * always a period a tap could produce. The snapped period is then
+     * validated, so a disabled day anywhere in it rejects the proposal with
+     * [SelectionEvent.Intercepted], and a [Selection.rangeStart] outside the
+     * bounds is rejected with [SelectionEvent.OutOfRange].
      */
     public fun replace(
         current: Selection,
@@ -45,9 +58,10 @@ public class SelectionEngine(
     ): SelectionResult {
         if (proposed == Selection.Empty) return SelectionResult(proposed, emptyList())
         requireShapeMatches(proposed)
-        val violation = firstViolation(proposed)
+        val candidate = snapToPeriod(proposed, mode, bounds)
+        val violation = firstViolation(candidate)
         return if (violation == null) {
-            SelectionResult(proposed, emptyList())
+            SelectionResult(candidate, emptyList())
         } else {
             SelectionResult(current, listOf(violation))
         }
@@ -64,7 +78,7 @@ public class SelectionEngine(
                     proposed.single != null && proposed.rangeStart == null && proposed.multi.isEmpty()
                 }
 
-                is SelectionMode.Range -> {
+                is SelectionMode.Range, is SelectionMode.Week, is SelectionMode.Month -> {
                     proposed.single == null && proposed.rangeStart != null && proposed.multi.isEmpty()
                 }
 
@@ -181,4 +195,68 @@ public class SelectionEngine(
         }
         return SelectionResult(current.copy(rangeEnd = date), emptyList())
     }
+
+    /**
+     * Week and Month clicks: [date] has already passed the bounds and
+     * disabled checks. Selects [period] clamped to the bounds, or clears
+     * when [date] lies inside the current range and [allowClear] is set.
+     */
+    private fun clickPeriod(
+        allowClear: Boolean,
+        current: Selection,
+        date: LocalDate,
+        period: ClosedRange<LocalDate>,
+    ): SelectionResult {
+        val selected = current.range
+        if (selected != null && date in selected) {
+            return SelectionResult(if (allowClear) Selection.Empty else current, emptyList())
+        }
+        val clamped = period.clampTo(bounds)
+        val start = clamped.start
+        val end = clamped.endInclusive
+        for (epoch in start.toEpochDays()..end.toEpochDays()) {
+            val cursor = LocalDate.fromEpochDays(epoch)
+            if (cursor in disabled) {
+                return SelectionResult(current, listOf(SelectionEvent.Intercepted(cursor)))
+            }
+        }
+        return SelectionResult(Selection(rangeStart = start, rangeEnd = end), emptyList())
+    }
+}
+
+private fun weekOf(
+    date: LocalDate,
+    mode: SelectionMode.Week,
+): ClosedRange<LocalDate> {
+    val start = CalendarPages.weekStart(date, mode.firstDayOfWeek ?: DayOfWeek.MONDAY)
+    return start..start.plus(6, DateTimeUnit.DAY)
+}
+
+private fun monthOf(date: LocalDate): ClosedRange<LocalDate> {
+    val first = LocalDate(date.year, date.month, 1)
+    return first..first.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
+}
+
+private fun ClosedRange<LocalDate>.clampTo(bounds: ClosedRange<LocalDate>?): ClosedRange<LocalDate> =
+    maxOf(start, bounds?.start ?: start)..minOf(endInclusive, bounds?.endInclusive ?: endInclusive)
+
+/**
+ * Week and Month proposals become the whole period containing
+ * [Selection.rangeStart], clamped to [bounds]. Other modes, and a
+ * rangeStart outside [bounds] (reported later as OutOfRange), pass through.
+ */
+private fun snapToPeriod(
+    proposed: Selection,
+    mode: SelectionMode,
+    bounds: ClosedRange<LocalDate>?,
+): Selection {
+    val start = proposed.rangeStart ?: return proposed
+    if (bounds != null && start !in bounds) return proposed
+    val period =
+        when (mode) {
+            is SelectionMode.Week -> weekOf(start, mode)
+            is SelectionMode.Month -> monthOf(start)
+            else -> return proposed
+        }.clampTo(bounds)
+    return Selection(rangeStart = period.start, rangeEnd = period.endInclusive)
 }

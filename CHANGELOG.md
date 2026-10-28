@@ -18,6 +18,18 @@
   headline time uses the locale's format and AM/PM text ("2:05 PM", "下午2:05").
   Consumers need no Material 3 experimental opt-in (#24).
 
+- `SelectionMode.Week(firstDayOfWeek, allowClear)` and
+  `SelectionMode.Month(allowClear)`: a tap selects the whole week or month
+  containing the day as a range, so range rendering and TalkBack range states
+  apply unchanged. The period is clamped to the selection bounds, rejected with
+  `SelectionEvent.Intercepted` when any day in it is disabled, and cleared by
+  tapping inside it. Calendars skip long-press drag-to-select in these modes
+  (#25). `firstDayOfWeek` defaults to null, which
+  `rememberCalendarSelectionState` resolves to the locale's first day of week
+  (the calendar's default) and a bare `SelectionEngine` to Monday.
+  Programmatic writes (`set`, `SelectionEngine.replace`, `initialSelection`)
+  are snapped to the whole week or month containing `rangeStart`.
+
 ## [0.6.0] - 2026-10-27
 
 ### Added

@@ -43,6 +43,10 @@ public class CalendarSelectionState internal constructor(
 
     public fun isDisabled(date: LocalDate): Boolean = date in disabled
 
+    /** Week and Month select a whole period per tap, so calendars skip the drag gesture. */
+    internal val supportsDrag: Boolean
+        get() = mode !is SelectionMode.Week && mode !is SelectionMode.Month
+
     public fun click(date: LocalDate) {
         val result = SelectionEngine(mode, bounds, disabled).click(selection, date)
         selection = result.selection
@@ -59,6 +63,12 @@ public class CalendarSelectionState internal constructor(
      * mode constraints, bounds, and disabled dates — and violations
      * leave the selection unchanged and fire the event callback.
      * Setting [Selection.Empty] clears.
+     *
+     * In [SelectionMode.Week] and [SelectionMode.Month] the proposal is
+     * snapped to the whole week or month containing its
+     * [Selection.rangeStart] (clamped to the bounds) before validation, so
+     * the selection is always a period a tap could produce; the proposal's
+     * [Selection.rangeEnd] is ignored. See SelectionEngine.replace.
      */
     public fun set(selection: Selection) {
         val result = SelectionEngine(mode, bounds, disabled).replace(this.selection, selection)
@@ -66,7 +76,11 @@ public class CalendarSelectionState internal constructor(
         result.events.forEach(onEvent)
     }
 
-    /** Begins a drag range selection at [date]. Only acts in [SelectionMode.Range]. */
+    /**
+     * Begins a drag range selection at [date]. Only acts in [SelectionMode.Range];
+     * [SelectionMode.Week] and [SelectionMode.Month] select their whole period
+     * on a single tap and ignore drags.
+     */
     public fun dragStart(date: LocalDate) {
         if (mode !is SelectionMode.Range || isDisabled(date)) return
         dragAnchor = date
@@ -198,6 +212,23 @@ public class CalendarSelectionState internal constructor(
     }
 }
 
+/**
+ * Creates and remembers a [CalendarSelectionState] that survives configuration
+ * changes; changing [mode] or [bounds] resets it.
+ *
+ * A [SelectionMode.Week] with a null `firstDayOfWeek` (the default) is
+ * resolved to the locale's first day of week, the same default
+ * [rememberCalendarState] and [rememberWeekCalendarState] use, so a tapped
+ * week matches the visible row. [CalendarSelectionState.mode] exposes the
+ * resolved value. Pass an explicit `firstDayOfWeek` when the calendar
+ * overrides its own.
+ *
+ * [initialSelection] is used as-is, except in [SelectionMode.Week] and
+ * [SelectionMode.Month] where it goes through [CalendarSelectionState.set]'s
+ * snapping and validation: it becomes the whole period containing its
+ * `rangeStart`, or [Selection.Empty] when that period is out of bounds or
+ * contains a disabled day (no event fires).
+ */
 @Composable
 public fun rememberCalendarSelectionState(
     mode: SelectionMode = SelectionMode.Single(),
@@ -206,14 +237,42 @@ public fun rememberCalendarSelectionState(
     disabled: DisabledDates = DisabledDates.None,
     onEvent: (SelectionEvent) -> Unit = {},
 ): CalendarSelectionState {
+    val resolvedMode = remember(mode) { mode.withLocaleFirstDayOfWeek() }
     val saver =
-        remember(mode, bounds) {
-            CalendarSelectionState.saver(mode, bounds, disabled, onEvent)
+        remember(resolvedMode, bounds) {
+            CalendarSelectionState.saver(resolvedMode, bounds, disabled, onEvent)
         }
     val state =
-        rememberSaveable(mode, bounds, saver = saver) {
-            CalendarSelectionState(mode, initialSelection, bounds, disabled, onEvent)
+        rememberSaveable(resolvedMode, bounds, saver = saver) {
+            CalendarSelectionState(
+                mode = resolvedMode,
+                initialSelection = snapInitialSelection(resolvedMode, initialSelection, bounds, disabled),
+                bounds = bounds,
+                disabled = disabled,
+                onEvent = onEvent,
+            )
         }
     SideEffect { state.disabled = disabled }
     return state
 }
+
+/** Fills a null [SelectionMode.Week.firstDayOfWeek] with the locale's first day of week. */
+internal fun SelectionMode.withLocaleFirstDayOfWeek(): SelectionMode =
+    if (this is SelectionMode.Week && firstDayOfWeek == null) {
+        copy(firstDayOfWeek = PlatformDateFormat.firstDayOfWeek())
+    } else {
+        this
+    }
+
+/** Week and Month initial selections snap to their whole period, like [CalendarSelectionState.set]. */
+private fun snapInitialSelection(
+    mode: SelectionMode,
+    initialSelection: Selection,
+    bounds: ClosedRange<LocalDate>?,
+    disabled: DisabledDates,
+): Selection =
+    if ((mode is SelectionMode.Week || mode is SelectionMode.Month) && initialSelection != Selection.Empty) {
+        SelectionEngine(mode, bounds, disabled).replace(Selection.Empty, initialSelection).selection
+    } else {
+        initialSelection
+    }

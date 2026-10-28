@@ -382,6 +382,19 @@ public final class me/kozakov/orrery/core/SelectionEvent$TooManyDays : me/kozako
 public abstract interface class me/kozakov/orrery/core/SelectionMode {
 }
 
+public final class me/kozakov/orrery/core/SelectionMode$Month : me/kozakov/orrery/core/SelectionMode {
+	public fun <init> ()V
+	public fun <init> (Z)V
+	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lme/kozakov/orrery/core/SelectionMode$Month;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Month;ZILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Month;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAllowClear ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class me/kozakov/orrery/core/SelectionMode$Multi : me/kozakov/orrery/core/SelectionMode {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/Integer;)V
@@ -430,6 +443,21 @@ public final class me/kozakov/orrery/core/SelectionMode$Single : me/kozakov/orre
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAutoAdvance ()Z
 	public final fun getAutoSelectDay ()Lme/kozakov/orrery/core/AutoSelectDay;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/SelectionMode$Week : me/kozakov/orrery/core/SelectionMode {
+	public fun <init> ()V
+	public fun <init> (Lkotlinx/datetime/DayOfWeek;Z)V
+	public synthetic fun <init> (Lkotlinx/datetime/DayOfWeek;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlinx/datetime/DayOfWeek;
+	public final fun component2 ()Z
+	public final fun copy (Lkotlinx/datetime/DayOfWeek;Z)Lme/kozakov/orrery/core/SelectionMode$Week;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Week;Lkotlinx/datetime/DayOfWeek;ZILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Week;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAllowClear ()Z
+	public final fun getFirstDayOfWeek ()Lkotlinx/datetime/DayOfWeek;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }

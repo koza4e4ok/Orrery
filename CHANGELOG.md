@@ -4,6 +4,17 @@
 
 ### Added
 
+- `CalendarDensity` (`Compact` 36.dp, `Comfortable` 48.dp, `Expanded` 56.dp
+  min cell height; `Compact` hides secondary labels) and `CalendarStyle`
+  (colors, shapes, density, cell border and selected elevation) in
+  `orrery-compose` (#66). `CalendarDefaults.style(...)` builds the default
+  Material 3 circle style, and `CalendarDefaults.roundedSquareStyle(...)`,
+  `CalendarDefaults.segmentedRangeStyle(...)` and
+  `CalendarDefaults.borderedCardStyle(...)` are curated presets (rounded-square
+  cells with a continuous band, per-day rounded range segments, and
+  `outlineVariant`-bordered Expanded cards with a 2.dp selected elevation). A new
+  `DefaultDay(day, style, ...)` overload applies a `CalendarStyle`; the
+  existing `DefaultDay` signature is unchanged.
 - `DayDecorators.spanningEventBars`, `DayDecorators.stackedBars`, and
   `DayDecorators.rangePreview` in `orrery-compose`, plus a redesigned universal
   `:sample` showcase app with `SampleHeroHeader`, in-place `YearCalendar`

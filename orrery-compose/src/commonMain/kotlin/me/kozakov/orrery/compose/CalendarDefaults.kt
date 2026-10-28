@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -236,6 +237,84 @@ public object CalendarDefaults {
         inRangeShape: Shape = RectangleShape,
         todayIndicator: TodayIndicator = TodayIndicator.Ring(),
     ): CalendarDayShapes = dayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, 2.dp)
+
+    /**
+     * Default Material 3 [CalendarStyle]: circle day and selection shapes
+     * with a continuous pill range band, at the given [density].
+     */
+    @Composable
+    public fun style(
+        density: CalendarDensity = CalendarDensity.Comfortable,
+        colors: CalendarDayColors = dayColors(),
+        shapes: CalendarDayShapes = dayShapes(),
+        cellBorderWidth: Dp = 0.dp,
+        cellBorderColor: Color = Color.Transparent,
+        selectedElevation: Dp = 0.dp,
+    ): CalendarStyle = CalendarStyle(colors, shapes, density, cellBorderWidth, cellBorderColor, selectedElevation)
+
+    /**
+     * Rounded-square [CalendarStyle]: day and selection shapes are
+     * [RoundedCornerShape] with [cornerRadius], and in-range days keep the
+     * continuous connector band.
+     */
+    @Composable
+    public fun roundedSquareStyle(
+        cornerRadius: Dp = 10.dp,
+        density: CalendarDensity = CalendarDensity.Comfortable,
+        colors: CalendarDayColors = dayColors(),
+    ): CalendarStyle {
+        val shape = RoundedCornerShape(cornerRadius)
+        return CalendarStyle(
+            colors = colors,
+            shapes = dayShapes(dayShape = shape, selectedShape = shape, inRangeShape = RectangleShape),
+            density = density,
+        )
+    }
+
+    /**
+     * Segmented-range [CalendarStyle]: day, selection and in-range shapes
+     * are [RoundedCornerShape] with [cornerRadius], so every in-range day
+     * gets its own rounded fill instead of a continuous band.
+     */
+    @Composable
+    public fun segmentedRangeStyle(
+        cornerRadius: Dp = 8.dp,
+        density: CalendarDensity = CalendarDensity.Comfortable,
+        colors: CalendarDayColors = dayColors(),
+    ): CalendarStyle {
+        val shape = RoundedCornerShape(cornerRadius)
+        return CalendarStyle(
+            colors = colors,
+            shapes = dayShapes(dayShape = shape, selectedShape = shape, inRangeShape = shape),
+            density = density,
+        )
+    }
+
+    /**
+     * Bordered-card [CalendarStyle] for dashboard and desktop grids:
+     * rounded-square cells with [cornerRadius] outlined by a [borderWidth]
+     * border in [borderColor], and a [selectedElevation] shadow under the
+     * selected day. Defaults to [CalendarDensity.Expanded].
+     */
+    @Composable
+    public fun borderedCardStyle(
+        cornerRadius: Dp = 8.dp,
+        density: CalendarDensity = CalendarDensity.Expanded,
+        borderWidth: Dp = 1.dp,
+        borderColor: Color = MaterialTheme.colorScheme.outlineVariant,
+        selectedElevation: Dp = 2.dp,
+        colors: CalendarDayColors = dayColors(),
+    ): CalendarStyle {
+        val shape = RoundedCornerShape(cornerRadius)
+        return CalendarStyle(
+            colors = colors,
+            shapes = dayShapes(dayShape = shape, selectedShape = shape, inRangeShape = RectangleShape),
+            density = density,
+            cellBorderWidth = borderWidth,
+            cellBorderColor = borderColor,
+            selectedElevation = selectedElevation,
+        )
+    }
 
     /**
      * Builds [CalendarDayStrings]. Defaults are resolved from the current

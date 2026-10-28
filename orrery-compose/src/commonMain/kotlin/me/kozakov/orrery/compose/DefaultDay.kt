@@ -118,9 +118,105 @@ public fun DefaultDay(
     strings: CalendarDayStrings = CalendarDefaults.dayStrings(),
     onClick: ((CalendarDay) -> Unit)? = null,
 ) {
+    DefaultDayContent(
+        day = day,
+        modifier = modifier,
+        selectionState = selectionState,
+        today = today,
+        colors = colors,
+        shapes = shapes,
+        info = info,
+        enabled = enabled,
+        showOutDates = showOutDates,
+        animateSelection = animateSelection,
+        selectedElevation = selectedElevation,
+        hapticsEnabled = hapticsEnabled,
+        decorators = decorators,
+        strings = strings,
+        onClick = onClick,
+        minCellHeight = CalendarDensity.Comfortable.minCellHeight,
+        showSecondaryLabel = true,
+        cellBorderWidth = 0.dp,
+        cellBorderColor = Color.Transparent,
+    )
+}
+
+/**
+ * [DefaultDay] rendered with a [CalendarStyle]: [CalendarStyle.colors],
+ * [CalendarStyle.shapes] and [CalendarStyle.selectedElevation] replace
+ * the separate parameters of the other overload.
+ *
+ * The cell is at least [CalendarDensity.minCellHeight] of
+ * [CalendarStyle.density] tall, and the secondary [DayInfo.label] is
+ * hidden when [CalendarDensity.showSecondaryLabel] is false. A positive
+ * [CalendarStyle.cellBorderWidth] outlines [CalendarDayShapes.dayShape]
+ * in [CalendarStyle.cellBorderColor], drawn unclipped under the today
+ * marker, Over decorators and focus ring.
+ */
+@Composable
+public fun DefaultDay(
+    day: CalendarDay,
+    style: CalendarStyle,
+    modifier: Modifier = Modifier,
+    selectionState: CalendarSelectionState? = null,
+    today: LocalDate = currentDate(),
+    info: DayInfo? = null,
+    enabled: Boolean = true,
+    showOutDates: Boolean = true,
+    animateSelection: Boolean = true,
+    hapticsEnabled: Boolean = true,
+    decorators: List<DayDecorator> = emptyList(),
+    strings: CalendarDayStrings = CalendarDefaults.dayStrings(),
+    onClick: ((CalendarDay) -> Unit)? = null,
+) {
+    DefaultDayContent(
+        day = day,
+        modifier = modifier,
+        selectionState = selectionState,
+        today = today,
+        colors = style.colors,
+        shapes = style.shapes,
+        info = info,
+        enabled = enabled,
+        showOutDates = showOutDates,
+        animateSelection = animateSelection,
+        selectedElevation = style.selectedElevation,
+        hapticsEnabled = hapticsEnabled,
+        decorators = decorators,
+        strings = strings,
+        onClick = onClick,
+        minCellHeight = style.density.minCellHeight,
+        showSecondaryLabel = style.density.showSecondaryLabel,
+        cellBorderWidth = style.cellBorderWidth,
+        cellBorderColor = style.cellBorderColor,
+    )
+}
+
+@Composable
+private fun DefaultDayContent(
+    day: CalendarDay,
+    modifier: Modifier,
+    selectionState: CalendarSelectionState?,
+    today: LocalDate,
+    colors: CalendarDayColors,
+    shapes: CalendarDayShapes,
+    info: DayInfo?,
+    enabled: Boolean,
+    showOutDates: Boolean,
+    animateSelection: Boolean,
+    selectedElevation: Dp,
+    hapticsEnabled: Boolean,
+    decorators: List<DayDecorator>,
+    strings: CalendarDayStrings,
+    onClick: ((CalendarDay) -> Unit)?,
+    minCellHeight: Dp,
+    showSecondaryLabel: Boolean,
+    cellBorderWidth: Dp,
+    cellBorderColor: Color,
+) {
     val hidden = !showOutDates && day.position != DayPosition.MonthDate
     if (hidden) {
-        Box(modifier.fillMaxWidth().heightIn(min = 48.dp))
+        Box(modifier.fillMaxWidth().heightIn(min = minCellHeight))
         return
     }
     val isToday = day.date == today
@@ -130,7 +226,8 @@ public fun DefaultDay(
     val isRangeStart = selectionState?.isRangeStart(day.date) == true
     val isRangeEnd = selectionState?.isRangeEnd(day.date) == true
     val indicator = shapes.todayIndicator
-    val label = info?.label
+    val label = info?.label?.takeIf { showSecondaryLabel }
+    val showCellBorder = cellBorderWidth > 0.dp
     val selectedScale by animateFloatAsState(
         targetValue = if (isSelected) 1f else 0f,
         animationSpec =
@@ -193,12 +290,13 @@ public fun DefaultDay(
     val hasOverlay =
         (isToday && !isSelected && (indicator is TodayIndicator.Ring || indicator is TodayIndicator.Underline)) ||
             decorators.any { it.layer == DecoratorLayer.Over } ||
-            showFocusRing
+            showFocusRing ||
+            showCellBorder
     Box(
         modifier =
             modifier
                 .fillMaxWidth()
-                .heightIn(min = 48.dp)
+                .heightIn(min = minCellHeight)
                 .drawBehind {
                     if (shapes.inRangeShape == RectangleShape) {
                         drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor)
@@ -283,7 +381,7 @@ public fun DefaultDay(
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentColor,
             )
-            if (label != null) {
+            if (label != null && info != null) {
                 val colorArgb = info.colorArgb
                 val resolvedLabelColor =
                     when {
@@ -309,6 +407,9 @@ public fun DefaultDay(
         if (hasOverlay) {
             Box(
                 Modifier.matchParentSize().drawBehind {
+                    if (showCellBorder) {
+                        drawDayShape(shapes.dayShape, cellBorderColor, Stroke(width = cellBorderWidth.toPx()))
+                    }
                     if (isToday && !isSelected) {
                         when (indicator) {
                             is TodayIndicator.Ring -> {

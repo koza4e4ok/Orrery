@@ -11,6 +11,7 @@ dependencies {
     implementation(plugin(libs.plugins.ktlint))
     implementation(plugin(libs.plugins.detekt))
     implementation(plugin(libs.plugins.maven.publish))
+    implementation(plugin(libs.plugins.klibs.io.notifier))
     implementation(plugin(libs.plugins.dokka))
 }
 

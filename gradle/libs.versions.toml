@@ -23,6 +23,7 @@ ktlint-gradle = "14.2.0"
 # 2.0.0-alpha.6 is built against kotlin-compiler 2.4.10.
 detekt = "2.0.0-alpha.6"
 maven-publish = "0.37.0"
+klibs-io-notifier = "0.0.1"
 dokka = "2.2.0"
 roborazzi = "1.77.0"
 # androidx.benchmark libraries and the androidx.baselineprofile Gradle plugin release together.
@@ -66,5 +67,6 @@ baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
+klibs-io-notifier = { id = "org.jetbrains.kotlin.klibs-io-notifier", version.ref = "klibs-io-notifier" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

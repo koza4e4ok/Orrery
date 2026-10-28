@@ -132,6 +132,7 @@ internal fun DatePickerContent(
                             imeAction = ImeAction.Done,
                         ),
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    requestInitialFocus = true,
                 )
             }
         }
@@ -195,9 +196,11 @@ private fun PickerPane(
                 modifier = Modifier.height(320.dp),
             )
         } else {
+            val initialFocus = rememberInitialDayFocus(state.selectedDate ?: today)
             HorizontalCalendar(state = state.calendar) { day ->
                 DefaultDay(
                     day = day,
+                    modifier = initialFocus(day),
                     selectionState = state.selection,
                     today = today,
                     colors = colors,

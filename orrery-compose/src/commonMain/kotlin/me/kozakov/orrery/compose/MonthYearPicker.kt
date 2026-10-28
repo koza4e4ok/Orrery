@@ -16,12 +16,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +70,11 @@ public fun MonthYearPicker(
  * clamped to [range]. With [selectable] the [selected] month is filled with
  * the primary color, [current] gets the "today" outline and months expose
  * selection semantics; otherwise it renders exactly like [MonthYearPicker].
+ *
+ * Escape / Back while a descendant has focus drills up one level — from a
+ * year's month grid (unless the picker started there) or from the decade
+ * grid back to the year grid — before reaching the host, so a dialog
+ * dismisses only from the top level.
  */
 @Composable
 internal fun MonthYearPickerContent(
@@ -74,9 +90,41 @@ internal fun MonthYearPickerContent(
     var pickedYear by rememberSaveable { mutableStateOf(if (startInMonths) startYear else null) }
     var showingDecades by rememberSaveable { mutableStateOf(false) }
     var focusYear by rememberSaveable { mutableStateOf(if (startInMonths) startYear else current.year) }
+    // Set on a consumed Escape/Back key-down so its key-up is swallowed too
+    // (the host dialog dismisses on the key-up it tracked from the key-down).
+    val drillUpPressed = remember { mutableStateOf(false) }
+    // The focused button leaves with the drilled-in grid: the year grid then
+    // takes focus on its title so the next Escape still reaches this picker.
+    val focusTitleOnEnter = remember { mutableStateOf(false) }
     AnimatedContent(
         targetState = pickedYear,
-        modifier = modifier,
+        modifier =
+            modifier.onKeyEvent { event ->
+                if (event.key != Key.Escape && event.key != Key.Back) return@onKeyEvent false
+                when (event.type) {
+                    KeyEventType.KeyDown -> {
+                        val inDrilledMonths = pickedYear != null && !startInMonths
+                        val canDrillUp = inDrilledMonths || (pickedYear == null && showingDecades)
+                        drillUpPressed.value = canDrillUp
+                        canDrillUp
+                    }
+
+                    KeyEventType.KeyUp -> {
+                        if (drillUpPressed.value) {
+                            drillUpPressed.value = false
+                            if (pickedYear != null) pickedYear = null else showingDecades = false
+                            focusTitleOnEnter.value = true
+                            true
+                        } else {
+                            false
+                        }
+                    }
+
+                    else -> {
+                        false
+                    }
+                }
+            },
         transitionSpec = { (fadeIn() + scaleIn(initialScale = 0.92f)).togetherWith(fadeOut()) },
         label = "monthYearPicker",
     ) { year ->
@@ -103,6 +151,7 @@ internal fun MonthYearPickerContent(
                         range = range,
                         onTitleClick = { showingDecades = true },
                         onYearClick = { pickedYear = it },
+                        focusTitleOnEnter = focusTitleOnEnter,
                     )
                 }
             }
@@ -134,12 +183,22 @@ private fun YearGrid(
     range: ClosedRange<YearMonth>,
     onTitleClick: () -> Unit,
     onYearClick: (Int) -> Unit,
+    focusTitleOnEnter: MutableState<Boolean>,
 ) {
+    val titleFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        if (focusTitleOnEnter.value) {
+            focusTitleOnEnter.value = false
+            withFrameNanos { }
+            // Throws if the title is not attached yet; focus then simply stays unset.
+            runCatching { titleFocus.requestFocus() }
+        }
+    }
     val years = (range.start.year..range.endInclusive.year).toList()
     val initialIndex =
         (focusYear - range.start.year).coerceIn(0, years.lastIndex).let { it - it % 3 }
     Column {
-        TextButton(onClick = onTitleClick) {
+        TextButton(onClick = onTitleClick, modifier = Modifier.focusRequester(titleFocus)) {
             Text(
                 "${range.start.year} – ${range.endInclusive.year}",
                 style = MaterialTheme.typography.titleMedium,

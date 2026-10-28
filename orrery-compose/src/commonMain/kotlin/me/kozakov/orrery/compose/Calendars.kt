@@ -250,6 +250,8 @@ public fun WeekCalendar(
             items(count = state.weekCount, key = { it }) { index ->
                 val week = state.weekAt(index)
                 Row(Modifier.fillParentMaxWidth()) {
+                    // A single row: Up/Down page by a week, Home/End focus the row's ends.
+                    val rowFocusRequesters = rememberRowFocusRequesters(keyboard != null)
                     week.days.forEachIndexed { col, day ->
                         DayCell(
                             day = day,
@@ -257,6 +259,7 @@ public fun WeekCalendar(
                             keyboard = keyboard,
                             modifier = Modifier.weight(1f),
                             dayContent = dayContent,
+                            rowFocusRequesters = rowFocusRequesters,
                         )
                     }
                 }

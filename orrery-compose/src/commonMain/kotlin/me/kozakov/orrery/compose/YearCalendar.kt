@@ -204,7 +204,9 @@ public fun CalendarDefaults.MiniMonth(
                                 roundStart =
                                     !inRange || date == range?.start || column == 0 || date.day == 1,
                                 roundEnd =
-                                    !inRange || date == range?.endInclusive || column == week.days.lastIndex ||
+                                    !inRange ||
+                                        date == range?.endInclusive ||
+                                        column == week.days.lastIndex ||
                                         date.day == lastDay,
                             )
                         } else {
@@ -239,7 +241,10 @@ public fun CalendarDefaults.MiniMonth(
     }
 }
 
-@Deprecated("Kept for binary compatibility; use the overload with selection and dayInfo.", level = DeprecationLevel.HIDDEN)
+@Deprecated(
+    "Kept for binary compatibility; use the overload with selection and dayInfo.",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun CalendarDefaults.MiniMonth(
     yearMonth: YearMonth,

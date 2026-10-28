@@ -6,6 +6,36 @@ on:
   pull_request:
 
 jobs:
+  # TEMPORARY (#62 draft): format, update ABI dumps and Roborazzi goldens; removed before review.
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Format, update ABI dumps, record screenshots
+        run: >
+          ./gradlew ktlintFormat :orrery-compose:updateKotlinAbi :orrery-compose:recordRoborazziDebug --continue
+      - name: Upload generated files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-62
+          path: |
+            orrery-compose/api/
+            orrery-compose/src/
+          if-no-files-found: ignore
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generate-test-results
+          path: "orrery-compose/build/test-results/"
+          if-no-files-found: ignore
+
   build:
     runs-on: ubuntu-latest
     steps:

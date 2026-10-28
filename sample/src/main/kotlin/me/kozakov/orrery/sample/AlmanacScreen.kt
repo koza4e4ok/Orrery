@@ -236,7 +236,7 @@ internal fun AlmanacScreen() {
         remember(selectionChoice, firstDayOption) {
             when (selectionChoice) {
                 StudioSelectionChoice.Single -> SelectionMode.Single()
-                StudioSelectionChoice.Multiple -> SelectionMode.Multiple()
+                StudioSelectionChoice.Multiple -> SelectionMode.Multi()
                 StudioSelectionChoice.Range -> SelectionMode.Range()
                 StudioSelectionChoice.Week -> SelectionMode.Week(firstDayOfWeek = firstDayOption.dayOfWeek)
                 StudioSelectionChoice.Month -> SelectionMode.Month()

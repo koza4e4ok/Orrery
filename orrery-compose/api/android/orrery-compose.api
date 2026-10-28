@@ -42,10 +42,14 @@ public final class me/kozakov/orrery/compose/AnimatedDayValuesKt {
 public final class me/kozakov/orrery/compose/CalendarDayColors {
 	public static final field $stable I
 	public synthetic fun <init> (JJJJJJJJJJJJJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJJJJJJJJJJJJJJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJJJJJJJJJJJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJJJJJJJJJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getContainerColor-0d7_KjU ()J
 	public final fun getContentColor-0d7_KjU ()J
+	public final fun getFocusedBorderColor-0d7_KjU ()J
 	public final fun getHolidayLabelColor-0d7_KjU ()J
+	public final fun getHoverContainerColor-0d7_KjU ()J
 	public final fun getInRangeContainerColor-0d7_KjU ()J
 	public final fun getInRangeContentColor-0d7_KjU ()J
 	public final fun getLabelColor-0d7_KjU ()J
@@ -60,8 +64,11 @@ public final class me/kozakov/orrery/compose/CalendarDayColors {
 
 public final class me/kozakov/orrery/compose/CalendarDayShapes {
 	public static final field $stable I
-	public fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getDayShape ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getFocusedBorderWidth-D9Ej5fM ()F
 	public final fun getInRangeShape ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getSelectedShape ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getTodayIndicator ()Lme/kozakov/orrery/compose/TodayIndicator;
@@ -83,9 +90,12 @@ public final class me/kozakov/orrery/compose/CalendarDefaults {
 	public final fun MonthTitle (Lme/kozakov/orrery/core/CalendarMonth;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
 	public final fun WeekHeader (Ljava/util/List;Landroidx/compose/ui/Modifier;ZLandroidx/compose/runtime/Composer;II)V
 	public final fun WeekNumber (Lme/kozakov/orrery/core/CalendarWeek;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
-	public final fun dayColors-kwJvTHA (JJJJJJJJJJJJJLandroidx/compose/runtime/Composer;III)Lme/kozakov/orrery/compose/CalendarDayColors;
-	public final fun dayShapes (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;)Lme/kozakov/orrery/compose/CalendarDayShapes;
+	public final fun dayColors-0ik9mME (JJJJJJJJJJJJJJJLandroidx/compose/runtime/Composer;III)Lme/kozakov/orrery/compose/CalendarDayColors;
+	public final synthetic fun dayColors-kwJvTHA (JJJJJJJJJJJJJLandroidx/compose/runtime/Composer;III)Lme/kozakov/orrery/compose/CalendarDayColors;
+	public final synthetic fun dayShapes (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;)Lme/kozakov/orrery/compose/CalendarDayShapes;
 	public static synthetic fun dayShapes$default (Lme/kozakov/orrery/compose/CalendarDefaults;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;ILjava/lang/Object;)Lme/kozakov/orrery/compose/CalendarDayShapes;
+	public final fun dayShapes-M2VBTUQ (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;F)Lme/kozakov/orrery/compose/CalendarDayShapes;
+	public static synthetic fun dayShapes-M2VBTUQ$default (Lme/kozakov/orrery/compose/CalendarDefaults;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FILjava/lang/Object;)Lme/kozakov/orrery/compose/CalendarDayShapes;
 	public final fun dayStrings (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarDayStrings;
 }
 
@@ -286,9 +296,12 @@ public final class me/kozakov/orrery/compose/DayDecorator$DefaultImpls {
 public final class me/kozakov/orrery/compose/DayDecorators {
 	public static final field $stable I
 	public static final field INSTANCE Lme/kozakov/orrery/compose/DayDecorators;
-	public final fun badge-eopBjH0 (IJJLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
+	public final fun badge-YiRMAXg (IJJLandroidx/compose/ui/graphics/Color;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
+	public final synthetic fun badge-eopBjH0 (IJJLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun eventDots-ghNngFA (IFFLkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/compose/DayDecorator;
 	public static synthetic fun eventDots-ghNngFA$default (Lme/kozakov/orrery/compose/DayDecorators;IFFLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lme/kozakov/orrery/compose/DayDecorator;
+	public final fun eventDots-pCHte4A (JIFFLkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/compose/DayDecorator;
+	public static synthetic fun eventDots-pCHte4A$default (Lme/kozakov/orrery/compose/DayDecorators;JIFFLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun eventDotsForEvents-zpKGrMw (Lkotlin/jvm/functions/Function1;JIFFLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun heatmap (Landroidx/compose/ui/graphics/Shape;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;
 	public final fun progressBar-Sk5a5R4 (FJJLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/DayDecorator;

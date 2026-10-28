@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -38,6 +39,44 @@ public fun interface DayDecorator {
     public fun DrawScope.draw(day: CalendarDay)
 }
 
+/** What [DefaultDay] knows about the cell when a built-in decorator draws. */
+internal class DayCellDrawState(
+    val selected: Boolean,
+    val selectedContentColor: Color,
+    val hasLabel: Boolean,
+) {
+    internal companion object {
+        val Unknown = DayCellDrawState(selected = false, selectedContentColor = Color.Unspecified, hasLabel = false)
+    }
+}
+
+/**
+ * Built-in decorators that adapt to the cell, e.g. recolor on a selected
+ * day. Outside [DefaultDay] they draw as for an unselected, unlabeled day.
+ */
+internal interface CellAwareDayDecorator : DayDecorator {
+    fun DrawScope.draw(
+        day: CalendarDay,
+        cell: DayCellDrawState,
+    )
+
+    override fun DrawScope.draw(day: CalendarDay) {
+        draw(day, DayCellDrawState.Unknown)
+    }
+}
+
+internal fun DrawScope.drawDecorator(
+    decorator: DayDecorator,
+    day: CalendarDay,
+    cell: DayCellDrawState,
+) {
+    if (decorator is CellAwareDayDecorator) {
+        with(decorator) { draw(day, cell) }
+    } else {
+        with(decorator) { draw(day) }
+    }
+}
+
 /**
  * Prebuilt [DayDecorator]s. All are data-driven via per-date lookups
  * returning null/empty/false for undecorated days. Factories reading
@@ -46,27 +85,64 @@ public fun interface DayDecorator {
  * list to [DefaultDay].
  */
 public object DayDecorators {
-    /** Up to [maxDots] colored dots centered near the cell bottom. */
+    /**
+     * Up to [maxDots] colored dots centered near the cell bottom.
+     *
+     * In [DefaultDay], dots on a selected day draw in the cell's selected
+     * content color so they stay visible on the selection fill (pass a
+     * selectedColor to the other overload to pick it), and dots on a day
+     * with a secondary label sit closer to the bottom edge so they do not
+     * touch the label.
+     */
     public fun eventDots(
         maxDots: Int = 3,
         dotSize: Dp = 4.dp,
         spacing: Dp = 2.dp,
         colors: (LocalDate) -> List<Color>,
-    ): DayDecorator =
-        DayDecorator { day ->
+    ): DayDecorator = EventDots(maxDots, dotSize, spacing, selectedColor = null, colors)
+
+    /**
+     * [eventDots] whose dots draw in [selectedColor] on a selected day in
+     * [DefaultDay].
+     */
+    public fun eventDots(
+        selectedColor: Color,
+        maxDots: Int = 3,
+        dotSize: Dp = 4.dp,
+        spacing: Dp = 2.dp,
+        colors: (LocalDate) -> List<Color>,
+    ): DayDecorator = EventDots(maxDots, dotSize, spacing, selectedColor, colors)
+
+    private class EventDots(
+        private val maxDots: Int,
+        private val dotSize: Dp,
+        private val spacing: Dp,
+        private val selectedColor: Color?,
+        private val colors: (LocalDate) -> List<Color>,
+    ) : CellAwareDayDecorator {
+        override fun DrawScope.draw(
+            day: CalendarDay,
+            cell: DayCellDrawState,
+        ) {
             val dots = colors(day.date).take(maxDots)
-            if (dots.isNotEmpty()) {
-                val diameter = dotSize.toPx()
-                val gap = spacing.toPx()
-                val total = dots.size * diameter + (dots.size - 1) * gap
-                val y = size.height - 6.dp.toPx()
-                var x = (size.width - total) / 2f + diameter / 2f
-                dots.forEach { color ->
-                    drawCircle(color = color, radius = diameter / 2f, center = Offset(x, y))
-                    x += diameter + gap
+            if (dots.isEmpty()) return
+            val selectedDotColor =
+                if (cell.selected) {
+                    selectedColor ?: cell.selectedContentColor.takeIf { it.isSpecified }
+                } else {
+                    null
                 }
+            val diameter = dotSize.toPx()
+            val gap = spacing.toPx()
+            val total = dots.size * diameter + (dots.size - 1) * gap
+            val y = size.height - (if (cell.hasLabel) 3.dp else 6.dp).toPx()
+            var x = (size.width - total) / 2f + diameter / 2f
+            dots.forEach { color ->
+                drawCircle(color = selectedDotColor ?: color, radius = diameter / 2f, center = Offset(x, y))
+                x += diameter + gap
             }
         }
+    }
 
     /** Up to [maxDots] distinct event colors for each day from [eventsByDate]. */
     @Composable
@@ -212,21 +288,29 @@ public object DayDecorators {
      * Count bubble at the cell's top-end corner (top-start in RTL). Counts
      * <= 0 draw nothing; counts above [maxCount] render as "[maxCount]+".
      * Draws over the day content.
+     *
+     * In [DefaultDay], the bubble on a selected day gets a 1 dp outline in
+     * [selectedOutlineColor] (null uses the cell's selected content color)
+     * that separates it from the selection fill it overlaps.
      */
     @Composable
     public fun badge(
         maxCount: Int = 9,
         containerColor: Color = MaterialTheme.colorScheme.error,
         contentColor: Color = MaterialTheme.colorScheme.onError,
+        selectedOutlineColor: Color? = null,
         count: (LocalDate) -> Int,
     ): DayDecorator {
         val textMeasurer = rememberTextMeasurer()
         val textStyle = MaterialTheme.typography.labelSmall.copy(color = contentColor)
-        return object : DayDecorator {
+        return object : CellAwareDayDecorator {
             override val layer: DecoratorLayer
                 get() = DecoratorLayer.Over
 
-            override fun DrawScope.draw(day: CalendarDay) {
+            override fun DrawScope.draw(
+                day: CalendarDay,
+                cell: DayCellDrawState,
+            ) {
                 val value = count(day.date)
                 if (value <= 0) return
                 val text = if (value > maxCount) "$maxCount+" else value.toString()
@@ -246,6 +330,17 @@ public object DayDecorators {
                     size = Size(bubbleWidth, bubbleHeight),
                     cornerRadius = CornerRadius(bubbleHeight / 2f),
                 )
+                val outline = selectedOutlineColor ?: cell.selectedContentColor
+                if (cell.selected && outline.isSpecified) {
+                    val outlineWidth = 1.dp.toPx()
+                    drawRoundRect(
+                        color = outline,
+                        topLeft = Offset(left - outlineWidth / 2f, inset - outlineWidth / 2f),
+                        size = Size(bubbleWidth + outlineWidth, bubbleHeight + outlineWidth),
+                        cornerRadius = CornerRadius((bubbleHeight + outlineWidth) / 2f),
+                        style = Stroke(width = outlineWidth),
+                    )
+                }
                 drawText(
                     textLayoutResult = layout,
                     topLeft =
@@ -257,6 +352,25 @@ public object DayDecorators {
             }
         }
     }
+
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with selectedOutlineColor.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Composable
+    public fun badge(
+        maxCount: Int = 9,
+        containerColor: Color = MaterialTheme.colorScheme.error,
+        contentColor: Color = MaterialTheme.colorScheme.onError,
+        count: (LocalDate) -> Int,
+    ): DayDecorator =
+        badge(
+            maxCount = maxCount,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            selectedOutlineColor = null,
+            count = count,
+        )
 
     @Composable
     private fun defaultHeatmapScale(): (Float) -> Color {

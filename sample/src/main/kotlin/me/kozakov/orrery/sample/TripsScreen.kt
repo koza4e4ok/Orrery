@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -27,13 +28,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.daysUntil
+import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.compose.CalendarDefaults
+import me.kozakov.orrery.compose.DayDecorators
 import me.kozakov.orrery.compose.DefaultDay
 import me.kozakov.orrery.compose.VerticalCalendar
 import me.kozakov.orrery.compose.currentDate
@@ -87,6 +92,38 @@ internal fun TripsScreen() {
             selectedShape = RoundedCornerShape(12.dp),
         )
     val startMonth = remember(today) { YearMonth(today.year, today.month) }
+    val calendarState =
+        rememberCalendarState(
+            startMonth = startMonth,
+            endMonth = CalendarPages.monthAt(startMonth, 5),
+        )
+
+    val range = selection.selection.range
+    val activeDate = selection.selection.rangeStart ?: today
+    val heroSubtitle =
+        if (range != null) {
+            val nights = range.start.daysUntil(range.endInclusive)
+            "$nights night${if (nights == 1) "" else "s"} · $${SampleData.rangePrice(range)}"
+        } else if (selection.selection.rangeStart != null) {
+            "Pick checkout date"
+        } else {
+            "From $${SampleData.nightlyPrice(today)} / night"
+        }
+
+    val previewTarget =
+        selection.selection.rangeStart?.let { anchor ->
+            if (selection.selection.rangeEnd == null) {
+                val candidate = anchor.plus(3, DateTimeUnit.DAY)
+                if (!selection.isDisabled(candidate)) candidate else null
+            } else {
+                null
+            }
+        }
+    val previewDecorator =
+        DayDecorators.rangePreview(
+            selectionState = selection,
+            targetDate = previewTarget,
+        )
 
     // The app-level Scaffold already pads for the system bars.
     Scaffold(
@@ -96,12 +133,12 @@ internal fun TripsScreen() {
             TripSummaryBar(
                 range = selection.selection.range,
                 onConfirm = {
-                    selection.selection.range?.let { range ->
-                        val nights = range.start.daysUntil(range.endInclusive)
+                    selection.selection.range?.let { selectedRange ->
+                        val nights = selectedRange.start.daysUntil(selectedRange.endInclusive)
                         scope.launch {
                             snackbar.showSnackbar(
                                 "Booked $nights night${if (nights == 1) "" else "s"} · $${SampleData.rangePrice(
-                                    range,
+                                    selectedRange,
                                 )}",
                             )
                         }
@@ -111,9 +148,18 @@ internal fun TripsScreen() {
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            SampleHeroHeader(
+                date = activeDate,
+                today = today,
+                subtitle = heroSubtitle,
+                onTodayClick = {
+                    scope.launch { calendarState.animateScrollToMonth(startMonth) }
+                },
+            )
             Row(
-                Modifier.padding(horizontal = 16.dp),
+                Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 StayMode.entries.forEach { option ->
                     FilterChip(
@@ -125,7 +171,7 @@ internal fun TripsScreen() {
                 }
             }
             Row(
-                Modifier.padding(horizontal = 16.dp),
+                Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 AssistChip(
@@ -136,14 +182,17 @@ internal fun TripsScreen() {
                     onClick = { selection.set(SelectionPresets.nextDays(today, 7)) },
                     label = { Text("Next 7 days") },
                 )
+                if (selection.selection != me.kozakov.orrery.core.Selection.Empty) {
+                    AssistChip(
+                        onClick = { selection.clear() },
+                        label = { Text("Clear") },
+                    )
+                }
             }
+            HorizontalDivider(Modifier.padding(top = 4.dp))
             VerticalCalendar(
-                state =
-                    rememberCalendarState(
-                        startMonth = startMonth,
-                        endMonth = CalendarPages.monthAt(startMonth, 5),
-                    ),
-                modifier = Modifier.testTag("trips_calendar"),
+                state = calendarState,
+                modifier = Modifier.weight(1f).testTag("trips_calendar"),
                 stickyMonthHeaders = true,
                 dragSelection = selection,
                 dayContent = { day ->
@@ -153,6 +202,7 @@ internal fun TripsScreen() {
                         today = today,
                         shapes = shapes,
                         showOutDates = false,
+                        decorators = listOf(previewDecorator),
                         info =
                             if (day.date >= today && !selection.isDisabled(day.date)) {
                                 DayInfo(label = "$" + SampleData.nightlyPrice(day.date))
@@ -181,7 +231,7 @@ private fun TripSummaryBar(
                 Column(Modifier.weight(1f)) {
                     Text(
                         "${range.start.shortLabel()} → ${range.endInclusive.shortLabel()}",
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                     )
                     Text(
                         "$nights night${if (nights == 1) "" else "s"} · $${SampleData.rangePrice(range)}",

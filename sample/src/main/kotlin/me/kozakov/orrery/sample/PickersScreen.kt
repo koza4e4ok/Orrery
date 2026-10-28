@@ -9,15 +9,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
@@ -26,6 +30,7 @@ import me.kozakov.orrery.compose.OrreryDatePickerDialog
 import me.kozakov.orrery.compose.OrreryDateRangePickerDialog
 import me.kozakov.orrery.compose.OrreryDateTimePickerDialog
 import me.kozakov.orrery.compose.OrreryMonthPickerDialog
+import me.kozakov.orrery.compose.currentDate
 import me.kozakov.orrery.compose.currentYearMonth
 import me.kozakov.orrery.compose.rememberOrreryDatePickerState
 import me.kozakov.orrery.compose.rememberOrreryDateRangePickerState
@@ -35,14 +40,24 @@ import me.kozakov.orrery.compose.rememberOrreryMonthPickerState
 /** Dialog gallery: single-date, date-range, date+time and month picker dialogs opened from buttons. */
 @Composable
 internal fun PickersScreen() {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        SingleDateCard()
-        DateRangeCard()
-        DateTimeCard()
-        MonthCard()
+    val today = remember { currentDate() }
+    Column(Modifier.fillMaxSize()) {
+        SampleHeroHeader(
+            date = today,
+            today = today,
+            subtitle = "Modal Picker Dialogs · Date, Range, Time & Month",
+            onTodayClick = {},
+        )
+        HorizontalDivider()
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            SingleDateCard()
+            DateRangeCard()
+            DateTimeCard()
+            MonthCard()
+        }
     }
 }
 
@@ -51,9 +66,15 @@ private fun SingleDateCard() {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var result by rememberSaveable { mutableStateOf<String?>(null) }
 
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Single date", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Single date",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            )
             Text(
                 result?.let { "Selected: $it" } ?: "No date selected",
                 style = MaterialTheme.typography.bodyMedium,
@@ -87,9 +108,15 @@ private fun DateRangeCard() {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var result by rememberSaveable { mutableStateOf<String?>(null) }
 
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Date range", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Date range",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            )
             Text(
                 result?.let { "Selected: $it" } ?: "No range selected",
                 style = MaterialTheme.typography.bodyMedium,
@@ -126,9 +153,15 @@ private fun DateTimeCard() {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var result by rememberSaveable { mutableStateOf<String?>(null) }
 
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Date and time", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Date and time",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            )
             Text(
                 result?.let { "Selected: $it" } ?: "No date and time selected",
                 style = MaterialTheme.typography.bodyMedium,
@@ -159,9 +192,15 @@ private fun MonthCard() {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var result by rememberSaveable { mutableStateOf<String?>(null) }
 
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Card expiry (month only)", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Card expiry (month only)",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            )
             Text(
                 result?.let { "Selected: $it" } ?: "No month selected",
                 style = MaterialTheme.typography.bodyMedium,

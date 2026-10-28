@@ -4,6 +4,12 @@
 
 ### Added
 
+- `DayDecorators.spanningEventBars`, `DayDecorators.stackedBars`, and
+  `DayDecorators.rangePreview` in `orrery-compose`, plus a redesigned universal
+  `:sample` showcase app with `SampleHeroHeader`, in-place `YearCalendar`
+  overview jump, live-switchable visual theme presets (*M3 Default*, *Meizu
+  Badges*, *Colorful Glow*, *Solar Progress*, *Stacked & Spanning*, *Rounded &
+  Card*), and a dynamic controls bottom sheet (#67).
 - Visible keyboard / D-pad focus rings and pointer hover states (#61).
   `DefaultDay` draws a ring of `CalendarDayShapes.focusedBorderWidth` (default
   `2.dp`) in `CalendarDayColors.focusedBorderColor` (default

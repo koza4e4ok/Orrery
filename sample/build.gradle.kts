@@ -38,6 +38,8 @@ kotlin {
 dependencies {
     implementation(project(":orrery-compose"))
     implementation(project(":orrery-lunar"))
+    implementation(project(":orrery-calendars"))
+    implementation(project(":orrery-holidays"))
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.core)

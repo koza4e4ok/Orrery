@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-28
+
 ### Added
 
 - New `orrery-calendars` module: Hijri (`HijriVariant.UmmAlQura` for
@@ -37,6 +39,14 @@
   year and reuses `MonthYearPicker`'s year and decade grids, whose look and
   behavior are unchanged (#24).
 
+- Preset chips in `OrreryDateRangePickerDialog`: the new `presets` parameter
+  (default empty, so the dialog looks the same) shows a scrollable row of
+  `DateRangePreset(label, range)` chips in calendar mode; tapping one selects
+  its range through the selection engine and scrolls to it.
+  `DatePickerDefaults.rangePresets(today, firstDayOfWeek)` builds "Last 7
+  days", "Last 30 days", "This week" and "This month" from `SelectionPresets`,
+  with labels in the six bundled languages (#24).
+
 - `SelectionMode.Week(firstDayOfWeek, allowClear)` and
   `SelectionMode.Month(allowClear)`: a tap selects the whole week or month
   containing the day as a range, so range rendering and TalkBack range states
@@ -62,13 +72,6 @@
 
 ### Added
 
-- Preset chips in `OrreryDateRangePickerDialog`: the new `presets` parameter
-  (default empty, so the dialog looks the same) shows a scrollable row of
-  `DateRangePreset(label, range)` chips in calendar mode; tapping one selects
-  its range through the selection engine and scrolls to it.
-  `DatePickerDefaults.rangePresets(today, firstDayOfWeek)` builds "Last 7
-  days", "Last 30 days", "This week" and "This month" from `SelectionPresets`,
-  with labels in the six bundled languages (#24).
 - `orrery-compose` targets iOS (`iosArm64`, `iosSimulatorArm64`) and Web
   (`wasmJs`) through Compose Multiplatform, next to Android and Desktop (#20).
   There is no `iosX64` (Intel simulator) variant: Compose Multiplatform 1.11
@@ -275,7 +278,8 @@
   is replaced by `decorators: List<DayDecorator>`. Migrate
   `decorator = { day -> ... }` to `decorators = listOf(DayDecorator { day -> ... })`.
 
-[Unreleased]: https://github.com/koza4e4ok/Orrery/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/koza4e4ok/Orrery/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/koza4e4ok/Orrery/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/koza4e4ok/Orrery/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/koza4e4ok/Orrery/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/koza4e4ok/Orrery/compare/v0.3.0...v0.4.0

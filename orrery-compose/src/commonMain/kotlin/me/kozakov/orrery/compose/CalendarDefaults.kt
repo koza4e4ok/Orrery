@@ -144,6 +144,8 @@ public sealed interface TodayIndicator {
     public data object None : TodayIndicator
 }
 
+// Factory object for colors, shapes, strings, styles and slot defaults, mirroring Material3's *Defaults objects.
+@Suppress("TooManyFunctions")
 public object CalendarDefaults {
     @Composable
     public fun dayColors(

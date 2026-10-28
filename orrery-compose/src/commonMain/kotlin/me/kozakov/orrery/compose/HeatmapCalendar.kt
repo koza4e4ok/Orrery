@@ -1,7 +1,10 @@
 package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -126,7 +129,9 @@ public fun rememberHeatmapCalendarState(
  * GitHub-style contribution graph: one column per week, seven tile rows,
  * horizontally scrollable across the state's date range. [intensity]
  * returns a 0..1 heat value per day, or null for no data. Cells are
- * clickable only when [onDayClick] is set. Accessibility descriptions
+ * clickable only when [onDayClick] is set; a clickable cell draws a 2.dp
+ * `onSurface` focus ring just outside its tile while it has keyboard /
+ * D-pad focus. Accessibility descriptions
  * bucket intensity into five levels regardless of [colorScale].
  */
 @Composable
@@ -332,16 +337,34 @@ private fun HeatCell(
                 HEATMAP_LEVELS,
             )
         }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
     Box(
         Modifier
             .size(cellSize)
-            .clip(cellShape)
+            .focusRing(
+                focused = onDayClick != null && isFocused,
+                color = MaterialTheme.colorScheme.onSurface,
+                width = HeatmapFocusRingWidth,
+                shape = cellShape,
+                placement = FocusRingPlacement.Outside,
+            ).clip(cellShape)
             .background(if (value == null) emptyCellColor else colorScale(value))
             .then(
-                if (onDayClick != null) Modifier.clickable(role = Role.Button) { onDayClick(date) } else Modifier,
+                if (onDayClick != null) {
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = LocalIndication.current,
+                        role = Role.Button,
+                    ) { onDayClick(date) }
+                } else {
+                    Modifier
+                },
             ).semantics { contentDescription = description },
     )
 }
+
+private val HeatmapFocusRingWidth = 2.dp
 
 @Composable
 private fun Legend(

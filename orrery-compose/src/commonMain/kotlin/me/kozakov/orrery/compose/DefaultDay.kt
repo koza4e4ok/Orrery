@@ -9,6 +9,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -72,6 +74,12 @@ import me.kozakov.orrery.core.DayPosition
  * connector band, the today Ring/Underline and Over decorators (e.g.
  * badges) draw outside that clip so they are never cropped by the cell
  * shape.
+ *
+ * While the cell has keyboard / D-pad focus, a ring of
+ * [CalendarDayShapes.focusedBorderWidth] in [CalendarDayColors.focusedBorderColor]
+ * outlines [CalendarDayShapes.dayShape] in the unclipped overlay. While a
+ * pointer hovers an available, unselected day, [CalendarDayColors.hoverContainerColor]
+ * fills the day shape.
  *
  * Besides the date as content description, the cell reports range
  * start / end / in range, today and unavailable as its accessibility
@@ -148,6 +156,10 @@ public fun DefaultDay(
         ).joinToString(", ")
     val haptics = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val showFocusRing = isFocused && available
+    val showHover = isHovered && available && !isSelected
     val contentColor =
         when {
             !available -> colors.unavailableContentColor
@@ -160,7 +172,8 @@ public fun DefaultDay(
         }
     val hasOverlay =
         (isToday && !isSelected && (indicator is TodayIndicator.Ring || indicator is TodayIndicator.Underline)) ||
-            decorators.any { it.layer == DecoratorLayer.Over }
+            decorators.any { it.layer == DecoratorLayer.Over } ||
+            showFocusRing
     Box(
         modifier =
             modifier
@@ -221,6 +234,9 @@ public fun DefaultDay(
                     if (isToday && !isSelected && indicator is TodayIndicator.FilledCircle) {
                         drawDayShape(shapes.dayShape, colors.todayIndicatorColor)
                     }
+                    if (showHover) {
+                        drawDayShape(shapes.dayShape, colors.hoverContainerColor)
+                    }
                     if (selectedScale > 0f) {
                         scale(selectedScale) {
                             drawDayShape(shapes.selectedShape, colors.selectedContainerColor)
@@ -268,8 +284,8 @@ public fun DefaultDay(
                 )
             }
         }
-        // Unclipped overlay: today Ring/Underline and Over decorators (badges) are
-        // never cropped by the cell shape.
+        // Unclipped overlay: today Ring/Underline, Over decorators (badges) and the
+        // focus ring are never cropped by the cell shape.
         if (hasOverlay) {
             Box(
                 Modifier.matchParentSize().drawBehind {
@@ -304,6 +320,13 @@ public fun DefaultDay(
                         if (decorator.layer == DecoratorLayer.Over) {
                             with(decorator) { draw(day) }
                         }
+                    }
+                    if (showFocusRing) {
+                        drawDayShape(
+                            shapes.dayShape,
+                            colors.focusedBorderColor,
+                            Stroke(width = shapes.focusedBorderWidth.toPx()),
+                        )
                     }
                 },
             )

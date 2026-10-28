@@ -23,6 +23,13 @@ import me.kozakov.orrery.core.CalendarMonth
 import me.kozakov.orrery.core.CalendarWeek
 import me.kozakov.orrery.core.isoWeekNumber
 
+/**
+ * Colors used by [DefaultDay].
+ *
+ * [focusedBorderColor] draws the keyboard / D-pad focus ring around the
+ * day shape; [hoverContainerColor] fills the day shape while a pointer
+ * hovers an available, unselected day (Desktop and Web).
+ */
 @Immutable
 public class CalendarDayColors(
     public val containerColor: Color,
@@ -38,7 +45,42 @@ public class CalendarDayColors(
     public val unavailableContentColor: Color,
     public val labelColor: Color,
     public val holidayLabelColor: Color = labelColor,
-)
+    public val focusedBorderColor: Color = todayIndicatorColor,
+    public val hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
+) {
+    @Deprecated("Kept for binary compatibility; use the primary constructor.", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        containerColor: Color,
+        contentColor: Color,
+        todayContentColor: Color,
+        todayIndicatorColor: Color,
+        selectedContainerColor: Color,
+        selectedContentColor: Color,
+        inRangeContainerColor: Color,
+        inRangeContentColor: Color,
+        outDateContentColor: Color,
+        unavailableContainerColor: Color,
+        unavailableContentColor: Color,
+        labelColor: Color,
+        holidayLabelColor: Color = labelColor,
+    ) : this(
+        containerColor,
+        contentColor,
+        todayContentColor,
+        todayIndicatorColor,
+        selectedContainerColor,
+        selectedContentColor,
+        inRangeContainerColor,
+        inRangeContentColor,
+        outDateContentColor,
+        unavailableContainerColor,
+        unavailableContentColor,
+        labelColor,
+        holidayLabelColor,
+        todayIndicatorColor,
+        contentColor.copy(alpha = 0.08f),
+    )
+}
 
 /**
  * Shapes and today-marker style used by [DefaultDay].
@@ -47,6 +89,9 @@ public class CalendarDayColors(
  * (the default) draws a continuous connector band across the range;
  * any other shape draws a separate centered fill per in-range day
  * (segmented style), with the range endpoints keeping [selectedShape].
+ *
+ * [focusedBorderWidth] is the stroke width of the focus ring drawn
+ * around [dayShape] while the day has keyboard / D-pad focus.
  */
 @Immutable
 public class CalendarDayShapes(
@@ -54,7 +99,16 @@ public class CalendarDayShapes(
     public val selectedShape: Shape,
     public val inRangeShape: Shape,
     public val todayIndicator: TodayIndicator,
-)
+    public val focusedBorderWidth: Dp = 2.dp,
+) {
+    @Deprecated("Kept for binary compatibility; use the primary constructor.", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dayShape: Shape,
+        selectedShape: Shape,
+        inRangeShape: Shape,
+        todayIndicator: TodayIndicator,
+    ) : this(dayShape, selectedShape, inRangeShape, todayIndicator, 2.dp)
+}
 
 /**
  * State descriptions [DefaultDay] reports to accessibility services
@@ -105,6 +159,8 @@ public object CalendarDefaults {
         unavailableContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
         labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         holidayLabelColor: Color = MaterialTheme.colorScheme.primary,
+        focusedBorderColor: Color = todayIndicatorColor,
+        hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
     ): CalendarDayColors =
         CalendarDayColors(
             containerColor,
@@ -120,6 +176,43 @@ public object CalendarDefaults {
             unavailableContentColor,
             labelColor,
             holidayLabelColor,
+            focusedBorderColor,
+            hoverContainerColor,
+        )
+
+    @Deprecated("Kept for binary compatibility; use the overload with focus and hover colors.", level = DeprecationLevel.HIDDEN)
+    @Composable
+    public fun dayColors(
+        containerColor: Color = Color.Transparent,
+        contentColor: Color = MaterialTheme.colorScheme.onSurface,
+        todayContentColor: Color = MaterialTheme.colorScheme.primary,
+        todayIndicatorColor: Color = MaterialTheme.colorScheme.primary,
+        selectedContainerColor: Color = MaterialTheme.colorScheme.primary,
+        selectedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
+        inRangeContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+        inRangeContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+        outDateContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+        unavailableContainerColor: Color = Color.Transparent,
+        unavailableContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+        labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        holidayLabelColor: Color = MaterialTheme.colorScheme.primary,
+    ): CalendarDayColors =
+        dayColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            todayContentColor = todayContentColor,
+            todayIndicatorColor = todayIndicatorColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedContentColor = selectedContentColor,
+            inRangeContainerColor = inRangeContainerColor,
+            inRangeContentColor = inRangeContentColor,
+            outDateContentColor = outDateContentColor,
+            unavailableContainerColor = unavailableContainerColor,
+            unavailableContentColor = unavailableContentColor,
+            labelColor = labelColor,
+            holidayLabelColor = holidayLabelColor,
+            focusedBorderColor = todayIndicatorColor,
+            hoverContainerColor = contentColor.copy(alpha = 0.08f),
         )
 
     public fun dayShapes(
@@ -127,7 +220,16 @@ public object CalendarDefaults {
         selectedShape: Shape = CircleShape,
         inRangeShape: Shape = RectangleShape,
         todayIndicator: TodayIndicator = TodayIndicator.Ring(),
-    ): CalendarDayShapes = CalendarDayShapes(dayShape, selectedShape, inRangeShape, todayIndicator)
+        focusedBorderWidth: Dp = 2.dp,
+    ): CalendarDayShapes = CalendarDayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, focusedBorderWidth)
+
+    @Deprecated("Kept for binary compatibility; use the overload with focusedBorderWidth.", level = DeprecationLevel.HIDDEN)
+    public fun dayShapes(
+        dayShape: Shape = CircleShape,
+        selectedShape: Shape = CircleShape,
+        inRangeShape: Shape = RectangleShape,
+        todayIndicator: TodayIndicator = TodayIndicator.Ring(),
+    ): CalendarDayShapes = dayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, 2.dp)
 
     /**
      * Builds [CalendarDayStrings]. Defaults are resolved from the current

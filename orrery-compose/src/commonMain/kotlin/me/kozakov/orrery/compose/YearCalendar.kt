@@ -1,7 +1,10 @@
 package me.kozakov.orrery.compose
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -10,10 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -76,7 +82,11 @@ public fun rememberYearCalendarState(
         YearCalendarState(startYear, endYear, firstVisibleYear)
     }
 
-/** Year overview: one year per page, months in a [columns]-wide grid. */
+/**
+ * Year overview: one year per page, months in a [columns]-wide grid. A
+ * mini-month cell draws a 2.dp `primary` focus ring inside its bounds
+ * while it has keyboard / D-pad focus.
+ */
 @Composable
 public fun YearCalendar(
     state: YearCalendarState = rememberYearCalendarState(),
@@ -99,10 +109,22 @@ public fun YearCalendar(
                     Row(Modifier.fillMaxWidth()) {
                         rowMonths.forEach { m ->
                             val ym = YearMonth(year, m)
+                            val interactionSource = remember { MutableInteractionSource() }
+                            val isFocused by interactionSource.collectIsFocusedAsState()
                             Box(
                                 Modifier
                                     .weight(1f)
-                                    .clickable(role = Role.Button) { onMonthClick(ym) },
+                                    .focusRing(
+                                        focused = isFocused,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        width = MiniMonthFocusRingWidth,
+                                        shape = MiniMonthFocusRingShape,
+                                        placement = FocusRingPlacement.Inside,
+                                    ).clickable(
+                                        interactionSource = interactionSource,
+                                        indication = LocalIndication.current,
+                                        role = Role.Button,
+                                    ) { onMonthClick(ym) },
                             ) { monthContent(ym) }
                         }
                     }
@@ -111,6 +133,9 @@ public fun YearCalendar(
         }
     }
 }
+
+private val MiniMonthFocusRingWidth = 2.dp
+private val MiniMonthFocusRingShape = RoundedCornerShape(8.dp)
 
 /** Default mini-month cell for [YearCalendar]. */
 @Composable

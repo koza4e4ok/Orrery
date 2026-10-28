@@ -105,6 +105,11 @@ internal fun AgendaScreen() {
             agendaState.animateScrollToDate(selectedDay)
         }
     }
+    // The month header has no calendar under it in the time-grid modes; keep it on the paged-to date.
+    val scheduleDate = scheduleState.firstVisibleDate
+    LaunchedEffect(mode, scheduleDate) {
+        if (mode != AgendaMode.List) calendarState.animateScrollToDate(scheduleDate)
+    }
 
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

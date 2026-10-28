@@ -43,4 +43,6 @@
     <string name="orrery_date_time_picker_time_title">Select time</string>
     <string name="orrery_date_time_picker_switch_to_clock">Switch to clock</string>
     <string name="orrery_date_time_picker_switch_to_keyboard">Switch to keyboard input</string>
+    <string name="orrery_month_picker_title">Select month</string>
+    <string name="orrery_month_picker_headline_placeholder">Month</string>
 </resources>

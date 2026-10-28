@@ -43,4 +43,6 @@
     <string name="orrery_date_time_picker_time_title">Виберіть час</string>
     <string name="orrery_date_time_picker_switch_to_clock">Перейти до годинника</string>
     <string name="orrery_date_time_picker_switch_to_keyboard">Перейти до введення з клавіатури</string>
+    <string name="orrery_month_picker_title">Виберіть місяць</string>
+    <string name="orrery_month_picker_headline_placeholder">Місяць</string>
 </resources>

@@ -19,6 +19,16 @@ interfaces, and an optional Chinese lunisolar artifact.
   <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with event badges, trip range selection with per-day prices, habit progress rings, Chinese lunar almanac, and Material 3 date picker dialogs" />
 </p>
 
+The same tour on Desktop (JVM), iOS and Web (Kotlin/Wasm), rendered from one shared
+Compose Multiplatform UI: trip range selection with holidays and paydays, Agenda, the
+Day/Week schedule, and the range picker presets.
+
+<p align="center">
+  <img src="art/orrery-features-demo.gif" width="250" alt="Desktop demo: range selection with holiday and payday labels, Agenda list, Day and Week schedule views, and the date range picker with presets" />
+  <img src="art/orrery-ios-demo.gif" width="250" alt="iOS simulator demo: the same calendar tour running on iOS" />
+  <img src="art/orrery-web-demo.gif" width="250" alt="Web demo: the same calendar tour running on Kotlin/Wasm in Chrome" />
+</p>
+
 **API reference:** [koza4e4ok.github.io/Orrery](https://koza4e4ok.github.io/Orrery/)
 (Dokka, published for each release).
 
@@ -133,6 +143,8 @@ demonstrating both date picker dialogs.
   (slot-based confirm/dismiss buttons) with calendar and locale-aware text-input modes
 - `OrreryDateTimePickerDialog`: date step, then a Material 3 time dial or keyboard
   input, returning a `LocalDateTime`
+- `OrreryMonthPickerDialog`: month/year-only dialog (e.g. card expiry) on the
+  `MonthYearPicker` grids
 - First-class unavailable dates: `DisabledDates` (dates, ranges, days of week,
   before/after, predicates) blocks selection and renders disabled automatically
 - Per-state day styling: `CalendarDayColors` + `CalendarDayShapes` with
@@ -541,6 +553,28 @@ OrreryDateTimePickerDialog(
     },
     dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } },
     state = state,
+)
+```
+
+For a month and year without a day, such as a card expiry date, use
+`OrreryMonthPickerDialog`. It opens on the month grid of the selected (or current)
+year; tap the year to zoom out to years and decades. Months outside `range` are
+disabled, and `DatePickerDefaults.monthRange()` (the default) spans the current
+year ±100:
+
+```kotlin
+val thisMonth = currentYearMonth()
+val expiry = rememberOrreryMonthPickerState(range = thisMonth..thisMonth.plus(20, DateTimeUnit.YEAR))
+
+OrreryMonthPickerDialog(
+    onDismissRequest = { showDialog = false },
+    confirmButton = {
+        TextButton(
+            onClick = { save(expiry.selectedMonth) },
+            enabled = expiry.selectedMonth != null,
+        ) { Text("OK") }
+    },
+    state = expiry,
 )
 ```
 

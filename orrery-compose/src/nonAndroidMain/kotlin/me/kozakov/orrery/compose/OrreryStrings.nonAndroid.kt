@@ -66,6 +66,8 @@ private val english: Map<OrreryString, String> =
         OrreryString.DateTimePickerTimeTitle to "Select time",
         OrreryString.DateTimePickerSwitchToClock to "Switch to clock",
         OrreryString.DateTimePickerSwitchToKeyboard to "Switch to keyboard input",
+        OrreryString.MonthPickerTitle to "Select month",
+        OrreryString.MonthPickerHeadlinePlaceholder to "Month",
     )
 
 private val german: Map<OrreryString, String> =
@@ -113,6 +115,8 @@ private val german: Map<OrreryString, String> =
         OrreryString.DateTimePickerTimeTitle to "Uhrzeit auswählen",
         OrreryString.DateTimePickerSwitchToClock to "Zur Uhr wechseln",
         OrreryString.DateTimePickerSwitchToKeyboard to "Zur Tastatureingabe wechseln",
+        OrreryString.MonthPickerTitle to "Monat auswählen",
+        OrreryString.MonthPickerHeadlinePlaceholder to "Monat",
     )
 
 private val spanish: Map<OrreryString, String> =
@@ -160,6 +164,8 @@ private val spanish: Map<OrreryString, String> =
         OrreryString.DateTimePickerTimeTitle to "Seleccionar hora",
         OrreryString.DateTimePickerSwitchToClock to "Cambiar a reloj",
         OrreryString.DateTimePickerSwitchToKeyboard to "Cambiar a entrada de teclado",
+        OrreryString.MonthPickerTitle to "Seleccionar mes",
+        OrreryString.MonthPickerHeadlinePlaceholder to "Mes",
     )
 
 private val japanese: Map<OrreryString, String> =
@@ -207,6 +213,8 @@ private val japanese: Map<OrreryString, String> =
         OrreryString.DateTimePickerTimeTitle to "時刻を選択",
         OrreryString.DateTimePickerSwitchToClock to "時計に切り替え",
         OrreryString.DateTimePickerSwitchToKeyboard to "キーボード入力に切り替え",
+        OrreryString.MonthPickerTitle to "月を選択",
+        OrreryString.MonthPickerHeadlinePlaceholder to "月",
     )
 
 private val ukrainian: Map<OrreryString, String> =
@@ -254,6 +262,8 @@ private val ukrainian: Map<OrreryString, String> =
         OrreryString.DateTimePickerTimeTitle to "Виберіть час",
         OrreryString.DateTimePickerSwitchToClock to "Перейти до годинника",
         OrreryString.DateTimePickerSwitchToKeyboard to "Перейти до введення з клавіатури",
+        OrreryString.MonthPickerTitle to "Виберіть місяць",
+        OrreryString.MonthPickerHeadlinePlaceholder to "Місяць",
     )
 
 private val simplifiedChinese: Map<OrreryString, String> =
@@ -301,4 +311,6 @@ private val simplifiedChinese: Map<OrreryString, String> =
         OrreryString.DateTimePickerTimeTitle to "选择时间",
         OrreryString.DateTimePickerSwitchToClock to "切换到时钟",
         OrreryString.DateTimePickerSwitchToKeyboard to "切换到键盘输入",
+        OrreryString.MonthPickerTitle to "选择月份",
+        OrreryString.MonthPickerHeadlinePlaceholder to "月份",
     )

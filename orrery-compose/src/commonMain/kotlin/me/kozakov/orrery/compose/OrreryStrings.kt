@@ -54,6 +54,8 @@ internal enum class OrreryString(
     DateTimePickerTimeTitle("orrery_date_time_picker_time_title"),
     DateTimePickerSwitchToClock("orrery_date_time_picker_switch_to_clock"),
     DateTimePickerSwitchToKeyboard("orrery_date_time_picker_switch_to_keyboard"),
+    MonthPickerTitle("orrery_month_picker_title"),
+    MonthPickerHeadlinePlaceholder("orrery_month_picker_headline_placeholder"),
 }
 
 /**

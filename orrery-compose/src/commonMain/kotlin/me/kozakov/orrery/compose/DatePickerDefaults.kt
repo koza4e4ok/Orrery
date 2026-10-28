@@ -5,6 +5,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionPresets
 
@@ -47,6 +48,17 @@ public class DateTimePickerStrings(
     public val timeTitle: String,
     public val switchToClock: String,
     public val switchToKeyboard: String,
+)
+
+/**
+ * Strings for [OrreryMonthPickerDialog]. [DatePickerDefaults.monthPickerStrings]
+ * resolves them from the current locale's resources; callers can override
+ * any of them.
+ */
+@Immutable
+public class MonthPickerStrings(
+    public val title: String,
+    public val headlinePlaceholder: String,
 )
 
 /** Defaults for the date picker dialogs. */
@@ -121,6 +133,24 @@ public object DatePickerDefaults {
         )
 
     /**
+     * Builds [MonthPickerStrings]. Defaults are resolved from the current
+     * locale's resources; override any parameter to replace a string.
+     */
+    @Composable
+    @ReadOnlyComposable
+    public fun monthPickerStrings(
+        title: String = orreryString(OrreryString.MonthPickerTitle),
+        headlinePlaceholder: String = orreryString(OrreryString.MonthPickerHeadlinePlaceholder),
+    ): MonthPickerStrings = MonthPickerStrings(title = title, headlinePlaceholder = headlinePlaceholder)
+
+    /**
+     * Default selectable range for [rememberOrreryMonthPickerState]: January of
+     * [today]'s year minus 100 through December of its year plus 100.
+     */
+    public fun monthRange(today: LocalDate = currentDate()): ClosedRange<YearMonth> =
+        YearMonth(today.year - MONTH_RANGE_YEARS, 1)..YearMonth(today.year + MONTH_RANGE_YEARS, 12)
+
+    /**
      * Standard presets for [OrreryDateRangePickerDialog]'s `presets`, built
      * from [SelectionPresets] around [today]: last 7 days, last 30 days,
      * this week (starting at [firstDayOfWeek]) and this month. Labels come
@@ -151,5 +181,7 @@ public object DatePickerDefaults {
             ),
         )
 }
+
+private const val MONTH_RANGE_YEARS = 100
 
 private fun Selection.requireRange(): ClosedRange<LocalDate> = checkNotNull(range)

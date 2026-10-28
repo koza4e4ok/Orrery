@@ -7,8 +7,8 @@
 - Visible keyboard / D-pad focus rings and pointer hover states (#61).
   `DefaultDay` draws a ring of `CalendarDayShapes.focusedBorderWidth` (default
   `2.dp`) in `CalendarDayColors.focusedBorderColor` (default
-  `todayIndicatorColor`) around the day shape while focused, unclipped by the
-  cell, and fills available, unselected days with
+  `todayIndicatorColor`) around the day shape while focused (with a 1.dp contrasting inner halo on
+  selected days), unclipped by the cell, and fills available, unselected days with
   `CalendarDayColors.hoverContainerColor` (default `contentColor` at 8% alpha)
   while hovered on Desktop and Web. `CalendarDefaults.dayColors(...)` and
   `CalendarDefaults.dayShapes(...)` take the matching parameters; the previous
@@ -16,6 +16,24 @@
   Interactive `HeatmapCalendar` cells (with `onDayClick`) draw a 2.dp
   `onSurface` ring just outside the focused tile, and `YearCalendar`
   mini-month cells a 2.dp `primary` ring inside the focused cell.
+
+### Changed
+
+- `DefaultDay` keeps the secondary `DayInfo.label` on one centered line with
+  2 dp side padding and an ellipsis, so long holiday or calendar names ("Day of
+  Defenders and Defendresses of Ukraine") no longer wrap or shift the day
+  number (#63).
+- `DefaultDay` fades each half of the range connector band on its own, so
+  range start and end connectors now fade in and out like in-range days when a
+  range is completed, changed or cleared, instead of appearing or vanishing at
+  once (#63).
+- In `DefaultDay`, `DayDecorators.eventDots` draw in the selected content color
+  on selected days (a new `eventDots(selectedColor, ...)` overload picks the
+  color) and sit closer
+  to the bottom edge on days with a secondary label; `DayDecorators.badge` gets
+  a 1 dp outline on selected days (new `selectedOutlineColor` parameter, default
+  the selected content color) so it stays distinct from the selection fill. The
+  previous overloads stay for binary compatibility (#63).
 
 ## [0.7.0] - 2026-10-28
 

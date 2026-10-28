@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,6 +52,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -71,7 +74,14 @@ import me.kozakov.orrery.core.DayPosition
  * same treatment. Shapes come from [shapes].
  *
  * A non-rectangular [CalendarDayShapes.inRangeShape] switches the range
- * band to per-day segmented fills. A positive [selectedElevation] draws
+ * band to per-day segmented fills. Each half of the connector band fades
+ * in and out on its own (when [animateSelection] is true), so range
+ * endpoints and in-range days transition smoothly as a range grows,
+ * shrinks or is cleared.
+ *
+ * The secondary [DayInfo.label] stays on one centered line and is
+ * ellipsized when it does not fit the cell, so long holiday names never
+ * wrap or shift the day number. A positive [selectedElevation] draws
  * a shadow under the selected day's fill.
  *
  * The container fill, selection fill, today FilledCircle and Behind
@@ -120,13 +130,7 @@ public fun DefaultDay(
     val isRangeStart = selectionState?.isRangeStart(day.date) == true
     val isRangeEnd = selectionState?.isRangeEnd(day.date) == true
     val indicator = shapes.todayIndicator
-    val bandMode =
-        when {
-            isInRange -> RangeBand.Full
-            isRangeStart -> RangeBand.TowardEnd
-            isRangeEnd -> RangeBand.TowardStart
-            else -> RangeBand.None
-        }
+    val label = info?.label
     val selectedScale by animateFloatAsState(
         targetValue = if (isSelected) 1f else 0f,
         animationSpec =
@@ -137,10 +141,19 @@ public fun DefaultDay(
             },
         label = "daySelection",
     )
-    val bandAlpha by animateFloatAsState(
-        targetValue = if (bandMode != RangeBand.None) 1f else 0f,
+    // The band's start half (toward the previous day) and end half animate
+    // separately: Full fills both, a range start only the end half and a
+    // range end only the start half, so switching modes or clearing the
+    // range fades each half instead of snapping.
+    val bandStartAlpha by animateFloatAsState(
+        targetValue = if (isInRange || isRangeEnd) 1f else 0f,
         animationSpec = if (animateSelection) tween(durationMillis = 200) else snap(),
-        label = "dayRangeBand",
+        label = "dayRangeBandStart",
+    )
+    val bandEndAlpha by animateFloatAsState(
+        targetValue = if (isInRange || isRangeStart) 1f else 0f,
+        animationSpec = if (animateSelection) tween(durationMillis = 200) else snap(),
+        label = "dayRangeBandEnd",
     )
     val elevation by animateDpAsState(
         targetValue = if (isSelected) selectedElevation else 0.dp,
@@ -187,11 +200,8 @@ public fun DefaultDay(
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
                 .drawBehind {
-                    if (bandAlpha > 0f && shapes.inRangeShape == RectangleShape) {
-                        drawRangeBand(
-                            bandMode,
-                            colors.inRangeContainerColor.copy(alpha = colors.inRangeContainerColor.alpha * bandAlpha),
-                        )
+                    if (shapes.inRangeShape == RectangleShape) {
+                        drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor)
                     }
                 }.selectable(
                     selected = isSelected,
@@ -232,11 +242,10 @@ public fun DefaultDay(
                 .then(
                     if (!available) Modifier.background(colors.unavailableContainerColor) else Modifier,
                 ).drawBehind {
-                    if (bandAlpha > 0f && bandMode == RangeBand.Full && shapes.inRangeShape != RectangleShape) {
-                        drawDayShape(
-                            shapes.inRangeShape,
-                            colors.inRangeContainerColor.copy(alpha = colors.inRangeContainerColor.alpha * bandAlpha),
-                        )
+                    val segmentAlpha = minOf(bandStartAlpha, bandEndAlpha)
+                    if (segmentAlpha > 0f && shapes.inRangeShape != RectangleShape) {
+                        val bandColor = colors.inRangeContainerColor
+                        drawDayShape(shapes.inRangeShape, bandColor.copy(alpha = bandColor.alpha * segmentAlpha))
                     }
                     if (isToday && !isSelected && indicator is TodayIndicator.FilledCircle) {
                         drawDayShape(shapes.dayShape, colors.todayIndicatorColor)
@@ -249,9 +258,10 @@ public fun DefaultDay(
                             drawDayShape(shapes.selectedShape, colors.selectedContainerColor)
                         }
                     }
+                    val cellState = DayCellDrawState(selectedScale >= 0.5f, colors.selectedContentColor, label != null)
                     decorators.forEach { decorator ->
                         if (decorator.layer == DecoratorLayer.Behind) {
-                            with(decorator) { draw(day) }
+                            drawDecorator(decorator, day, cellState)
                         }
                     }
                 },
@@ -273,7 +283,6 @@ public fun DefaultDay(
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentColor,
             )
-            val label = info?.label
             if (label != null) {
                 val colorArgb = info.colorArgb
                 val resolvedLabelColor =
@@ -286,8 +295,12 @@ public fun DefaultDay(
                     }
                 Text(
                     text = label,
+                    modifier = Modifier.padding(horizontal = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = resolvedLabelColor,
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
                 )
             }
         }
@@ -323,16 +336,25 @@ public fun DefaultDay(
                             }
                         }
                     }
+                    val cellState = DayCellDrawState(selectedScale >= 0.5f, colors.selectedContentColor, label != null)
                     decorators.forEach { decorator ->
                         if (decorator.layer == DecoratorLayer.Over) {
-                            with(decorator) { draw(day) }
+                            drawDecorator(decorator, day, cellState)
                         }
                     }
                     if (showFocusRing) {
+                        val focusStrokePx = shapes.focusedBorderWidth.toPx()
+                        if (selectedScale >= 0.5f) {
+                            drawDayShape(
+                                shapes.dayShape,
+                                colors.selectedContentColor,
+                                Stroke(width = focusStrokePx + 2.dp.toPx()),
+                            )
+                        }
                         drawDayShape(
                             shapes.dayShape,
                             colors.focusedBorderColor,
-                            Stroke(width = shapes.focusedBorderWidth.toPx()),
+                            Stroke(width = focusStrokePx),
                         )
                     }
                 },
@@ -348,33 +370,54 @@ private class PressOnlyInteractionSource(
     override val interactions: Flow<Interaction> = source.interactions.filter { it is PressInteraction }
 }
 
-/** Which portion of the in-range connector band a cell fills. */
-private enum class RangeBand { None, Full, TowardEnd, TowardStart }
-
 /**
  * Draws the range connector band as a vertically centered bar whose
  * height matches the endpoint circle diameter, so a completed range
- * reads as one continuous pill capped by the endpoint fills. [mode]
- * picks the horizontal extent; [RangeBand.TowardEnd]/[RangeBand.TowardStart] fill the half
- * that faces the range interior (flipped in RTL).
+ * reads as one continuous pill capped by the endpoint fills. The half
+ * facing the previous day uses [startAlpha] and the half facing the next
+ * day [endAlpha] (sides flipped in RTL); equal alphas draw one rect so
+ * no seam shows at the center while both halves fade together.
  */
 private fun DrawScope.drawRangeBand(
-    mode: RangeBand,
+    startAlpha: Float,
+    endAlpha: Float,
     color: Color,
 ) {
-    if (mode == RangeBand.None) return
+    if (startAlpha <= 0f && endAlpha <= 0f) return
     val height = size.minDimension
     val top = (size.height - height) / 2f
     val center = size.width / 2f
     val ltr = layoutDirection == LayoutDirection.Ltr
-    val (left, right) =
-        when (mode) {
-            RangeBand.Full -> 0f to size.width
-            RangeBand.TowardEnd -> if (ltr) center to size.width else 0f to center
-            RangeBand.TowardStart -> if (ltr) 0f to center else center to size.width
-            RangeBand.None -> return
+
+    fun half(
+        left: Float,
+        right: Float,
+        alpha: Float,
+    ) {
+        if (alpha > 0f) {
+            drawRect(
+                color = color.copy(alpha = color.alpha * alpha),
+                topLeft = Offset(left, top),
+                size = Size(right - left, height),
+            )
         }
-    drawRect(color = color, topLeft = Offset(left, top), size = Size(right - left, height))
+    }
+
+    when {
+        startAlpha == endAlpha -> {
+            half(0f, size.width, startAlpha)
+        }
+
+        ltr -> {
+            half(0f, center, startAlpha)
+            half(center, size.width, endAlpha)
+        }
+
+        else -> {
+            half(center, size.width, startAlpha)
+            half(0f, center, endAlpha)
+        }
+    }
 }
 
 /**

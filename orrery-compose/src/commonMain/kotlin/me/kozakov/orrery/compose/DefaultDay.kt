@@ -8,7 +8,12 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -52,6 +57,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.DayInfo
@@ -82,6 +89,12 @@ import me.kozakov.orrery.core.DayPosition
  * connector band, the today Ring/Underline and Over decorators (e.g.
  * badges) draw outside that clip so they are never cropped by the cell
  * shape.
+ *
+ * While the cell has keyboard / D-pad focus, a ring of
+ * [CalendarDayShapes.focusedBorderWidth] in [CalendarDayColors.focusedBorderColor]
+ * outlines [CalendarDayShapes.dayShape] in the unclipped overlay. While a
+ * pointer hovers an available, unselected day, [CalendarDayColors.hoverContainerColor]
+ * fills the day shape.
  *
  * Besides the date as content description, the cell reports range
  * start / end / in range, today and unavailable as its accessibility
@@ -161,6 +174,12 @@ public fun DefaultDay(
         ).joinToString(", ")
     val haptics = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    // The ripple shows presses only; hover and focus have their own fill and ring.
+    val pressInteractions = remember(interactionSource) { PressOnlyInteractionSource(interactionSource) }
+    val showFocusRing = isFocused && available
+    val showHover = isHovered && available && !isSelected
     val contentColor =
         when {
             !available -> colors.unavailableContentColor
@@ -173,7 +192,8 @@ public fun DefaultDay(
         }
     val hasOverlay =
         (isToday && !isSelected && (indicator is TodayIndicator.Ring || indicator is TodayIndicator.Underline)) ||
-            decorators.any { it.layer == DecoratorLayer.Over }
+            decorators.any { it.layer == DecoratorLayer.Over } ||
+            showFocusRing
     Box(
         modifier =
             modifier
@@ -230,6 +250,9 @@ public fun DefaultDay(
                     if (isToday && !isSelected && indicator is TodayIndicator.FilledCircle) {
                         drawDayShape(shapes.dayShape, colors.todayIndicatorColor)
                     }
+                    if (showHover) {
+                        drawDayShape(shapes.dayShape, colors.hoverContainerColor)
+                    }
                     if (selectedScale > 0f) {
                         scale(selectedScale) {
                             drawDayShape(shapes.selectedShape, colors.selectedContainerColor)
@@ -251,7 +274,7 @@ public fun DefaultDay(
                     .fillMaxSize()
                     .aspectRatio(1f)
                     .clip(shapes.dayShape)
-                    .indication(interactionSource, ripple()),
+                    .indication(pressInteractions, ripple()),
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -281,8 +304,8 @@ public fun DefaultDay(
                 )
             }
         }
-        // Unclipped overlay: today Ring/Underline and Over decorators (badges) are
-        // never cropped by the cell shape.
+        // Unclipped overlay: today Ring/Underline, Over decorators (badges) and the
+        // focus ring are never cropped by the cell shape.
         if (hasOverlay) {
             Box(
                 Modifier.matchParentSize().drawBehind {
@@ -319,10 +342,32 @@ public fun DefaultDay(
                             drawDecorator(decorator, day, cellState)
                         }
                     }
+                    if (showFocusRing) {
+                        val focusStrokePx = shapes.focusedBorderWidth.toPx()
+                        if (selectedScale >= 0.5f) {
+                            drawDayShape(
+                                shapes.dayShape,
+                                colors.selectedContentColor,
+                                Stroke(width = focusStrokePx + 2.dp.toPx()),
+                            )
+                        }
+                        drawDayShape(
+                            shapes.dayShape,
+                            colors.focusedBorderColor,
+                            Stroke(width = focusStrokePx),
+                        )
+                    }
                 },
             )
         }
     }
+}
+
+/** Forwards only [PressInteraction]s from [source]. */
+private class PressOnlyInteractionSource(
+    source: InteractionSource,
+) : InteractionSource {
+    override val interactions: Flow<Interaction> = source.interactions.filter { it is PressInteraction }
 }
 
 /**

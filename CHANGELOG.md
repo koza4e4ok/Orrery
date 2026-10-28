@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Added
+
+- Visible keyboard / D-pad focus rings and pointer hover states (#61).
+  `DefaultDay` draws a ring of `CalendarDayShapes.focusedBorderWidth` (default
+  `2.dp`) in `CalendarDayColors.focusedBorderColor` (default
+  `todayIndicatorColor`) around the day shape while focused (with a 1.dp contrasting inner halo on
+  selected days), unclipped by the cell, and fills available, unselected days with
+  `CalendarDayColors.hoverContainerColor` (default `contentColor` at 8% alpha)
+  while hovered on Desktop and Web. `CalendarDefaults.dayColors(...)` and
+  `CalendarDefaults.dayShapes(...)` take the matching parameters; the previous
+  constructors and overloads stay as hidden binary-compatible bridges.
+  Interactive `HeatmapCalendar` cells (with `onDayClick`) draw a 2.dp
+  `onSurface` ring just outside the focused tile, and `YearCalendar`
+  mini-month cells a 2.dp `primary` ring inside the focused cell.
+
 ### Changed
 
 - `DefaultDay` keeps the secondary `DayInfo.label` on one centered line with

@@ -23,6 +23,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
+import java.util.concurrent.TimeUnit
 
 // The two-step dialog is taller than Robolectric's default 470dp window, which
 // leaves Next outside it; a Pixel 5 screen keeps every button clickable.
@@ -196,10 +198,13 @@ class DateTimePickerDialogTest {
         rule.mainClock.autoAdvance = false
         rule.onNodeWithText("09:30").performClick()
         rule.mainClock.advanceTimeBy(MIDWAY_MS)
+        // The dialog lays out in its own window, driven by the Robolectric main looper.
+        ShadowLooper.idleMainLooper(MIDWAY_MS, TimeUnit.MILLISECONDS)
         // Mid-transition the outgoing Date body is still on screen while the Time step's buttons show.
         rule.onNodeWithContentDescription(nextMonth).assertExists()
         rule.onNodeWithText("OK").assertExists()
         rule.mainClock.advanceTimeBy(SETTLED_MS)
+        ShadowLooper.idleMainLooper(SETTLED_MS, TimeUnit.MILLISECONDS)
         rule.onNodeWithContentDescription(nextMonth).assertDoesNotExist()
     }
 

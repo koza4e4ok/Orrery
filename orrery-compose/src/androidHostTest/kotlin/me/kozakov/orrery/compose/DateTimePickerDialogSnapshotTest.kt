@@ -18,6 +18,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowLooper
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -68,6 +70,8 @@ class DateTimePickerDialogSnapshotTest {
         // Clicking (rather than writing state) goes through the frame clock the test drives.
         rule.onNodeWithText(PlatformDateFormat.formatTime(9, 30, is24Hour = false)).performClick()
         rule.mainClock.advanceTimeBy(MIDWAY_MS)
+        // The dialog lays out in its own window, driven by the Robolectric main looper.
+        ShadowLooper.idleMainLooper(MIDWAY_MS, TimeUnit.MILLISECONDS)
         rule.onNode(isDialog()).captureRoboImage()
     }
 

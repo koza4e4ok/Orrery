@@ -266,21 +266,24 @@ public fun OrreryDateTimePickerDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    HeadlineStepPill(
-                        text =
-                            date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
-                                ?: dateStrings.headlinePlaceholder,
-                        active = onDateStep,
-                        onClick = { state.step = DateTimePickerStep.Date },
-                        modifier = Modifier.weight(1f, fill = false),
-                    )
-                    HeadlineStepPill(
-                        text = PlatformDateFormat.formatTime(state.hour, state.minute, state.is24Hour),
-                        active = !onDateStep,
-                        enabled = date != null,
-                        onClick = { state.step = DateTimePickerStep.Time },
-                    )
-                    Spacer(Modifier.weight(1f))
+                    // The pills share one weighted row so the date only wraps when the
+                    // time and the toggle leave it too little room.
+                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                        HeadlineStepPill(
+                            text =
+                                date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
+                                    ?: dateStrings.headlinePlaceholder,
+                            active = onDateStep,
+                            onClick = { state.step = DateTimePickerStep.Date },
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        HeadlineStepPill(
+                            text = PlatformDateFormat.formatTime(state.hour, state.minute, state.is24Hour),
+                            active = !onDateStep,
+                            enabled = date != null,
+                            onClick = { state.step = DateTimePickerStep.Time },
+                        )
+                    }
                     if (onDateStep) {
                         DisplayModeToggle(state.dateState, dateStrings)
                     } else {

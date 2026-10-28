@@ -33,6 +33,7 @@ class DateTimePickerDialogTest {
 
     private lateinit var state: OrreryDateTimePickerState
     private lateinit var strings: DateTimePickerStrings
+    private lateinit var dateStrings: DatePickerStrings
 
     private fun content(
         initialDateTime: LocalDateTime? = null,
@@ -43,6 +44,7 @@ class DateTimePickerDialogTest {
         rule.setContent {
             MaterialTheme {
                 strings = DatePickerDefaults.dateTimeStrings()
+                dateStrings = DatePickerDefaults.strings()
                 state =
                     rememberOrreryDateTimePickerState(
                         initialDateTime = initialDateTime,
@@ -189,7 +191,7 @@ class DateTimePickerDialogTest {
     @Test
     fun switchingStepsAnimatesBetweenTheBodies() {
         content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
-        val nextMonth = DatePickerDefaults.strings().nextMonthDescription
+        val nextMonth = dateStrings.nextMonthDescription
         rule.onNodeWithContentDescription(nextMonth).assertExists()
         rule.mainClock.autoAdvance = false
         rule.runOnIdle { state.step = DateTimePickerStep.Time }

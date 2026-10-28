@@ -19,9 +19,18 @@ class EventContentColorTest {
     }
 
     @Test
-    fun brightColorOnADarkSurfaceGetsDarkText() {
-        // Pure yellow tints a dark surface past the point where light text stays legible.
+    fun brightColorOnTheDefaultDarkSurfaceKeepsLightText() {
+        // At 28 % alpha even pure yellow leaves the default dark surface dark.
         val background = Color(0xFFFFFF00).copy(alpha = 0.28f).compositeOver(darkSurface)
+        assertEquals(lightText, readableContentColor(background, onSurface = lightText, inverseOnSurface = darkText))
+    }
+
+    @Test
+    fun brightColorOnAMidToneSurfaceGetsDarkText() {
+        // A custom dark scheme with a mid-gray surface: the yellow tint lifts it past
+        // the point where the scheme's light onSurface stays legible.
+        val midToneSurface = Color(0xFF5A5A5A)
+        val background = Color(0xFFFFFF00).copy(alpha = 0.28f).compositeOver(midToneSurface)
         assertEquals(darkText, readableContentColor(background, onSurface = lightText, inverseOnSurface = darkText))
     }
 

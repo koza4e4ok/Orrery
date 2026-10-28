@@ -22,10 +22,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -275,7 +274,6 @@ public fun OrreryDateTimePickerDialog(
                         onClick = { state.step = DateTimePickerStep.Date },
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    Spacer(Modifier.width(4.dp))
                     HeadlineStepPill(
                         text = PlatformDateFormat.formatTime(state.hour, state.minute, state.is24Hour),
                         active = !onDateStep,
@@ -374,10 +372,10 @@ private fun HeadlineStepPill(
         color = content,
         modifier =
             modifier
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(16.dp))
                 .background(container)
                 .selectable(selected = active, enabled = enabled, role = Role.Tab, onClick = onClick)
-                .padding(horizontal = 8.dp, vertical = 2.dp),
+                .padding(horizontal = 6.dp, vertical = 2.dp),
     )
 }
 

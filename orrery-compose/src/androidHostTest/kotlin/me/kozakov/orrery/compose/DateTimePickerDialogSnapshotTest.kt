@@ -6,6 +6,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -63,7 +65,8 @@ class DateTimePickerDialogSnapshotTest {
     fun stepTransitionMidway() {
         content()
         rule.mainClock.autoAdvance = false
-        rule.runOnIdle { state.step = DateTimePickerStep.Time }
+        // Clicking (rather than writing state) goes through the frame clock the test drives.
+        rule.onNodeWithText(PlatformDateFormat.formatTime(9, 30, is24Hour = false)).performClick()
         rule.mainClock.advanceTimeBy(MIDWAY_MS)
         rule.onNode(isDialog()).captureRoboImage()
     }

@@ -194,7 +194,7 @@ class DateTimePickerDialogTest {
         val nextMonth = dateStrings.nextMonthDescription
         rule.onNodeWithContentDescription(nextMonth).assertExists()
         rule.mainClock.autoAdvance = false
-        rule.runOnIdle { state.step = DateTimePickerStep.Time }
+        rule.onNodeWithText("09:30").performClick()
         rule.mainClock.advanceTimeBy(MIDWAY_MS)
         // Mid-transition the outgoing Date body is still on screen while the Time step's buttons show.
         rule.onNodeWithContentDescription(nextMonth).assertExists()

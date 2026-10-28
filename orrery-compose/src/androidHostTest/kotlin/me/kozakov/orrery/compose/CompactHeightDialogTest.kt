@@ -4,12 +4,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -80,7 +84,10 @@ class CompactHeightDialogTest {
                 )
             }
         }
-        rule.onNodeWithText("31").performScrollTo().performClick()
+        // The closest scrollable ancestor of a day is the month pager (horizontal), so
+        // performScrollTo cannot reach the last week; swipe the dialog body up instead.
+        rule.onNode(hasVerticalScroll).performTouchInput { swipeUp() }
+        rule.onNodeWithText("31").assertIsDisplayed().performClick()
         rule.runOnIdle { assertEquals(LocalDate(2026, 7, 31), state.selectedDate) }
         rule.onNodeWithText("OK").assertIsDisplayed()
     }
@@ -150,6 +157,8 @@ class CompactHeightDialogTest {
         assertButtonsWork()
     }
 }
+
+private val hasVerticalScroll = SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange)
 
 /** Robolectric qualifiers for a 420dp-tall landscape window. */
 internal const val COMPACT_HEIGHT_QUALIFIERS = "w800dp-h420dp-land"

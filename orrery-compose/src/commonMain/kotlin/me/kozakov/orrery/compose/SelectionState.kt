@@ -23,9 +23,9 @@ import me.kozakov.orrery.core.SelectionMode
 public class CalendarSelectionState internal constructor(
     public val mode: SelectionMode,
     initialSelection: Selection,
-    private val bounds: ClosedRange<LocalDate>?,
+    internal val bounds: ClosedRange<LocalDate>?,
     disabled: DisabledDates,
-    private val onEvent: (SelectionEvent) -> Unit,
+    internal val onEvent: (SelectionEvent) -> Unit,
 ) {
     /**
      * Unavailable dates honored by clicks and drags and rendered
@@ -39,7 +39,7 @@ public class CalendarSelectionState internal constructor(
     private var dragAnchor: LocalDate? = null
 
     public var selection: Selection by mutableStateOf(initialSelection)
-        private set
+        internal set
 
     public fun isDisabled(date: LocalDate): Boolean = date in disabled
 
@@ -103,61 +103,9 @@ public class CalendarSelectionState internal constructor(
         if (dragAnchor == null) return
         dragAnchor = null
         val range = selection.range ?: return
-        val violation = rangeViolation(range) ?: return
+        val violation = rangeViolation(range, mode, ::isDisabled) ?: return
         onEvent(violation)
         selection = Selection(rangeStart = range.start)
-    }
-
-    /**
-     * Keyboard range extension (Shift+Arrow): selects [anchor]..[target]
-     * (ordered) in [SelectionMode.Range], validated like a drag. A
-     * violation fires its event and keeps only [anchor] selected, so the
-     * next extension still grows from the same fixed end.
-     */
-    internal fun extendRange(
-        anchor: LocalDate,
-        target: LocalDate,
-    ) {
-        if (mode !is SelectionMode.Range || isDisabled(anchor)) return
-        if (bounds != null && target !in bounds) return
-        val proposed = Selection(rangeStart = minOf(anchor, target), rangeEnd = maxOf(anchor, target))
-        val violation = proposed.range?.let(::rangeViolation)
-        if (violation == null) {
-            selection = proposed
-        } else {
-            onEvent(violation)
-            selection = Selection(rangeStart = anchor)
-        }
-    }
-
-    /** The min/max length or disabled-date violation of [range], or null when it is valid. */
-    private fun rangeViolation(range: ClosedRange<LocalDate>): SelectionEvent? {
-        val rangeMode = mode as? SelectionMode.Range ?: return null
-        val days = range.start.daysUntil(range.endInclusive) + 1
-        val min = rangeMode.effectiveMin
-        val max = rangeMode.effectiveMax
-
-        // ⚡ Bolt optimization: Iterating over epoch days (integers) and converting back
-        // to LocalDate using fromEpochDays is significantly faster (~70-80% reduction in time)
-        // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`, which performs
-        // expensive calendar math on every step.
-        val startEpoch = range.start.toEpochDays()
-        val endEpoch = range.endInclusive.toEpochDays()
-        var blocked: LocalDate? = null
-        for (epoch in startEpoch..endEpoch) {
-            val date = LocalDate.fromEpochDays(epoch)
-            if (isDisabled(date)) {
-                blocked = date
-                break
-            }
-        }
-
-        return when {
-            min != null && days < min -> SelectionEvent.RangeTooShort(range.endInclusive, min)
-            max != null && days > max -> SelectionEvent.RangeTooLong(range.endInclusive, max)
-            blocked != null -> SelectionEvent.Intercepted(blocked)
-            else -> null
-        }
     }
 
     /** True for the single selection, a multi selection, or a range endpoint. */
@@ -224,6 +172,63 @@ public class CalendarSelectionState internal constructor(
                     )
                 },
             )
+    }
+}
+
+/**
+ * Keyboard range extension (Shift+Arrow): selects [anchor]..[target]
+ * (ordered) in [SelectionMode.Range], validated like a drag. A violation
+ * fires its event and keeps only [anchor] selected, so the next extension
+ * still grows from the same fixed end. Targets outside the bounds are ignored.
+ */
+internal fun CalendarSelectionState.extendRange(
+    anchor: LocalDate,
+    target: LocalDate,
+) {
+    if (mode !is SelectionMode.Range || isDisabled(anchor)) return
+    val bounds = bounds
+    if (bounds != null && target !in bounds) return
+    val proposed = Selection(rangeStart = minOf(anchor, target), rangeEnd = maxOf(anchor, target))
+    val violation = proposed.range?.let { rangeViolation(it, mode, ::isDisabled) }
+    if (violation == null) {
+        selection = proposed
+    } else {
+        onEvent(violation)
+        selection = Selection(rangeStart = anchor)
+    }
+}
+
+/** The min/max length or disabled-date violation of [range] in [mode], or null when it is valid. */
+private fun rangeViolation(
+    range: ClosedRange<LocalDate>,
+    mode: SelectionMode,
+    isDisabled: (LocalDate) -> Boolean,
+): SelectionEvent? {
+    val rangeMode = mode as? SelectionMode.Range ?: return null
+    val days = range.start.daysUntil(range.endInclusive) + 1
+    val min = rangeMode.effectiveMin
+    val max = rangeMode.effectiveMax
+
+    // ⚡ Bolt optimization: Iterating over epoch days (integers) and converting back
+    // to LocalDate using fromEpochDays is significantly faster (~70-80% reduction in time)
+    // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`, which performs
+    // expensive calendar math on every step.
+    val startEpoch = range.start.toEpochDays()
+    val endEpoch = range.endInclusive.toEpochDays()
+    var blocked: LocalDate? = null
+    for (epoch in startEpoch..endEpoch) {
+        val date = LocalDate.fromEpochDays(epoch)
+        if (isDisabled(date)) {
+            blocked = date
+            break
+        }
+    }
+
+    return when {
+        min != null && days < min -> SelectionEvent.RangeTooShort(range.endInclusive, min)
+        max != null && days > max -> SelectionEvent.RangeTooLong(range.endInclusive, max)
+        blocked != null -> SelectionEvent.Intercepted(blocked)
+        else -> null
     }
 }
 

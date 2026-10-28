@@ -246,24 +246,8 @@ private fun DayKeyContext.focusRowEdge(start: Boolean): Boolean {
  * the range. Plain arrows inside the grid fall through to focus search.
  */
 private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
-    val isRtl = position.isRtl
-    val towardNext = if (isRtl) Key.DirectionLeft else Key.DirectionRight
-    val towardPrevious = if (isRtl) Key.DirectionRight else Key.DirectionLeft
-    val days =
-        when (event.key) {
-            towardNext -> 1
-            towardPrevious -> -1
-            Key.DirectionUp -> -DAYS_PER_WEEK
-            Key.DirectionDown -> DAYS_PER_WEEK
-            else -> return false
-        }
-    val atEdge =
-        when (days) {
-            1 -> position.col == DAYS_PER_WEEK - 1
-            -1 -> position.col == 0
-            -DAYS_PER_WEEK -> position.row == 0
-            else -> position.row == position.rowCount - 1
-        }
+    val days = position.arrowDays(event.key) ?: return false
+    val atEdge = position.isAtEdge(days)
     val target = day.date.plus(days, DateTimeUnit.DAY)
     val rangeState = selectionState?.takeIf { event.isShiftPressed && it.mode is SelectionMode.Range }
     rangeState?.extendRange(anchor = rangeAnchor(rangeState, day.date), target = target)
@@ -284,6 +268,28 @@ private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
         }
     }
 }
+
+/** Day offset of an arrow [key] (RTL swaps the horizontal keys), or null for other keys. */
+private fun GridPosition.arrowDays(key: Key): Int? {
+    val towardNext = if (isRtl) Key.DirectionLeft else Key.DirectionRight
+    val towardPrevious = if (isRtl) Key.DirectionRight else Key.DirectionLeft
+    return when (key) {
+        towardNext -> 1
+        towardPrevious -> -1
+        Key.DirectionUp -> -DAYS_PER_WEEK
+        Key.DirectionDown -> DAYS_PER_WEEK
+        else -> null
+    }
+}
+
+/** True when moving by [days] (±1 or ±7) leaves this page's grid. */
+private fun GridPosition.isAtEdge(days: Int): Boolean =
+    when (days) {
+        1 -> col == DAYS_PER_WEEK - 1
+        -1 -> col == 0
+        -DAYS_PER_WEEK -> row == 0
+        else -> row == rowCount - 1
+    }
 
 /** The physical focus-search direction of an arrow key. */
 private fun KeyEvent.focusDirection(): FocusDirection =

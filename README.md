@@ -16,6 +16,11 @@ with composable slots instead of view subclassing, snapshot state instead of lis
 interfaces, and an optional Chinese lunisolar artifact.
 
 <p align="center">
+  <a href="https://koza4e4ok.github.io/Orrery/demo/"><b>▶ Try the live demo in your browser</b></a>
+  (Kotlin/Wasm, no install)
+</p>
+
+<p align="center">
   <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with event badges, trip range selection with per-day prices, habit progress rings, Chinese lunar almanac, and Material 3 date picker dialogs" />
 </p>
 
@@ -31,6 +36,9 @@ Day/Week schedule, and the range picker presets.
 
 **API reference:** [koza4e4ok.github.io/Orrery](https://koza4e4ok.github.io/Orrery/)
 (Dokka, published for each release).
+
+**Live demo:** [koza4e4ok.github.io/Orrery/demo](https://koza4e4ok.github.io/Orrery/demo/)
+(the `demo/` module, deployed with the docs).
 
 **Requirements:** Android `minSdk 23` · Jetpack Compose (Material 3) · Kotlin · JDK 17.
 Built on [`kotlinx-datetime`](https://github.com/Kotlin/kotlinx-datetime).

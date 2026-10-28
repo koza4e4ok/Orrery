@@ -1,8 +1,8 @@
 name: Docs
 
-# Builds the aggregated Dokka API reference and deploys it to GitHub Pages
-# (https://koza4e4ok.github.io/Orrery/). Pull requests that touch the docs
-# build only run the build job, without deploying.
+# Builds the aggregated Dokka API reference and the Kotlin/Wasm demo and deploys
+# them to GitHub Pages (https://koza4e4ok.github.io/Orrery/ and .../Orrery/demo/).
+# Pull requests that touch the docs build only run the build job, without deploying.
 on:
   push:
     tags: ["v*"]
@@ -13,6 +13,7 @@ on:
       - "build.gradle.kts"
       - "settings.gradle.kts"
       - "build-logic/**"
+      - "demo/**"
       - "gradle/libs.versions.toml"
 
 permissions:
@@ -37,6 +38,14 @@ jobs:
           for module in orrery-core orrery-lunar orrery-calendars orrery-holidays orrery-compose; do
             test -d "build/dokka/html/$module"
           done
+      - name: Build the web demo
+        run: ./gradlew :demo:wasmJsBrowserDistribution
+      - name: Add the demo to the site
+        run: |
+          cp -R demo/build/dist/wasmJs/productionExecutable build/dokka/html/demo
+          rm -f build/dokka/html/demo/*.map
+          test -f build/dokka/html/demo/index.html
+          test -f build/dokka/html/demo/demo.js
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/dokka/html

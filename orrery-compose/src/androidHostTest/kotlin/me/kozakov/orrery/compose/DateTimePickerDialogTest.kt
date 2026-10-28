@@ -5,6 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -162,5 +164,45 @@ class DateTimePickerDialogTest {
             assertEquals(DateTimePickerStep.Time, state.step)
             assertEquals(false, state.is24Hour)
         }
+    }
+
+    @Test
+    fun headlinePillMarksTheActiveStep() {
+        content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
+        val dateText = PlatformDateFormat.formatDate(LocalDate(2026, 7, 8), DateFormattingStyle.Medium)
+        rule.onNodeWithText(dateText).assertIsSelected()
+        rule.onNodeWithText("09:30").assertIsNotSelected().performClick()
+        rule.onNodeWithText("09:30").assertIsSelected()
+        rule.onNodeWithText(dateText).assertIsNotSelected().performClick()
+        rule.onNodeWithText(dateText).assertIsSelected()
+        rule.runOnIdle { assertEquals(DateTimePickerStep.Date, state.step) }
+    }
+
+    @Test
+    fun timePillIsDisabledUntilADateIsPicked() {
+        content()
+        rule.onNodeWithText("00:00").assertIsNotEnabled().assertIsNotSelected()
+        rule.onNodeWithText("10").performClick()
+        rule.onNodeWithText("00:00").assertIsEnabled()
+    }
+
+    @Test
+    fun switchingStepsAnimatesBetweenTheBodies() {
+        content(initialDateTime = LocalDateTime(2026, 7, 8, 9, 30))
+        val nextMonth = DatePickerDefaults.strings().nextMonthDescription
+        rule.onNodeWithContentDescription(nextMonth).assertExists()
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle { state.step = DateTimePickerStep.Time }
+        rule.mainClock.advanceTimeBy(MIDWAY_MS)
+        // Mid-transition the outgoing Date body is still on screen while the Time step's buttons show.
+        rule.onNodeWithContentDescription(nextMonth).assertExists()
+        rule.onNodeWithText("OK").assertExists()
+        rule.mainClock.advanceTimeBy(SETTLED_MS)
+        rule.onNodeWithContentDescription(nextMonth).assertDoesNotExist()
+    }
+
+    private companion object {
+        const val MIDWAY_MS = 100L
+        const val SETTLED_MS = 1_000L
     }
 }

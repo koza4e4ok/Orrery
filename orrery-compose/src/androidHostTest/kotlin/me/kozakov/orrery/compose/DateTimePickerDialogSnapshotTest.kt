@@ -58,4 +58,17 @@ class DateTimePickerDialogSnapshotTest {
         rule.waitForIdle()
         rule.onNode(isDialog()).captureRoboImage()
     }
+
+    @Test
+    fun stepTransitionMidway() {
+        content()
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle { state.step = DateTimePickerStep.Time }
+        rule.mainClock.advanceTimeBy(MIDWAY_MS)
+        rule.onNode(isDialog()).captureRoboImage()
+    }
+
+    private companion object {
+        const val MIDWAY_MS = 120L
+    }
 }

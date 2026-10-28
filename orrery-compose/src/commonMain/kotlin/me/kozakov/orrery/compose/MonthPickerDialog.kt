@@ -1,12 +1,15 @@
 package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -124,15 +127,18 @@ public fun OrreryMonthPickerDialog(
                 )
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 val todayMonth = YearMonth(today.year, today.month)
-                MonthYearPickerContent(
-                    current = todayMonth,
-                    range = state.range,
-                    onSelect = state::select,
-                    selected = state.selectedMonth,
-                    startInMonths = true,
-                    selectable = true,
-                    modifier = Modifier.height(320.dp),
-                )
+                // Scrolls on short windows so the button row stays inside the dialog.
+                Box(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    MonthYearPickerContent(
+                        current = todayMonth,
+                        range = state.range,
+                        onSelect = state::select,
+                        selected = state.selectedMonth,
+                        startInMonths = true,
+                        selectable = true,
+                        modifier = Modifier.height(320.dp),
+                    )
+                }
                 Row(
                     Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.End,

@@ -143,6 +143,8 @@ demonstrating both date picker dialogs.
   plus long-press **drag-to-select**
 - `OrreryDatePickerDialog` / `OrreryDateRangePickerDialog`: Material 3-shaped dialogs
   (slot-based confirm/dismiss buttons) with calendar and locale-aware text-input modes
+- `OrreryDateTimePickerDialog`: date step, then a Material 3 time dial or keyboard
+  input, returning a `LocalDateTime`
 - `OrreryMonthPickerDialog`: month/year-only dialog (e.g. card expiry) on the
   `MonthYearPicker` grids
 - First-class unavailable dates: `DisabledDates` (dates, ranges, days of week,
@@ -534,6 +536,30 @@ OrreryDateRangePickerDialog(
     state = range,
     presets = DatePickerDefaults.rangePresets() +
         DateRangePreset("Next 14 days", today..today.plus(13, DateTimeUnit.DAY)),
+)
+```
+
+For a date and a time of day, `OrreryDateTimePickerDialog` shows the date picker
+first, then **Next** opens a Material 3 time dial (with a keyboard toggle). Tap the
+date or time in the headline to jump back. `bounds` and `disabled` restrict the date;
+`is24Hour` defaults to the device's clock (the "Use 24-hour format" setting on Android,
+the locale elsewhere), and the headline time is localized ("14:05", "2:05 PM",
+"下午2:05"). Initial values are read once; write to `state.hour`, `state.minute` or
+`state.is24Hour` to change them later. Pass `dateStrings` to localize the date step.
+The result is a `LocalDateTime`, so attach the `TimeZone` you need:
+
+```kotlin
+val state = rememberOrreryDateTimePickerState(bounds = today..today.plus(90, DateTimeUnit.DAY))
+
+OrreryDateTimePickerDialog(
+    onDismissRequest = { showDialog = false },
+    confirmButton = {
+        TextButton(onClick = { book(state.selectedDateTime?.toInstant(TimeZone.currentSystemDefault())) }) {
+            Text("Book")
+        }
+    },
+    dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } },
+    state = state,
 )
 ```
 

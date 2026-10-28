@@ -14,6 +14,20 @@
   `PublicHolidays`, and `PublicHolidayDayInfoProvider`. Checked against
   python-holidays for 2000–2050 (UA 2000–2021) (#23).
 
+- `OrreryDateTimePickerDialog`: a date, then a time of day, in one dialog. The
+  Date step is the `OrreryDatePickerDialog` body (calendar or text input,
+  unchanged); **Next** opens a Material 3 `TimePicker` dial with a toggle to
+  `TimeInput`. Adds `DateTimePickerStep`, `OrreryDateTimePickerState` /
+  `rememberOrreryDateTimePickerState(initialDateTime, bounds, disabled, is24Hour)`
+  (the result is a `LocalDateTime`; bounds and disabled dates apply to the date)
+  and `DateTimePickerStrings` / `DatePickerDefaults.dateTimeStrings()` in the six
+  bundled languages; the dialog's `dateStrings: DatePickerStrings` parameter
+  (default `DatePickerDefaults.strings()`) localizes the date step. `is24Hour`
+  defaults to the "Use 24-hour format" setting on Android and to the locale's
+  clock on Desktop, iOS and Web; it and `initialDateTime` are read once. The
+  headline time uses the locale's format and AM/PM text ("2:05 PM", "下午2:05").
+  Consumers need no Material 3 experimental opt-in (#24).
+
 - `OrreryMonthPickerDialog` for picking a month and year without a day (for
   example a card expiry date), with `OrreryMonthPickerState` /
   `rememberOrreryMonthPickerState(initialSelectedMonth, range)`,

@@ -52,7 +52,6 @@ public fun OrreryDatePickerDialog(
     today: LocalDate = currentDate(),
     strings: DatePickerStrings = DatePickerDefaults.strings(),
 ) {
-    val scope = rememberCoroutineScope()
     Dialog(
         onDismissRequest = onDismissRequest,
         // Platform default width leaves the Surface's width ambiguous, which thrashes
@@ -77,56 +76,10 @@ public fun OrreryDatePickerDialog(
                         style = MaterialTheme.typography.headlineLarge,
                         modifier = Modifier.weight(1f),
                     )
-                    IconButton(onClick = {
-                        val next =
-                            if (state.displayMode == DatePickerDisplayMode.Picker) {
-                                DatePickerDisplayMode.Input
-                            } else {
-                                DatePickerDisplayMode.Picker
-                            }
-                        if (next == DatePickerDisplayMode.Picker) {
-                            state.selectedDate?.let { date ->
-                                scope.launch { state.calendar.scrollToMonth(YearMonth(date.year, date.month)) }
-                            }
-                        }
-                        state.displayMode = next
-                    }) {
-                        if (state.displayMode == DatePickerDisplayMode.Picker) {
-                            KeyboardGlyph(contentDescription = strings.switchToInputDescription)
-                        } else {
-                            CalendarGlyph(contentDescription = strings.switchToPickerDescription)
-                        }
-                    }
+                    DisplayModeToggle(state, strings)
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                AnimatedContent(
-                    targetState = state.displayMode,
-                    transitionSpec = { fadeIn().togetherWith(fadeOut()) },
-                    label = "datePickerMode",
-                ) { mode ->
-                    when (mode) {
-                        DatePickerDisplayMode.Picker -> {
-                            PickerPane(state, colors, shapes, today, strings)
-                        }
-
-                        DatePickerDisplayMode.Input -> {
-                            DateInputField(
-                                value = state.selectedDate,
-                                onValueChange = { state.selectedDate = it },
-                                label = strings.inputLabel,
-                                bounds = state.bounds,
-                                isDisabled = state.selection::isDisabled,
-                                strings = strings,
-                                keyboardOptions =
-                                    KeyboardOptions(
-                                        keyboardType = KeyboardType.Number,
-                                        imeAction = ImeAction.Done,
-                                    ),
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                            )
-                        }
-                    }
-                }
+                DatePickerContent(state, colors, shapes, today, strings)
                 Row(
                     Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.End,
@@ -135,6 +88,74 @@ public fun OrreryDatePickerDialog(
                     confirmButton()
                 }
             }
+        }
+    }
+}
+
+/** Calendar/text-input body of [OrreryDatePickerDialog], shared with [OrreryDateTimePickerDialog]. */
+@Composable
+internal fun DatePickerContent(
+    state: OrreryDatePickerState,
+    colors: CalendarDayColors,
+    shapes: CalendarDayShapes,
+    today: LocalDate,
+    strings: DatePickerStrings,
+) {
+    AnimatedContent(
+        targetState = state.displayMode,
+        transitionSpec = { fadeIn().togetherWith(fadeOut()) },
+        label = "datePickerMode",
+    ) { mode ->
+        when (mode) {
+            DatePickerDisplayMode.Picker -> {
+                PickerPane(state, colors, shapes, today, strings)
+            }
+
+            DatePickerDisplayMode.Input -> {
+                DateInputField(
+                    value = state.selectedDate,
+                    onValueChange = { state.selectedDate = it },
+                    label = strings.inputLabel,
+                    bounds = state.bounds,
+                    isDisabled = state.selection::isDisabled,
+                    strings = strings,
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done,
+                        ),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                )
+            }
+        }
+    }
+}
+
+/** Headline icon switching [state] between calendar and text input. */
+@Composable
+internal fun DisplayModeToggle(
+    state: OrreryDatePickerState,
+    strings: DatePickerStrings,
+) {
+    val scope = rememberCoroutineScope()
+    IconButton(onClick = {
+        val next =
+            if (state.displayMode == DatePickerDisplayMode.Picker) {
+                DatePickerDisplayMode.Input
+            } else {
+                DatePickerDisplayMode.Picker
+            }
+        if (next == DatePickerDisplayMode.Picker) {
+            state.selectedDate?.let { date ->
+                scope.launch { state.calendar.scrollToMonth(YearMonth(date.year, date.month)) }
+            }
+        }
+        state.displayMode = next
+    }) {
+        if (state.displayMode == DatePickerDisplayMode.Picker) {
+            KeyboardGlyph(contentDescription = strings.switchToInputDescription)
+        } else {
+            CalendarGlyph(contentDescription = strings.switchToPickerDescription)
         }
     }
 }

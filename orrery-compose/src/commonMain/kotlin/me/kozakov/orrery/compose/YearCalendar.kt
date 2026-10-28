@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -120,7 +121,8 @@ public fun YearCalendar(
                                         width = MiniMonthFocusRingWidth,
                                         shape = MiniMonthFocusRingShape,
                                         placement = FocusRingPlacement.Inside,
-                                    ).clickable(
+                                    ).clip(MiniMonthFocusRingShape)
+                                    .clickable(
                                         interactionSource = interactionSource,
                                         indication = LocalIndication.current,
                                         role = Role.Button,

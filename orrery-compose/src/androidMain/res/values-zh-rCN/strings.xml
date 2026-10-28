@@ -45,4 +45,5 @@
     <string name="orrery_date_time_picker_switch_to_keyboard">切换到键盘输入</string>
     <string name="orrery_month_picker_title">选择月份</string>
     <string name="orrery_month_picker_headline_placeholder">月份</string>
+    <string name="orrery_today">今天</string>
 </resources>

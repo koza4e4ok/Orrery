@@ -32,14 +32,17 @@ import org.robolectric.annotation.GraphicsMode
 class NavHeaderSnapshotTest {
     @get:Rule val rule = createComposeRule()
 
-    private fun content(layoutDirection: LayoutDirection = LayoutDirection.Ltr) {
+    private fun content(
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        showTodayButton: Boolean = false,
+    ) {
         rule.setContent {
             MaterialTheme(
                 colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(),
             ) {
                 Surface {
                     CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                        HeaderAndCalendar()
+                        HeaderAndCalendar(showTodayButton)
                     }
                 }
             }
@@ -48,7 +51,7 @@ class NavHeaderSnapshotTest {
 
     @Suppress("TestFunctionName")
     @Composable
-    private fun HeaderAndCalendar() {
+    private fun HeaderAndCalendar(showTodayButton: Boolean) {
         val state =
             rememberCalendarState(
                 startMonth = YearMonth(2026, 6),
@@ -62,7 +65,12 @@ class NavHeaderSnapshotTest {
                 initialSelection = Selection(single = LocalDate(2026, 7, 8)),
             )
         Column {
-            CalendarNavHeader(state = state, onTitleClick = {})
+            CalendarNavHeader(
+                state = state,
+                onTitleClick = {},
+                showTodayButton = showTodayButton,
+                today = YearMonth(2026, 6),
+            )
             HorizontalCalendar(
                 state = state,
                 dayContent = { day ->
@@ -93,6 +101,25 @@ class NavHeaderSnapshotTest {
     @Test
     fun navHeaderRtl() {
         content(layoutDirection = LayoutDirection.Rtl)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun navHeaderTodayButtonLight() {
+        content(showTodayButton = true)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun navHeaderTodayButtonDark() {
+        content(showTodayButton = true)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun navHeaderTodayButtonRtl() {
+        content(layoutDirection = LayoutDirection.Rtl, showTodayButton = true)
         rule.onRoot().captureRoboImage()
     }
 }

@@ -1,7 +1,7 @@
 # v0.8.0 UI Focus, Polish, Density & Styles — Design
 
 **Date:** 2026-10-28
-**Status:** Proposed (awaiting Andrii's sign-off on Phase 3 APIs)
+**Status:** Approved (v0.8.0 scope including universal CalendarView-inspired :sample showcase)
 **Issues:** #61, #62, #63, #64, #65, #66, #67 (Tracking roadmap: #68)
 **Owners:** Ritsuko (architecture), Rei (visual design), Maya (implementation), Asuka (QA review)
 
@@ -144,3 +144,26 @@ public class CalendarStyle(
    - *Recommended default:* Yes, ship those four presets and three densities in `orrery-compose`.
 3. **Multi-day spanning bars placement (#67):** Implement `DayDecorators.spanningEventBars` as a composable `DayDecorator` (zero layout overhead, works in `HorizontalCalendar`, `VerticalCalendar`, and `WeekCalendar`)?
    - *Recommended default:* Yes, implement as `DayDecorators.spanningEventBars`.
+
+
+---
+
+## 5. Universal Modern `:sample` App Redesign (Inspired by `CalendarView` Assets — #67)
+
+Based on the `huanghaibin-dev/CalendarView` showcase assets (`color_expand.png`, `custom_expand.png`, `meizu_expand.png`, `progress_expand.png`, `solar_expand.png`, `full_calendar.png`, `index_expand.png`, `range.png`, `year_view.png`, `main_en_func.png`, `main_en_list.png`):
+
+1. **Universal Hero Date Header Bar:**
+   - Displays the selected date in bold display typography (e.g. `Oct 28`), with a two-line subtitle next to it showing the year (`2026`) and the active almanac/holiday label (Lunar, Hijri, Persian, or US/GB/DE/UA public holiday).
+   - Trailing action icons:
+     - **Today calendar badge button** showing today's day-of-month number inside a calendar frame icon (one tap scrolls any active view back to `today`).
+     - **Year Overview button** toggling an in-place `YearCalendar` 12-month grid with highlighted today, selected dates, and holidays; tapping any month drills smoothly into that month.
+     - **Style & Dynamic Controls button** opening the interactive theme/function modal bottom sheet.
+2. **Curated Visual Theme Presets (live-switchable in `:sample`):**
+   - **Material 3 Default:** clean circle selection and continuous range pill.
+   - **Meizu / Almanac Badges (`custom_expand` / `meizu_expand`):** soft drop shadow on the selected circle, top-right corner badge (`DayDecorators.badge` for holiday/workday/note tags), and bottom event dot.
+   - **Colorful Glow (`color_expand`):** per-day colored circle fills with white day + subtitle text.
+   - **Solar / Emerald Progress (`solar_expand` / `progress_expand`):** full-bleed emerald header or light surface with circular `DayDecorators.progressRing` arcs around active dates.
+   - **Stacked Bars / Index (`full_calendar` / `index_expand`):** `DayDecorators.stackedBars` / `spanningEventBars` below the secondary label.
+   - **Rounded Square & Bordered Card Grid:** showcasing the new `CalendarDefaults.roundedSquareStyle` and `borderedCardStyle` presets.
+3. **Dynamic Controls Sheet (`main_en_list` / `main_en_func`):**
+   - **Expand / Collapse** month ↔ week (`CollapsibleCalendarScaffold`), **Scroll to Previous / Next / Current**, **First day of week** (`Mon` / `Sun` / `Sat`), **Out-dates mode** (`All`, `Only current`, `Fixed 6 weeks`), **Week numbers**, **Selection mode** (`Single`, `Multiple`, `Range`, `Week`, `Month`), **Density** (`Compact`, `Comfortable`, `Expanded`), and **Almanac & Holiday country** (`Lunar`, `Hijri`, `Persian` + `None`/`US`/`GB`/`DE`/`UA`).

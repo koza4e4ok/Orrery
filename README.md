@@ -45,10 +45,10 @@ The library ships these artifacts on **Maven Central** under the group
 | `me.kozakov.orrery:orrery-core`    | Pure-Kotlin calendar models, grid math and selection engine                |
 | `me.kozakov.orrery:orrery-compose` | Jetpack Compose calendar composables with Material3 theming                |
 | `me.kozakov.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
-| `me.kozakov.orrery:orrery-calendars` | Hijri (Umm al-Qura, tabular) and Persian calendars as DayInfoProviders (next release) |
-| `me.kozakov.orrery:orrery-holidays` | Rule-based public holidays for US, GB, DE and UA as a DayInfoProvider (next release) |
+| `me.kozakov.orrery:orrery-calendars` | Hijri (Umm al-Qura, tabular) and Persian calendars as DayInfoProviders |
+| `me.kozakov.orrery:orrery-holidays` | Rule-based public holidays for US, GB, DE and UA as a DayInfoProvider |
 
-> **Multiplatform (next release):** `orrery-compose` also publishes Desktop (JVM), iOS
+> **Multiplatform:** `orrery-compose` also publishes Desktop (JVM), iOS
 > and Web (`wasmJs`) variants. In a Kotlin Multiplatform project, add it to
 > `commonMain` dependencies and Gradle picks the variant for each target.
 
@@ -68,9 +68,11 @@ dependencyResolutionManagement {
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("me.kozakov.orrery:orrery-compose:0.6.0")
-    // Optional Chinese lunisolar labels:
-    implementation("me.kozakov.orrery:orrery-lunar:0.6.0")
+    implementation("me.kozakov.orrery:orrery-compose:0.7.0")
+    // Optional DayInfoProvider modules:
+    implementation("me.kozakov.orrery:orrery-lunar:0.7.0")
+    implementation("me.kozakov.orrery:orrery-calendars:0.7.0")
+    implementation("me.kozakov.orrery:orrery-holidays:0.7.0")
 }
 ```
 
@@ -79,11 +81,13 @@ Using a [version catalog](https://docs.gradle.org/current/userguide/version_cata
 
 ```toml
 [versions]
-orrery = "0.6.0"
+orrery = "0.7.0"
 
 [libraries]
-orrery-compose = { module = "me.kozakov.orrery:orrery-compose", version.ref = "orrery" }
-orrery-lunar   = { module = "me.kozakov.orrery:orrery-lunar",   version.ref = "orrery" }
+orrery-compose   = { module = "me.kozakov.orrery:orrery-compose",   version.ref = "orrery" }
+orrery-lunar     = { module = "me.kozakov.orrery:orrery-lunar",     version.ref = "orrery" }
+orrery-calendars = { module = "me.kozakov.orrery:orrery-calendars", version.ref = "orrery" }
+orrery-holidays  = { module = "me.kozakov.orrery:orrery-holidays",  version.ref = "orrery" }
 ```
 
 ```kotlin
@@ -94,7 +98,7 @@ dependencies {
 }
 ```
 
-> **Snapshots:** development builds are published as `0.6.1-SNAPSHOT` to the Central
+> **Snapshots:** development builds are published as `0.7.1-SNAPSHOT` to the Central
 > snapshots repository. To use them, add
 > `maven("https://central.sonatype.com/repository/maven-snapshots/")` to your repositories
 > and depend on the `-SNAPSHOT` version.
@@ -130,8 +134,8 @@ fun CalendarScreen() {
 The sample app (`sample/`) is five product-style screens: an Agenda with a
 collapsible calendar and named events (switchable to Day and Week time grids), a Trips booking flow with drag-select,
 nightly prices and blackout dates, a Habits tracker with streaks and animated
-progress rings, a Chinese Almanac backed by `orrery-lunar`, and a Pickers screen
-demonstrating both date picker dialogs.
+progress rings, an Almanac backed by `orrery-lunar`, `orrery-calendars` and `orrery-holidays`, and a Pickers screen
+demonstrating all four picker dialogs.
 
 ## Features
 

@@ -297,7 +297,7 @@ class DayDecoratorsTest {
                     listOf(d1 to "d1", d2 to "d2", d3 to "d3", d4 to "d4").forEach { (date, tag) ->
                         DefaultDay(
                             day = CalendarDay(date, DayPosition.MonthDate),
-                            modifier = Modifier.size(48.dp).testTag(tag),
+                            modifier = Modifier.size(width = 96.dp, height = 48.dp).testTag(tag),
                             selectionState = openSelection,
                             today = LocalDate(2026, 7, 1),
                             colors =
@@ -312,22 +312,22 @@ class DayDecoratorsTest {
                 }
             }
         }
-        // d1 (start): right half has translucent green over white -> red < 0.6, green > 0.9
-        val p1Right = pixel("d1", 44.dp, 24.dp)
+        // d1 (start): right edge (x=92dp, outside centered 48dp circle) has translucent green over white.
+        val p1Right = pixel("d1", 92.dp, 24.dp)
         assertTrue("expected preview on d1 right half, was $p1Right", p1Right.green > 0.9f && p1Right.red < 0.7f)
         // d1 left edge (outside circle and left half) is White.
-        assertColorNear(Color.White, pixel("d1", 2.dp, 24.dp))
+        assertColorNear(Color.White, pixel("d1", 4.dp, 24.dp))
 
         // d2 (middle): both left and right edges have preview band.
-        val p2Left = pixel("d2", 2.dp, 24.dp)
-        val p2Right = pixel("d2", 46.dp, 24.dp)
+        val p2Left = pixel("d2", 4.dp, 24.dp)
+        val p2Right = pixel("d2", 92.dp, 24.dp)
         assertTrue("expected preview on d2 left, was $p2Left", p2Left.green > 0.9f && p2Left.red < 0.7f)
         assertTrue("expected preview on d2 right, was $p2Right", p2Right.green > 0.9f && p2Right.red < 0.7f)
 
-        // d3 (target end): left edge has preview band, right edge (x=46dp) is White.
-        val p3Left = pixel("d3", 2.dp, 24.dp)
+        // d3 (target end): left edge has preview band, right edge (x=92dp) is White.
+        val p3Left = pixel("d3", 4.dp, 24.dp)
         assertTrue("expected preview on d3 left, was $p3Left", p3Left.green > 0.9f && p3Left.red < 0.7f)
-        assertColorNear(Color.White, pixel("d3", 46.dp, 24.dp))
+        assertColorNear(Color.White, pixel("d3", 92.dp, 24.dp))
 
         // d4 (outside): completely untouched White.
         assertColorNear(Color.White, pixel("d4", 2.dp, 24.dp))

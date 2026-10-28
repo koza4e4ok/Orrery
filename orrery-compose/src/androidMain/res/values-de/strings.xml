@@ -45,4 +45,5 @@
     <string name="orrery_date_time_picker_switch_to_keyboard">Zur Tastatureingabe wechseln</string>
     <string name="orrery_month_picker_title">Monat auswählen</string>
     <string name="orrery_month_picker_headline_placeholder">Monat</string>
+    <string name="orrery_today">Heute</string>
 </resources>

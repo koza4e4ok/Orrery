@@ -58,4 +58,5 @@ private val OrreryString.resId: Int
             OrreryString.DateTimePickerSwitchToKeyboard -> R.string.orrery_date_time_picker_switch_to_keyboard
             OrreryString.MonthPickerTitle -> R.string.orrery_month_picker_title
             OrreryString.MonthPickerHeadlinePlaceholder -> R.string.orrery_month_picker_headline_placeholder
+            OrreryString.Today -> R.string.orrery_today
         }

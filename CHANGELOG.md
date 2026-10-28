@@ -16,6 +16,18 @@
   Interactive `HeatmapCalendar` cells (with `onDayClick`) draw a 2.dp
   `onSurface` ring just outside the focused tile, and `YearCalendar`
   mini-month cells a 2.dp `primary` ring inside the focused cell.
+- `CalendarNavHeader` "Today" action (#64): with `showTodayButton = true` a
+  compact, localized (`todayLabel`, EN/DE/ES/JA/UK/ZH-CN) text button appears
+  after the next-month chevron while the visible month differs from `today`
+  (default `currentYearMonth()`) and `today` lies within the state's month range;
+  clicking it animates back to `today`. The previous overload stays as a hidden
+  binary-compatible bridge.
+- Richer `CalendarDefaults.MiniMonth` in `YearCalendar` (#64): `today` is drawn
+  on a filled `primary` circle with `onPrimary` text, the new optional
+  `selection: Selection?` shows selected dates and ranges on a subtle
+  `primaryContainer` pill, and day numbers whose optional
+  `dayInfo: ((LocalDate) -> DayInfo?)?` reports `isHoliday` use the `primary`
+  color. The previous overload stays as a hidden binary-compatible bridge.
 
 ### Changed
 

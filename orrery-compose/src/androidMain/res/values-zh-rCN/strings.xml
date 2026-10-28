@@ -37,4 +37,6 @@
     <string name="orrery_date_picker_preset_last_30_days">最近30天</string>
     <string name="orrery_date_picker_preset_this_week">本周</string>
     <string name="orrery_date_picker_preset_this_month">本月</string>
+    <string name="orrery_month_picker_title">选择月份</string>
+    <string name="orrery_month_picker_headline_placeholder">月份</string>
 </resources>

@@ -48,6 +48,8 @@ internal enum class OrreryString(
     AgendaAllDay("orrery_agenda_all_day"),
     AgendaNoEvents("orrery_agenda_no_events"),
     ScheduleNow("orrery_schedule_now"),
+    MonthPickerTitle("orrery_month_picker_title"),
+    MonthPickerHeadlinePlaceholder("orrery_month_picker_headline_placeholder"),
 }
 
 /**

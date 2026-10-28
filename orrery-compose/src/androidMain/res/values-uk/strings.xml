@@ -37,4 +37,6 @@
     <string name="orrery_date_picker_preset_last_30_days">Останні 30 днів</string>
     <string name="orrery_date_picker_preset_this_week">Цей тиждень</string>
     <string name="orrery_date_picker_preset_this_month">Цей місяць</string>
+    <string name="orrery_month_picker_title">Виберіть місяць</string>
+    <string name="orrery_month_picker_headline_placeholder">Місяць</string>
 </resources>

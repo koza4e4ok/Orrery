@@ -37,4 +37,6 @@
     <string name="orrery_date_picker_preset_last_30_days">Last 30 days</string>
     <string name="orrery_date_picker_preset_this_week">This week</string>
     <string name="orrery_date_picker_preset_this_month">This month</string>
+    <string name="orrery_month_picker_title">Select month</string>
+    <string name="orrery_month_picker_headline_placeholder">Month</string>
 </resources>

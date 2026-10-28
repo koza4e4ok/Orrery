@@ -5,11 +5,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,7 +22,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 
@@ -40,9 +45,35 @@ public fun MonthYearPicker(
     onSelect: (YearMonth) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var pickedYear by rememberSaveable { mutableStateOf<Int?>(null) }
+    MonthYearPickerContent(
+        current = current,
+        range = range,
+        onSelect = onSelect,
+        modifier = modifier,
+    )
+}
+
+/**
+ * Body of [MonthYearPicker], shared with [OrreryMonthPickerDialog]. With
+ * [startInMonths] it opens on the month grid of [selected] (or [current])
+ * clamped to [range]. With [selectable] the [selected] month is filled with
+ * the primary color, [current] gets the "today" outline and months expose
+ * selection semantics; otherwise it renders exactly like [MonthYearPicker].
+ */
+@Composable
+internal fun MonthYearPickerContent(
+    current: YearMonth,
+    range: ClosedRange<YearMonth>,
+    onSelect: (YearMonth) -> Unit,
+    modifier: Modifier = Modifier,
+    selected: YearMonth? = null,
+    startInMonths: Boolean = false,
+    selectable: Boolean = false,
+) {
+    val startYear = initialPickerYear(selected, current, range)
+    var pickedYear by rememberSaveable { mutableStateOf(if (startInMonths) startYear else null) }
     var showingDecades by rememberSaveable { mutableStateOf(false) }
-    var focusYear by rememberSaveable { mutableStateOf(current.year) }
+    var focusYear by rememberSaveable { mutableStateOf(if (startInMonths) startYear else current.year) }
     AnimatedContent(
         targetState = pickedYear,
         modifier = modifier,
@@ -80,12 +111,21 @@ public fun MonthYearPicker(
                 year = year,
                 current = current,
                 range = range,
+                selected = selected,
+                selectable = selectable,
                 onBack = { pickedYear = null },
                 onMonthClick = { month -> onSelect(YearMonth(year, month)) },
             )
         }
     }
 }
+
+/** Year the picker opens on: [selected]'s, else [current]'s, clamped to [range]. */
+internal fun initialPickerYear(
+    selected: YearMonth?,
+    current: YearMonth,
+    range: ClosedRange<YearMonth>,
+): Int = (selected ?: current).year.coerceIn(range.start.year, range.endInclusive.year)
 
 @Composable
 private fun YearGrid(
@@ -149,6 +189,8 @@ private fun MonthGrid(
     year: Int,
     current: YearMonth,
     range: ClosedRange<YearMonth>,
+    selected: YearMonth?,
+    selectable: Boolean,
     onBack: () -> Unit,
     onMonthClick: (Month) -> Unit,
 ) {
@@ -160,9 +202,26 @@ private fun MonthGrid(
             items(12) { index ->
                 val month = Month(index + 1)
                 val yearMonth = YearMonth(year, month)
+                val isSelected = selectable && yearMonth == selected
                 TextButton(
                     onClick = { onMonthClick(month) },
                     enabled = yearMonth in range,
+                    modifier = if (selectable) Modifier.semantics { this.selected = isSelected } else Modifier,
+                    colors =
+                        if (isSelected) {
+                            ButtonDefaults.textButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        } else {
+                            ButtonDefaults.textButtonColors()
+                        },
+                    border =
+                        if (selectable && !isSelected && yearMonth == current) {
+                            BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                        } else {
+                            null
+                        },
                 ) {
                     Text(
                         PlatformDateFormat.monthName(month, short = false),

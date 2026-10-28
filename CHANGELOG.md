@@ -14,6 +14,15 @@
   `PublicHolidays`, and `PublicHolidayDayInfoProvider`. Checked against
   python-holidays for 2000–2050 (UA 2000–2021) (#23).
 
+- `OrreryMonthPickerDialog` for picking a month and year without a day (for
+  example a card expiry date), with `OrreryMonthPickerState` /
+  `rememberOrreryMonthPickerState(initialSelectedMonth, range)`,
+  `DatePickerDefaults.monthRange()` (current year ±100) and
+  `MonthPickerStrings` / `DatePickerDefaults.monthPickerStrings()` in the six
+  bundled languages. It opens on the month grid of the selected (or current)
+  year and reuses `MonthYearPicker`'s year and decade grids, whose look and
+  behavior are unchanged (#24).
+
 - `SelectionMode.Week(firstDayOfWeek, allowClear)` and
   `SelectionMode.Month(allowClear)`: a tap selects the whole week or month
   containing the day as a range, so range rendering and TalkBack range states
@@ -25,6 +34,15 @@
   (the calendar's default) and a bare `SelectionEngine` to Monday.
   Programmatic writes (`set`, `SelectionEngine.replace`, `initialSelection`)
   are snapped to the whole week or month containing `rangeStart`.
+
+### Changed
+
+- Build: Kotlin 2.4.21, Android Gradle Plugin 9.4.1, Compose BOM 2026.09.00,
+  Compose Multiplatform 1.12.2, detekt 2.0.0-alpha.6, Roborazzi 1.77.0 and
+  Robolectric 4.17 (#35).
+- `compileSdk` is 37, because the Compose 1.12 artifacts require it; apps
+  depending on `orrery-compose` must also compile against API 37. `minSdk`
+  stays 23.
 
 ## [0.6.0] - 2026-10-27
 

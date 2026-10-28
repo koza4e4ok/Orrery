@@ -11,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,13 +19,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
 import me.kozakov.orrery.compose.DatePickerDefaults
 import me.kozakov.orrery.compose.OrreryDatePickerDialog
 import me.kozakov.orrery.compose.OrreryDateRangePickerDialog
+import me.kozakov.orrery.compose.OrreryMonthPickerDialog
+import me.kozakov.orrery.compose.currentYearMonth
 import me.kozakov.orrery.compose.rememberOrreryDatePickerState
 import me.kozakov.orrery.compose.rememberOrreryDateRangePickerState
+import me.kozakov.orrery.compose.rememberOrreryMonthPickerState
 
-/** Dialog gallery: single-date and date-range picker dialogs opened from buttons. */
+/** Dialog gallery: single-date, date-range and month picker dialogs opened from buttons. */
 @Composable
 internal fun PickersScreen() {
     Column(
@@ -33,6 +39,7 @@ internal fun PickersScreen() {
     ) {
         SingleDateCard()
         DateRangeCard()
+        MonthCard()
     }
 }
 
@@ -58,7 +65,7 @@ private fun SingleDateCard() {
         OrreryDatePickerDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
-                Button(
+                TextButton(
                     onClick = {
                         result = state.selectedDate?.toString()
                         showDialog = false
@@ -66,7 +73,7 @@ private fun SingleDateCard() {
                     enabled = state.selectedDate != null,
                 ) { Text("OK") }
             },
-            dismissButton = { Button(onClick = { showDialog = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } },
             state = state,
         )
     }
@@ -94,15 +101,56 @@ private fun DateRangeCard() {
         OrreryDateRangePickerDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
-                Button(onClick = {
-                    val start = state.selectedStartDate
-                    val end = state.selectedEndDate
-                    result = if (start != null && end != null) "$start – $end" else null
-                    showDialog = false
-                }) { Text("Save") }
+                val start = state.selectedStartDate
+                val end = state.selectedEndDate
+                // Saving needs a complete range; otherwise it would wipe the previous result.
+                TextButton(
+                    onClick = {
+                        if (start != null && end != null) result = "$start – $end"
+                        showDialog = false
+                    },
+                    enabled = start != null && end != null,
+                ) { Text("Save") }
             },
             state = state,
             presets = DatePickerDefaults.rangePresets(),
+        )
+    }
+}
+
+@Composable
+private fun MonthCard() {
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    var result by rememberSaveable { mutableStateOf<String?>(null) }
+
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Card expiry (month only)", style = MaterialTheme.typography.titleMedium)
+            Text(
+                result?.let { "Selected: $it" } ?: "No month selected",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Button(onClick = { showDialog = true }) { Text("Pick month") }
+        }
+    }
+
+    if (showDialog) {
+        val thisMonth = currentYearMonth()
+        val state = rememberOrreryMonthPickerState(range = thisMonth..thisMonth.plus(20, DateTimeUnit.YEAR))
+        OrreryMonthPickerDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        result = state.selectedMonth?.toString()
+                        showDialog = false
+                    },
+                    enabled = state.selectedMonth != null,
+                ) { Text("OK") }
+            },
+            dismissButton = { Button(onClick = { showDialog = false }) { Text("Cancel") } },
+            state = state,
         )
     }
 }

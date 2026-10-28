@@ -27,7 +27,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -72,7 +72,7 @@ private fun SampleApp() {
             }
         }
     MaterialTheme(colorScheme = colorScheme) {
-        var screen by remember { mutableIntStateOf(0) }
+        var screen by rememberSaveable { mutableIntStateOf(0) }
         Scaffold(
             // Exposes testTags as resource ids so the :baselineprofile UiAutomator journeys can find them.
             modifier = Modifier.semantics { testTagsAsResourceId = true },

@@ -37,4 +37,6 @@
     <string name="orrery_date_picker_preset_last_30_days">過去30日間</string>
     <string name="orrery_date_picker_preset_this_week">今週</string>
     <string name="orrery_date_picker_preset_this_month">今月</string>
+    <string name="orrery_month_picker_title">月を選択</string>
+    <string name="orrery_month_picker_headline_placeholder">月</string>
 </resources>

@@ -167,7 +167,8 @@ class CollapsibleGestureScrollSourceTest {
             swipe(center, center + Offset(-150.dp.toPx(), 0f), durationMillis = 300)
         }
         rule.waitForIdle()
-        val weekStart = weekState.firstVisibleWeek.days.first().date
+        val firstWeek = weekState.firstVisibleWeek
+        val weekStart = firstWeek.days.first().date
         assertTrue("week strip paged forward, at $weekStart", weekStart >= LocalDate(2026, 8, 3))
         assertEquals(YearMonth(2026, 8), calendarState.firstVisibleMonth)
         assertEquals(ScrollSource.UserDrag, weekState.lastScrollSource)
@@ -253,7 +254,10 @@ class CollapsibleGestureScrollSourceTest {
                 LocalDate(2026, 7, 13) to ScrollSource.Programmatic,
                 LocalDate(2026, 7, 20) to ScrollSource.UserDrag,
             ),
-            changes.map { it.week.days.first().date to it.source },
+            changes.map { change ->
+                val firstDay = change.week.days.first()
+                firstDay.date to change.source
+            },
         )
     }
 

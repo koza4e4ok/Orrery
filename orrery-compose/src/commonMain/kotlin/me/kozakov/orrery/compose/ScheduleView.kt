@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -5,7 +7,6 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -41,17 +42,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import me.kozakov.orrery.core.AllDayBanner
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.DayScheduleLayout
+import me.kozakov.orrery.core.EventOverlapMode
 import me.kozakov.orrery.core.PositionedEvent
 import me.kozakov.orrery.core.layoutDaySchedule
+import me.kozakov.orrery.core.packAllDayBanners
 import kotlin.math.roundToInt
 
-private const val HOURS_PER_DAY: Int = 24
-private const val MINUTES_PER_DAY: Int = 24 * 60
-
 /**
- * Horizontally paged single-day 24-hour schedule view with an optional
+ * Horizontally paged single-day time-grid schedule view with an optional
  * all-day banner. Swiping moves one day; [state] holds the visible date, the
  * shared vertical scroll and the zoomable hour height.
  *
@@ -108,6 +109,7 @@ public fun <T> DaySchedule(
         state = state,
         options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
         minEventDurationMinutes = minEventDurationMinutes,
+        overlapMode = EventOverlapMode.SideBySide,
         colors = colors,
         dimensions = dimensions,
         strings = strings,
@@ -120,7 +122,7 @@ public fun <T> DaySchedule(
  * Horizontally paged multi-day (default 7-day week) 24-hour schedule view.
  * Swiping moves a whole page of [daysPerPage] days. Seven-day pages start on
  * [ScheduleState.firstDayOfWeek]; other sizes are counted from the range start.
- * All-day events show as chips in each covered day's column.
+ * All-day events show as banners spanning the days they cover on the page.
  *
  * See [DaySchedule] for the shared parameters.
  */
@@ -170,6 +172,133 @@ public fun <T> WeekSchedule(
         state = state,
         options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
         minEventDurationMinutes = minEventDurationMinutes,
+        overlapMode = EventOverlapMode.SideBySide,
+        colors = colors,
+        dimensions = dimensions,
+        strings = strings,
+        onEmptySlotClick = onEmptySlotClick,
+        slots = ScheduleSlots(dayHeader, allDayEventContent, hourLabel, nowIndicator, eventContent),
+    )
+}
+
+/**
+ * [DaySchedule] with a choice of [overlapMode] for overlapping timed events.
+ * The visible hours come from [ScheduleState.minHour]..[ScheduleState.maxHour]
+ * (see the `rememberScheduleState` overload taking `minHour` and `maxHour`).
+ *
+ * @param overlapMode [EventOverlapMode.SideBySide] (the default) splits the column
+ *   between overlapping events; [EventOverlapMode.Stacked] cascades them with an indent.
+ */
+@Composable
+public fun <T> DaySchedule(
+    events: (LocalDate) -> List<CalendarEvent<T>>,
+    modifier: Modifier = Modifier,
+    state: ScheduleState = rememberScheduleState(),
+    today: LocalDate = currentDate(),
+    currentTime: LocalTime? = null,
+    userScrollEnabled: Boolean = true,
+    zoomGesturesEnabled: Boolean = true,
+    showHalfHourLines: Boolean = false,
+    minEventDurationMinutes: Int = 15,
+    overlapMode: EventOverlapMode = EventOverlapMode.SideBySide,
+    colors: ScheduleColors = ScheduleDefaults.colors(),
+    dimensions: ScheduleDimensions = ScheduleDefaults.dimensions(),
+    strings: ScheduleStrings = ScheduleDefaults.strings(),
+    onEventClick: ((CalendarEvent<T>) -> Unit)? = null,
+    onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)? = null,
+    dayHeader: (@Composable (LocalDate, Boolean) -> Unit)? = { date, isToday ->
+        ScheduleDefaults.DayHeader(date, isToday, colors)
+    },
+    allDayEventContent: @Composable (CalendarEvent<T>) -> Unit = { event ->
+        ScheduleDefaults.AllDayEventChip(event, colors, dimensions, onClick = onEventClick?.let { cb -> { cb(event) } })
+    },
+    hourLabel: @Composable (Int) -> Unit = { hour ->
+        ScheduleDefaults.HourLabel(hour, colors)
+    },
+    nowIndicator: @Composable () -> Unit = {
+        ScheduleDefaults.NowIndicator(colors, dimensions, contentDescription = strings.nowLabel)
+    },
+    eventContent: @Composable BoxScope.(PositionedEvent<T>) -> Unit = { positioned ->
+        ScheduleDefaults.EventTile(
+            positioned = positioned,
+            colors = colors,
+            dimensions = dimensions,
+            onClick = onEventClick?.let { cb -> { cb(positioned.event) } },
+        )
+    },
+) {
+    PagedSchedule(
+        daysPerPage = 1,
+        events = events,
+        modifier = modifier,
+        state = state,
+        options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
+        minEventDurationMinutes = minEventDurationMinutes,
+        overlapMode = overlapMode,
+        colors = colors,
+        dimensions = dimensions,
+        strings = strings,
+        onEmptySlotClick = onEmptySlotClick,
+        slots = ScheduleSlots(dayHeader, allDayEventContent, hourLabel, nowIndicator, eventContent),
+    )
+}
+
+/**
+ * [WeekSchedule] with a choice of [overlapMode] for overlapping timed events.
+ * The visible hours come from [ScheduleState.minHour]..[ScheduleState.maxHour]
+ * (see the `rememberScheduleState` overload taking `minHour` and `maxHour`).
+ *
+ * @param overlapMode [EventOverlapMode.SideBySide] (the default) splits each column
+ *   between overlapping events; [EventOverlapMode.Stacked] cascades them with an indent.
+ */
+@Composable
+public fun <T> WeekSchedule(
+    events: (LocalDate) -> List<CalendarEvent<T>>,
+    modifier: Modifier = Modifier,
+    state: ScheduleState = rememberScheduleState(),
+    daysPerPage: Int = 7,
+    today: LocalDate = currentDate(),
+    currentTime: LocalTime? = null,
+    userScrollEnabled: Boolean = true,
+    zoomGesturesEnabled: Boolean = true,
+    showHalfHourLines: Boolean = false,
+    minEventDurationMinutes: Int = 15,
+    overlapMode: EventOverlapMode = EventOverlapMode.SideBySide,
+    colors: ScheduleColors = ScheduleDefaults.colors(),
+    dimensions: ScheduleDimensions = ScheduleDefaults.dimensions(),
+    strings: ScheduleStrings = ScheduleDefaults.strings(),
+    onEventClick: ((CalendarEvent<T>) -> Unit)? = null,
+    onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)? = null,
+    dayHeader: (@Composable (LocalDate, Boolean) -> Unit)? = { date, isToday ->
+        ScheduleDefaults.DayHeader(date, isToday, colors)
+    },
+    allDayEventContent: @Composable (CalendarEvent<T>) -> Unit = { event ->
+        ScheduleDefaults.AllDayEventChip(event, colors, dimensions, onClick = onEventClick?.let { cb -> { cb(event) } })
+    },
+    hourLabel: @Composable (Int) -> Unit = { hour ->
+        ScheduleDefaults.HourLabel(hour, colors)
+    },
+    nowIndicator: @Composable () -> Unit = {
+        ScheduleDefaults.NowIndicator(colors, dimensions, contentDescription = strings.nowLabel)
+    },
+    eventContent: @Composable BoxScope.(PositionedEvent<T>) -> Unit = { positioned ->
+        ScheduleDefaults.EventTile(
+            positioned = positioned,
+            colors = colors,
+            dimensions = dimensions,
+            onClick = onEventClick?.let { cb -> { cb(positioned.event) } },
+        )
+    },
+) {
+    require(daysPerPage >= 1) { "daysPerPage ($daysPerPage) must be at least 1" }
+    PagedSchedule(
+        daysPerPage = daysPerPage,
+        events = events,
+        modifier = modifier,
+        state = state,
+        options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
+        minEventDurationMinutes = minEventDurationMinutes,
+        overlapMode = overlapMode,
         colors = colors,
         dimensions = dimensions,
         strings = strings,
@@ -202,6 +331,7 @@ private fun <T> PagedSchedule(
     state: ScheduleState,
     options: ScheduleOptions,
     minEventDurationMinutes: Int,
+    overlapMode: EventOverlapMode,
     colors: ScheduleColors,
     dimensions: ScheduleDimensions,
     strings: ScheduleStrings,
@@ -237,8 +367,15 @@ private fun <T> PagedSchedule(
         val layouts =
             dates.map { date ->
                 val dayEvents = events(date)
-                remember(date, dayEvents, minEventDurationMinutes) {
-                    layoutDaySchedule(date, dayEvents, minEventDurationMinutes)
+                remember(date, dayEvents, minEventDurationMinutes, state.minHour, state.maxHour, overlapMode) {
+                    layoutDaySchedule(
+                        date = date,
+                        events = dayEvents,
+                        minDurationMinutes = minEventDurationMinutes,
+                        minHour = state.minHour,
+                        maxHour = state.maxHour,
+                        overlapMode = overlapMode,
+                    )
                 }
             }
         SchedulePage(
@@ -266,8 +403,13 @@ private fun <T> SchedulePage(
     slots: ScheduleSlots<T>,
 ) {
     val hourHeight = state.hourHeight
+    val window = HourWindow(state.minHour, state.maxHour)
     val dayHeader = slots.dayHeader
-    val showAllDay = layouts.any { it.allDayEvents.isNotEmpty() }
+    val banners =
+        remember(layouts) {
+            packAllDayBanners(layouts.map { it.date }, layouts.flatMap { it.allDayEvents })
+        }
+    val showAllDay = banners.isNotEmpty()
     Column(Modifier.fillMaxSize()) {
         if (dayHeader != null || showAllDay) {
             Column(
@@ -289,7 +431,7 @@ private fun <T> SchedulePage(
                     }
                 }
                 if (showAllDay) {
-                    AllDayRow(layouts, colors, dimensions, strings, slots.allDayEventContent)
+                    AllDayRow(banners, layouts.size, colors, dimensions, strings, slots.allDayEventContent)
                 }
             }
         }
@@ -300,13 +442,13 @@ private fun <T> SchedulePage(
                 .pinchToZoomHours(state, options.zoomGesturesEnabled)
                 .verticalScroll(state.verticalScrollState),
         ) {
-            Row(Modifier.fillMaxWidth().height(hourHeight * HOURS_PER_DAY)) {
-                HourGutter(hourHeight, dimensions.timeGutterWidth, slots.hourLabel)
+            Row(Modifier.fillMaxWidth().height(hourHeight * window.hourCount)) {
+                HourGutter(hourHeight, window, dimensions.timeGutterWidth, slots.hourLabel)
                 Row(
                     Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .gridLines(layouts.size, hourHeight, options.showHalfHourLines, colors),
+                        .gridLines(layouts.size, hourHeight, window.hourCount, options.showHalfHourLines, colors),
                 ) {
                     for (layout in layouts) {
                         key(layout.date) {
@@ -315,8 +457,10 @@ private fun <T> SchedulePage(
                                 nowMinute =
                                     options.currentTime
                                         ?.takeIf { layout.date == options.today }
-                                        ?.let { it.hour * 60 + it.minute },
+                                        ?.let { it.hour * 60 + it.minute }
+                                        ?.takeIf { it in window.startMinute..window.endMinute },
                                 hourHeight = hourHeight,
+                                window = window,
                                 dimensions = dimensions,
                                 slotMinutes = if (options.showHalfHourLines) 30 else 60,
                                 onEmptySlotClick = onEmptySlotClick,
@@ -332,14 +476,40 @@ private fun <T> SchedulePage(
     }
 }
 
+/** Visible `startHour:00..endHour:00` slice of the day drawn by the time grid. */
+private class HourWindow(
+    val startHour: Int,
+    val endHour: Int,
+) {
+    val hourCount: Int get() = endHour - startHour
+    val startMinute: Int get() = startHour * 60
+    val endMinute: Int get() = endHour * 60
+}
+
+/**
+ * All-day header: [banners] span the columns they cover, one lane per row. When
+ * there are more lanes than [ScheduleDimensions.maxVisibleAllDayRows], the last
+ * row instead shows a "+N" count of the hidden banners under each column.
+ */
 @Composable
 private fun <T> AllDayRow(
-    layouts: List<DayScheduleLayout<T>>,
+    banners: List<AllDayBanner<T>>,
+    columnCount: Int,
     colors: ScheduleColors,
     dimensions: ScheduleDimensions,
     strings: ScheduleStrings,
     allDayEventContent: @Composable (CalendarEvent<T>) -> Unit,
 ) {
+    val maxRows = dimensions.maxVisibleAllDayRows.coerceAtLeast(1)
+    val laneCount = (banners.maxOfOrNull { it.laneIndex } ?: -1) + 1
+    val visibleLanes = if (laneCount <= maxRows) laneCount else maxRows - 1
+    val visible = banners.filter { it.laneIndex < visibleLanes }
+    val hiddenPerColumn = IntArray(columnCount)
+    for (banner in banners) {
+        if (banner.laneIndex < visibleLanes) continue
+        for (column in banner.startColumn..banner.endColumnInclusive) hiddenPerColumn[column]++
+    }
+    val overflowColumns = (0 until columnCount).filter { hiddenPerColumn[it] > 0 }
     Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
         Text(
             text = strings.allDayLabel,
@@ -349,28 +519,57 @@ private fun <T> AllDayRow(
             textAlign = TextAlign.End,
             maxLines = 2,
         )
-        for (layout in layouts) {
-            val allDay = layout.allDayEvents
-            val maxRows = dimensions.maxVisibleAllDayRows.coerceAtLeast(1)
-            val visibleCount = if (allDay.size <= maxRows) allDay.size else maxRows - 1
-            Column(
-                Modifier.weight(1f).padding(horizontal = 1.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                for (index in 0 until visibleCount) {
-                    key(allDay[index].id) {
-                        allDayEventContent(allDay[index])
+        Layout(
+            content = {
+                for (banner in visible) {
+                    key(banner.event.id) {
+                        Box(propagateMinConstraints = true) { allDayEventContent(banner.event) }
                     }
                 }
-                val hidden = allDay.size - visibleCount
-                if (hidden > 0) {
+                for (column in overflowColumns) {
                     Text(
-                        text = "+$hidden",
-                        modifier = Modifier.height(dimensions.allDayChipHeight).padding(horizontal = 4.dp),
+                        text = "+${hiddenPerColumn[column]}",
+                        modifier = Modifier.padding(horizontal = 4.dp),
                         style = MaterialTheme.typography.labelSmall,
                         color = colors.hourLabelColor,
                         maxLines = 1,
                     )
+                }
+            },
+            modifier = Modifier.weight(1f),
+        ) { measurables, constraints ->
+            val width = constraints.maxWidth
+            val columnWidth = width.toFloat() / columnCount
+            val inset = 1.dp.roundToPx()
+            val rowGap = 2.dp.roundToPx()
+            val rowHeight = dimensions.allDayChipHeight.roundToPx()
+            val rows = visibleLanes + if (overflowColumns.isEmpty()) 0 else 1
+            val height = (rows * rowHeight + (rows - 1) * rowGap).coerceAtLeast(0)
+            val placeables =
+                measurables.mapIndexed { index, measurable ->
+                    if (index < visible.size) {
+                        val banner = visible[index]
+                        val span = banner.endColumnInclusive - banner.startColumn + 1
+                        val bannerWidth = (columnWidth * span).roundToInt() - 2 * inset
+                        measurable.measure(Constraints.fixed(bannerWidth.coerceAtLeast(0), rowHeight))
+                    } else {
+                        val maxWidth = (columnWidth.roundToInt() - 2 * inset).coerceAtLeast(0)
+                        measurable.measure(
+                            Constraints(maxWidth = maxWidth, minHeight = rowHeight, maxHeight = rowHeight),
+                        )
+                    }
+                }
+            layout(width, height) {
+                placeables.forEachIndexed { index, placeable ->
+                    if (index < visible.size) {
+                        val banner = visible[index]
+                        val x = (columnWidth * banner.startColumn).roundToInt() + inset
+                        placeable.placeRelative(x, banner.laneIndex * (rowHeight + rowGap))
+                    } else {
+                        val column = overflowColumns[index - visible.size]
+                        val x = (columnWidth * column).roundToInt() + inset
+                        placeable.placeRelative(x, visibleLanes * (rowHeight + rowGap))
+                    }
                 }
             }
         }
@@ -380,12 +579,13 @@ private fun <T> AllDayRow(
 @Composable
 private fun HourGutter(
     hourHeight: Dp,
+    window: HourWindow,
     width: Dp,
     hourLabel: @Composable (Int) -> Unit,
 ) {
     Layout(
         content = {
-            repeat(HOURS_PER_DAY) { hour ->
+            for (hour in window.startHour until window.endHour) {
                 Box(contentAlignment = Alignment.TopEnd) { hourLabel(hour) }
             }
         },
@@ -395,10 +595,10 @@ private fun HourGutter(
         val labelConstraints = Constraints(minWidth = constraints.maxWidth, maxWidth = constraints.maxWidth)
         val placeables = measurables.map { it.measure(labelConstraints) }
         layout(constraints.maxWidth, constraints.maxHeight) {
-            placeables.forEachIndexed { hour, placeable ->
+            placeables.forEachIndexed { row, placeable ->
                 // Center each label on its hour line, kept inside the gutter at both ends.
                 val maxY = (constraints.maxHeight - placeable.height).coerceAtLeast(0)
-                val y = (hour * hourPx - placeable.height / 2f).roundToInt().coerceIn(0, maxY)
+                val y = (row * hourPx - placeable.height / 2f).roundToInt().coerceIn(0, maxY)
                 placeable.placeRelative(0, y)
             }
         }
@@ -410,6 +610,7 @@ private fun <T> DayColumn(
     layout: DayScheduleLayout<T>,
     nowMinute: Int?,
     hourHeight: Dp,
+    window: HourWindow,
     dimensions: ScheduleDimensions,
     slotMinutes: Int,
     onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)?,
@@ -420,9 +621,9 @@ private fun <T> DayColumn(
     val date = layout.date
     val tapModifier =
         if (onEmptySlotClick != null) {
-            Modifier.pointerInput(date, hourHeight, slotMinutes, onEmptySlotClick) {
+            Modifier.pointerInput(date, hourHeight, window.startHour, window.endHour, slotMinutes, onEmptySlotClick) {
                 detectTapGestures { offset ->
-                    onEmptySlotClick(date, timeAt(offset.y, hourHeight.toPx(), slotMinutes))
+                    onEmptySlotClick(date, timeAt(offset.y, hourHeight.toPx(), window, slotMinutes))
                 }
             }
         } else {
@@ -464,10 +665,10 @@ private fun <T> DayColumn(
                     val positioned = timed[index]
                     placeable.placeRelative(
                         x = (columnWidth * positioned.leftFraction).roundToInt(),
-                        y = (positioned.startMinute / 60f * hourPx).roundToInt(),
+                        y = ((positioned.startMinute - window.startMinute) / 60f * hourPx).roundToInt(),
                     )
                 } else if (nowMinute != null) {
-                    val y = (nowMinute / 60f * hourPx - placeable.height / 2f).roundToInt()
+                    val y = ((nowMinute - window.startMinute) / 60f * hourPx - placeable.height / 2f).roundToInt()
                     placeable.placeRelative(0, y)
                 }
             }
@@ -478,9 +679,10 @@ private fun <T> DayColumn(
 private fun timeAt(
     y: Float,
     hourPx: Float,
+    window: HourWindow,
     slotMinutes: Int,
 ): LocalTime {
-    val minute = (y / hourPx * 60f).toInt().coerceIn(0, MINUTES_PER_DAY - 1)
+    val minute = (window.startMinute + (y / hourPx * 60f).toInt()).coerceIn(window.startMinute, window.endMinute - 1)
     val floored = minute / slotMinutes * slotMinutes
     return LocalTime(floored / 60, floored % 60)
 }
@@ -488,16 +690,17 @@ private fun timeAt(
 private fun Modifier.gridLines(
     dayCount: Int,
     hourHeight: Dp,
+    hourCount: Int,
     showHalfHourLines: Boolean,
     colors: ScheduleColors,
 ): Modifier =
     drawBehind {
         val hourPx = hourHeight.toPx()
         val stroke = 1.dp.toPx()
-        for (hour in 0..HOURS_PER_DAY) {
+        for (hour in 0..hourCount) {
             val y = hour * hourPx
             drawLine(colors.gridLineColor, Offset(0f, y), Offset(size.width, y), stroke)
-            if (showHalfHourLines && hour < HOURS_PER_DAY) {
+            if (showHalfHourLines && hour < hourCount) {
                 val half = y + hourPx / 2f
                 drawLine(colors.halfHourLineColor, Offset(0f, half), Offset(size.width, half), stroke)
             }

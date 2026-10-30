@@ -159,7 +159,9 @@ class WeekEventBannersTest {
 
     @Test
     fun rejectsInvalidArguments() {
-        assertFailsWith<IllegalArgumentException> { packWeekEventBanners(week, emptyList<CalendarEvent<Nothing>>(), -1) }
+        assertFailsWith<IllegalArgumentException> {
+            packWeekEventBanners(week, emptyList<CalendarEvent<Nothing>>(), maxVisibleLanes = -1)
+        }
         assertFailsWith<IllegalArgumentException> {
             packWeekEventBanners(week.reversed(), emptyList<CalendarEvent<Nothing>>())
         }

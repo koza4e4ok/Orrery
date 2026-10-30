@@ -116,8 +116,14 @@ private fun CalendarEvent<*>.columnsIn(weekDates: List<LocalDate>): IntRange? {
     return if (start < 0 || end < start) null else start..end
 }
 
+private fun PackCandidate<*>.spanDays(): Long {
+    val endDays = event.span.endDate.toEpochDays()
+    val startDays = event.span.startDate.toEpochDays()
+    return endDays - startDays
+}
+
 private val PackingOrder: Comparator<PackCandidate<*>> =
     compareBy<PackCandidate<*>> { it.event.span.startDate }
-        .thenByDescending { it.event.span.endDate.toEpochDays() - it.event.span.startDate.toEpochDays() }
+        .thenByDescending { it.spanDays() }
         .thenBy { it.event.title }
         .thenBy { it.event.id }

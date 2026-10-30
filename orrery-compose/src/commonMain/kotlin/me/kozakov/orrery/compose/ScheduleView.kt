@@ -670,7 +670,7 @@ private fun <T> DayColumn(
                     )
                 } else if (nowMinute != null) {
                     val y = ((nowMinute - window.startMinute) / 60f * hourPx - placeable.height / 2f).roundToInt()
-                    placeable.placeRelative(0, y)
+                    placeable.placeRelative(x = 0, y = y, zIndex = timed.size.toFloat())
                 }
             }
         }

@@ -76,11 +76,11 @@ dependencyResolutionManagement {
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("me.kozakov.orrery:orrery-compose:0.8.0")
+    implementation("me.kozakov.orrery:orrery-compose:0.9.0")
     // Optional DayInfoProvider modules:
-    implementation("me.kozakov.orrery:orrery-lunar:0.8.0")
-    implementation("me.kozakov.orrery:orrery-calendars:0.8.0")
-    implementation("me.kozakov.orrery:orrery-holidays:0.8.0")
+    implementation("me.kozakov.orrery:orrery-lunar:0.9.0")
+    implementation("me.kozakov.orrery:orrery-calendars:0.9.0")
+    implementation("me.kozakov.orrery:orrery-holidays:0.9.0")
 }
 ```
 
@@ -89,7 +89,7 @@ Using a [version catalog](https://docs.gradle.org/current/userguide/version_cata
 
 ```toml
 [versions]
-orrery = "0.8.0"
+orrery = "0.9.0"
 
 [libraries]
 orrery-compose   = { module = "me.kozakov.orrery:orrery-compose",   version.ref = "orrery" }
@@ -106,7 +106,7 @@ dependencies {
 }
 ```
 
-> **Snapshots:** development builds are published as `0.8.1-SNAPSHOT` to the Central
+> **Snapshots:** development builds are published as `0.9.1-SNAPSHOT` to the Central
 > snapshots repository. To use them, add
 > `maven("https://central.sonatype.com/repository/maven-snapshots/")` to your repositories
 > and depend on the `-SNAPSHOT` version.
@@ -151,6 +151,12 @@ demonstrating all four picker dialogs.
   (`WeekCalendar`) and year-overview (`YearCalendar`) composables
 - Unbounded (infinite) month/week scrolling with one-sided ranges
 - `CollapsibleCalendarScaffold`: month collapses to a week row as the content scrolls
+  or on a direct drag (optional `CollapsibleDragHandle`), with Month / TwoWeeks / Week
+  snap stops; `ScrollSource` tells user drags from programmatic scrolls
+- Two-week (`visibleWeeksCount = 1..4`) and work-week (`visibleDaysOfWeek`, e.g.
+  Mon–Fri) modes, plus `CalendarRowHeight`
+- Multi-day event title banners (`WeekEventBanners`) with `+N` overflow in the new
+  `weekOverlay` slot, plus `weekFooter` / `monthFooter` slots
 - Selection modes: single (with optional auto-advance), range (min/max), multi,
   plus long-press **drag-to-select**
 - `OrreryDatePickerDialog` / `OrreryDateRangePickerDialog`: Material 3-shaped dialogs
@@ -163,12 +169,15 @@ demonstrating all four picker dialogs.
   before/after, predicates) blocks selection and renders disabled automatically
 - Per-state day styling: `CalendarDayColors` + `CalendarDayShapes` with
   today-indicator variants (ring, filled, underline), segmented or banded
-  in-range fills, and optional selected-day elevation
+  in-range fills, optional selected-day elevation, and hospitality split range
+  endpoints (`CalendarDefaults.hospitalityStyle()`: check-in PM / check-out AM halves,
+  turnover days)
 - Stackable day decorators: event dots, progress rings/bars, strikethrough,
   underline, and a GitHub-style heatmap — plus a raw `DayDecorator` DrawScope
   escape hatch
 - `DaySchedule` / `WeekSchedule` 24-hour time-grid views: overlapping events
-  packed side by side (`layoutDaySchedule` in orrery-core), all-day chips,
+  packed side by side or stacked (`EventOverlapMode`, `layoutDaySchedule` in
+  orrery-core), a working-hours `minHour..maxHour` window, spanning all-day banners,
   current-time line, pinch-to-zoom hour height, and tap callbacks for events
   and empty slots
 - `HeatmapCalendar` contribution graph and `HeatmapMonth` heat tiles with

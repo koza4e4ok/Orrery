@@ -17,6 +17,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,8 +33,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import me.kozakov.orrery.compose.CalendarDefaults
 import me.kozakov.orrery.compose.CalendarNavHeader
@@ -42,12 +45,21 @@ import me.kozakov.orrery.compose.DefaultDay
 import me.kozakov.orrery.compose.HeatmapCalendar
 import me.kozakov.orrery.compose.HeatmapMonth
 import me.kozakov.orrery.compose.HorizontalCalendar
+import me.kozakov.orrery.compose.WeekCalendar
 import me.kozakov.orrery.compose.currentDate
 import me.kozakov.orrery.compose.rememberAnimatedDayValues
 import me.kozakov.orrery.compose.rememberCalendarState
 import me.kozakov.orrery.compose.rememberHeatmapCalendarState
+import me.kozakov.orrery.compose.rememberWeekCalendarState
 
-/** Habit tracker: per-habit animated progress rings, streaks, overall heatmap. */
+private val WORK_WEEK =
+    setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
+private val ALL_DAYS = DayOfWeek.entries.toSet()
+
+/**
+ * Habit tracker: per-habit animated progress rings, a two-week strip, a Mon–Fri work-week
+ * filter, streaks and an overall heatmap.
+ */
 @Composable
 internal fun HabitsScreen() {
     val today = remember { currentDate() }
@@ -61,6 +73,25 @@ internal fun HabitsScreen() {
     // Each calendar shows data for the month it is paged to, not only the current one.
     val ringState = rememberCalendarState()
     val heatState = rememberCalendarState()
+    // Last week and this week on one page.
+    val twoWeekState =
+        rememberWeekCalendarState(
+            firstVisibleDate = today.minus(7, DateTimeUnit.DAY),
+            visibleWeeksCount = 2,
+        )
+    var workWeekOnly by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(workWeekOnly) {
+        val days = if (workWeekOnly) WORK_WEEK else ALL_DAYS
+        ringState.visibleDaysOfWeek = days
+        twoWeekState.visibleDaysOfWeek = days
+    }
+    val recentProgress =
+        remember(selectedHabit, month, today) {
+            SampleData.habitProgress(selectedHabit, month.plus(-1, DateTimeUnit.MONTH), today) +
+                SampleData.habitProgress(selectedHabit, month, today)
+        }
+    val recentDecorators =
+        listOf(DayDecorators.progressRing(color = selectedHabit.color) { date -> recentProgress[date] })
     val ringMonth = ringState.firstVisibleMonth
     val heatMonth = heatState.firstVisibleMonth
     val ringProgress =
@@ -112,6 +143,29 @@ internal fun HabitsScreen() {
                         selected = index == selectedIndex,
                         onClick = { selectedIndex = index },
                         label = { Text(habit.name) },
+                    )
+                }
+                FilterChip(
+                    selected = workWeekOnly,
+                    onClick = { workWeekOnly = !workWeekOnly },
+                    label = { Text("Mon–Fri") },
+                )
+            }
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+            ) {
+                Column(Modifier.padding(vertical = 8.dp)) {
+                    Text(
+                        "Last two weeks",
+                        Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    )
+                    WeekCalendar(
+                        state = twoWeekState,
+                        dayContent = { day ->
+                            DefaultDay(day = day, today = today, decorators = recentDecorators)
+                        },
                     )
                 }
             }

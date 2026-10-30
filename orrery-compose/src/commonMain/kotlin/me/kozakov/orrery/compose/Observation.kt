@@ -44,6 +44,12 @@ public fun WeekCalendarState.visibleWeeks(): Flow<CalendarWeek> =
         firstVisibleWeek
     }.distinctUntilChanged()
 
+/** Emits the visible page of week rows, deduplicated; collect outside composition. */
+public fun WeekCalendarState.visiblePages(): Flow<List<CalendarWeek>> =
+    snapshotFlow {
+        firstVisibleWeeks
+    }.distinctUntilChanged()
+
 /**
  * Emits the first visible month together with the [ScrollSource] that brought
  * it into view (`Initial` first), deduplicated by month; collect outside composition.

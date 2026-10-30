@@ -240,12 +240,12 @@ class ScheduleViewTest {
     }
 
     @Test
-    fun weekScheduleShowsTheWeekWithPerColumnAllDayChips() {
+    fun weekScheduleShowsTheWeekWithASpanningAllDayBanner() {
         weekSchedule()
         for (day in 13..19) {
             rule.onNodeWithText(day.toString()).assertIsDisplayed()
         }
-        rule.onAllNodesWithText("Offsite").assertCountEquals(2)
+        rule.onAllNodesWithText("Offsite").assertCountEquals(1)
         rule.onNodeWithText("Standup").assertExists()
         rule.onNodeWithText("Retro").assertExists()
     }

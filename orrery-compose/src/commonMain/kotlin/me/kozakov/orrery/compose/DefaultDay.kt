@@ -674,7 +674,7 @@ private fun DrawScope.drawSplitEndpoint(
 
     fun fill(
         alpha: Float,
-        vararg points: Offset,
+        points: List<Offset>,
     ) {
         if (alpha <= 0f) return
         val path =
@@ -694,8 +694,8 @@ private fun DrawScope.drawSplitEndpoint(
         RangeEndpointStyle.SplitHorizontal -> {
             val half = gap / 2f
             val center = w / 2f
-            fill(amAlpha, Offset(0f, 0f), Offset(center - half, 0f), Offset(center - half, h), Offset(0f, h))
-            fill(pmAlpha, Offset(center + half, 0f), Offset(w, 0f), Offset(w, h), Offset(center + half, h))
+            fill(amAlpha, listOf(Offset(0f, 0f), Offset(center - half, 0f), Offset(center - half, h), Offset(0f, h)))
+            fill(pmAlpha, listOf(Offset(center + half, 0f), Offset(w, 0f), Offset(w, h), Offset(center + half, h)))
         }
 
         RangeEndpointStyle.SplitDiagonal -> {
@@ -704,8 +704,8 @@ private fun DrawScope.drawSplitEndpoint(
             val shift = (gap / 2f) * sqrt(1f / (w * w) + 1f / (h * h))
             val am = 1f - shift
             val pm = shift
-            fill(amAlpha, Offset(0f, 0f), Offset(am * w, 0f), Offset(0f, am * h))
-            fill(pmAlpha, Offset(w, pm * h), Offset(w, h), Offset(pm * w, h))
+            fill(amAlpha, listOf(Offset(0f, 0f), Offset(am * w, 0f), Offset(0f, am * h)))
+            fill(pmAlpha, listOf(Offset(w, pm * h), Offset(w, h), Offset(pm * w, h)))
         }
     }
 }

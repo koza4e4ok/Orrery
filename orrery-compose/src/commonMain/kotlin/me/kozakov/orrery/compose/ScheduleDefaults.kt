@@ -3,6 +3,7 @@ package me.kozakov.orrery.compose
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -288,7 +289,15 @@ public object ScheduleDefaults {
     ) {
         val event = positioned.event
         val palette = eventPalette(event, colors)
+        val surface = MaterialTheme.colorScheme.surface
+        val isStacked =
+            positioned.columnCount > 1 &&
+                positioned.leftFraction + positioned.widthFraction > 0.99f &&
+                (positioned.columnIndex == 0 || positioned.widthFraction > 0.501f)
+        val containerColor = if (isStacked) palette.container.compositeOver(surface) else palette.container
         val shape = RoundedCornerShape(dimensions.tileCornerRadius)
+        val borderModifier =
+            if (isStacked && positioned.columnIndex > 0) Modifier.border(1.dp, surface, shape) else Modifier
         val interactionSource = remember { MutableInteractionSource() }
         val isFocused by interactionSource.collectIsFocusedAsState()
         Row(
@@ -296,8 +305,9 @@ public object ScheduleDefaults {
                 modifier
                     .fillMaxSize()
                     .eventFocusRing(onClick != null && isFocused, shape, MaterialTheme.colorScheme.onSurface)
+                    .then(borderModifier)
                     .clip(shape)
-                    .background(palette.container)
+                    .background(containerColor)
                     .then(
                         if (onClick != null) {
                             Modifier.clickable(

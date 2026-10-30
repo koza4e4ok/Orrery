@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +41,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
@@ -65,6 +69,9 @@ internal fun MonthContent(
     dragSelection: CalendarSelectionState? = null,
     hapticsEnabled: Boolean = true,
     keyboardNavigation: CalendarKeyboardNavigation? = null,
+    rowHeight: CalendarRowHeight = CalendarRowHeight.WrapContent,
+    fillBoundedHeight: Boolean = false,
+    visibleDaysOfWeek: Set<DayOfWeek> = ALL_DAYS_OF_WEEK_SET,
     weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
     weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
     monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
@@ -77,8 +84,14 @@ internal fun MonthContent(
     val rowTops = remember(month.weeks.size) { IntArray(month.weeks.size) }
     Column(modifier) {
         monthHeader?.invoke(this, month)
+        val gridWeightModifier =
+            if (fillBoundedHeight && rowHeight is CalendarRowHeight.FillViewport) {
+                Modifier.weight(1f)
+            } else {
+                Modifier
+            }
         Column(
-            Modifier.then(
+            gridWeightModifier.then(
                 if (dragSelection != null && dragSelection.supportsDrag) {
                     Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, unevenRows, isRtl) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
@@ -86,17 +99,20 @@ internal fun MonthContent(
                         fun dayAt(offset: Offset): CalendarDay? {
                             val rows = month.weeks.size
                             if (rows == 0) return null
-                            val rowHeight = size.height.toFloat() / rows
-                            val colWidth = (size.width - leading) / 7f
+                            val rowHeightPx = size.height.toFloat() / rows
                             val row =
                                 if (unevenRows) {
                                     rowTops.indexOfLast { it <= offset.y }.coerceAtLeast(0)
                                 } else {
-                                    (offset.y / rowHeight).toInt().coerceIn(0, rows - 1)
+                                    (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
                                 }
+                            val weekDays = month.weeks[row].days
+                            val cols = weekDays.size
+                            if (cols == 0) return null
+                            val colWidth = (size.width - leading) / cols.toFloat()
                             val rawX = if (isRtl) size.width - leading - offset.x else offset.x - leading
-                            val col = (rawX / colWidth).toInt().coerceIn(0, 6)
-                            return month.weeks[row].days[col]
+                            val col = (rawX / colWidth).toInt().coerceIn(0, cols - 1)
+                            return weekDays[col]
                         }
 
                         var lastDragDate: LocalDate? = null
@@ -129,26 +145,68 @@ internal fun MonthContent(
         ) {
             val rowCount = month.weeks.size
             month.weeks.forEachIndexed { row, week ->
+                val baseRowModifier =
+                    when (rowHeight) {
+                        CalendarRowHeight.WrapContent -> {
+                            Modifier.fillMaxWidth()
+                        }
+
+                        is CalendarRowHeight.Fixed -> {
+                            Modifier.fillMaxWidth().height(rowHeight.height)
+                        }
+
+                        is CalendarRowHeight.FillViewport -> {
+                            if (fillBoundedHeight) {
+                                Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                                    .heightIn(min = rowHeight.minRowHeight)
+                            } else {
+                                Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = rowHeight.minRowHeight)
+                            }
+                        }
+                    }
                 val rowModifier =
                     if (unevenRows) {
-                        Modifier.onPlaced { rowTops[row] = it.positionInParent().y.toInt() }
+                        baseRowModifier.onPlaced { rowTops[row] = it.positionInParent().y.toInt() }
                     } else {
-                        Modifier
+                        baseRowModifier
                     }
-                Row(rowModifier.fillMaxWidth()) {
+                val rowAlignment =
+                    if (rowHeight == CalendarRowHeight.WrapContent) {
+                        Alignment.Top
+                    } else {
+                        Alignment.CenterVertically
+                    }
+                Row(rowModifier, verticalAlignment = rowAlignment) {
                     if (weekNumber != null) {
                         Box(Modifier.width(WeekNumberColumnWidth), contentAlignment = Alignment.Center) {
                             weekNumber(week)
                         }
                     }
-                    val rowFocusRequesters = rememberRowFocusRequesters(keyboardNavigation != null)
+                    val colCount = week.days.size
+                    val rowFocusRequesters = rememberRowFocusRequesters(keyboardNavigation != null, colCount)
+                    val cellHeightModifier =
+                        when (rowHeight) {
+                            CalendarRowHeight.WrapContent -> Modifier
+                            is CalendarRowHeight.Fixed -> Modifier.fillMaxHeight()
+                            is CalendarRowHeight.FillViewport ->
+                                if (fillBoundedHeight) {
+                                    Modifier.fillMaxHeight()
+                                } else {
+                                    Modifier.heightIn(min = rowHeight.minRowHeight)
+                                }
+                        }
                     WeekDays(week, weekOverlay) {
                         week.days.forEachIndexed { col, day ->
                             DayCell(
                                 day = day,
                                 col = col,
+                                colCount = colCount,
                                 keyboard = keyboardNavigation,
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).then(cellHeightModifier),
                                 dayContent = dayContent,
                                 row = row,
                                 rowCount = rowCount,
@@ -157,6 +215,7 @@ internal fun MonthContent(
                                 // Paging always scrolls to the page of the target's month, where the
                                 // target is an in-month date; out-dates of other pages never take it.
                                 acceptsPendingFocus = day.position == DayPosition.MonthDate,
+                                visibleDaysOfWeek = visibleDaysOfWeek,
                             )
                         }
                     }
@@ -191,18 +250,21 @@ internal fun RowScope.WeekDays(
 
 /** One [FocusRequester] per column of a week row, for Home/End; empty without keyboard navigation. */
 @Composable
-internal fun rememberRowFocusRequesters(enabled: Boolean): List<FocusRequester> =
-    remember(enabled) { if (enabled) List(DAYS_PER_WEEK) { FocusRequester() } else emptyList() }
+internal fun rememberRowFocusRequesters(
+    enabled: Boolean,
+    colCount: Int = DAYS_PER_WEEK,
+): List<FocusRequester> =
+    remember(enabled, colCount) { if (enabled) List(colCount) { FocusRequester() } else emptyList() }
 
 private const val DAYS_PER_WEEK = 7
 
 /**
  * Day-cell wrapper adding keyboard navigation on top of native Compose
  * focus search (which handles plain arrow moves inside a page):
- * - Left/Right at a row edge (col 0 / col 6) and Up/Down at the top or
- *   bottom row page the calendar; focus lands on the date ±1 / ±7 days
- *   once its cell is composed. RTL swaps which horizontal key means
- *   "toward the next day".
+ * - Left/Right at a row edge (col 0 / colCount - 1) and Up/Down at the top or
+ *   bottom row page the calendar; focus lands on the next/previous visible
+ *   day or ±7 days once its cell is composed. RTL swaps which horizontal key
+ *   means "toward the next day".
  * - PageUp/PageDown page one month back/forward, or one year with Shift.
  * - Home/End focus the first/last cell of the current week row.
  * - Shift+Arrow with a [SelectionMode.Range] [selectionState] extends the
@@ -218,12 +280,14 @@ internal fun DayCell(
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
     row: Int = 0,
     rowCount: Int = 1,
+    colCount: Int = DAYS_PER_WEEK,
     rowFocusRequesters: List<FocusRequester> = emptyList(),
     selectionState: CalendarSelectionState? = null,
     acceptsPendingFocus: Boolean = true,
+    visibleDaysOfWeek: Set<DayOfWeek> = ALL_DAYS_OF_WEEK_SET,
 ) {
     if (keyboard == null) {
-        Box(modifier) { dayContent(day) }
+        Box(modifier, propagateMinConstraints = true) { dayContent(day) }
         return
     }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -237,13 +301,22 @@ internal fun DayCell(
                 event.type == KeyEventType.KeyDown &&
                     DayKeyContext(
                         day = day,
-                        position = GridPosition(row = row, col = col, rowCount = rowCount, isRtl = isRtl),
+                        position =
+                            GridPosition(
+                                row = row,
+                                col = col,
+                                rowCount = rowCount,
+                                colCount = colCount,
+                                isRtl = isRtl,
+                            ),
                         keyboard = keyboard,
                         focusManager = focusManager,
                         rowFocusRequesters = rowFocusRequesters,
                         selectionState = selectionState,
+                        visibleDaysOfWeek = visibleDaysOfWeek,
                     ).handle(event)
             },
+        propagateMinConstraints = true,
     ) { dayContent(day) }
     LaunchedEffect(keyboard.pendingFocus.value) {
         if (acceptsPendingFocus && keyboard.pendingFocus.value == day.date) {
@@ -258,6 +331,7 @@ private class GridPosition(
     val row: Int,
     val col: Int,
     val rowCount: Int,
+    val colCount: Int,
     val isRtl: Boolean,
 )
 
@@ -269,6 +343,7 @@ private class DayKeyContext(
     val focusManager: FocusManager,
     val rowFocusRequesters: List<FocusRequester>,
     val selectionState: CalendarSelectionState?,
+    val visibleDaysOfWeek: Set<DayOfWeek>,
 )
 
 /** Handles one key-down on a day cell; returns true when the event is consumed. */
@@ -279,13 +354,20 @@ private fun DayKeyContext.handle(event: KeyEvent): Boolean =
         else -> moveByArrow(event)
     }
 
-/** PageUp/PageDown: one month (or one year) back/forward, keeping the day of month where it exists. */
+/** PageUp/PageDown: one month (or one year) back/forward, keeping a visible day near the day of month. */
 private fun DayKeyContext.pageByPeriod(
     forward: Boolean,
     byYear: Boolean,
 ): Boolean {
     val unit = if (byYear) DateTimeUnit.YEAR else DateTimeUnit.MONTH
-    keyboard.page(if (forward) day.date.plus(1, unit) else day.date.minus(1, unit))
+    val rawTarget = if (forward) day.date.plus(1, unit) else day.date.minus(1, unit)
+    val target =
+        if (rawTarget.dayOfWeek in visibleDaysOfWeek) {
+            rawTarget
+        } else {
+            stepToVisibleDate(rawTarget, if (forward) 1 else -1, visibleDaysOfWeek)
+        }
+    keyboard.page(target)
     return true
 }
 
@@ -304,7 +386,12 @@ private fun DayKeyContext.focusRowEdge(start: Boolean): Boolean {
 private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     val days = position.arrowDays(event.key) ?: return false
     val atEdge = position.isAtEdge(days)
-    val target = day.date.plus(days, DateTimeUnit.DAY)
+    val target =
+        if (days == 1 || days == -1) {
+            stepToVisibleDate(day.date, days, visibleDaysOfWeek)
+        } else {
+            day.date.plus(days, DateTimeUnit.DAY)
+        }
     val rangeState = selectionState?.takeIf { event.isShiftPressed && it.mode is SelectionMode.Range }
     rangeState?.extendRange(anchor = rangeAnchor(rangeState, day.date), target = target)
     return when {
@@ -325,6 +412,20 @@ private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     }
 }
 
+private fun stepToVisibleDate(
+    from: LocalDate,
+    direction: Int,
+    visibleDaysOfWeek: Set<DayOfWeek>,
+): LocalDate {
+    for (step in 1..DAYS_PER_WEEK) {
+        val candidate = from.plus(step * direction, DateTimeUnit.DAY)
+        if (candidate.dayOfWeek in visibleDaysOfWeek) {
+            return candidate
+        }
+    }
+    return from.plus(direction, DateTimeUnit.DAY)
+}
+
 /** Day offset of an arrow [key] (RTL swaps the horizontal keys), or null for other keys. */
 private fun GridPosition.arrowDays(key: Key): Int? {
     val towardNext = if (isRtl) Key.DirectionLeft else Key.DirectionRight
@@ -341,8 +442,8 @@ private fun GridPosition.arrowDays(key: Key): Int? {
 /** True when moving by [days] (±1 or ±7) leaves this page's grid. */
 private fun GridPosition.isAtEdge(days: Int): Boolean =
     when (days) {
-        1 -> col == DAYS_PER_WEEK - 1
-        -1 -> col == 0
+        1 -> col >= colCount - 1
+        -1 -> col <= 0
         -DAYS_PER_WEEK -> row == 0
         else -> row == rowCount - 1
     }

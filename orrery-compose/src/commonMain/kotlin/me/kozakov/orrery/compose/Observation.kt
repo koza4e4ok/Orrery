@@ -16,6 +16,12 @@ public fun WeekCalendarState.visibleWeeks(): Flow<CalendarWeek> =
         firstVisibleWeek
     }.distinctUntilChanged()
 
+/** Emits the visible page of week rows, deduplicated; collect outside composition. */
+public fun WeekCalendarState.visiblePages(): Flow<List<CalendarWeek>> =
+    snapshotFlow {
+        firstVisibleWeeks
+    }.distinctUntilChanged()
+
 /** Emits every selection change, deduplicated; collect outside composition. */
 public fun CalendarSelectionState.selectionChanges(): Flow<Selection> =
     snapshotFlow {

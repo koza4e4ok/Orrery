@@ -4,6 +4,27 @@
 
 ### Added
 
+- Two-week (`visibleWeeksCount = 1..4`) mode, `visibleDaysOfWeek` work-week
+  filter and `CalendarRowHeight` (`WrapContent`, `Fixed`, `FillViewport`) (#82).
+  `orrery-core` adds `daysOfWeek(firstDayOfWeek, visibleDaysOfWeek)`,
+  `monthGrid(..., visibleDaysOfWeek)` (dropping week rows that have zero
+  in-month days after filtering unless `OutDateStyle.EndOfGrid`),
+  `weekGrid(..., visibleDaysOfWeek)`, `multiWeekGrid(anchor, weeksCount, ...)`
+  and multi-week `CalendarPages` helpers. `orrery-compose` adds additive
+  overloads on `rememberWeekCalendarState`, `WeekCalendar`,
+  `rememberCalendarState`, `HorizontalCalendar` and `VerticalCalendar`, plus
+  `CalendarDefaults.DaysOfWeekHeader` and `WeekCalendarState.visiblePages()`.
+- Schedule view power features (#85). `orrery-core`: `EventOverlapMode`
+  (`SideBySide`, `Stacked(laneIndentFraction = 0.15f)`), a
+  `layoutDaySchedule(date, events, minDurationMinutes, minHour, maxHour,
+  overlapMode)` overload that clips timed events to the visible
+  `minHour:00..maxHour:00` window and can cascade overlapping events, and
+  `packAllDayBanners` / `AllDayBanner` to lay out multi-day all-day events
+  across day columns. `orrery-compose`: `ScheduleState.minHour` /
+  `maxHour` (new `rememberScheduleState(..., minHour, maxHour)` overload),
+  `ScheduleState.scrollToHour` / `animateScrollToHour` /
+  `scrollToCurrentTime`, and `DaySchedule` / `WeekSchedule` overloads with
+  an `overlapMode` parameter. Existing signatures are unchanged.
 - Multi-day event title banners (#81). `packWeekEventBanners(weekDates, events,
   maxVisibleLanes = 3)` in `orrery-core` packs the events overlapping a week row
   into greedy lanes (earlier start, then longer span, then title, then id) and
@@ -20,6 +41,13 @@
   `HorizontalCalendar` and `VerticalCalendar` (#81). They come as new
   overloads; the existing signatures are unchanged. Long-press drag selection
   keeps hitting the right day when overlays or footers make week rows uneven.
+
+### Changed
+
+- The `DaySchedule` / `WeekSchedule` all-day header shows each multi-day
+  all-day event as one banner spanning the days it covers on the page instead
+  of a separate chip per day; the "+N" overflow now counts hidden banners per
+  column (#85).
 
 ## [0.8.0] - 2026-10-28
 

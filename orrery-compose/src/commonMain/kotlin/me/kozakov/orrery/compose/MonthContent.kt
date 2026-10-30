@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -68,6 +70,7 @@ internal fun MonthContent(
     monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
 ) {
     val haptics = LocalHapticFeedback.current
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     // Week rows stop being uniform once overlays or footers add height, so drag
     // hit-testing then looks rows up by their measured tops.
     val unevenRows = weekOverlay != null || weekFooter != null
@@ -77,7 +80,7 @@ internal fun MonthContent(
         Column(
             Modifier.then(
                 if (dragSelection != null && dragSelection.supportsDrag) {
-                    Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, unevenRows) {
+                    Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, unevenRows, isRtl) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
 
                         fun dayAt(offset: Offset): CalendarDay? {
@@ -91,7 +94,8 @@ internal fun MonthContent(
                                 } else {
                                     (offset.y / rowHeight).toInt().coerceIn(0, rows - 1)
                                 }
-                            val col = ((offset.x - leading) / colWidth).toInt().coerceIn(0, 6)
+                            val rawX = if (isRtl) size.width - leading - offset.x else offset.x - leading
+                            val col = (rawX / colWidth).toInt().coerceIn(0, 6)
                             return month.weeks[row].days[col]
                         }
 

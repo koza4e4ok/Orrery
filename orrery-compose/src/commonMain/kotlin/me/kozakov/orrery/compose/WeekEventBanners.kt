@@ -242,8 +242,7 @@ private fun <T> BannerChip(
                     } else {
                         Modifier
                     },
-                )
-                .padding(horizontal = BannerTextPadding),
+                ).padding(horizontal = BannerTextPadding),
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(

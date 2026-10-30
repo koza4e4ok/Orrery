@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+### Added
+
+- Hospitality / booking range endpoints in `orrery-compose` (#83).
+  `CalendarDayShapes.rangeEndpointStyle` takes a `RangeEndpointStyle`:
+  `FullCell` (the default, unchanged rendering), `SplitHorizontal` (the range
+  start fills the PM half facing the next day, the range end the AM half facing
+  the previous day) or `SplitDiagonal` (bottom-right / top-left triangles), in
+  `inRangeContainerColor` so a stay reads as one band; halves mirror in RTL.
+  `CalendarDefaults.hospitalityStyle(...)` is a preset (`SplitDiagonal` by
+  default). A new `DefaultDay(day, style, turnoverDates, ...)` overload draws
+  both halves with a 2.dp gap on turnover days (check-out AM + check-in PM in
+  one cell) and takes `calendarState` / `outDateClickPolicy`.
+- `OutDateClickPolicy` (`Ignore`, `SelectOnly`, `SelectAndScrollToMonth`) and
+  `CalendarSelectionState.onDayClick(day, calendarState, outDateClickPolicy,
+  coroutineScope)`: taps on in-dates / out-dates can be ignored, only select, or
+  select and animate the calendar to the date's month (#83).
+- `SelectionMode.Single(allowClear)` in `orrery-core` (#83). `allowClear = true`
+  lets a tap on the selected day clear the selection; the default `false` keeps
+  the 0.8.0 behavior, where the selected day stays selected. The 2-argument
+  constructor and `copy` stay as hidden binary-compatibility bridges.
+
 ## [0.8.0] - 2026-10-28
 
 ### Added

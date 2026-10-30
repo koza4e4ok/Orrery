@@ -28,6 +28,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
@@ -63,6 +65,7 @@ import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DayPosition
+import kotlin.math.sqrt
 
 /**
  * Batteries-included day cell: selection fill, in-range band, today
@@ -138,6 +141,8 @@ public fun DefaultDay(
         showSecondaryLabel = true,
         cellBorderWidth = 0.dp,
         cellBorderColor = Color.Transparent,
+        turnoverDates = emptySet(),
+        dayClick = null,
     )
 }
 
@@ -189,9 +194,87 @@ public fun DefaultDay(
         showSecondaryLabel = style.density.showSecondaryLabel,
         cellBorderWidth = style.cellBorderWidth,
         cellBorderColor = style.cellBorderColor,
+        turnoverDates = emptySet(),
+        dayClick = null,
     )
 }
 
+/**
+ * [DefaultDay] rendered with a [CalendarStyle] for hospitality / booking
+ * calendars, such as [CalendarDefaults.hospitalityStyle].
+ *
+ * [turnoverDates] are the days where one stay checks out in the morning
+ * and the next checks in in the afternoon. With a split
+ * [CalendarDayShapes.rangeEndpointStyle] ([RangeEndpointStyle.SplitHorizontal]
+ * or [RangeEndpointStyle.SplitDiagonal]) these cells fill both the AM and
+ * the PM half with a 2.dp gap between them; [RangeEndpointStyle.FullCell]
+ * ignores them. Pass an empty set when there are none.
+ *
+ * Taps on [CalendarDay]s outside the rendered month (InDate / OutDate)
+ * follow [outDateClickPolicy] through [CalendarSelectionState.onDayClick]:
+ * [OutDateClickPolicy.Ignore] does nothing, [OutDateClickPolicy.SelectOnly]
+ * selects the date, and [OutDateClickPolicy.SelectAndScrollToMonth] also
+ * animates [calendarState] to the date's month (it only selects when
+ * [calendarState] is null). [onClick] runs only for taps that were not
+ * ignored. All other parameters behave like the other `style` overload.
+ */
+@Composable
+public fun DefaultDay(
+    day: CalendarDay,
+    style: CalendarStyle,
+    turnoverDates: Set<LocalDate>,
+    modifier: Modifier = Modifier,
+    selectionState: CalendarSelectionState? = null,
+    calendarState: CalendarState? = null,
+    outDateClickPolicy: OutDateClickPolicy = OutDateClickPolicy.SelectOnly,
+    today: LocalDate = currentDate(),
+    info: DayInfo? = null,
+    enabled: Boolean = true,
+    showOutDates: Boolean = true,
+    animateSelection: Boolean = true,
+    hapticsEnabled: Boolean = true,
+    decorators: List<DayDecorator> = emptyList(),
+    strings: CalendarDayStrings = CalendarDefaults.dayStrings(),
+    onClick: ((CalendarDay) -> Unit)? = null,
+) {
+    val scope = rememberCoroutineScope()
+    DefaultDayContent(
+        day = day,
+        modifier = modifier,
+        selectionState = selectionState,
+        today = today,
+        colors = style.colors,
+        shapes = style.shapes,
+        info = info,
+        enabled = enabled,
+        showOutDates = showOutDates,
+        animateSelection = animateSelection,
+        selectedElevation = style.selectedElevation,
+        hapticsEnabled = hapticsEnabled,
+        decorators = decorators,
+        strings = strings,
+        onClick = onClick,
+        minCellHeight = style.density.minCellHeight,
+        showSecondaryLabel = style.density.showSecondaryLabel,
+        cellBorderWidth = style.cellBorderWidth,
+        cellBorderColor = style.cellBorderColor,
+        turnoverDates = turnoverDates,
+        dayClick = { clicked ->
+            if (selectionState == null) {
+                clicked.position == DayPosition.MonthDate ||
+                    outDateClickPolicy != OutDateClickPolicy.Ignore
+            } else {
+                selectionState.handleDayClick(clicked, calendarState, outDateClickPolicy, scope)
+            }
+        },
+    )
+}
+
+/**
+ * Shared body of the [DefaultDay] overloads. [dayClick] replaces the plain
+ * [CalendarSelectionState.click] when set and returns whether the tap was
+ * handled; [onClick] and haptics run only for handled taps.
+ */
 @Composable
 private fun DefaultDayContent(
     day: CalendarDay,
@@ -213,6 +296,8 @@ private fun DefaultDayContent(
     showSecondaryLabel: Boolean,
     cellBorderWidth: Dp,
     cellBorderColor: Color,
+    turnoverDates: Set<LocalDate>,
+    dayClick: ((CalendarDay) -> Boolean)?,
 ) {
     val hidden = !showOutDates && day.position != DayPosition.MonthDate
     if (hidden) {
@@ -225,11 +310,17 @@ private fun DefaultDayContent(
     val isInRange = selectionState?.isInRange(day.date) == true
     val isRangeStart = selectionState?.isRangeStart(day.date) == true
     val isRangeEnd = selectionState?.isRangeEnd(day.date) == true
+    val endpointStyle = shapes.rangeEndpointStyle
+    val split = endpointStyle != RangeEndpointStyle.FullCell
+    val isTurnover = split && day.date in turnoverDates
+    // Split styles draw range endpoints as half-cell fills instead of selectedShape.
+    val splitEndpoint = split && (isRangeStart || isRangeEnd)
+    val showSelectedShape = isSelected && !splitEndpoint
     val indicator = shapes.todayIndicator
     val label = info?.label?.takeIf { showSecondaryLabel }
     val showCellBorder = cellBorderWidth > 0.dp
     val selectedScale by animateFloatAsState(
-        targetValue = if (isSelected) 1f else 0f,
+        targetValue = if (showSelectedShape) 1f else 0f,
         animationSpec =
             if (animateSelection) {
                 spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow)
@@ -243,17 +334,29 @@ private fun DefaultDayContent(
     // range end only the start half, so switching modes or clearing the
     // range fades each half instead of snapping.
     val bandStartAlpha by animateFloatAsState(
-        targetValue = if (isInRange || isRangeEnd) 1f else 0f,
+        targetValue = if (isInRange || (isRangeEnd && !split)) 1f else 0f,
         animationSpec = if (animateSelection) tween(durationMillis = 200) else snap(),
         label = "dayRangeBandStart",
     )
     val bandEndAlpha by animateFloatAsState(
-        targetValue = if (isInRange || isRangeStart) 1f else 0f,
+        targetValue = if (isInRange || (isRangeStart && !split)) 1f else 0f,
         animationSpec = if (animateSelection) tween(durationMillis = 200) else snap(),
         label = "dayRangeBandEnd",
     )
+    // Split endpoints: the AM half (check-out, toward the previous day) and
+    // the PM half (check-in, toward the next day) fade like the band halves.
+    val amHalfAlpha by animateFloatAsState(
+        targetValue = if (split && (isRangeEnd || isTurnover)) 1f else 0f,
+        animationSpec = if (animateSelection) tween(durationMillis = 200) else snap(),
+        label = "dayCheckOutHalf",
+    )
+    val pmHalfAlpha by animateFloatAsState(
+        targetValue = if (split && (isRangeStart || isTurnover)) 1f else 0f,
+        animationSpec = if (animateSelection) tween(durationMillis = 200) else snap(),
+        label = "dayCheckInHalf",
+    )
     val elevation by animateDpAsState(
-        targetValue = if (isSelected) selectedElevation else 0.dp,
+        targetValue = if (showSelectedShape) selectedElevation else 0.dp,
         animationSpec = if (animateSelection) spring(stiffness = Spring.StiffnessMediumLow) else snap(),
         label = "dayElevation",
     )
@@ -280,6 +383,7 @@ private fun DefaultDayContent(
     val contentColor =
         when {
             !available -> colors.unavailableContentColor
+            splitEndpoint || isTurnover -> colors.inRangeContentColor
             isSelected -> colors.selectedContentColor
             isInRange -> colors.inRangeContentColor
             day.position != DayPosition.MonthDate -> colors.outDateContentColor
@@ -301,6 +405,15 @@ private fun DefaultDayContent(
                     if (shapes.inRangeShape == RectangleShape) {
                         drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor)
                     }
+                    if (split) {
+                        drawSplitEndpoint(
+                            style = endpointStyle,
+                            amAlpha = amHalfAlpha,
+                            pmAlpha = pmHalfAlpha,
+                            gap = if (isTurnover) TurnoverGap.toPx() else 0f,
+                            color = colors.inRangeContainerColor,
+                        )
+                    }
                 }.selectable(
                     selected = isSelected,
                     enabled = available,
@@ -309,9 +422,17 @@ private fun DefaultDayContent(
                     role = Role.Button,
                     indication = null,
                     onClick = {
-                        if (hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                        selectionState?.click(day.date)
-                        onClick?.invoke(day)
+                        val handled =
+                            if (dayClick != null) {
+                                dayClick(day)
+                            } else {
+                                selectionState?.click(day.date)
+                                true
+                            }
+                        if (handled) {
+                            if (hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                            onClick?.invoke(day)
+                        }
                     },
                 ).semantics {
                     contentDescription = description
@@ -386,6 +507,7 @@ private fun DefaultDayContent(
                 val resolvedLabelColor =
                     when {
                         !available -> colors.unavailableContentColor
+                        splitEndpoint || isTurnover -> colors.inRangeContentColor
                         isSelected -> colors.selectedContentColor
                         colorArgb != null -> Color(colorArgb)
                         info.isHoliday -> colors.holidayLabelColor
@@ -517,6 +639,73 @@ private fun DrawScope.drawRangeBand(
         else -> {
             half(center, size.width, startAlpha)
             half(0f, center, endAlpha)
+        }
+    }
+}
+
+/** Gap between the check-out (AM) and check-in (PM) halves of a turnover day. */
+private val TurnoverGap = 2.dp
+
+/**
+ * Draws the split range endpoint halves in the same vertically centered
+ * strip as the range band: [amAlpha] fills the check-out half facing the
+ * previous day and [pmAlpha] the check-in half facing the next day (left
+ * and right in LTR, mirrored in RTL). [RangeEndpointStyle.SplitHorizontal]
+ * splits at the vertical center line, [RangeEndpointStyle.SplitDiagonal]
+ * along the bottom-left to top-right diagonal (top-left triangle = AM,
+ * bottom-right = PM). A positive [gap] keeps that much space between the
+ * halves, measured perpendicular to the split line.
+ */
+private fun DrawScope.drawSplitEndpoint(
+    style: RangeEndpointStyle,
+    amAlpha: Float,
+    pmAlpha: Float,
+    gap: Float,
+    color: Color,
+) {
+    if (amAlpha <= 0f && pmAlpha <= 0f) return
+    val w = size.width
+    val h = size.minDimension
+    val top = (size.height - h) / 2f
+    val ltr = layoutDirection == LayoutDirection.Ltr
+
+    // x in LTR terms (0 = edge toward the previous day), mirrored in RTL.
+    fun x(value: Float): Float = if (ltr) value else w - value
+
+    fun fill(
+        alpha: Float,
+        vararg points: Offset,
+    ) {
+        if (alpha <= 0f) return
+        val path =
+            Path().apply {
+                moveTo(x(points[0].x), top + points[0].y)
+                for (i in 1 until points.size) lineTo(x(points[i].x), top + points[i].y)
+                close()
+            }
+        drawPath(path, color.copy(alpha = color.alpha * alpha.coerceIn(0f, 1f)))
+    }
+
+    when (style) {
+        RangeEndpointStyle.FullCell -> {
+            Unit
+        }
+
+        RangeEndpointStyle.SplitHorizontal -> {
+            val half = gap / 2f
+            val center = w / 2f
+            fill(amAlpha, Offset(0f, 0f), Offset(center - half, 0f), Offset(center - half, h), Offset(0f, h))
+            fill(pmAlpha, Offset(center + half, 0f), Offset(w, 0f), Offset(w, h), Offset(center + half, h))
+        }
+
+        RangeEndpointStyle.SplitDiagonal -> {
+            // The diagonal is x / w + y / h = 1; moving it by d (perpendicular)
+            // shifts the right-hand side by d * sqrt(1 / w² + 1 / h²).
+            val shift = (gap / 2f) * sqrt(1f / (w * w) + 1f / (h * h))
+            val am = 1f - shift
+            val pm = shift
+            fill(amAlpha, Offset(0f, 0f), Offset(am * w, 0f), Offset(0f, am * h))
+            fill(pmAlpha, Offset(w, pm * h), Offset(w, h), Offset(pm * w, h))
         }
     }
 }

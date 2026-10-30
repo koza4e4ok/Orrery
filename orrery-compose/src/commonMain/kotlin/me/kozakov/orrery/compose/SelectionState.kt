@@ -10,13 +10,33 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
 import kotlinx.datetime.daysUntil
+import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.DisabledDates
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionEngine
 import me.kozakov.orrery.core.SelectionEvent
 import me.kozakov.orrery.core.SelectionMode
+
+/**
+ * What a tap on a day outside the rendered month ([DayPosition.InDate] or
+ * [DayPosition.OutDate]) does in [CalendarSelectionState.onDayClick].
+ */
+public enum class OutDateClickPolicy {
+    /** The tap is ignored: the selection and the visible month stay as they are. */
+    Ignore,
+
+    /** The date is selected like any other day; the visible month stays (the default). */
+    SelectOnly,
+
+    /** The date is selected and the calendar animates to the date's month. */
+    SelectAndScrollToMonth,
+}
 
 /** Snapshot-state wrapper around the core [SelectionEngine]. */
 @Stable
@@ -51,6 +71,46 @@ public class CalendarSelectionState internal constructor(
         val result = SelectionEngine(mode, bounds, disabled).click(selection, date)
         selection = result.selection
         result.events.forEach(onEvent)
+    }
+
+    /**
+     * Handles a tap on [day] in a month calendar, following
+     * [outDateClickPolicy] for days outside the rendered month
+     * ([DayPosition.InDate] / [DayPosition.OutDate]); days of the month are
+     * always passed to [click].
+     *
+     * With [OutDateClickPolicy.SelectAndScrollToMonth] the date is selected
+     * and [calendarState] animates to `YearMonth(day.date.year, day.date.month)`
+     * in [coroutineScope] (usually `rememberCoroutineScope()`); without a
+     * [coroutineScope] it only selects. Returns false when the tap was
+     * ignored, true otherwise (also when the click was rejected as disabled
+     * or out of range and reported through the event callback).
+     */
+    public fun onDayClick(
+        day: CalendarDay,
+        calendarState: CalendarState,
+        outDateClickPolicy: OutDateClickPolicy = OutDateClickPolicy.SelectOnly,
+        coroutineScope: CoroutineScope? = null,
+    ): Boolean = handleDayClick(day, calendarState, outDateClickPolicy, coroutineScope)
+
+    internal fun handleDayClick(
+        day: CalendarDay,
+        calendarState: CalendarState?,
+        outDateClickPolicy: OutDateClickPolicy,
+        coroutineScope: CoroutineScope?,
+    ): Boolean {
+        val outside = day.position != DayPosition.MonthDate
+        if (outside && outDateClickPolicy == OutDateClickPolicy.Ignore) return false
+        click(day.date)
+        if (outside &&
+            outDateClickPolicy == OutDateClickPolicy.SelectAndScrollToMonth &&
+            calendarState != null &&
+            coroutineScope != null
+        ) {
+            val month = YearMonth(day.date.year, day.date.month)
+            coroutineScope.launch { calendarState.animateScrollToMonth(month) }
+        }
+        return true
     }
 
     public fun clear() {

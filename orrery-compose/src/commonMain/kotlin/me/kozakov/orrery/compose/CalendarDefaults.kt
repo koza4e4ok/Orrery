@@ -93,6 +93,11 @@ public class CalendarDayColors(
  *
  * [focusedBorderWidth] is the stroke width of the focus ring drawn
  * around [dayShape] while the day has keyboard / D-pad focus.
+ *
+ * [rangeEndpointStyle] picks how the endpoints of a completed range are
+ * drawn: [RangeEndpointStyle.FullCell] (the default) fills them with
+ * [selectedShape]; the split styles fill only the check-in (PM) or
+ * check-out (AM) half of the cell for hospitality calendars.
  */
 @Immutable
 public class CalendarDayShapes(
@@ -101,7 +106,17 @@ public class CalendarDayShapes(
     public val inRangeShape: Shape,
     public val todayIndicator: TodayIndicator,
     public val focusedBorderWidth: Dp = 2.dp,
+    public val rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
 ) {
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dayShape: Shape,
+        selectedShape: Shape,
+        inRangeShape: Shape,
+        todayIndicator: TodayIndicator,
+        focusedBorderWidth: Dp = 2.dp,
+    ) : this(dayShape, selectedShape, inRangeShape, todayIndicator, focusedBorderWidth, RangeEndpointStyle.FullCell)
+
     @Deprecated("Kept for binary compatibility; use the primary constructor.", level = DeprecationLevel.HIDDEN)
     public constructor(
         dayShape: Shape,
@@ -227,7 +242,26 @@ public object CalendarDefaults {
         inRangeShape: Shape = RectangleShape,
         todayIndicator: TodayIndicator = TodayIndicator.Ring(),
         focusedBorderWidth: Dp = 2.dp,
-    ): CalendarDayShapes = CalendarDayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, focusedBorderWidth)
+        rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
+    ): CalendarDayShapes =
+        CalendarDayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, focusedBorderWidth, rangeEndpointStyle)
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun dayShapes(
+        dayShape: Shape = CircleShape,
+        selectedShape: Shape = CircleShape,
+        inRangeShape: Shape = RectangleShape,
+        todayIndicator: TodayIndicator = TodayIndicator.Ring(),
+        focusedBorderWidth: Dp = 2.dp,
+    ): CalendarDayShapes =
+        dayShapes(
+            dayShape,
+            selectedShape,
+            inRangeShape,
+            todayIndicator,
+            focusedBorderWidth,
+            RangeEndpointStyle.FullCell,
+        )
 
     @Deprecated(
         "Kept for binary compatibility; use the overload with focusedBorderWidth.",
@@ -238,7 +272,8 @@ public object CalendarDefaults {
         selectedShape: Shape = CircleShape,
         inRangeShape: Shape = RectangleShape,
         todayIndicator: TodayIndicator = TodayIndicator.Ring(),
-    ): CalendarDayShapes = dayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, 2.dp)
+    ): CalendarDayShapes =
+        dayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, 2.dp, RangeEndpointStyle.FullCell)
 
     /**
      * Default Material 3 [CalendarStyle]: circle day and selection shapes
@@ -317,6 +352,28 @@ public object CalendarDefaults {
             selectedElevation = selectedElevation,
         )
     }
+
+    /**
+     * Hospitality / booking [CalendarStyle]: a continuous range band whose
+     * endpoints use the split [rangeEndpointStyle] ([RangeEndpointStyle.SplitDiagonal]
+     * by default), so check-in (PM) and check-out (AM) days fill only their
+     * half of the cell. Pass the dates where one stay checks out and the
+     * next checks in as `turnoverDates` to the matching [DefaultDay]
+     * overload to draw both halves. Pair it with
+     * `SelectionMode.Range` and, for a booking flow that must always
+     * keep a date, `SelectionMode.Single(allowClear = false)`.
+     */
+    @Composable
+    public fun hospitalityStyle(
+        rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.SplitDiagonal,
+        density: CalendarDensity = CalendarDensity.Comfortable,
+        colors: CalendarDayColors = dayColors(),
+    ): CalendarStyle =
+        CalendarStyle(
+            colors = colors,
+            shapes = dayShapes(inRangeShape = RectangleShape, rangeEndpointStyle = rangeEndpointStyle),
+            density = density,
+        )
 
     /**
      * Builds [CalendarDayStrings]. Defaults are resolved from the current

@@ -362,7 +362,8 @@ private val SETTLE_VELOCITY_THRESHOLD = 125.dp
 
 private fun CalendarWeek.startDate(): LocalDate = days.first().date
 
-private fun CalendarWeek.touches(month: YearMonth): Boolean = days.any { YearMonth(it.date.year, it.date.month) == month }
+private fun CalendarWeek.touches(month: YearMonth): Boolean =
+    days.any { YearMonth(it.date.year, it.date.month) == month }
 
 @Composable
 private fun CollapsibleCalendarScaffoldImpl(

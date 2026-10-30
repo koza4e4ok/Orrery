@@ -236,7 +236,13 @@ class CollapsibleGestureScrollSourceTest {
             WeekCalendar(
                 state = weekState,
                 modifier = Modifier.width(350.dp).testTag("week"),
-                dayContent = { day -> Text(day.date.day.toString()) },
+                weekHeader = null,
+                dayContent = { day ->
+                    Text(
+                        text = day.date.day.toString(),
+                        modifier = Modifier.height(48.dp).testTag("w-${day.date}"),
+                    )
+                },
             )
         }
         rule.waitForIdle()
@@ -246,7 +252,7 @@ class CollapsibleGestureScrollSourceTest {
         rule.waitForIdle()
         assertEquals(ScrollSource.Programmatic, weekState.lastScrollSource)
 
-        rule.onNodeWithTag("week").performTouchInput {
+        rule.onNodeWithTag("w-2026-07-15").performTouchInput {
             swipe(center, center + Offset(-150.dp.toPx(), 0f), durationMillis = 300)
         }
         rule.waitForIdle()

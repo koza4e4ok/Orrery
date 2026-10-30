@@ -30,7 +30,7 @@ public class SelectionEngine(
         }
         return when (mode) {
             SelectionMode.None -> SelectionResult(current, emptyList())
-            is SelectionMode.Single -> SelectionResult(current.copy(single = date), emptyList())
+            is SelectionMode.Single -> clickSingle(mode, current, date)
             is SelectionMode.Multi -> clickMulti(mode, current, date)
             is SelectionMode.Range -> clickRange(mode, current, date)
             is SelectionMode.Week -> clickPeriod(mode.allowClear, current, date, weekOf(date, mode))
@@ -144,6 +144,17 @@ public class SelectionEngine(
             null
         }
     }
+
+    private fun clickSingle(
+        mode: SelectionMode.Single,
+        current: Selection,
+        date: LocalDate,
+    ): SelectionResult =
+        if (mode.allowClear && current.single == date) {
+            SelectionResult(current.copy(single = null), emptyList())
+        } else {
+            SelectionResult(current.copy(single = date), emptyList())
+        }
 
     private fun clickMulti(
         mode: SelectionMode.Multi,

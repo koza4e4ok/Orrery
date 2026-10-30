@@ -28,6 +28,32 @@ public enum class CalendarDensity(
 }
 
 /**
+ * How [DefaultDay] draws the start and end of a completed multi-day range,
+ * set through [CalendarDayShapes.rangeEndpointStyle].
+ *
+ * The split styles model hotel and rental stays, where guests check in in
+ * the afternoon (PM) and check out in the morning (AM): the range start
+ * fills only the half of the cell facing the next day and the range end
+ * only the half facing the previous day, both in
+ * [CalendarDayColors.inRangeContainerColor] so the stay reads as one
+ * continuous band. On a turnover day (passed to the [DefaultDay] overload
+ * with `turnoverDates`), one stay checks out in the morning and the next
+ * checks in in the afternoon, so both halves are filled with a 2.dp gap
+ * between them. Halves follow the layout direction: in RTL the range start
+ * fills the left half.
+ */
+public enum class RangeEndpointStyle {
+    /** Range endpoints are filled with [CalendarDayShapes.selectedShape] (the default). */
+    FullCell,
+
+    /** The range start fills the right (PM) half and the range end the left (AM) half. */
+    SplitHorizontal,
+
+    /** The range start fills the bottom-right triangle and the range end the top-left triangle. */
+    SplitDiagonal,
+}
+
+/**
  * A coordinated look for [DefaultDay]: [colors], [shapes] and [density]
  * plus an optional cell border and selected-day elevation.
  *
@@ -36,9 +62,9 @@ public enum class CalendarDensity(
  * [selectedElevation] draws a shadow under the selected day's fill.
  *
  * Build one with [CalendarDefaults.style] or a curated preset such as
- * [CalendarDefaults.roundedSquareStyle], [CalendarDefaults.segmentedRangeStyle]
- * or [CalendarDefaults.borderedCardStyle], and pass it to the [DefaultDay]
- * overload that takes a `style`.
+ * [CalendarDefaults.roundedSquareStyle], [CalendarDefaults.segmentedRangeStyle],
+ * [CalendarDefaults.borderedCardStyle] or [CalendarDefaults.hospitalityStyle],
+ * and pass it to the [DefaultDay] overload that takes a `style`.
  */
 @Immutable
 public class CalendarStyle(

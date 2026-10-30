@@ -239,7 +239,10 @@ sealed interface me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.cor
 
     final class Single : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.Single|null[0]
         constructor <init>(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ...) // me.kozakov.orrery.core/SelectionMode.Single.<init>|<init>(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay){}[0]
+        constructor <init>(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ..., kotlin/Boolean = ...) // me.kozakov.orrery.core/SelectionMode.Single.<init>|<init>(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay;kotlin.Boolean){}[0]
 
+        final val allowClear // me.kozakov.orrery.core/SelectionMode.Single.allowClear|{}allowClear[0]
+            final fun <get-allowClear>(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.allowClear.<get-allowClear>|<get-allowClear>(){}[0]
         final val autoAdvance // me.kozakov.orrery.core/SelectionMode.Single.autoAdvance|{}autoAdvance[0]
             final fun <get-autoAdvance>(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.autoAdvance.<get-autoAdvance>|<get-autoAdvance>(){}[0]
         final val autoSelectDay // me.kozakov.orrery.core/SelectionMode.Single.autoSelectDay|{}autoSelectDay[0]
@@ -247,7 +250,9 @@ sealed interface me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.cor
 
         final fun component1(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.component1|component1(){}[0]
         final fun component2(): me.kozakov.orrery.core/AutoSelectDay // me.kozakov.orrery.core/SelectionMode.Single.component2|component2(){}[0]
+        final fun component3(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.component3|component3(){}[0]
         final fun copy(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ...): me.kozakov.orrery.core/SelectionMode.Single // me.kozakov.orrery.core/SelectionMode.Single.copy|copy(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay){}[0]
+        final fun copy(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ..., kotlin/Boolean = ...): me.kozakov.orrery.core/SelectionMode.Single // me.kozakov.orrery.core/SelectionMode.Single.copy|copy(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay;kotlin.Boolean){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.Single.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // me.kozakov.orrery.core/SelectionMode.Single.toString|toString(){}[0]

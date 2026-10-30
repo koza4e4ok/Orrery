@@ -11,11 +11,30 @@ public sealed interface SelectionMode {
      * "default" mode where paging months auto-selects a day (see
      * [autoSelectDay]); false reproduces the original "single" mode where
      * selection changes only on click.
+     *
+     * [allowClear] = true lets a tap on the already-selected day clear the
+     * selection back to [Selection.Empty]. With false (the default, and the
+     * behavior of every release before it existed) the selected day stays
+     * selected, so the selection never becomes empty through taps: use it
+     * for pickers and booking flows that always need a date.
      */
     public data class Single(
         val autoAdvance: Boolean = false,
         val autoSelectDay: AutoSelectDay = AutoSelectDay.FirstDayOfMonth,
-    ) : SelectionMode
+        val allowClear: Boolean = false,
+    ) : SelectionMode {
+        @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+        public constructor(
+            autoAdvance: Boolean = false,
+            autoSelectDay: AutoSelectDay = AutoSelectDay.FirstDayOfMonth,
+        ) : this(autoAdvance, autoSelectDay, false)
+
+        @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+        public fun copy(
+            autoAdvance: Boolean = this.autoAdvance,
+            autoSelectDay: AutoSelectDay = this.autoSelectDay,
+        ): Single = Single(autoAdvance, autoSelectDay, allowClear)
+    }
 
     /**
      * Start/end range. Day counts are inclusive: a range of one day has

@@ -67,9 +67,12 @@ public final class me/kozakov/orrery/compose/CalendarDayShapes {
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;)V
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FLme/kozakov/orrery/compose/RangeEndpointStyle;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FLme/kozakov/orrery/compose/RangeEndpointStyle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getDayShape ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getFocusedBorderWidth-D9Ej5fM ()F
 	public final fun getInRangeShape ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getRangeEndpointStyle ()Lme/kozakov/orrery/compose/RangeEndpointStyle;
 	public final fun getSelectedShape ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getTodayIndicator ()Lme/kozakov/orrery/compose/TodayIndicator;
 }
@@ -96,9 +99,12 @@ public final class me/kozakov/orrery/compose/CalendarDefaults {
 	public final synthetic fun dayColors-kwJvTHA (JJJJJJJJJJJJJLandroidx/compose/runtime/Composer;III)Lme/kozakov/orrery/compose/CalendarDayColors;
 	public final synthetic fun dayShapes (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;)Lme/kozakov/orrery/compose/CalendarDayShapes;
 	public static synthetic fun dayShapes$default (Lme/kozakov/orrery/compose/CalendarDefaults;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;ILjava/lang/Object;)Lme/kozakov/orrery/compose/CalendarDayShapes;
-	public final fun dayShapes-M2VBTUQ (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;F)Lme/kozakov/orrery/compose/CalendarDayShapes;
+	public final synthetic fun dayShapes-M2VBTUQ (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;F)Lme/kozakov/orrery/compose/CalendarDayShapes;
 	public static synthetic fun dayShapes-M2VBTUQ$default (Lme/kozakov/orrery/compose/CalendarDefaults;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FILjava/lang/Object;)Lme/kozakov/orrery/compose/CalendarDayShapes;
+	public final fun dayShapes-Z4HSEVQ (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FLme/kozakov/orrery/compose/RangeEndpointStyle;)Lme/kozakov/orrery/compose/CalendarDayShapes;
+	public static synthetic fun dayShapes-Z4HSEVQ$default (Lme/kozakov/orrery/compose/CalendarDefaults;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lme/kozakov/orrery/compose/TodayIndicator;FLme/kozakov/orrery/compose/RangeEndpointStyle;ILjava/lang/Object;)Lme/kozakov/orrery/compose/CalendarDayShapes;
 	public final fun dayStrings (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarDayStrings;
+	public final fun hospitalityStyle (Lme/kozakov/orrery/compose/RangeEndpointStyle;Lme/kozakov/orrery/compose/CalendarDensity;Lme/kozakov/orrery/compose/CalendarDayColors;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarStyle;
 	public final fun roundedSquareStyle-Kz89ssw (FLme/kozakov/orrery/compose/CalendarDensity;Lme/kozakov/orrery/compose/CalendarDayColors;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarStyle;
 	public final fun segmentedRangeStyle-Kz89ssw (FLme/kozakov/orrery/compose/CalendarDensity;Lme/kozakov/orrery/compose/CalendarDayColors;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarStyle;
 	public final fun style-7BrvoEM (Lme/kozakov/orrery/compose/CalendarDensity;Lme/kozakov/orrery/compose/CalendarDayColors;Lme/kozakov/orrery/compose/CalendarDayShapes;FJFLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarStyle;
@@ -167,6 +173,8 @@ public final class me/kozakov/orrery/compose/CalendarSelectionState {
 	public final fun isRangeEnd (Lkotlinx/datetime/LocalDate;)Z
 	public final fun isRangeStart (Lkotlinx/datetime/LocalDate;)Z
 	public final fun isSelected (Lkotlinx/datetime/LocalDate;)Z
+	public final fun onDayClick (Lme/kozakov/orrery/core/CalendarDay;Lme/kozakov/orrery/compose/CalendarState;Lme/kozakov/orrery/compose/OutDateClickPolicy;Lkotlinx/coroutines/CoroutineScope;)Z
+	public static synthetic fun onDayClick$default (Lme/kozakov/orrery/compose/CalendarSelectionState;Lme/kozakov/orrery/core/CalendarDay;Lme/kozakov/orrery/compose/CalendarState;Lme/kozakov/orrery/compose/OutDateClickPolicy;Lkotlinx/coroutines/CoroutineScope;ILjava/lang/Object;)Z
 	public final fun set (Lme/kozakov/orrery/core/Selection;)V
 }
 
@@ -425,6 +433,7 @@ public final class me/kozakov/orrery/compose/DecoratorLayer : java/lang/Enum {
 
 public final class me/kozakov/orrery/compose/DefaultDayKt {
 	public static final fun DefaultDay (Lme/kozakov/orrery/core/CalendarDay;Lme/kozakov/orrery/compose/CalendarStyle;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/CalendarSelectionState;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayInfo;ZZZZLjava/util/List;Lme/kozakov/orrery/compose/CalendarDayStrings;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
+	public static final fun DefaultDay (Lme/kozakov/orrery/core/CalendarDay;Lme/kozakov/orrery/compose/CalendarStyle;Ljava/util/Set;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/CalendarSelectionState;Lme/kozakov/orrery/compose/CalendarState;Lme/kozakov/orrery/compose/OutDateClickPolicy;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayInfo;ZZZZLjava/util/List;Lme/kozakov/orrery/compose/CalendarDayStrings;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
 	public static final fun DefaultDay-Vmd5ePE (Lme/kozakov/orrery/core/CalendarDay;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/CalendarSelectionState;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/compose/CalendarDayColors;Lme/kozakov/orrery/compose/CalendarDayShapes;Lme/kozakov/orrery/core/DayInfo;ZZZFZLjava/util/List;Lme/kozakov/orrery/compose/CalendarDayStrings;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
 }
 
@@ -556,6 +565,24 @@ public final class me/kozakov/orrery/compose/OrreryMonthPickerState {
 	public final fun getRange ()Lkotlin/ranges/ClosedRange;
 	public final fun getSelectedMonth ()Lkotlinx/datetime/YearMonth;
 	public final fun select (Lkotlinx/datetime/YearMonth;)V
+}
+
+public final class me/kozakov/orrery/compose/OutDateClickPolicy : java/lang/Enum {
+	public static final field Ignore Lme/kozakov/orrery/compose/OutDateClickPolicy;
+	public static final field SelectAndScrollToMonth Lme/kozakov/orrery/compose/OutDateClickPolicy;
+	public static final field SelectOnly Lme/kozakov/orrery/compose/OutDateClickPolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/compose/OutDateClickPolicy;
+	public static fun values ()[Lme/kozakov/orrery/compose/OutDateClickPolicy;
+}
+
+public final class me/kozakov/orrery/compose/RangeEndpointStyle : java/lang/Enum {
+	public static final field FullCell Lme/kozakov/orrery/compose/RangeEndpointStyle;
+	public static final field SplitDiagonal Lme/kozakov/orrery/compose/RangeEndpointStyle;
+	public static final field SplitHorizontal Lme/kozakov/orrery/compose/RangeEndpointStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/compose/RangeEndpointStyle;
+	public static fun values ()[Lme/kozakov/orrery/compose/RangeEndpointStyle;
 }
 
 public final class me/kozakov/orrery/compose/ScheduleColors {

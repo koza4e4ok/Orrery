@@ -1,13 +1,20 @@
 package me.kozakov.orrery.sample
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -29,11 +37,16 @@ import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import me.kozakov.orrery.compose.Agenda
+import me.kozakov.orrery.compose.CalendarDefaults
 import me.kozakov.orrery.compose.CalendarNavHeader
+import me.kozakov.orrery.compose.CollapsibleCalendarAnchor
 import me.kozakov.orrery.compose.CollapsibleCalendarScaffold
+import me.kozakov.orrery.compose.CollapsibleDragHandle
 import me.kozakov.orrery.compose.DayDecorators
 import me.kozakov.orrery.compose.DaySchedule
 import me.kozakov.orrery.compose.DefaultDay
+import me.kozakov.orrery.compose.HorizontalCalendar
+import me.kozakov.orrery.compose.WeekEventBanners
 import me.kozakov.orrery.compose.WeekSchedule
 import me.kozakov.orrery.compose.YearCalendar
 import me.kozakov.orrery.compose.currentDate
@@ -44,6 +57,9 @@ import me.kozakov.orrery.compose.rememberCollapsibleCalendarState
 import me.kozakov.orrery.compose.rememberScheduleState
 import me.kozakov.orrery.compose.rememberWeekCalendarState
 import me.kozakov.orrery.compose.rememberYearCalendarState
+import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.DayPosition
+import me.kozakov.orrery.core.EventOverlapMode
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionMode
 import me.kozakov.orrery.lunar.LunarDayInfoProvider
@@ -52,20 +68,28 @@ import me.kozakov.orrery.lunar.LunarDayInfoProvider
 private enum class AgendaMode(
     val label: String,
 ) {
-    List("Agenda List"),
-    Day("Day Grid"),
-    Week("Week Grid"),
+    List("Agenda"),
+    Month("Month"),
+    Day("Day"),
+    Week("Week"),
 }
 
+/** Working hours shown by the [DaySchedule] / [WeekSchedule] time grids. */
+private const val WORK_DAY_START_HOUR = 7
+private const val WORK_DAY_END_HOUR = 22
+
 /**
- * Personal agenda: collapsible calendar with spanning event bars, event dots, count badges,
- * and synchronized [Agenda], or the same events in a [DaySchedule] / [WeekSchedule] time grid.
+ * Personal agenda: a collapsible calendar (Month / TwoWeeks / Week stops, direct drag and a
+ * grab handle) with event dots, count badges and a synchronized [Agenda]; a month grid with
+ * multi-day [WeekEventBanners]; or the same events in a [DaySchedule] / [WeekSchedule] time
+ * grid limited to working hours, with side-by-side or stacked overlapping events.
  */
 @Composable
 internal fun AgendaScreen() {
     val today = remember { currentDate() }
     var mode by rememberSaveable { mutableStateOf(AgendaMode.List) }
     var showYearOverview by rememberSaveable { mutableStateOf(false) }
+    var stackedOverlap by rememberSaveable { mutableStateOf(false) }
     var now by remember { mutableStateOf(systemTimeOfDay()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -93,8 +117,15 @@ internal fun AgendaScreen() {
             startDate = rangeStart,
             endDate = rangeEnd,
             firstVisibleDate = today,
+            minHour = WORK_DAY_START_HOUR,
+            maxHour = WORK_DAY_END_HOUR,
         )
-    val collapsible = rememberCollapsibleCalendarState()
+    val overlapMode = if (stackedOverlap) EventOverlapMode.Stacked() else EventOverlapMode.SideBySide
+    val collapsible =
+        rememberCollapsibleCalendarState(
+            initialAnchor = CollapsibleCalendarAnchor.Month,
+            enableTwoWeekStop = true,
+        )
     val selection =
         rememberCalendarSelectionState(
             mode = SelectionMode.Single(),
@@ -102,6 +133,7 @@ internal fun AgendaScreen() {
         )
     val scope = rememberCoroutineScope()
     val events = remember(rangeStart, rangeEnd) { SampleData.eventsFor(rangeStart..rangeEnd) }
+    val bannerEvents = remember(events) { events.values.flatten().distinctBy { it.id } }
     val lunarProvider = remember { LunarDayInfoProvider() }
     val decorators =
         listOf(
@@ -116,7 +148,7 @@ internal fun AgendaScreen() {
     // The month header has no calendar under it in the time-grid modes; keep it on the paged-to date.
     val scheduleDate = scheduleState.firstVisibleDate
     LaunchedEffect(mode, scheduleDate) {
-        if (mode != AgendaMode.List) calendarState.animateScrollToDate(scheduleDate)
+        if (mode == AgendaMode.Day || mode == AgendaMode.Week) calendarState.animateScrollToDate(scheduleDate)
     }
 
     val dayEventsCount = events[selectedDay].orEmpty().size
@@ -156,6 +188,24 @@ internal fun AgendaScreen() {
                 )
             }
         }
+        if (!showYearOverview && (mode == AgendaMode.Day || mode == AgendaMode.Week)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FilterChip(
+                    selected = stackedOverlap,
+                    onClick = { stackedOverlap = !stackedOverlap },
+                    label = { Text("Stacked overlap") },
+                )
+                Text(
+                    "Working hours $WORK_DAY_START_HOUR:00–$WORK_DAY_END_HOUR:00",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
         HorizontalDivider()
         if (showYearOverview) {
             YearCalendar(
@@ -182,6 +232,7 @@ internal fun AgendaScreen() {
                         today = today,
                         currentTime = now,
                         modifier = Modifier.fillMaxSize(),
+                        overlapMode = overlapMode,
                     )
 
                 AgendaMode.Week ->
@@ -191,6 +242,34 @@ internal fun AgendaScreen() {
                         today = today,
                         currentTime = now,
                         modifier = Modifier.fillMaxSize(),
+                        overlapMode = overlapMode,
+                    )
+
+                // Multi-day events as Google Calendar-style title banners over each week row.
+                AgendaMode.Month ->
+                    HorizontalCalendar(
+                        state = calendarState,
+                        modifier = Modifier.fillMaxWidth(),
+                        weekOverlay = { week ->
+                            WeekEventBanners(
+                                week = week,
+                                events = bannerEvents,
+                                maxVisibleLanes = 3,
+                                onEventClick = { event -> selection.set(Selection(single = event.span.startDate)) },
+                                onOverflowClick = { date, _ ->
+                                    selection.set(Selection(single = date))
+                                    mode = AgendaMode.List
+                                },
+                            )
+                        },
+                        dayContent = { day ->
+                            BannerDayNumber(
+                                day = day,
+                                selected = day.date == selectedDay,
+                                isToday = day.date == today,
+                                onClick = { selection.set(Selection(single = day.date)) },
+                            )
+                        },
                     )
 
                 AgendaMode.List ->
@@ -198,6 +277,8 @@ internal fun AgendaScreen() {
                         calendarState = calendarState,
                         weekState = weekState,
                         state = collapsible,
+                        enableDirectDrag = true,
+                        dragHandle = { CalendarDefaults.CollapsibleDragHandle() },
                         dayContent = { day ->
                             DefaultDay(
                                 day = day,
@@ -215,6 +296,38 @@ internal fun AgendaScreen() {
                         )
                     }
             }
+        }
+    }
+}
+
+/** A compact day number that leaves room below it for the [WeekEventBanners] lanes. */
+@Composable
+private fun BannerDayNumber(
+    day: CalendarDay,
+    selected: Boolean,
+    isToday: Boolean,
+    onClick: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    val background =
+        when {
+            selected -> colors.primary
+            isToday -> colors.primaryContainer
+            else -> Color.Transparent
+        }
+    val content =
+        when {
+            selected -> colors.onPrimary
+            day.position != DayPosition.MonthDate -> colors.onSurfaceVariant.copy(alpha = 0.5f)
+            isToday -> colors.onPrimaryContainer
+            else -> colors.onSurface
+        }
+    Box(
+        Modifier.fillMaxWidth().height(24.dp).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(Modifier.size(22.dp).background(background, CircleShape), contentAlignment = Alignment.Center) {
+            Text("${day.date.day}", style = MaterialTheme.typography.labelMedium, color = content)
         }
     }
 }

@@ -1,5 +1,6 @@
 package me.kozakov.orrery.sample
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -38,14 +40,17 @@ import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.compose.CalendarDefaults
+import me.kozakov.orrery.compose.CalendarStyle
 import me.kozakov.orrery.compose.DayDecorators
 import me.kozakov.orrery.compose.DefaultDay
+import me.kozakov.orrery.compose.RangeEndpointStyle
 import me.kozakov.orrery.compose.VerticalCalendar
 import me.kozakov.orrery.compose.currentDate
 import me.kozakov.orrery.compose.rememberCalendarSelectionState
 import me.kozakov.orrery.compose.rememberCalendarState
 import me.kozakov.orrery.core.CalendarPages
 import me.kozakov.orrery.core.DayInfo
+import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionEvent
 import me.kozakov.orrery.core.SelectionMode
 import me.kozakov.orrery.core.SelectionPresets
@@ -64,7 +69,20 @@ private enum class StayMode(
     Month("Month", SelectionMode.Month()),
 }
 
-/** Hotel-booking flow: drag-select a stay (or a week/month), nightly prices, blackout dates. */
+/** How check-in / check-out days are drawn: whole cells, or PM / AM halves. */
+private enum class EndpointOption(
+    val label: String,
+    val style: RangeEndpointStyle,
+) {
+    Diagonal("Diagonal", RangeEndpointStyle.SplitDiagonal),
+    Split("Split", RangeEndpointStyle.SplitHorizontal),
+    Full("Full cell", RangeEndpointStyle.FullCell),
+}
+
+/**
+ * Hotel-booking flow: drag-select a stay (or a week/month), nightly prices, blackout dates,
+ * and hospitality range endpoints (check-in PM half, check-out AM half, turnover days).
+ */
 @Composable
 internal fun TripsScreen() {
     val today = remember { currentDate() }
@@ -72,6 +90,7 @@ internal fun TripsScreen() {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var stayMode by rememberSaveable { mutableStateOf(StayMode.Range) }
+    var endpointOption by rememberSaveable { mutableStateOf(EndpointOption.Diagonal) }
     val selection =
         rememberCalendarSelectionState(
             mode = stayMode.mode,
@@ -86,11 +105,24 @@ internal fun TripsScreen() {
                 scope.launch { snackbar.showSnackbar(message) }
             },
         )
-    val shapes =
-        CalendarDefaults.dayShapes(
-            dayShape = RoundedCornerShape(12.dp),
-            selectedShape = RoundedCornerShape(12.dp),
-        )
+    val dayStyle =
+        if (endpointOption.style == RangeEndpointStyle.FullCell) {
+            CalendarStyle(
+                colors = CalendarDefaults.dayColors(),
+                shapes =
+                    CalendarDefaults.dayShapes(
+                        dayShape = RoundedCornerShape(12.dp),
+                        selectedShape = RoundedCornerShape(12.dp),
+                    ),
+            )
+        } else {
+            CalendarDefaults.hospitalityStyle(rangeEndpointStyle = endpointOption.style)
+        }
+    // Back-to-back bookings: one guest checks out in the morning, the next checks in after noon.
+    val turnoverDates =
+        remember(today) {
+            setOf(today.plus(20, DateTimeUnit.DAY), today.plus(27, DateTimeUnit.DAY))
+        }
     val startMonth = remember(today) { YearMonth(today.year, today.month) }
     val calendarState =
         rememberCalendarState(
@@ -182,10 +214,29 @@ internal fun TripsScreen() {
                     onClick = { selection.set(SelectionPresets.nextDays(today, 7)) },
                     label = { Text("Next 7 days") },
                 )
-                if (selection.selection != me.kozakov.orrery.core.Selection.Empty) {
+                if (selection.selection != Selection.Empty) {
                     AssistChip(
                         onClick = { selection.clear() },
                         label = { Text("Clear") },
+                    )
+                }
+            }
+            Row(
+                Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "Check-in/out",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                EndpointOption.entries.forEach { option ->
+                    FilterChip(
+                        selected = option == endpointOption,
+                        onClick = { endpointOption = option },
+                        label = { Text(option.label) },
+                        modifier = Modifier.testTag("endpoint_style_${option.name.lowercase()}"),
                     )
                 }
             }
@@ -198,9 +249,10 @@ internal fun TripsScreen() {
                 dayContent = { day ->
                     DefaultDay(
                         day = day,
+                        style = dayStyle,
+                        turnoverDates = turnoverDates,
                         selectionState = selection,
                         today = today,
-                        shapes = shapes,
                         showOutDates = false,
                         decorators = listOf(previewDecorator),
                         info =

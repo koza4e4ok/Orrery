@@ -65,6 +65,7 @@ internal fun MonthContent(
     visibleDaysOfWeek: Set<DayOfWeek> = ALL_DAYS_OF_WEEK_SET,
 ) {
     val haptics = LocalHapticFeedback.current
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Column(modifier) {
         monthHeader?.invoke(this, month)
         val gridWeightModifier =
@@ -76,7 +77,7 @@ internal fun MonthContent(
         Column(
             gridWeightModifier.then(
                 if (dragSelection != null && dragSelection.supportsDrag) {
-                    Modifier.pointerInput(month, weekNumber != null, hapticsEnabled) {
+                    Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, isRtl) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
 
                         fun dayAt(offset: Offset): CalendarDay? {
@@ -88,7 +89,8 @@ internal fun MonthContent(
                             val cols = weekDays.size
                             if (cols == 0) return null
                             val colWidth = (size.width - leading) / cols.toFloat()
-                            val col = ((offset.x - leading) / colWidth).toInt().coerceIn(0, cols - 1)
+                            val rawX = if (isRtl) size.width - leading - offset.x else offset.x - leading
+                            val col = (rawX / colWidth).toInt().coerceIn(0, cols - 1)
                             return weekDays[col]
                         }
 
@@ -145,7 +147,13 @@ internal fun MonthContent(
                             }
                         }
                     }
-                Row(rowModifier, verticalAlignment = Alignment.CenterVertically) {
+                val rowAlignment =
+                    if (rowHeight == CalendarRowHeight.WrapContent) {
+                        Alignment.Top
+                    } else {
+                        Alignment.CenterVertically
+                    }
+                Row(rowModifier, verticalAlignment = rowAlignment) {
                     if (weekNumber != null) {
                         Box(Modifier.width(WeekNumberColumnWidth), contentAlignment = Alignment.Center) {
                             weekNumber(week)

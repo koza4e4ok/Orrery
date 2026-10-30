@@ -20,16 +20,6 @@ jobs:
       # orrery-compose runs its desktop and wasmJs (headless Chrome) tests explicitly.
       # testDebugUnitTest / verifyRoborazziDebug are aliases for the Android-KMP
       # host-test tasks (testAndroidHostTest / verifyRoborazziAndroidHostTest).
-      # TEMPORARY (#85): regenerate Roborazzi goldens; reverted before merge.
-      - name: Regenerate screenshots
-        run: ./gradlew :orrery-compose:recordRoborazziDebug --continue
-      - name: Upload regenerated screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: regen-85
-          path: orrery-compose/src/androidHostTest/snapshots/
-          if-no-files-found: ignore
       - name: Lint, ABI check, tests, screenshots, sample build
         run: >
           ./gradlew ktlintCheck detekt checkKotlinAbi

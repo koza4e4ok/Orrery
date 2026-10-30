@@ -120,19 +120,58 @@ public class WeekCalendarState internal constructor(
             visibleDaysOfWeek = daysFilter,
         )
 
+    private var programmaticScrolls: Int by mutableIntStateOf(0)
+
+    /** Week index the last programmatic scroll (or the initial state) left visible. */
+    private var anchorIndex: Int by mutableIntStateOf(listState.firstVisibleItemIndex)
+    private var anchorSource: ScrollSource by mutableStateOf(ScrollSource.Initial)
+
+    /**
+     * What brought [firstVisibleWeek] into view: [ScrollSource.Initial] until
+     * anything scrolls, [ScrollSource.Programmatic] during and after
+     * [scrollToDate]/[animateScrollToDate], [ScrollSource.UserDrag] while the
+     * user drags or flings the strip and after such a gesture settles on another
+     * week. Snapshot-observable.
+     */
+    public val lastScrollSource: ScrollSource
+        get() {
+            if (programmaticScrolls > 0) return ScrollSource.Programmatic
+            if (listState.isScrollInProgress) return ScrollSource.UserDrag
+            val visible = listState.firstVisibleItemIndex
+            val clampedAtEnd = visible < anchorIndex && !listState.canScrollForward
+            return if (visible != anchorIndex && !clampedAtEnd) ScrollSource.UserDrag else anchorSource
+        }
+
+    private suspend fun programmaticScroll(
+        target: Int,
+        block: suspend () -> Unit,
+    ) {
+        anchorIndex = target
+        anchorSource = ScrollSource.Programmatic
+        programmaticScrolls++
+        try {
+            block()
+        } finally {
+            programmaticScrolls--
+        }
+    }
+
     public suspend fun scrollToDate(date: LocalDate) {
-        listState.scrollToItem(indexOf(date))
+        val target = indexOf(date)
+        programmaticScroll(target) { listState.scrollToItem(target) }
     }
 
     public suspend fun animateScrollToDate(date: LocalDate) {
         val target = indexOf(date)
-        val current = listState.firstVisibleItemIndex
-        val farJumpPages = (FAR_JUMP_WEEKS / visibleWeeksCount).coerceAtLeast(1)
-        if (abs(target - current) > farJumpPages) {
-            val approach = if (target > current) target - 2 else target + 2
-            listState.scrollToItem(approach.coerceIn(0, weekCount - 1))
+        programmaticScroll(target) {
+            val current = listState.firstVisibleItemIndex
+            val farJumpPages = (FAR_JUMP_WEEKS / visibleWeeksCount).coerceAtLeast(1)
+            if (abs(target - current) > farJumpPages) {
+                val approach = if (target > current) target - 2 else target + 2
+                listState.scrollToItem(approach.coerceIn(0, weekCount - 1))
+            }
+            listState.animateScrollToItem(target)
         }
-        listState.animateScrollToItem(target)
     }
 
     private fun indexOf(date: LocalDate): Int =

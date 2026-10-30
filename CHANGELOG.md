@@ -25,6 +25,25 @@
   `ScheduleState.scrollToHour` / `animateScrollToHour` /
   `scrollToCurrentTime`, and `DaySchedule` / `WeekSchedule` overloads with
   an `overlapMode` parameter. Existing signatures are unchanged.
+- Direct drag and a Month / TwoWeeks / Week morph on `CollapsibleCalendarScaffold`
+  in `orrery-compose` (#84). A new overload adds `enableDirectDrag` (default
+  `true`: vertical drags on the week header and calendar grid collapse and
+  expand it even when `content` does not scroll) and an optional `dragHandle`
+  slot, with `CalendarDefaults.CollapsibleDragHandle()` as a Material 3 grab bar;
+  the existing signature also gets direct drag. `CollapsibleCalendarAnchor`
+  (`Week` 0f, `TwoWeeks` 0.35f, `Month` 1f) names the snap stops,
+  `rememberCollapsibleCalendarState(initialAnchor, enableTwoWeekStop)` and
+  `rememberCollapsibleCalendarState(initialExpanded, enableTwoWeekStop)` turn on
+  the two-row stop, and `CollapsibleCalendarState` gains `currentAnchor`,
+  `enableTwoWeekStop` and `animateTo(anchor)`. Releases settle on the next stop
+  in the fling direction or the nearest one. The collapsing grid keeps the week
+  strip's row in view, and the scaffold keeps `weekState` and `calendarState`
+  in sync, so paging weeks while collapsed moves the month along.
+- `ScrollSource` (`Initial`, `UserDrag`, `Programmatic`) and
+  `lastScrollSource` on `CalendarState`, `WeekCalendarState` and
+  `YearCalendarState`, plus `CalendarState.visibleMonthChanges()` and
+  `WeekCalendarState.visibleWeekChanges()` flows emitting `VisibleMonthChange` /
+  `VisibleWeekChange` with the source of each change (#84).
 - Multi-day event title banners (#81). `packWeekEventBanners(weekDates, events,
   maxVisibleLanes = 3)` in `orrery-core` packs the events overlapping a week row
   into greedy lanes (earlier start, then longer span, then title, then id) and

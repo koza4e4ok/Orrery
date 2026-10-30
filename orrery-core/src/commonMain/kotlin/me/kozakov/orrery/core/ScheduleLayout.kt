@@ -306,20 +306,23 @@ public fun <T> packAllDayBanners(
     val placed = mutableListOf<AllDayBanner<T>>()
     val seen = HashSet<String>()
     for (event in events) {
-        if (event.span !is EventSpan.AllDay || !seen.add(event.id)) continue
-        val first = dates.indexOfFirst { event.occursOn(it) }
-        if (first < 0) continue
-        val last = dates.indexOfLast { event.occursOn(it) }
-        placed.add(
-            AllDayBanner(
-                event = event,
-                startColumn = first,
-                endColumnInclusive = last,
-                laneIndex = 0,
-                clippedStart = event.span.startDate < dates[first],
-                clippedEnd = event.span.endDate > dates[last],
-            ),
-        )
+        val span = event.span
+        if (span is EventSpan.AllDay && seen.add(event.id)) {
+            val first = dates.indexOfFirst { event.occursOn(it) }
+            if (first >= 0) {
+                val last = dates.indexOfLast { event.occursOn(it) }
+                placed.add(
+                    AllDayBanner(
+                        event = event,
+                        startColumn = first,
+                        endColumnInclusive = last,
+                        laneIndex = 0,
+                        clippedStart = span.startDate < dates[first],
+                        clippedEnd = span.endDate > dates[last],
+                    ),
+                )
+            }
+        }
     }
     placed.sortWith(
         compareBy<AllDayBanner<T>>(

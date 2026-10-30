@@ -1,9 +1,7 @@
 package me.kozakov.orrery.demo
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -15,8 +13,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -26,6 +22,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,188 +34,208 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
-import me.kozakov.orrery.compose.Agenda
-import me.kozakov.orrery.compose.CalendarNavHeader
+import me.kozakov.orrery.compose.AgendaState
+import me.kozakov.orrery.compose.CalendarDensity
+import me.kozakov.orrery.compose.CalendarSelectionState
+import me.kozakov.orrery.compose.CalendarState
+import me.kozakov.orrery.compose.CollapsibleCalendarAnchor
+import me.kozakov.orrery.compose.CollapsibleCalendarState
 import me.kozakov.orrery.compose.DatePickerDefaults
-import me.kozakov.orrery.compose.DayDecorators
-import me.kozakov.orrery.compose.DaySchedule
-import me.kozakov.orrery.compose.DefaultDay
-import me.kozakov.orrery.compose.HorizontalCalendar
 import me.kozakov.orrery.compose.OrreryDateRangePickerDialog
-import me.kozakov.orrery.compose.WeekSchedule
+import me.kozakov.orrery.compose.OrreryDateRangePickerState
+import me.kozakov.orrery.compose.RangeEndpointStyle
+import me.kozakov.orrery.compose.ScheduleState
+import me.kozakov.orrery.compose.WeekCalendarState
 import me.kozakov.orrery.compose.currentDate
 import me.kozakov.orrery.compose.rememberAgendaState
 import me.kozakov.orrery.compose.rememberCalendarSelectionState
 import me.kozakov.orrery.compose.rememberCalendarState
+import me.kozakov.orrery.compose.rememberCollapsibleCalendarState
 import me.kozakov.orrery.compose.rememberOrreryDateRangePickerState
 import me.kozakov.orrery.compose.rememberScheduleState
+import me.kozakov.orrery.compose.rememberWeekCalendarState
 import me.kozakov.orrery.core.CalendarEvent
-import me.kozakov.orrery.core.DayInfo
-import me.kozakov.orrery.core.DayInfoPriority
-import me.kozakov.orrery.core.DayInfoProvider
-import me.kozakov.orrery.core.EventSpan
+import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionMode
 import me.kozakov.orrery.core.eventsByDate
-import me.kozakov.orrery.holidays.PublicHolidayDayInfoProvider
-import me.kozakov.orrery.holidays.PublicHolidays
 
-private val Today = currentDate()
-private val Now = jsMinutesNow().let { LocalTime(it / 60, it % 60) }
-
-private const val WORK = 0xFF64B5F6L
-private const val PERSONAL = 0xFFE57373L
-private const val HEALTH = 0xFF81C784L
-private const val MONEY = 0xFF26A69AL
-
-private fun jsMinutesNow(): Int = js("{ const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }")
-
-private enum class Tab(
+internal enum class DemoTab(
     val label: String,
     val color: Color,
 ) {
     Month("Month", Color(0xFF5C6BC0)),
     Agenda("Agenda", Color(0xFF64B5F6)),
     Schedule("Schedule", Color(0xFF81C784)),
-    Pickers("Pickers", Color(0xFFFF8A65)),
+    Stays("Stays", Color(0xFFFFB74D)),
+    Styles("Styles", Color(0xFFE57373)),
 }
 
-private val demoEvents: Map<LocalDate, List<CalendarEvent<Nothing>>> = buildDemoEvents()
-
-private fun buildDemoEvents(): Map<LocalDate, List<CalendarEvent<Nothing>>> {
-    val range = Today.minus(60, DateTimeUnit.DAY)..Today.plus(60, DateTimeUnit.DAY)
-    val events = mutableListOf<CalendarEvent<Nothing>>()
-    for (offset in -60..60) {
-        val date = Today.plus(offset, DateTimeUnit.DAY)
-
-        fun timed(
-            id: String,
-            startMinutes: Int,
-            durationMinutes: Int,
-            title: String,
-            subtitle: String?,
-            color: Long,
-        ) {
-            val end = startMinutes + durationMinutes
-            events +=
-                CalendarEvent<Nothing>(
-                    id = "$date-$id",
-                    title = title,
-                    span =
-                        EventSpan.Timed(
-                            start = LocalDateTime(date, LocalTime(startMinutes / 60, startMinutes % 60)),
-                            end = LocalDateTime(date, LocalTime(end / 60, end % 60)),
-                        ),
-                    subtitle = subtitle,
-                    colorArgb = color,
-                )
-        }
-        val weekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
-        if (!weekend) timed("standup", 9 * 60 + 30, 30, "Team standup", null, WORK)
-        when (((offset % 4) + 4) % 4) {
-            0 -> {
-                timed("run", 7 * 60, 45, "Morning run", "Riverside park", HEALTH)
-                timed("review", 9 * 60 + 45, 90, "Design review", "Room 302", WORK)
-                timed("lunch", 12 * 60 + 30, 60, "Lunch with Sam", null, PERSONAL)
-            }
-
-            1 -> {
-                timed("dentist", 14 * 60, 60, "Dentist", null, HEALTH)
-                timed("book", 19 * 60 + 30, 90, "Book club", null, PERSONAL)
-            }
-
-            2 -> {
-                events +=
-                    CalendarEvent<Nothing>(
-                        id = "$date-offsite",
-                        title = "Sprint planning",
-                        span = EventSpan.AllDay(startDate = date),
-                        colorArgb = WORK,
-                    )
-                timed("oneonone", 11 * 60, 45, "1:1 with manager", null, WORK)
-                timed("gym", 18 * 60, 60, "Gym", null, HEALTH)
-            }
-
-            else -> {
-                Unit
-            }
-        }
-    }
-    return events.eventsByDate(range)
+/** How check-in / check-out days are drawn on the Stays tab. */
+internal enum class EndpointOption(
+    val label: String,
+    val style: RangeEndpointStyle,
+) {
+    Diagonal("Diagonal", RangeEndpointStyle.SplitDiagonal),
+    Split("Split", RangeEndpointStyle.SplitHorizontal),
+    Full("Full cell", RangeEndpointStyle.FullCell),
 }
 
-private val holidays = PublicHolidayDayInfoProvider(checkNotNull(PublicHolidays.forCountry("US")))
+/** The curated [CalendarStyle] presets shown on the Styles tab. */
+internal enum class StylePreset(
+    val label: String,
+) {
+    Default("Default"),
+    Rounded("Rounded"),
+    Segmented("Segmented"),
+    Bordered("Bordered"),
+}
 
-private val paydays =
-    object : DayInfoProvider {
-        override fun info(date: LocalDate): DayInfo? =
-            if (date.day == 1 || date.day == 15) {
-                DayInfo(label = "Payday", priority = DayInfoPriority.SECONDARY, colorArgb = MONEY)
-            } else {
-                null
-            }
-    }
+/**
+ * Screen state of [DemoApp], hoisted so the tabs keep their state while switching and a
+ * scripted tour (used to record the README GIFs) can drive the demo.
+ */
+@Stable
+@Suppress("LongParameterList")
+internal class DemoUiState(
+    val today: LocalDate,
+    val monthState: CalendarState,
+    val agendaMonthState: CalendarState,
+    val agendaWeekState: WeekCalendarState,
+    val collapsible: CollapsibleCalendarState,
+    val agendaSelection: CalendarSelectionState,
+    val agendaState: AgendaState,
+    val scheduleState: ScheduleState,
+    val staysState: CalendarState,
+    val staysSelection: CalendarSelectionState,
+    val stripState: WeekCalendarState,
+    val stylesState: CalendarState,
+    val stylesSelection: CalendarSelectionState,
+    val pickerState: OrreryDateRangePickerState,
+) {
+    var tab: DemoTab by mutableStateOf(DemoTab.Month)
+    var selectedDay: LocalDate by mutableStateOf(today)
+    var weekMode: Boolean by mutableStateOf(false)
+    var stackedOverlap: Boolean by mutableStateOf(false)
+    var endpoint: EndpointOption by mutableStateOf(EndpointOption.Diagonal)
+    var preset: StylePreset by mutableStateOf(StylePreset.Rounded)
+    var density: CalendarDensity by mutableStateOf(CalendarDensity.Comfortable)
+    var workWeekOnly: Boolean by mutableStateOf(false)
+    var showPicker: Boolean by mutableStateOf(false)
 
-private val dayInfo = holidays + paydays
+    /** Back-to-back bookings on the Stays tab: one guest checks out, the next checks in. */
+    val turnoverDates: Set<LocalDate> =
+        setOf(today.plus(10, DateTimeUnit.DAY), today.plus(17, DateTimeUnit.DAY))
+}
 
-/** Interactive tour of Orrery: month calendar, agenda, day/week schedule and range picker. */
 @Composable
-public fun DemoApp(platform: String) {
+private fun rememberDemoUiState(today: LocalDate): DemoUiState {
+    val month = YearMonth(today.year, today.month)
+    val staysStart = today.plus(7, DateTimeUnit.DAY)
+    val monthState = rememberCalendarState(firstVisibleMonth = month)
+    val agendaMonthState = rememberCalendarState(firstVisibleMonth = month)
+    val agendaWeekState =
+        rememberWeekCalendarState(
+            startDate = today.minus(DATA_DAYS, DateTimeUnit.DAY),
+            endDate = today.plus(DATA_DAYS, DateTimeUnit.DAY),
+            firstVisibleDate = today,
+        )
+    val collapsible =
+        rememberCollapsibleCalendarState(
+            initialAnchor = CollapsibleCalendarAnchor.Month,
+            enableTwoWeekStop = true,
+        )
+    val agendaSelection =
+        rememberCalendarSelectionState(mode = SelectionMode.Single(), initialSelection = Selection(single = today))
+    val agendaState =
+        rememberAgendaState(
+            startDate = today.minus(DATA_DAYS, DateTimeUnit.DAY),
+            endDate = today.plus(DATA_DAYS, DateTimeUnit.DAY),
+            initialVisibleDate = today,
+        )
+    val scheduleState =
+        rememberScheduleState(
+            startDate = today.minus(DATA_DAYS, DateTimeUnit.DAY),
+            endDate = today.plus(DATA_DAYS, DateTimeUnit.DAY),
+            firstVisibleDate = today,
+            initialScrollTime = LocalTime(WORK_DAY_START_HOUR, 0),
+            minHour = WORK_DAY_START_HOUR,
+            maxHour = WORK_DAY_END_HOUR,
+        )
+    val staysState = rememberCalendarState(firstVisibleMonth = YearMonth(staysStart.year, staysStart.month))
+    val staysSelection = rememberCalendarSelectionState(mode = SelectionMode.Range(minDays = 2))
+    val stripState =
+        rememberWeekCalendarState(firstVisibleDate = today.minus(7, DateTimeUnit.DAY), visibleWeeksCount = 2)
+    val stylesState = rememberCalendarState(firstVisibleMonth = month)
+    val stylesSelection =
+        rememberCalendarSelectionState(
+            mode = SelectionMode.Range(),
+            initialSelection =
+                Selection(rangeStart = today.plus(2, DateTimeUnit.DAY), rangeEnd = today.plus(6, DateTimeUnit.DAY)),
+        )
+    val pickerState = rememberOrreryDateRangePickerState(initialDisplayedMonth = month)
+    return remember {
+        DemoUiState(
+            today = today,
+            monthState = monthState,
+            agendaMonthState = agendaMonthState,
+            agendaWeekState = agendaWeekState,
+            collapsible = collapsible,
+            agendaSelection = agendaSelection,
+            agendaState = agendaState,
+            scheduleState = scheduleState,
+            staysState = staysState,
+            staysSelection = staysSelection,
+            stripState = stripState,
+            stylesState = stylesState,
+            stylesSelection = stylesSelection,
+            pickerState = pickerState,
+        )
+    }
+}
+
+/**
+ * Interactive tour of Orrery: a month grid with multi-day event banners, a collapsible
+ * Month / TwoWeeks / Week calendar over the agenda, a working-hours Day / Week schedule with
+ * stacked overlaps, hotel stays with split check-in / check-out days, and the style presets
+ * under a two-week strip with a Mon–Fri filter. [tour], when set, plays the demo on its own.
+ */
+@Composable
+internal fun DemoApp(
+    platform: String,
+    today: LocalDate = currentDate(),
+    now: LocalTime = LocalTime(12, 0),
+    tour: (suspend DemoUiState.() -> Unit)? = null,
+) {
     MaterialTheme(colorScheme = lightColorScheme()) {
-        var tab by remember { mutableStateOf(Tab.Month) }
-        var weekMode by remember { mutableStateOf(false) }
-        var showPicker by remember { mutableStateOf(false) }
-        var picked by remember { mutableStateOf<String?>(null) }
-        val calendarState = rememberCalendarState(firstVisibleMonth = YearMonth(Today.year, Today.month))
-        val selection = rememberCalendarSelectionState(mode = SelectionMode.Range())
-        val agendaState =
-            rememberAgendaState(
-                startDate = Today.minus(60, DateTimeUnit.DAY),
-                endDate = Today.plus(60, DateTimeUnit.DAY),
-                initialVisibleDate = Today,
-            )
-        val scheduleState =
-            rememberScheduleState(
-                startDate = Today.minus(60, DateTimeUnit.DAY),
-                endDate = Today.plus(60, DateTimeUnit.DAY),
-                firstVisibleDate = Today,
-                initialScrollTime = LocalTime(7, 0),
-            )
-        val pickerState = rememberOrreryDateRangePickerState(initialDisplayedMonth = YearMonth(Today.year, Today.month))
-        val presets = DatePickerDefaults.rangePresets(today = Today)
+        val ui = rememberDemoUiState(today)
+        val events = remember(today) { buildDemoEvents(today) }
+        val eventsByDate =
+            remember(events) {
+                events.eventsByDate(today.minus(DATA_DAYS, DateTimeUnit.DAY)..today.plus(DATA_DAYS, DateTimeUnit.DAY))
+            }
+        val eventsOn: (LocalDate) -> List<CalendarEvent<Nothing>> = { eventsByDate[it].orEmpty() }
+        LaunchedEffect(ui.workWeekOnly) {
+            val days = if (ui.workWeekOnly) WORK_WEEK else ALL_DAYS
+            ui.stripState.visibleDaysOfWeek = days
+            ui.stylesState.visibleDaysOfWeek = days
+        }
+        if (tour != null) {
+            LaunchedEffect(ui) { ui.tour() }
+        }
 
         Scaffold(
-            topBar = {
-                Surface(tonalElevation = 2.dp) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .windowInsetsPadding(
-                                WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-                            ).padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("Orrery", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Text(
-                            "  on $platform",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            },
+            topBar = { DemoTopBar(platform) },
             bottomBar = {
                 NavigationBar {
-                    Tab.entries.forEach { entry ->
+                    DemoTab.entries.forEach { entry ->
                         NavigationBarItem(
-                            selected = tab == entry,
-                            onClick = { tab = entry },
+                            selected = ui.tab == entry,
+                            onClick = { ui.tab = entry },
                             icon = { Box(Modifier.size(12.dp).background(entry.color, CircleShape)) },
                             label = { Text(entry.label) },
                         )
@@ -226,117 +244,62 @@ public fun DemoApp(platform: String) {
             },
         ) { padding ->
             Box(Modifier.fillMaxSize().padding(padding)) {
-                when (tab) {
-                    Tab.Month -> {
-                        val dots = DayDecorators.eventDotsForEvents(eventsByDate = { demoEvents[it].orEmpty() })
-                        Column(Modifier.fillMaxSize()) {
-                            CalendarNavHeader(state = calendarState)
-                            HorizontalCalendar(
-                                state = calendarState,
-                                dragSelection = selection,
-                                dayContent = { day ->
-                                    DefaultDay(
-                                        day = day,
-                                        selectionState = selection,
-                                        today = Today,
-                                        info = dayInfo.info(day.date),
-                                        decorators = listOf(dots),
-                                    )
-                                },
-                            )
-                            val range = selection.selection.range
-                            Card(Modifier.fillMaxWidth().padding(16.dp)) {
-                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Text("Trip", style = MaterialTheme.typography.titleMedium)
-                                    Text(
-                                        if (range ==
-                                            null
-                                        ) {
-                                            "Drag to select a range"
-                                        } else {
-                                            "${range.start} to ${range.endInclusive}"
-                                        },
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Tab.Agenda -> {
-                        Agenda(
-                            events = { demoEvents[it].orEmpty() },
-                            state = agendaState,
-                            today = Today,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-
-                    Tab.Schedule -> {
-                        Column(Modifier.fillMaxSize()) {
-                            Row(Modifier.fillMaxWidth()) {
-                                TextButton(onClick = { weekMode = false }) {
-                                    Text("Day", fontWeight = if (!weekMode) FontWeight.Bold else FontWeight.Normal)
-                                }
-                                TextButton(onClick = { weekMode = true }) {
-                                    Text("Week", fontWeight = if (weekMode) FontWeight.Bold else FontWeight.Normal)
-                                }
-                            }
-                            if (weekMode) {
-                                WeekSchedule(
-                                    events = { demoEvents[it].orEmpty() },
-                                    state = scheduleState,
-                                    today = Today,
-                                    currentTime = Now,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            } else {
-                                DaySchedule(
-                                    events = { demoEvents[it].orEmpty() },
-                                    state = scheduleState,
-                                    today = Today,
-                                    currentTime = Now,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            }
-                        }
-                    }
-
-                    Tab.Pickers -> {
-                        Column(Modifier.fillMaxSize().padding(16.dp)) {
-                            Card(Modifier.fillMaxWidth()) {
-                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Text("Date range", style = MaterialTheme.typography.titleMedium)
-                                    Text(
-                                        picked ?: "No range selected",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Button(onClick = { showPicker = true }) { Text("Pick range") }
-                                }
-                            }
-                        }
-                    }
+                when (ui.tab) {
+                    DemoTab.Month -> MonthTab(ui, events, eventsOn)
+                    DemoTab.Agenda -> AgendaTab(ui, eventsOn)
+                    DemoTab.Schedule -> ScheduleTab(ui, eventsOn, now)
+                    DemoTab.Stays -> StaysTab(ui)
+                    DemoTab.Styles -> StylesTab(ui, eventsOn)
                 }
             }
         }
-        if (showPicker) {
-            OrreryDateRangePickerDialog(
-                onDismissRequest = { showPicker = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showPicker = false
-                            val start = pickerState.selectedStartDate
-                            picked = start?.let { "$it to ${pickerState.selectedEndDate ?: it}" }
-                        },
-                    ) { Text("Save") }
-                },
-                state = pickerState,
-                today = Today,
-                presets = presets,
+        if (ui.showPicker) {
+            RangePickerDialog(ui)
+        }
+    }
+}
+
+@Composable
+private fun DemoTopBar(platform: String) {
+    Surface(tonalElevation = 2.dp) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                ).padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Orrery", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(
+                "  on $platform",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
+}
+
+@Composable
+private fun RangePickerDialog(ui: DemoUiState) {
+    val presets = DatePickerDefaults.rangePresets(today = ui.today)
+    OrreryDateRangePickerDialog(
+        onDismissRequest = { ui.showPicker = false },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    ui.showPicker = false
+                    val start = ui.pickerState.selectedStartDate
+                    if (start != null) {
+                        ui.staysSelection.set(
+                            Selection(rangeStart = start, rangeEnd = ui.pickerState.selectedEndDate ?: start),
+                        )
+                    }
+                },
+            ) { Text("Save") }
+        },
+        state = ui.pickerState,
+        today = ui.today,
+        presets = presets,
+    )
 }

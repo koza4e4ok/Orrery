@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package me.kozakov.orrery.compose
 
 import androidx.compose.animation.core.Animatable
@@ -72,6 +74,7 @@ public fun HorizontalCalendar(
         rowHeight = CalendarRowHeight.WrapContent,
         weekHeader = weekHeader,
         monthHeader = monthHeader,
+        slots = CalendarSlots(),
         dayContent = dayContent,
     )
 }
@@ -116,9 +119,66 @@ public fun HorizontalCalendar(
         rowHeight = rowHeight,
         weekHeader = weekHeader,
         monthHeader = monthHeader,
+        slots = CalendarSlots(),
         dayContent = dayContent,
     )
 }
+
+/**
+ * Horizontally paged month calendar (one month per page, snap paging) with
+ * per-week and per-month slots.
+ *
+ * @param weekOverlay Drawn over each week row's day columns (for example
+ *   [WeekEventBanners]); the row grows when the overlay is taller.
+ * @param weekFooter Drawn below each week row.
+ * @param monthFooter Drawn below each month's grid.
+ */
+@Suppress("LongParameterList")
+@Composable
+public fun HorizontalCalendar(
+    state: CalendarState = rememberCalendarState(),
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    animateHeight: Boolean = true,
+    dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    HorizontalCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        showWeekNumbers = showWeekNumbers,
+        weekNumber = weekNumber,
+        animateHeight = animateHeight,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        visibleDaysOfWeek = state.visibleDaysOfWeek,
+        rowHeight = CalendarRowHeight.WrapContent,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        slots = CalendarSlots(weekOverlay, weekFooter, monthFooter),
+        dayContent = dayContent,
+    )
+}
+
+/** Optional per-week and per-month slots of the month and week calendars. */
+private class CalendarSlots(
+    val weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    val weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    val monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+)
 
 @Suppress("LongParameterList")
 @Composable
@@ -136,6 +196,7 @@ private fun HorizontalCalendarContent(
     rowHeight: CalendarRowHeight,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
     monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)?,
+    slots: CalendarSlots,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
     require(visibleDaysOfWeek.isNotEmpty()) { "visibleDaysOfWeek must not be empty" }
@@ -237,6 +298,9 @@ private fun HorizontalCalendarContent(
                         rowHeight = rowHeight,
                         fillBoundedHeight = fillBoundedHeight,
                         visibleDaysOfWeek = visibleDaysOfWeek,
+                        weekOverlay = slots.weekOverlay,
+                        weekFooter = slots.weekFooter,
+                        monthFooter = slots.monthFooter,
                     )
                 }
             }
@@ -245,7 +309,6 @@ private fun HorizontalCalendarContent(
 }
 
 /** Continuously scrolling vertical month list. */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun VerticalCalendar(
     state: CalendarState = rememberCalendarState(),
@@ -275,6 +338,7 @@ public fun VerticalCalendar(
         rowHeight = CalendarRowHeight.WrapContent,
         weekHeader = weekHeader,
         monthHeader = monthHeader,
+        slots = CalendarSlots(),
         dayContent = dayContent,
     )
 }
@@ -316,6 +380,53 @@ public fun VerticalCalendar(
         rowHeight = rowHeight,
         weekHeader = weekHeader,
         monthHeader = monthHeader,
+        slots = CalendarSlots(),
+        dayContent = dayContent,
+    )
+}
+
+/**
+ * Continuously scrolling vertical month list with per-week and per-month slots.
+ *
+ * @param weekOverlay Drawn over each week row's day columns (for example
+ *   [WeekEventBanners]); the row grows when the overlay is taller.
+ * @param weekFooter Drawn below each week row.
+ * @param monthFooter Drawn below each month's grid (also with sticky headers).
+ */
+@Suppress("LongParameterList")
+@Composable
+public fun VerticalCalendar(
+    state: CalendarState = rememberCalendarState(),
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    stickyMonthHeaders: Boolean = false,
+    dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = { CalendarDefaults.MonthTitle(it) },
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    VerticalCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        showWeekNumbers = showWeekNumbers,
+        weekNumber = weekNumber,
+        stickyMonthHeaders = stickyMonthHeaders,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        visibleDaysOfWeek = state.visibleDaysOfWeek,
+        rowHeight = CalendarRowHeight.WrapContent,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        slots = CalendarSlots(weekOverlay, weekFooter, monthFooter),
         dayContent = dayContent,
     )
 }
@@ -336,6 +447,7 @@ private fun VerticalCalendarContent(
     rowHeight: CalendarRowHeight,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
     monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)?,
+    slots: CalendarSlots,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
     require(visibleDaysOfWeek.isNotEmpty()) { "visibleDaysOfWeek must not be empty" }
@@ -391,6 +503,9 @@ private fun VerticalCalendarContent(
                                 hapticsEnabled = hapticsEnabled,
                                 rowHeight = effectiveRowHeight,
                                 visibleDaysOfWeek = visibleDaysOfWeek,
+                                weekOverlay = slots.weekOverlay,
+                                weekFooter = slots.weekFooter,
+                                monthFooter = slots.monthFooter,
                             )
                         }
                     }
@@ -406,6 +521,9 @@ private fun VerticalCalendarContent(
                             hapticsEnabled = hapticsEnabled,
                             rowHeight = effectiveRowHeight,
                             visibleDaysOfWeek = visibleDaysOfWeek,
+                            weekOverlay = slots.weekOverlay,
+                            weekFooter = slots.weekFooter,
+                            monthFooter = slots.monthFooter,
                         )
                     }
                 }
@@ -432,6 +550,7 @@ public fun WeekCalendar(
         visibleWeeksCount = state.visibleWeeksCount,
         visibleDaysOfWeek = state.visibleDaysOfWeek,
         weekHeader = weekHeader,
+        slots = CalendarSlots(),
         dayContent = dayContent,
     )
 }
@@ -461,6 +580,39 @@ public fun WeekCalendar(
         visibleWeeksCount = visibleWeeksCount,
         visibleDaysOfWeek = visibleDaysOfWeek,
         weekHeader = weekHeader,
+        slots = CalendarSlots(),
+        dayContent = dayContent,
+    )
+}
+
+/**
+ * Horizontally paged single-week calendar with per-week slots.
+ *
+ * @param weekOverlay Drawn over the week's day columns (for example
+ *   [WeekEventBanners]); the row grows when the overlay is taller.
+ * @param weekFooter Drawn below the week row.
+ */
+@Suppress("LongParameterList")
+@Composable
+public fun WeekCalendar(
+    state: WeekCalendarState,
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    WeekCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        visibleWeeksCount = state.visibleWeeksCount,
+        visibleDaysOfWeek = state.visibleDaysOfWeek,
+        weekHeader = weekHeader,
+        slots = CalendarSlots(weekOverlay, weekFooter),
         dayContent = dayContent,
     )
 }
@@ -475,6 +627,7 @@ private fun WeekCalendarContent(
     visibleWeeksCount: Int,
     visibleDaysOfWeek: Set<DayOfWeek>,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
+    slots: CalendarSlots,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
     require(visibleWeeksCount in 1..4) { "visibleWeeksCount ($visibleWeeksCount) must be in 1..4" }
@@ -507,26 +660,30 @@ private fun WeekCalendarContent(
             items(count = pageCount, key = { it }) { index ->
                 val weeks = state.weeksAt(index, visibleWeeksCount, visibleDaysOfWeek)
                 val rowCount = weeks.size
+                val weekFooter = slots.weekFooter
                 Column(Modifier.fillParentMaxWidth()) {
                     weeks.forEachIndexed { row, week ->
                         Row(Modifier.fillMaxWidth()) {
                             val colCount = week.days.size
                             val rowFocusRequesters = rememberRowFocusRequesters(keyboard != null, colCount)
-                            week.days.forEachIndexed { col, day ->
-                                DayCell(
-                                    day = day,
-                                    col = col,
-                                    colCount = colCount,
-                                    keyboard = keyboard,
-                                    modifier = Modifier.weight(1f),
-                                    dayContent = dayContent,
-                                    row = row,
-                                    rowCount = rowCount,
-                                    rowFocusRequesters = rowFocusRequesters,
-                                    visibleDaysOfWeek = visibleDaysOfWeek,
-                                )
+                            WeekDays(week, slots.weekOverlay) {
+                                week.days.forEachIndexed { col, day ->
+                                    DayCell(
+                                        day = day,
+                                        col = col,
+                                        colCount = colCount,
+                                        keyboard = keyboard,
+                                        modifier = Modifier.weight(1f),
+                                        dayContent = dayContent,
+                                        row = row,
+                                        rowCount = rowCount,
+                                        rowFocusRequesters = rowFocusRequesters,
+                                        visibleDaysOfWeek = visibleDaysOfWeek,
+                                    )
+                                }
                             }
                         }
+                        weekFooter?.invoke(this, week)
                     }
                 }
             }

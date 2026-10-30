@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,6 +33,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -50,6 +53,12 @@ import me.kozakov.orrery.core.SelectionMode
 
 internal val WeekNumberColumnWidth = 32.dp
 
+/**
+ * One month grid. [weekOverlay] is drawn over each week row's day columns
+ * (not the week-number column) in a [BoxScope] sized to the row, which grows
+ * when the overlay is taller; [weekFooter] goes below each week row and
+ * [monthFooter] below the whole grid.
+ */
 @Composable
 internal fun MonthContent(
     month: CalendarMonth,
@@ -63,9 +72,16 @@ internal fun MonthContent(
     rowHeight: CalendarRowHeight = CalendarRowHeight.WrapContent,
     fillBoundedHeight: Boolean = false,
     visibleDaysOfWeek: Set<DayOfWeek> = ALL_DAYS_OF_WEEK_SET,
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
 ) {
     val haptics = LocalHapticFeedback.current
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    // Week rows stop being uniform once overlays or footers add height, so drag
+    // hit-testing then looks rows up by their measured tops.
+    val unevenRows = weekOverlay != null || weekFooter != null
+    val rowTops = remember(month.weeks.size) { IntArray(month.weeks.size) }
     Column(modifier) {
         monthHeader?.invoke(this, month)
         val gridWeightModifier =
@@ -77,14 +93,19 @@ internal fun MonthContent(
         Column(
             gridWeightModifier.then(
                 if (dragSelection != null && dragSelection.supportsDrag) {
-                    Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, isRtl) {
+                    Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, unevenRows, isRtl) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
 
                         fun dayAt(offset: Offset): CalendarDay? {
                             val rows = month.weeks.size
                             if (rows == 0) return null
                             val rowHeightPx = size.height.toFloat() / rows
-                            val row = (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
+                            val row =
+                                if (unevenRows) {
+                                    rowTops.indexOfLast { it <= offset.y }.coerceAtLeast(0)
+                                } else {
+                                    (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
+                                }
                             val weekDays = month.weeks[row].days
                             val cols = weekDays.size
                             if (cols == 0) return null
@@ -124,7 +145,7 @@ internal fun MonthContent(
         ) {
             val rowCount = month.weeks.size
             month.weeks.forEachIndexed { row, week ->
-                val rowModifier =
+                val baseRowModifier =
                     when (rowHeight) {
                         CalendarRowHeight.WrapContent -> {
                             Modifier.fillMaxWidth()
@@ -146,6 +167,12 @@ internal fun MonthContent(
                                     .heightIn(min = rowHeight.minRowHeight)
                             }
                         }
+                    }
+                val rowModifier =
+                    if (unevenRows) {
+                        baseRowModifier.onPlaced { rowTops[row] = it.positionInParent().y.toInt() }
+                    } else {
+                        baseRowModifier
                     }
                 val rowAlignment =
                     if (rowHeight == CalendarRowHeight.WrapContent) {
@@ -172,26 +199,51 @@ internal fun MonthContent(
                                     Modifier.heightIn(min = rowHeight.minRowHeight)
                                 }
                         }
-                    week.days.forEachIndexed { col, day ->
-                        DayCell(
-                            day = day,
-                            col = col,
-                            colCount = colCount,
-                            keyboard = keyboardNavigation,
-                            modifier = Modifier.weight(1f).then(cellHeightModifier),
-                            dayContent = dayContent,
-                            row = row,
-                            rowCount = rowCount,
-                            rowFocusRequesters = rowFocusRequesters,
-                            selectionState = dragSelection,
-                            // Paging always scrolls to the page of the target's month, where the
-                            // target is an in-month date; out-dates of other pages never take it.
-                            acceptsPendingFocus = day.position == DayPosition.MonthDate,
-                            visibleDaysOfWeek = visibleDaysOfWeek,
-                        )
+                    WeekDays(week, weekOverlay) {
+                        week.days.forEachIndexed { col, day ->
+                            DayCell(
+                                day = day,
+                                col = col,
+                                colCount = colCount,
+                                keyboard = keyboardNavigation,
+                                modifier = Modifier.weight(1f).then(cellHeightModifier),
+                                dayContent = dayContent,
+                                row = row,
+                                rowCount = rowCount,
+                                rowFocusRequesters = rowFocusRequesters,
+                                selectionState = dragSelection,
+                                // Paging always scrolls to the page of the target's month, where the
+                                // target is an in-month date; out-dates of other pages never take it.
+                                acceptsPendingFocus = day.position == DayPosition.MonthDate,
+                                visibleDaysOfWeek = visibleDaysOfWeek,
+                            )
+                        }
                     }
                 }
+                weekFooter?.invoke(this, week)
             }
+        }
+        monthFooter?.invoke(this, month)
+    }
+}
+
+/**
+ * The day cells of one week row ([days] lays them out with `weight(1f)`).
+ * Without a [weekOverlay] they go straight into the enclosing row, exactly as
+ * before the slot existed; with one they share a [Box] with the overlay.
+ */
+@Composable
+internal fun RowScope.WeekDays(
+    week: CalendarWeek,
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)?,
+    days: @Composable RowScope.() -> Unit,
+) {
+    if (weekOverlay == null) {
+        days()
+    } else {
+        Box(Modifier.weight(1f)) {
+            Row(Modifier.fillMaxWidth(), content = days)
+            weekOverlay.invoke(this, week)
         }
     }
 }

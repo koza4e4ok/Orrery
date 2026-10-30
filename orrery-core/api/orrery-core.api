@@ -553,6 +553,48 @@ public final class me/kozakov/orrery/core/SelectionResult {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class me/kozakov/orrery/core/WeekBannerPackResult {
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/util/List;)Lme/kozakov/orrery/core/WeekBannerPackResult;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/WeekBannerPackResult;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/WeekBannerPackResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBanners ()Ljava/util/List;
+	public final fun getOverflowCountByColumn ()Ljava/util/List;
+	public final fun getWeekDates ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/WeekEventBanner {
+	public fun <init> (Lme/kozakov/orrery/core/CalendarEvent;IIIZZ)V
+	public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent;
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun component5 ()Z
+	public final fun component6 ()Z
+	public final fun copy (Lme/kozakov/orrery/core/CalendarEvent;IIIZZ)Lme/kozakov/orrery/core/WeekEventBanner;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/WeekEventBanner;Lme/kozakov/orrery/core/CalendarEvent;IIIZZILjava/lang/Object;)Lme/kozakov/orrery/core/WeekEventBanner;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getColumnSpan ()I
+	public final fun getContinuesFromPreviousWeek ()Z
+	public final fun getContinuesIntoNextWeek ()Z
+	public final fun getEndColumnInclusive ()I
+	public final fun getEvent ()Lme/kozakov/orrery/core/CalendarEvent;
+	public final fun getLaneIndex ()I
+	public final fun getStartColumn ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/WeekEventBannersKt {
+	public static final fun packWeekEventBanners (Ljava/util/List;Ljava/util/List;I)Lme/kozakov/orrery/core/WeekBannerPackResult;
+	public static synthetic fun packWeekEventBanners$default (Ljava/util/List;Ljava/util/List;IILjava/lang/Object;)Lme/kozakov/orrery/core/WeekBannerPackResult;
+}
+
 public final class me/kozakov/orrery/core/WeekNumbersKt {
 	public static final fun isoWeekNumber (Lkotlinx/datetime/LocalDate;)I
 }

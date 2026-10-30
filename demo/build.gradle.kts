@@ -1,5 +1,5 @@
-// Interactive web demo deployed next to the API reference at
-// https://koza4e4ok.github.io/Orrery/demo/ by .github/workflows/docs.yml. Not published.
+// TEMPORARY (README GIFs, .github/workflows/demo-gifs.yml): adds Desktop and iOS targets.
+// The workflow moves the demo UI to commonMain first. Removed before the PR is finalized.
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -10,6 +10,14 @@ plugins {
 }
 
 kotlin {
+    jvm("desktop")
+    iosSimulatorArm64 {
+        binaries.framework {
+            baseName = "OrreryDemo"
+            isStatic = false
+        }
+    }
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -21,13 +29,29 @@ kotlin {
     }
 
     sourceSets {
-        wasmJsMain.dependencies {
+        commonMain.dependencies {
             implementation(project(":orrery-compose"))
             implementation(project(":orrery-holidays"))
             implementation(libs.cmp.foundation)
             implementation(libs.cmp.material3)
         }
+        getByName("desktopMain").dependencies {
+            implementation(
+                "org.jetbrains.compose.desktop:desktop-jvm-linux-x64:" +
+                    libs.versions.compose.multiplatform
+                        .asProvider()
+                        .get(),
+            )
+        }
     }
+}
+
+tasks.register<JavaExec>("runDesktopDemo") {
+    val compilation = kotlin.targets.getByName("desktop").compilations.getByName("main")
+    dependsOn(compilation.compileTaskProvider)
+    classpath = files(compilation.output.allOutputs, compilation.runtimeDependencyFiles)
+    mainClass.set("me.kozakov.orrery.demo.DesktopMainKt")
+    jvmArgs("-Dsun.java2d.uiScale=2")
 }
 
 // The lint plugin's plain `detekt` task only scans src/main and src/test by default.

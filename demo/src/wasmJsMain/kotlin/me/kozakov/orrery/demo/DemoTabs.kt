@@ -55,7 +55,7 @@ import me.kozakov.orrery.core.EventOverlapMode
 
 /** Multi-day events as title banners over each week row of a month grid. */
 @Composable
-private fun MonthTab(
+internal fun MonthTab(
     ui: DemoUiState,
     events: List<CalendarEvent<Nothing>>,
     eventsOn: (LocalDate) -> List<CalendarEvent<Nothing>>,
@@ -131,7 +131,7 @@ private fun BannerDayNumber(
 
 /** A Month / TwoWeeks / Week collapsible calendar with a drag handle over the agenda. */
 @Composable
-private fun AgendaTab(
+internal fun AgendaTab(
     ui: DemoUiState,
     eventsOn: (LocalDate) -> List<CalendarEvent<Nothing>>,
 ) {
@@ -168,7 +168,7 @@ private fun AgendaTab(
 
 /** Day / Week time grids limited to working hours, with side-by-side or stacked overlaps. */
 @Composable
-private fun ScheduleTab(
+internal fun ScheduleTab(
     ui: DemoUiState,
     eventsOn: (LocalDate) -> List<CalendarEvent<Nothing>>,
     now: LocalTime,
@@ -218,7 +218,7 @@ private fun ScheduleTab(
 
 /** Hotel stays: check-in PM half, check-out AM half and turnover days, with nightly prices. */
 @Composable
-private fun StaysTab(ui: DemoUiState) {
+internal fun StaysTab(ui: DemoUiState) {
     val style =
         if (ui.endpoint == EndpointOption.Full) {
             CalendarDefaults.roundedSquareStyle()
@@ -299,7 +299,7 @@ private fun StaySummary(ui: DemoUiState) {
 
 /** The curated style presets and densities, under a two-week strip with a Mon–Fri filter. */
 @Composable
-private fun StylesTab(
+internal fun StylesTab(
     ui: DemoUiState,
     eventsOn: (LocalDate) -> List<CalendarEvent<Nothing>>,
 ) {

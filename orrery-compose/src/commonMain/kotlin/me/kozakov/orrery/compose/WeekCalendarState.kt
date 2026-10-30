@@ -85,13 +85,15 @@ public class WeekCalendarState internal constructor(
 
     /** Pages of [visibleWeeksCount] weeks in the effective range. */
     public val weekCount: Int
-        get() =
-            CalendarPages.weekCount(
-                effectiveStartDate,
-                effectiveEndDate,
-                firstDayOfWeek,
-                visibleWeeksCount,
-            )
+        get() = pageCount(visibleWeeksCount)
+
+    internal fun pageCount(weeksPerPage: Int = visibleWeeksCount): Int =
+        CalendarPages.weekCount(
+            effectiveStartDate,
+            effectiveEndDate,
+            firstDayOfWeek,
+            weeksPerPage,
+        )
 
     /** The first week row of the first visible page. */
     public val firstVisibleWeek: CalendarWeek

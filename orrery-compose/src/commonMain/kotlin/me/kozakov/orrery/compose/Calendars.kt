@@ -499,13 +499,7 @@ private fun WeekCalendarContent(
         }
     Column(modifier) {
         weekHeader?.invoke(this, daysOfWeek(state.firstDayOfWeek, visibleDaysOfWeek))
-        val pageCount =
-            CalendarPages.weekCount(
-                state.startDate ?: LocalDate(-19999, 1, 1),
-                state.endDate ?: LocalDate(19999, 12, 31),
-                state.firstDayOfWeek,
-                visibleWeeksCount,
-            )
+        val pageCount = state.pageCount(visibleWeeksCount)
         LazyRow(
             state = state.listState,
             flingBehavior = rememberSnapFlingBehavior(state.listState),

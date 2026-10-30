@@ -69,8 +69,14 @@ public final class me/kozakov/orrery/core/CalendarPages {
 	public final fun monthAt (Lkotlinx/datetime/YearMonth;I)Lkotlinx/datetime/YearMonth;
 	public final fun monthCount (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/YearMonth;)I
 	public final fun monthIndex (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/YearMonth;)I
+	public final fun weekAt (Lkotlinx/datetime/LocalDate;ILkotlinx/datetime/DayOfWeek;I)Lkotlinx/datetime/LocalDate;
+	public static synthetic fun weekAt$default (Lme/kozakov/orrery/core/CalendarPages;Lkotlinx/datetime/LocalDate;ILkotlinx/datetime/DayOfWeek;IILjava/lang/Object;)Lkotlinx/datetime/LocalDate;
 	public final fun weekCount (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)I
+	public final fun weekCount (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;I)I
+	public static synthetic fun weekCount$default (Lme/kozakov/orrery/core/CalendarPages;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;IILjava/lang/Object;)I
 	public final fun weekIndex (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)I
+	public final fun weekIndex (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;I)I
+	public static synthetic fun weekIndex$default (Lme/kozakov/orrery/core/CalendarPages;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;IILjava/lang/Object;)I
 	public final fun weekStart (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Lkotlinx/datetime/LocalDate;
 }
 
@@ -155,7 +161,9 @@ public final class me/kozakov/orrery/core/DayScheduleLayout {
 
 public final class me/kozakov/orrery/core/DaysOfWeekKt {
 	public static final fun daysOfWeek (Lkotlinx/datetime/DayOfWeek;)Ljava/util/List;
+	public static final fun daysOfWeek (Lkotlinx/datetime/DayOfWeek;Ljava/util/Set;)Ljava/util/List;
 	public static synthetic fun daysOfWeek$default (Lkotlinx/datetime/DayOfWeek;ILjava/lang/Object;)Ljava/util/List;
+	public static synthetic fun daysOfWeek$default (Lkotlinx/datetime/DayOfWeek;Ljava/util/Set;ILjava/lang/Object;)Ljava/util/List;
 }
 
 public final class me/kozakov/orrery/core/DisabledDates {
@@ -236,9 +244,15 @@ public final class me/kozakov/orrery/core/HeatmapSummaryKt {
 
 public final class me/kozakov/orrery/core/MonthGridKt {
 	public static final fun monthGrid (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/core/OutDateStyle;)Lme/kozakov/orrery/core/CalendarMonth;
+	public static final fun monthGrid (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/core/OutDateStyle;Ljava/util/Set;)Lme/kozakov/orrery/core/CalendarMonth;
 	public static synthetic fun monthGrid$default (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/core/OutDateStyle;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarMonth;
+	public static synthetic fun monthGrid$default (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/core/OutDateStyle;Ljava/util/Set;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarMonth;
+	public static final fun multiWeekGrid (Lkotlinx/datetime/LocalDate;ILkotlinx/datetime/DayOfWeek;Ljava/util/Set;)Ljava/util/List;
+	public static synthetic fun multiWeekGrid$default (Lkotlinx/datetime/LocalDate;ILkotlinx/datetime/DayOfWeek;Ljava/util/Set;ILjava/lang/Object;)Ljava/util/List;
 	public static final fun weekGrid (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;)Lme/kozakov/orrery/core/CalendarWeek;
+	public static final fun weekGrid (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;Ljava/util/Set;)Lme/kozakov/orrery/core/CalendarWeek;
 	public static synthetic fun weekGrid$default (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarWeek;
+	public static synthetic fun weekGrid$default (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;Ljava/util/Set;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarWeek;
 }
 
 public final class me/kozakov/orrery/core/OutDateStyle : java/lang/Enum {

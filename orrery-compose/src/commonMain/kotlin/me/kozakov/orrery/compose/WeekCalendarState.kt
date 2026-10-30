@@ -106,7 +106,7 @@ public class WeekCalendarState internal constructor(
     internal fun weekAt(
         index: Int,
         daysFilter: Set<DayOfWeek> = visibleDaysOfWeek,
-    ): CalendarWeek = weeksAt(index, 1, daysFilter).first()
+    ): CalendarWeek = weeksAt(index, visibleWeeksCount, daysFilter).first()
 
     internal fun weeksAt(
         index: Int,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -150,13 +151,24 @@ internal fun MonthContent(
                     }
                     val colCount = week.days.size
                     val rowFocusRequesters = rememberRowFocusRequesters(keyboardNavigation != null, colCount)
+                    val cellHeightModifier =
+                        when (rowHeight) {
+                            CalendarRowHeight.WrapContent -> Modifier
+                            is CalendarRowHeight.Fixed -> Modifier.fillMaxHeight()
+                            is CalendarRowHeight.FillViewport ->
+                                if (fillBoundedHeight) {
+                                    Modifier.fillMaxHeight()
+                                } else {
+                                    Modifier.heightIn(min = rowHeight.minRowHeight)
+                                }
+                        }
                     week.days.forEachIndexed { col, day ->
                         DayCell(
                             day = day,
                             col = col,
                             colCount = colCount,
                             keyboard = keyboardNavigation,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).then(cellHeightModifier),
                             dayContent = dayContent,
                             row = row,
                             rowCount = rowCount,
@@ -213,7 +225,7 @@ internal fun DayCell(
     visibleDaysOfWeek: Set<DayOfWeek> = ALL_DAYS_OF_WEEK_SET,
 ) {
     if (keyboard == null) {
-        Box(modifier) { dayContent(day) }
+        Box(modifier, propagateMinConstraints = true) { dayContent(day) }
         return
     }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -242,6 +254,7 @@ internal fun DayCell(
                         visibleDaysOfWeek = visibleDaysOfWeek,
                     ).handle(event)
             },
+        propagateMinConstraints = true,
     ) { dayContent(day) }
     LaunchedEffect(keyboard.pendingFocus.value) {
         if (acceptsPendingFocus && keyboard.pendingFocus.value == day.date) {

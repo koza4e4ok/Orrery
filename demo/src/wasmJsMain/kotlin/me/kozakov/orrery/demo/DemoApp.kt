@@ -95,10 +95,7 @@ internal enum class StylePreset(
     Bordered("Bordered"),
 }
 
-/**
- * Screen state of [DemoApp], hoisted so the tabs keep their state while switching and a
- * scripted tour (used to record the README GIFs) can drive the demo.
- */
+/** Screen state of [DemoApp], hoisted so the tabs keep their state while switching. */
 @Stable
 @Suppress("LongParameterList")
 internal class DemoUiState(
@@ -202,14 +199,13 @@ private fun rememberDemoUiState(today: LocalDate): DemoUiState {
  * Interactive tour of Orrery: a month grid with multi-day event banners, a collapsible
  * Month / TwoWeeks / Week calendar over the agenda, a working-hours Day / Week schedule with
  * stacked overlaps, hotel stays with split check-in / check-out days, and the style presets
- * under a two-week strip with a Mon–Fri filter. [tour], when set, plays the demo on its own.
+ * under a two-week strip with a Mon–Fri filter.
  */
 @Composable
 internal fun DemoApp(
     platform: String,
     today: LocalDate = currentDate(),
     now: LocalTime = LocalTime(12, 0),
-    tour: (suspend DemoUiState.() -> Unit)? = null,
 ) {
     MaterialTheme(colorScheme = lightColorScheme()) {
         val ui = rememberDemoUiState(today)
@@ -223,9 +219,6 @@ internal fun DemoApp(
             val days = if (ui.workWeekOnly) WORK_WEEK else ALL_DAYS
             ui.stripState.visibleDaysOfWeek = days
             ui.stylesState.visibleDaysOfWeek = days
-        }
-        if (tour != null) {
-            LaunchedEffect(ui) { ui.tour() }
         }
 
         Scaffold(

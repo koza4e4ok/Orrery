@@ -21,15 +21,17 @@ interfaces, and an optional Chinese lunisolar artifact.
 </p>
 
 <p align="center">
-  <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with event badges, trip range selection with per-day prices, habit progress rings, Chinese lunar almanac, and Material 3 date picker dialogs" />
+  <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with multi-day week event banners, hospitality trip range selection with split check-in/check-out endpoints, collapsible Month/TwoWeeks/Week agenda, working-hours Day/Week schedule with stacked overlaps, style presets, and Material 3 date picker dialogs" />
 </p>
 
-The same tour on Desktop (JVM), iOS and Web (Kotlin/Wasm), rendered from one shared
-Compose Multiplatform UI: trip range selection with holidays and paydays, Agenda, the
-Day/Week schedule, and the range picker presets.
+The shared Compose Multiplatform demo on Desktop (JVM), iOS and Web (Kotlin/Wasm):
+multi-day week event banners, a collapsible Month / TwoWeeks / Week calendar over the
+Agenda, a working-hours Day / Week schedule with stacked overlaps, hotel stays with split
+check-in / check-out endpoints and turnover days, and the style presets under a Mon–Fri
+two-week strip.
 
 <p align="center">
-  <img src="art/orrery-features-demo.gif" width="250" alt="Desktop demo: range selection with holiday and payday labels, Agenda list, Day and Week schedule views, and the date range picker with presets" />
+  <img src="art/orrery-features-demo.gif" width="250" alt="Desktop demo: multi-day week event banners, collapsible Month/TwoWeeks/Week agenda, working-hours schedule with stacked overlaps, hospitality range selection, and style presets" />
   <img src="art/orrery-ios-demo.gif" width="250" alt="iOS simulator demo: the same calendar tour running on iOS" />
   <img src="art/orrery-web-demo.gif" width="250" alt="Web demo: the same calendar tour running on Kotlin/Wasm in Chrome" />
 </p>

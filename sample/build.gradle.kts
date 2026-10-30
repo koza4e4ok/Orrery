@@ -29,14 +29,6 @@ android {
     buildFeatures {
         compose = true
     }
-    // TEMPORARY (README GIF): Robolectric frame capture in SampleTourRecorder.
-    testOptions.unitTests {
-        isIncludeAndroidResources = true
-        all {
-            it.systemProperty("roborazzi.test.record", "true")
-            it.maxHeapSize = "4g"
-        }
-    }
 }
 
 kotlin {
@@ -53,13 +45,4 @@ dependencies {
     implementation(libs.compose.material.icons.core)
     implementation(libs.activity.compose)
     implementation(libs.androidx.profileinstaller)
-    // TEMPORARY (README GIF): Robolectric frame capture in SampleTourRecorder.
-    testImplementation(libs.junit4)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.roborazzi)
-    testImplementation(libs.roborazzi.compose)
-    testImplementation(libs.androidx.test.ext.junit)
-    testImplementation(platform(libs.compose.bom))
-    testImplementation(libs.compose.ui.test.junit4)
-    debugImplementation(libs.compose.ui.test.manifest)
 }

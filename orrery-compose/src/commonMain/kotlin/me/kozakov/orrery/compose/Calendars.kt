@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -53,6 +54,89 @@ public fun HorizontalCalendar(
         CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
     },
     monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    HorizontalCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        weekNumber = if (showWeekNumbers) weekNumber else null,
+        animateHeight = animateHeight,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        slots = CalendarSlots(),
+        dayContent = dayContent,
+    )
+}
+
+/**
+ * Horizontally paged month calendar (one month per page, snap paging) with
+ * per-week and per-month slots.
+ *
+ * @param weekOverlay Drawn over each week row's day columns (for example
+ *   [WeekEventBanners]); the row grows when the overlay is taller.
+ * @param weekFooter Drawn below each week row.
+ * @param monthFooter Drawn below each month's grid.
+ */
+@Composable
+public fun HorizontalCalendar(
+    state: CalendarState = rememberCalendarState(),
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    animateHeight: Boolean = true,
+    dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    HorizontalCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        weekNumber = if (showWeekNumbers) weekNumber else null,
+        animateHeight = animateHeight,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        slots = CalendarSlots(weekOverlay, weekFooter, monthFooter),
+        dayContent = dayContent,
+    )
+}
+
+/** Optional per-week and per-month slots of the month and week calendars. */
+private class CalendarSlots(
+    val weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    val weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    val monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+)
+
+@Composable
+private fun HorizontalCalendarContent(
+    state: CalendarState,
+    modifier: Modifier,
+    userScrollEnabled: Boolean,
+    keyboardNavigation: Boolean,
+    weekNumber: (@Composable (CalendarWeek) -> Unit)?,
+    animateHeight: Boolean,
+    dragSelection: CalendarSelectionState?,
+    hapticsEnabled: Boolean,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)?,
+    slots: CalendarSlots,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -135,10 +219,13 @@ public fun HorizontalCalendar(
                                 .fillParentMaxWidth()
                                 .wrapContentHeight(align = Alignment.Top, unbounded = true)
                                 .onSizeChanged { if (it.height > 0) pageHeights[index] = it.height },
-                        weekNumber = if (showWeekNumbers) weekNumber else null,
+                        weekNumber = weekNumber,
                         dragSelection = dragSelection,
                         hapticsEnabled = hapticsEnabled,
                         keyboardNavigation = keyboard,
+                        weekOverlay = slots.weekOverlay,
+                        weekFooter = slots.weekFooter,
+                        monthFooter = slots.monthFooter,
                     )
                 }
             }
@@ -147,7 +234,6 @@ public fun HorizontalCalendar(
 }
 
 /** Continuously scrolling vertical month list. */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun VerticalCalendar(
     state: CalendarState = rememberCalendarState(),
@@ -164,8 +250,78 @@ public fun VerticalCalendar(
     monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = { CalendarDefaults.MonthTitle(it) },
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
-    val weekNumberSlot: (@Composable (CalendarWeek) -> Unit)? =
-        if (showWeekNumbers) weekNumber else null
+    VerticalCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        weekNumber = if (showWeekNumbers) weekNumber else null,
+        stickyMonthHeaders = stickyMonthHeaders,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        slots = CalendarSlots(),
+        dayContent = dayContent,
+    )
+}
+
+/**
+ * Continuously scrolling vertical month list with per-week and per-month slots.
+ *
+ * @param weekOverlay Drawn over each week row's day columns (for example
+ *   [WeekEventBanners]); the row grows when the overlay is taller.
+ * @param weekFooter Drawn below each week row.
+ * @param monthFooter Drawn below each month's grid (also with sticky headers).
+ */
+@Composable
+public fun VerticalCalendar(
+    state: CalendarState = rememberCalendarState(),
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    stickyMonthHeaders: Boolean = false,
+    dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = { CalendarDefaults.MonthTitle(it) },
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    VerticalCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        weekNumber = if (showWeekNumbers) weekNumber else null,
+        stickyMonthHeaders = stickyMonthHeaders,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        slots = CalendarSlots(weekOverlay, weekFooter, monthFooter),
+        dayContent = dayContent,
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun VerticalCalendarContent(
+    state: CalendarState,
+    modifier: Modifier,
+    userScrollEnabled: Boolean,
+    weekNumber: (@Composable (CalendarWeek) -> Unit)?,
+    stickyMonthHeaders: Boolean,
+    dragSelection: CalendarSelectionState?,
+    hapticsEnabled: Boolean,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)?,
+    slots: CalendarSlots,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
     val sticky = stickyMonthHeaders && monthHeader != null
     LaunchedEffect(sticky) {
         val targetItemsPerMonth = if (sticky) 2 else 1
@@ -198,9 +354,12 @@ public fun VerticalCalendar(
                             monthHeader = null,
                             dayContent = dayContent,
                             modifier = Modifier.fillParentMaxWidth(),
-                            weekNumber = weekNumberSlot,
+                            weekNumber = weekNumber,
                             dragSelection = dragSelection,
                             hapticsEnabled = hapticsEnabled,
+                            weekOverlay = slots.weekOverlay,
+                            weekFooter = slots.weekFooter,
+                            monthFooter = slots.monthFooter,
                         )
                     }
                 }
@@ -211,9 +370,12 @@ public fun VerticalCalendar(
                         monthHeader = monthHeader,
                         dayContent = dayContent,
                         modifier = Modifier.fillParentMaxWidth(),
-                        weekNumber = weekNumberSlot,
+                        weekNumber = weekNumber,
                         dragSelection = dragSelection,
                         hapticsEnabled = hapticsEnabled,
+                        weekOverlay = slots.weekOverlay,
+                        weekFooter = slots.weekFooter,
+                        monthFooter = slots.monthFooter,
                     )
                 }
             }
@@ -229,6 +391,56 @@ public fun WeekCalendar(
     userScrollEnabled: Boolean = true,
     keyboardNavigation: Boolean = true,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    WeekCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        weekHeader = weekHeader,
+        slots = CalendarSlots(),
+        dayContent = dayContent,
+    )
+}
+
+/**
+ * Horizontally paged single-week calendar with per-week slots.
+ *
+ * @param weekOverlay Drawn over the week's day columns (for example
+ *   [WeekEventBanners]); the row grows when the overlay is taller.
+ * @param weekFooter Drawn below the week row.
+ */
+@Composable
+public fun WeekCalendar(
+    state: WeekCalendarState,
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    WeekCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        weekHeader = weekHeader,
+        slots = CalendarSlots(weekOverlay, weekFooter),
+        dayContent = dayContent,
+    )
+}
+
+@Composable
+private fun WeekCalendarContent(
+    state: WeekCalendarState,
+    modifier: Modifier,
+    userScrollEnabled: Boolean,
+    keyboardNavigation: Boolean,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
+    slots: CalendarSlots,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -249,19 +461,25 @@ public fun WeekCalendar(
         ) {
             items(count = state.weekCount, key = { it }) { index ->
                 val week = state.weekAt(index)
-                Row(Modifier.fillParentMaxWidth()) {
-                    // A single row: Up/Down page by a week, Home/End focus the row's ends.
-                    val rowFocusRequesters = rememberRowFocusRequesters(keyboard != null)
-                    week.days.forEachIndexed { col, day ->
-                        DayCell(
-                            day = day,
-                            col = col,
-                            keyboard = keyboard,
-                            modifier = Modifier.weight(1f),
-                            dayContent = dayContent,
-                            rowFocusRequesters = rowFocusRequesters,
-                        )
+                val weekFooter = slots.weekFooter
+                Column(Modifier.fillParentMaxWidth()) {
+                    Row(Modifier.fillMaxWidth()) {
+                        // A single row: Up/Down page by a week, Home/End focus the row's ends.
+                        val rowFocusRequesters = rememberRowFocusRequesters(keyboard != null)
+                        WeekDays(week, slots.weekOverlay) {
+                            week.days.forEachIndexed { col, day ->
+                                DayCell(
+                                    day = day,
+                                    col = col,
+                                    keyboard = keyboard,
+                                    modifier = Modifier.weight(1f),
+                                    dayContent = dayContent,
+                                    rowFocusRequesters = rowFocusRequesters,
+                                )
+                            }
+                        }
                     }
+                    weekFooter?.invoke(this, week)
                 }
             }
         }

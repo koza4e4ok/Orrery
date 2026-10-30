@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Added
+
+- Multi-day event title banners (#81). `packWeekEventBanners(weekDates, events,
+  maxVisibleLanes = 3)` in `orrery-core` packs the events overlapping a week row
+  into greedy lanes (earlier start, then longer span, then title, then id) and
+  returns `WeekBannerPackResult`: one `WeekEventBanner` per visible event (start
+  / end column, lane, `continuesFromPreviousWeek` / `continuesIntoNextWeek`)
+  plus per-column `overflowCountByColumn`. `WeekEventBanners` in
+  `orrery-compose` draws them as single-line, ellipsized title pills in the
+  event's `colorArgb` (or `primaryContainer`) with a readable text color, cut
+  flat where an event continues into the previous or next week, and a
+  clickable `+N` indicator per overflowing column (`overflowLabel` customizes
+  the text). A `WeekEventBanners(week, events, ...)` overload packs for you.
+- `weekOverlay` and `weekFooter` slots on `HorizontalCalendar`,
+  `VerticalCalendar` and `WeekCalendar`, and a `monthFooter` slot on
+  `HorizontalCalendar` and `VerticalCalendar` (#81). They come as new
+  overloads; the existing signatures are unchanged. Long-press drag selection
+  keeps hitting the right day when overlays or footers make week rows uneven.
+
 ## [0.8.0] - 2026-10-28
 
 ### Added

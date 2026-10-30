@@ -666,6 +666,7 @@ private fun <T> DayColumn(
                     placeable.placeRelative(
                         x = (columnWidth * positioned.leftFraction).roundToInt(),
                         y = ((positioned.startMinute - window.startMinute) / 60f * hourPx).roundToInt(),
+                        zIndex = positioned.columnIndex.toFloat(),
                     )
                 } else if (nowMinute != null) {
                     val y = ((nowMinute - window.startMinute) / 60f * hourPx - placeable.height / 2f).roundToInt()

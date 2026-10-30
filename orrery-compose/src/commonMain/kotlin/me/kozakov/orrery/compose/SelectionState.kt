@@ -40,6 +40,7 @@ public enum class OutDateClickPolicy {
 
 /** Snapshot-state wrapper around the core [SelectionEngine]. */
 @Stable
+@Suppress("TooManyFunctions")
 public class CalendarSelectionState internal constructor(
     public val mode: SelectionMode,
     initialSelection: Selection,
@@ -102,11 +103,8 @@ public class CalendarSelectionState internal constructor(
         val outside = day.position != DayPosition.MonthDate
         if (outside && outDateClickPolicy == OutDateClickPolicy.Ignore) return false
         click(day.date)
-        if (outside &&
-            outDateClickPolicy == OutDateClickPolicy.SelectAndScrollToMonth &&
-            calendarState != null &&
-            coroutineScope != null
-        ) {
+        val shouldScroll = outside && outDateClickPolicy == OutDateClickPolicy.SelectAndScrollToMonth
+        if (shouldScroll && calendarState != null && coroutineScope != null) {
             val month = YearMonth(day.date.year, day.date.month)
             coroutineScope.launch { calendarState.animateScrollToMonth(month) }
         }

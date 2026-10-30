@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -63,19 +64,58 @@ public class CalendarState internal constructor(
     public val firstVisibleMonth: YearMonth
         get() = CalendarPages.monthAt(effectiveStartMonth, listState.firstVisibleItemIndex / itemsPerMonth)
 
+    private var programmaticScrolls: Int by mutableIntStateOf(0)
+
+    /** Month the last programmatic scroll (or the initial state) left visible. */
+    private var anchorMonth: YearMonth by mutableStateOf(this.firstVisibleMonth)
+    private var anchorSource: ScrollSource by mutableStateOf(ScrollSource.Initial)
+
+    /**
+     * What brought [firstVisibleMonth] into view: [ScrollSource.Initial] until
+     * anything scrolls, [ScrollSource.Programmatic] during and after
+     * [scrollToMonth]/[animateScrollToMonth] (and the date/today variants),
+     * [ScrollSource.UserDrag] while the user drags or flings the pager and after
+     * such a gesture settles on another month. Snapshot-observable.
+     */
+    public val lastScrollSource: ScrollSource
+        get() {
+            if (programmaticScrolls > 0) return ScrollSource.Programmatic
+            if (listState.isScrollInProgress) return ScrollSource.UserDrag
+            val visible = firstVisibleMonth
+            // A target near the end of a vertical list can settle on an earlier first item.
+            val clampedAtEnd = visible < anchorMonth && !listState.canScrollForward
+            return if (visible != anchorMonth && !clampedAtEnd) ScrollSource.UserDrag else anchorSource
+        }
+
+    private suspend fun programmaticScroll(
+        month: YearMonth,
+        block: suspend () -> Unit,
+    ) {
+        anchorMonth = monthAtIndex(indexOf(month))
+        anchorSource = ScrollSource.Programmatic
+        programmaticScrolls++
+        try {
+            block()
+        } finally {
+            programmaticScrolls--
+        }
+    }
+
     public suspend fun scrollToMonth(month: YearMonth) {
-        listState.scrollToItem(indexOf(month))
+        programmaticScroll(month) { listState.scrollToItem(indexOf(month)) }
     }
 
     public suspend fun animateScrollToMonth(month: YearMonth) {
-        val target = indexOf(month)
-        val current = listState.firstVisibleItemIndex
-        if (abs(target - current) > FAR_JUMP_MONTHS * itemsPerMonth) {
-            val approach =
-                if (target > current) target - 2 * itemsPerMonth else target + 2 * itemsPerMonth
-            listState.scrollToItem(approach.coerceIn(0, (monthCount - 1) * itemsPerMonth))
+        programmaticScroll(month) {
+            val target = indexOf(month)
+            val current = listState.firstVisibleItemIndex
+            if (abs(target - current) > FAR_JUMP_MONTHS * itemsPerMonth) {
+                val approach =
+                    if (target > current) target - 2 * itemsPerMonth else target + 2 * itemsPerMonth
+                listState.scrollToItem(approach.coerceIn(0, (monthCount - 1) * itemsPerMonth))
+            }
+            listState.animateScrollToItem(target)
         }
-        listState.animateScrollToItem(target)
     }
 
     /** Animates back to the current month. */
@@ -101,13 +141,19 @@ public class CalendarState internal constructor(
             require(startMonth <= endMonth) { "startMonth must be <= endMonth" }
         }
         val visible = firstVisibleMonth
+        val source = lastScrollSource
         this.startMonth = startMonth
         this.endMonth = endMonth
-        listState.requestScrollToItem(indexOf(visible))
+        val index = indexOf(visible)
+        anchorSource = source
+        anchorMonth = monthAtIndex(index)
+        listState.requestScrollToItem(index)
     }
 
     private fun indexOf(month: YearMonth): Int =
         CalendarPages.monthIndex(effectiveStartMonth, month).coerceIn(0, monthCount - 1) * itemsPerMonth
+
+    private fun monthAtIndex(index: Int): YearMonth = CalendarPages.monthAt(effectiveStartMonth, index / itemsPerMonth)
 
     public companion object {
         public val Saver: Saver<CalendarState, Any> =

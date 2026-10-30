@@ -19,10 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -64,12 +67,50 @@ public class YearCalendarState internal constructor(
     public val firstVisibleYear: Int
         get() = startYear + listState.firstVisibleItemIndex
 
+    private var programmaticScrolls: Int by mutableIntStateOf(0)
+
+    /** Year index the last programmatic scroll (or the initial state) left visible. */
+    private var anchorIndex: Int by mutableIntStateOf(listState.firstVisibleItemIndex)
+    private var anchorSource: ScrollSource by mutableStateOf(ScrollSource.Initial)
+
+    /**
+     * What brought [firstVisibleYear] into view: [ScrollSource.Initial] until
+     * anything scrolls, [ScrollSource.Programmatic] during and after
+     * [scrollToYear]/[animateScrollToYear], [ScrollSource.UserDrag] while the
+     * user drags or flings the pager and after such a gesture settles on another
+     * year. Snapshot-observable.
+     */
+    public val lastScrollSource: ScrollSource
+        get() {
+            if (programmaticScrolls > 0) return ScrollSource.Programmatic
+            if (listState.isScrollInProgress) return ScrollSource.UserDrag
+            val visible = listState.firstVisibleItemIndex
+            val clampedAtEnd = visible < anchorIndex && !listState.canScrollForward
+            return if (visible != anchorIndex && !clampedAtEnd) ScrollSource.UserDrag else anchorSource
+        }
+
+    private suspend fun programmaticScroll(
+        target: Int,
+        block: suspend () -> Unit,
+    ) {
+        anchorIndex = target
+        anchorSource = ScrollSource.Programmatic
+        programmaticScrolls++
+        try {
+            block()
+        } finally {
+            programmaticScrolls--
+        }
+    }
+
     public suspend fun scrollToYear(year: Int) {
-        listState.scrollToItem(indexOf(year))
+        val target = indexOf(year)
+        programmaticScroll(target) { listState.scrollToItem(target) }
     }
 
     public suspend fun animateScrollToYear(year: Int) {
-        listState.animateScrollToItem(indexOf(year))
+        val target = indexOf(year)
+        programmaticScroll(target) { listState.animateScrollToItem(target) }
     }
 
     private fun indexOf(year: Int): Int = (year - startYear).coerceIn(0, endYear - startYear)

@@ -42,9 +42,55 @@ public object CalendarPages {
         firstDayOfWeek: DayOfWeek,
     ): Int = weekStart(startDate, firstDayOfWeek).daysUntil(weekStart(date, firstDayOfWeek)) / 7
 
+    /**
+     * Pager index of the [visibleWeeksCount]-week block (`1..4`) containing
+     * [date], counted from the week of [startDate].
+     */
+    public fun weekIndex(
+        startDate: LocalDate,
+        date: LocalDate,
+        firstDayOfWeek: DayOfWeek,
+        visibleWeeksCount: Int = 1,
+    ): Int {
+        require(visibleWeeksCount in 1..4) { "visibleWeeksCount ($visibleWeeksCount) must be in 1..4" }
+        val spanDays = 7 * visibleWeeksCount
+        return weekStart(startDate, firstDayOfWeek)
+            .daysUntil(weekStart(date, firstDayOfWeek))
+            .floorDiv(spanDays)
+    }
+
     public fun weekCount(
         startDate: LocalDate,
         endDate: LocalDate,
         firstDayOfWeek: DayOfWeek,
     ): Int = weekIndex(startDate, endDate, firstDayOfWeek) + 1
+
+    /**
+     * Number of [visibleWeeksCount]-week pages (`1..4`) needed to cover
+     * [startDate]..[endDate] inclusive.
+     */
+    public fun weekCount(
+        startDate: LocalDate,
+        endDate: LocalDate,
+        firstDayOfWeek: DayOfWeek,
+        visibleWeeksCount: Int = 1,
+    ): Int {
+        require(visibleWeeksCount in 1..4) { "visibleWeeksCount ($visibleWeeksCount) must be in 1..4" }
+        val totalWeeks = weekIndex(startDate, endDate, firstDayOfWeek) + 1
+        return ((totalWeeks + visibleWeeksCount - 1) / visibleWeeksCount).coerceAtLeast(1)
+    }
+
+    /**
+     * Start date of the [index]-th [visibleWeeksCount]-week page (`1..4`)
+     * from [startDate].
+     */
+    public fun weekAt(
+        startDate: LocalDate,
+        index: Int,
+        firstDayOfWeek: DayOfWeek,
+        visibleWeeksCount: Int = 1,
+    ): LocalDate {
+        require(visibleWeeksCount in 1..4) { "visibleWeeksCount ($visibleWeeksCount) must be in 1..4" }
+        return weekStart(startDate, firstDayOfWeek).plus(index * 7 * visibleWeeksCount, DateTimeUnit.DAY)
+    }
 }

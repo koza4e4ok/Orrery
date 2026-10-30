@@ -412,6 +412,16 @@ public object CalendarDefaults {
         }
     }
 
+    /** Alias of [WeekHeader] for weekday header rows with localized short names. */
+    @Composable
+    public fun DaysOfWeekHeader(
+        daysOfWeek: List<DayOfWeek>,
+        modifier: Modifier = Modifier,
+        leadingSpacer: Boolean = false,
+    ) {
+        WeekHeader(daysOfWeek = daysOfWeek, modifier = modifier, leadingSpacer = leadingSpacer)
+    }
+
     /** ISO week number cell for the leading column. */
     @Composable
     public fun WeekNumber(

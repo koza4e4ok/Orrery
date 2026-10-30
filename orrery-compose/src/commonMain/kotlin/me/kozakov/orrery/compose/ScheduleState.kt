@@ -24,15 +24,17 @@ import me.kozakov.orrery.core.CalendarPages
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+private const val HOURS_PER_DAY: Int = 24
 private val UNBOUNDED_SCHEDULE_START = LocalDate(-19999, 1, 1)
 private val UNBOUNDED_SCHEDULE_END = LocalDate(19999, 12, 31)
 
 /**
  * State holder for [DaySchedule] and [WeekSchedule]: the horizontally paged
- * date window, the shared vertical scroll of the 24-hour grid, and the
- * zoomable [hourHeight].
+ * date window, the shared vertical scroll of the time grid, the zoomable
+ * [hourHeight], and the visible [minHour]..[maxHour] window.
  */
 @Stable
+@Suppress("TooManyFunctions")
 public class ScheduleState internal constructor(
     startDate: LocalDate?,
     endDate: LocalDate?,
@@ -42,8 +44,14 @@ public class ScheduleState internal constructor(
     public val minHourHeight: Dp,
     public val maxHourHeight: Dp,
     initialScrollOffset: Int,
+    /** First hour shown at the top of the time grid, `0..23` (default 0). */
+    public val minHour: Int = 0,
+    /** End of the time grid (exclusive hour), `minHour + 1..24` (default 24). */
+    public val maxHour: Int = HOURS_PER_DAY,
 ) {
     init {
+        require(minHour in 0 until HOURS_PER_DAY) { "minHour ($minHour) must be in 0..23" }
+        require(maxHour in minHour + 1..HOURS_PER_DAY) { "maxHour ($maxHour) must be in ${minHour + 1}..24" }
         require(minHourHeight <= maxHourHeight) {
             "minHourHeight ($minHourHeight) must not exceed maxHourHeight ($maxHourHeight)"
         }
@@ -74,7 +82,7 @@ public class ScheduleState internal constructor(
             hourHeightState = value.coerceIn(minHourHeight, maxHourHeight)
         }
 
-    /** Vertical scroll state of the 24-hour time grid (shared across columns and pages). */
+    /** Vertical scroll state of the time grid (shared across columns and pages). */
     public val verticalScrollState: ScrollState = ScrollState(initialScrollOffset)
 
     internal val effectiveStartDate: LocalDate
@@ -121,26 +129,84 @@ public class ScheduleState internal constructor(
         firstVisibleDate = target
     }
 
-    /** Scrolls the vertical time grid so [time] is at the top of the viewport. */
+    /**
+     * Scrolls the vertical time grid so [time] is at the top of the viewport.
+     * Times outside [minHour]..[maxHour] scroll to the nearest end of the grid.
+     */
     public suspend fun scrollToTime(
         time: LocalTime,
         density: Density,
     ) {
-        verticalScrollState.scrollTo(offsetOf(time, density))
+        verticalScrollState.scrollTo(offsetOfMinute(time.hour * 60 + time.minute, density))
     }
 
-    /** Animates the vertical time grid so [time] is at the top of the viewport. */
+    /**
+     * Animates the vertical time grid so [time] is at the top of the viewport.
+     * Times outside [minHour]..[maxHour] scroll to the nearest end of the grid.
+     */
     public suspend fun animateScrollToTime(
         time: LocalTime,
         density: Density,
     ) {
-        verticalScrollState.animateScrollTo(offsetOf(time, density))
+        verticalScrollState.animateScrollTo(offsetOfMinute(time.hour * 60 + time.minute, density))
     }
 
-    private fun offsetOf(
-        time: LocalTime,
+    /**
+     * Scrolls the vertical time grid so [hour]:[minute] is at the top of the viewport.
+     * [hour] may be 24 (the end of the day); times outside [minHour]..[maxHour] scroll
+     * to the nearest end of the grid.
+     */
+    public suspend fun scrollToHour(
+        hour: Int,
+        minute: Int = 0,
         density: Density,
-    ): Int = with(density) { (hourHeight.toPx() * (time.hour * 60 + time.minute) / 60f).roundToInt() }
+    ) {
+        verticalScrollState.scrollTo(offsetOfMinute(minuteOfDay(hour, minute), density))
+    }
+
+    /** Animated [scrollToHour]. */
+    public suspend fun animateScrollToHour(
+        hour: Int,
+        minute: Int = 0,
+        density: Density,
+    ) {
+        verticalScrollState.animateScrollTo(offsetOfMinute(minuteOfDay(hour, minute), density))
+    }
+
+    /**
+     * Scrolls the vertical time grid so [now] sits [verticalBiasFraction] of the
+     * viewport height below its top edge (default a quarter), keeping some earlier
+     * context visible. Pass [now] from your own clock, as for the schedule's `currentTime`.
+     */
+    public suspend fun scrollToCurrentTime(
+        now: LocalTime,
+        density: Density,
+        verticalBiasFraction: Float = 0.25f,
+    ) {
+        require(verticalBiasFraction in 0f..1f) {
+            "verticalBiasFraction ($verticalBiasFraction) must be in 0..1"
+        }
+        val bias = (verticalScrollState.viewportSize * verticalBiasFraction).roundToInt()
+        val target = offsetOfMinute(now.hour * 60 + now.minute, density) - bias
+        verticalScrollState.scrollTo(target.coerceAtLeast(0))
+    }
+
+    private fun minuteOfDay(
+        hour: Int,
+        minute: Int,
+    ): Int {
+        require(hour in 0..HOURS_PER_DAY) { "hour ($hour) must be in 0..24" }
+        require(minute in 0..59) { "minute ($minute) must be in 0..59" }
+        return hour * 60 + minute
+    }
+
+    private fun offsetOfMinute(
+        minuteOfDay: Int,
+        density: Density,
+    ): Int {
+        val minutes = minuteOfDay.coerceIn(minHour * 60, maxHour * 60) - minHour * 60
+        return with(density) { (hourHeight.toPx() * minutes / 60f).roundToInt() }
+    }
 
     internal fun attach(
         pagerState: PagerState,
@@ -197,6 +263,8 @@ public class ScheduleState internal constructor(
                         it.minHourHeight.value,
                         it.maxHourHeight.value,
                         it.verticalScrollState.value,
+                        it.minHour,
+                        it.maxHour,
                     )
                 },
                 restore = {
@@ -209,6 +277,8 @@ public class ScheduleState internal constructor(
                         minHourHeight = (it[5] as Float).dp,
                         maxHourHeight = (it[6] as Float).dp,
                         initialScrollOffset = it[7] as Int,
+                        minHour = it.getOrNull(8) as Int? ?: 0,
+                        maxHour = it.getOrNull(9) as Int? ?: HOURS_PER_DAY,
                     )
                 },
             )
@@ -230,11 +300,75 @@ public fun rememberScheduleState(
     minHourHeight: Dp = 36.dp,
     maxHourHeight: Dp = 160.dp,
     initialScrollTime: LocalTime = LocalTime(8, 0),
+): ScheduleState =
+    rememberScheduleStateImpl(
+        startDate = startDate,
+        endDate = endDate,
+        firstVisibleDate = firstVisibleDate,
+        firstDayOfWeek = firstDayOfWeek,
+        initialHourHeight = initialHourHeight,
+        minHourHeight = minHourHeight,
+        maxHourHeight = maxHourHeight,
+        initialScrollTime = initialScrollTime,
+        minHour = 0,
+        maxHour = HOURS_PER_DAY,
+    )
+
+/**
+ * Remembers saveable [ScheduleState] whose time grid shows only
+ * [minHour]`:00`..[maxHour]`:00` (for example working hours `8..18`). Null
+ * [startDate]/[endDate] (the defaults) leave that side unbounded. The time grid
+ * initially shows [initialScrollTime] at the top of the viewport, clamped to the
+ * visible hours.
+ *
+ * @param minHour First visible hour, `0..23`.
+ * @param maxHour End of the visible window (exclusive hour), `minHour + 1..24`.
+ */
+@Composable
+public fun rememberScheduleState(
+    startDate: LocalDate? = null,
+    endDate: LocalDate? = null,
+    firstVisibleDate: LocalDate = currentDate(),
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
+    initialHourHeight: Dp = 60.dp,
+    minHourHeight: Dp = 36.dp,
+    maxHourHeight: Dp = 160.dp,
+    initialScrollTime: LocalTime = LocalTime(8, 0),
+    minHour: Int = 0,
+    maxHour: Int = HOURS_PER_DAY,
+): ScheduleState =
+    rememberScheduleStateImpl(
+        startDate = startDate,
+        endDate = endDate,
+        firstVisibleDate = firstVisibleDate,
+        firstDayOfWeek = firstDayOfWeek,
+        initialHourHeight = initialHourHeight,
+        minHourHeight = minHourHeight,
+        maxHourHeight = maxHourHeight,
+        initialScrollTime = initialScrollTime,
+        minHour = minHour,
+        maxHour = maxHour,
+    )
+
+@Suppress("LongParameterList")
+@Composable
+private fun rememberScheduleStateImpl(
+    startDate: LocalDate?,
+    endDate: LocalDate?,
+    firstVisibleDate: LocalDate,
+    firstDayOfWeek: DayOfWeek,
+    initialHourHeight: Dp,
+    minHourHeight: Dp,
+    maxHourHeight: Dp,
+    initialScrollTime: LocalTime,
+    minHour: Int,
+    maxHour: Int,
 ): ScheduleState {
     val density = LocalDensity.current
     return rememberSaveable(saver = ScheduleState.Saver) {
         val hourHeightPx = with(density) { initialHourHeight.coerceIn(minHourHeight, maxHourHeight).toPx() }
-        val minutes = initialScrollTime.hour * 60 + initialScrollTime.minute
+        val minuteOfDay = initialScrollTime.hour * 60 + initialScrollTime.minute
+        val minutes = minuteOfDay.coerceIn(minHour * 60, maxHour * 60) - minHour * 60
         ScheduleState(
             startDate = startDate,
             endDate = endDate,
@@ -244,6 +378,8 @@ public fun rememberScheduleState(
             minHourHeight = minHourHeight,
             maxHourHeight = maxHourHeight,
             initialScrollOffset = (hourHeightPx * minutes / 60f).roundToInt(),
+            minHour = minHour,
+            maxHour = maxHour,
         )
     }
 }

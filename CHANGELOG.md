@@ -22,6 +22,34 @@
   lets a tap on the selected day clear the selection; the default `false` keeps
   the 0.8.0 behavior, where the selected day stays selected. The 2-argument
   constructor and `copy` stay as hidden binary-compatibility bridges.
+- Two-week (`visibleWeeksCount = 1..4`) mode, `visibleDaysOfWeek` work-week
+  filter and `CalendarRowHeight` (`WrapContent`, `Fixed`, `FillViewport`) (#82).
+  `orrery-core` adds `daysOfWeek(firstDayOfWeek, visibleDaysOfWeek)`,
+  `monthGrid(..., visibleDaysOfWeek)` (dropping week rows that have zero
+  in-month days after filtering unless `OutDateStyle.EndOfGrid`),
+  `weekGrid(..., visibleDaysOfWeek)`, `multiWeekGrid(anchor, weeksCount, ...)`
+  and multi-week `CalendarPages` helpers. `orrery-compose` adds additive
+  overloads on `rememberWeekCalendarState`, `WeekCalendar`,
+  `rememberCalendarState`, `HorizontalCalendar` and `VerticalCalendar`, plus
+  `CalendarDefaults.DaysOfWeekHeader` and `WeekCalendarState.visiblePages()`.
+- Schedule view power features (#85). `orrery-core`: `EventOverlapMode`
+  (`SideBySide`, `Stacked(laneIndentFraction = 0.15f)`), a
+  `layoutDaySchedule(date, events, minDurationMinutes, minHour, maxHour,
+  overlapMode)` overload that clips timed events to the visible
+  `minHour:00..maxHour:00` window and can cascade overlapping events, and
+  `packAllDayBanners` / `AllDayBanner` to lay out multi-day all-day events
+  across day columns. `orrery-compose`: `ScheduleState.minHour` /
+  `maxHour` (new `rememberScheduleState(..., minHour, maxHour)` overload),
+  `ScheduleState.scrollToHour` / `animateScrollToHour` /
+  `scrollToCurrentTime`, and `DaySchedule` / `WeekSchedule` overloads with
+  an `overlapMode` parameter. Existing signatures are unchanged.
+
+### Changed
+
+- The `DaySchedule` / `WeekSchedule` all-day header shows each multi-day
+  all-day event as one banner spanning the days it covers on the page instead
+  of a separate chip per day; the "+N" overflow now counts hidden banners per
+  column (#85).
 
 ## [0.8.0] - 2026-10-28
 

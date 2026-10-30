@@ -17,9 +17,9 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
@@ -301,7 +301,7 @@ private fun DefaultDayContent(
 ) {
     val hidden = !showOutDates && day.position != DayPosition.MonthDate
     if (hidden) {
-        Box(modifier.fillMaxWidth().heightIn(min = minCellHeight))
+        Box(modifier.fillMaxWidth().defaultMinSize(minHeight = minCellHeight))
         return
     }
     val isToday = day.date == today
@@ -400,7 +400,7 @@ private fun DefaultDayContent(
         modifier =
             modifier
                 .fillMaxWidth()
-                .heightIn(min = minCellHeight)
+                .defaultMinSize(minHeight = minCellHeight)
                 .drawBehind {
                     if (shapes.inRangeShape == RectangleShape) {
                         drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor)

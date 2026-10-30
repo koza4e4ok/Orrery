@@ -30,7 +30,14 @@ public class CalendarState internal constructor(
     firstVisibleMonth: YearMonth,
     firstDayOfWeek: DayOfWeek,
     outDateStyle: OutDateStyle,
+    visibleDaysOfWeek: Set<DayOfWeek> = ALL_DAYS_OF_WEEK_SET,
 ) {
+    init {
+        require(visibleDaysOfWeek.isNotEmpty()) {
+            "visibleDaysOfWeek must not be empty"
+        }
+    }
+
     /** Inclusive range start; null scrolls unboundedly into the past. */
     public var startMonth: YearMonth? by mutableStateOf(startMonth)
         private set
@@ -46,6 +53,16 @@ public class CalendarState internal constructor(
         get() = endMonth ?: UNBOUNDED_END_MONTH
     public var firstDayOfWeek: DayOfWeek by mutableStateOf(firstDayOfWeek)
     public var outDateStyle: OutDateStyle by mutableStateOf(outDateStyle)
+
+    private var visibleDaysOfWeekState: Set<DayOfWeek> by mutableStateOf(visibleDaysOfWeek)
+
+    /** Subset of weekdays rendered in each week row (must not be empty). */
+    public var visibleDaysOfWeek: Set<DayOfWeek>
+        get() = visibleDaysOfWeekState
+        set(value) {
+            require(value.isNotEmpty()) { "visibleDaysOfWeek must not be empty" }
+            visibleDaysOfWeekState = value
+        }
 
     /** List items per month: 2 when sticky headers add a header item per month. */
     internal var itemsPerMonth: Int = 1
@@ -119,6 +136,7 @@ public class CalendarState internal constructor(
                         it.firstVisibleMonth.toString(),
                         it.firstDayOfWeek.ordinal,
                         it.outDateStyle.ordinal,
+                        it.visibleDaysOfWeek.toBitMask(),
                     )
                 },
                 restore = {
@@ -128,6 +146,9 @@ public class CalendarState internal constructor(
                         firstVisibleMonth = YearMonth.parse(it[2] as String),
                         firstDayOfWeek = DayOfWeek.entries[it[3] as Int],
                         outDateStyle = OutDateStyle.entries[it[4] as Int],
+                        visibleDaysOfWeek =
+                            (it.getOrNull(5) as? Int)?.let(::dayOfWeekSetFromBitMask)
+                                ?: ALL_DAYS_OF_WEEK_SET,
                     )
                 },
             )
@@ -148,4 +169,28 @@ public fun rememberCalendarState(
 ): CalendarState =
     rememberSaveable(saver = CalendarState.Saver) {
         CalendarState(startMonth, endMonth, firstVisibleMonth, firstDayOfWeek, outDateStyle)
+    }
+
+/**
+ * Remembers saveable [CalendarState] configured with [visibleDaysOfWeek]
+ * (e.g. Monday–Friday work week).
+ */
+@Composable
+public fun rememberCalendarState(
+    startMonth: YearMonth? = null,
+    endMonth: YearMonth? = null,
+    firstVisibleMonth: YearMonth = currentYearMonth(),
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
+    outDateStyle: OutDateStyle = OutDateStyle.EndOfRow,
+    visibleDaysOfWeek: Set<DayOfWeek> = ALL_DAYS_OF_WEEK_SET,
+): CalendarState =
+    rememberSaveable(saver = CalendarState.Saver) {
+        CalendarState(
+            startMonth = startMonth,
+            endMonth = endMonth,
+            firstVisibleMonth = firstVisibleMonth,
+            firstDayOfWeek = firstDayOfWeek,
+            outDateStyle = outDateStyle,
+            visibleDaysOfWeek = visibleDaysOfWeek,
+        )
     }

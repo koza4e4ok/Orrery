@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- Two-week (`visibleWeeksCount = 1..4`) mode, `visibleDaysOfWeek` work-week
+  filter and `CalendarRowHeight` (`WrapContent`, `Fixed`, `FillViewport`) (#82).
+  `orrery-core` adds `daysOfWeek(firstDayOfWeek, visibleDaysOfWeek)`,
+  `monthGrid(..., visibleDaysOfWeek)` (dropping week rows that have zero
+  in-month days after filtering unless `OutDateStyle.EndOfGrid`),
+  `weekGrid(..., visibleDaysOfWeek)`, `multiWeekGrid(anchor, weeksCount, ...)`
+  and multi-week `CalendarPages` helpers. `orrery-compose` adds additive
+  overloads on `rememberWeekCalendarState`, `WeekCalendar`,
+  `rememberCalendarState`, `HorizontalCalendar` and `VerticalCalendar`, plus
+  `CalendarDefaults.DaysOfWeekHeader` and `WeekCalendarState.visiblePages()`.
+
 ## [0.8.0] - 2026-10-28
 
 ### Added

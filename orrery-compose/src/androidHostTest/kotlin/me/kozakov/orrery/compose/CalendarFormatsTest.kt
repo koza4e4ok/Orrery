@@ -77,7 +77,8 @@ class CalendarFormatsTest {
         // Scroll to a date in the second 2-week block (Mon Jul 20 .. Sun Aug 2)
         rule.runOnIdle { scope.launch { state.scrollToDate(LocalDate(2026, 7, 29)) } }
         rule.waitForIdle()
-        assertEquals(LocalDate(2026, 7, 20), state.firstVisibleWeek.days.first().date)
+        val firstDay = state.firstVisibleWeek.days.first()
+        assertEquals(LocalDate(2026, 7, 20), firstDay.date)
         rule.onNodeWithTag("d-2026-07-20").assertIsDisplayed()
         rule.onNodeWithTag("d-2026-08-02").assertIsDisplayed()
     }
@@ -192,7 +193,11 @@ class CalendarFormatsTest {
             Box(Modifier.width(350.dp).height(300.dp)) {
                 HorizontalCalendar(
                     state = state,
-                    modifier = Modifier.fillMaxWidth().height(300.dp).testTag("cal"),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .testTag("cal"),
                     rowHeight = CalendarRowHeight.FillViewport(minRowHeight = 40.dp),
                     weekHeader = null,
                     dayContent = { day ->

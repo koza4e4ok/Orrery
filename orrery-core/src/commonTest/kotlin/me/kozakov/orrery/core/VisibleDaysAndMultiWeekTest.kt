@@ -71,12 +71,14 @@ class VisibleDaysAndMultiWeekTest {
         assertTrue(grid.weeks.all { it.days.size == 5 })
         assertTrue(grid.weeks.all { week -> week.days.any { it.position == DayPosition.MonthDate } })
         // First visible row starts on Mon Aug 3
-        assertEquals(LocalDate(2026, 8, 3), grid.weeks.first().days.first().date)
-        assertEquals(DayPosition.MonthDate, grid.weeks.first().days.first().position)
+        val firstRowDays = grid.weeks.first().days
+        assertEquals(LocalDate(2026, 8, 3), firstRowDays.first().date)
+        assertEquals(DayPosition.MonthDate, firstRowDays.first().position)
         // Last visible row starts on Mon Aug 31 and ends on Fri Sep 4 (OutDate)
-        assertEquals(LocalDate(2026, 8, 31), grid.weeks.last().days.first().date)
-        assertEquals(LocalDate(2026, 9, 4), grid.weeks.last().days.last().date)
-        assertEquals(DayPosition.OutDate, grid.weeks.last().days.last().position)
+        val lastRowDays = grid.weeks.last().days
+        assertEquals(LocalDate(2026, 8, 31), lastRowDays.first().date)
+        assertEquals(LocalDate(2026, 9, 4), lastRowDays.last().date)
+        assertEquals(DayPosition.OutDate, lastRowDays.last().position)
         assertEquals(5, grid.weeks.size)
     }
 

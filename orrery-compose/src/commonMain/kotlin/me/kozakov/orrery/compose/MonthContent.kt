@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress

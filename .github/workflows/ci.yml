@@ -20,16 +20,6 @@ jobs:
       # orrery-compose runs its desktop and wasmJs (headless Chrome) tests explicitly.
       # testDebugUnitTest / verifyRoborazziDebug are aliases for the Android-KMP
       # host-test tasks (testAndroidHostTest / verifyRoborazziAndroidHostTest).
-      - name: Generate ABI dumps and Roborazzi goldens (temporary)
-        run: ./gradlew updateKotlinAbi :orrery-compose:recordRoborazziDebug
-      - name: Upload generated ABI dumps and Roborazzi goldens (temporary)
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-abi-and-snapshots
-          path: |
-            */api/
-            orrery-compose/src/androidHostTest/snapshots/me.kozakov.orrery.compose.CalendarFormatsSnapshotTest.*.png
-          if-no-files-found: error
       - name: Lint, ABI check, tests, screenshots, sample build
         run: >
           ./gradlew ktlintCheck detekt checkKotlinAbi

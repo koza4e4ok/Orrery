@@ -19,6 +19,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import me.kozakov.orrery.core.CalendarEvent
+import me.kozakov.orrery.core.EventOverlapMode
 import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.eventsByDate
 import org.junit.Rule
@@ -89,9 +90,58 @@ class ScheduleViewSnapshotTest {
             timed("cyan", "Cyan sync", 15, LocalTime(11, 0), LocalTime(12, 0), 0xFF00FFFF, "Room 2"),
         ).eventsByDate(LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31))
 
+    // A four-event overlap cluster for the stacked overlap mode.
+    private val stackedEvents =
+        listOf(
+            timed("standup", "Team standup", 15, LocalTime(9, 0), LocalTime(9, 30), 0xFF81C784),
+            timed("review", "Design review", 15, LocalTime(9, 15), LocalTime(11, 0), 0xFFE57373, "Room 302"),
+            timed("sync", "API sync", 15, LocalTime(9, 45), LocalTime(10, 45), 0xFF64B5F6),
+            timed("interview", "Interview", 15, LocalTime(10, 15), LocalTime(11, 30), 0xFFFFB74D, "Zoom"),
+            timed("lunch", "Lunch", 15, LocalTime(12, 0), LocalTime(13, 0), 0xFFBA68C8),
+        ).eventsByDate(LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31))
+
+    // Working-hours week: events before 08:00 and after 18:00 are clipped or hidden.
+    private val workingHoursEvents =
+        listOf(
+            timed("gym", "Gym", 13, LocalTime(6, 30), LocalTime(8, 30), 0xFF81C784),
+            timed("planning", "Sprint planning", 14, LocalTime(10, 0), LocalTime(11, 30), 0xFFBA68C8),
+            timed("standup", "Standup", 15, LocalTime(9, 0), LocalTime(9, 30), 0xFF81C784),
+            timed("review", "Design review", 15, LocalTime(9, 15), LocalTime(10, 30), 0xFFE57373),
+            timed("demo", "Demo", 16, LocalTime(17, 0), LocalTime(19, 0), 0xFF64B5F6),
+            timed("dinner", "Dinner", 17, LocalTime(19, 0), LocalTime(21, 0), 0xFFFFB74D),
+        ).eventsByDate(LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31))
+
+    private fun allDay(
+        id: String,
+        title: String,
+        startDay: Int,
+        endDay: Int,
+        colorArgb: Long? = null,
+    ): CalendarEvent<Nothing> =
+        CalendarEvent(
+            id = id,
+            title = title,
+            span = EventSpan.AllDay(LocalDate(2026, 7, startDay), LocalDate(2026, 7, endDay)),
+            colorArgb = colorArgb,
+        )
+
+    // Multi-day all-day banners, including ones clipped at both page edges.
+    private val spanningAllDayEvents =
+        listOf(
+            allDay("conference", "KotlinConf trip", 10, 14, 0xFF64B5F6),
+            allDay("offsite", "Offsite Summit", 15, 17, 0xFFBA68C8),
+            allDay("holiday", "Summer holiday", 18, 24, 0xFF81C784),
+            allDay("release", "Release 0.9", 16, 16),
+            allDay("oncall", "On call", 14, 16, 0xFFFFB74D),
+            timed("standup", "Standup", 15, LocalTime(9, 0), LocalTime(9, 30), 0xFF81C784),
+        ).eventsByDate(LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31))
+
     private fun content(
         week: Boolean,
         events: Map<LocalDate, List<CalendarEvent<Nothing>>> = this.events,
+        minHour: Int = 0,
+        maxHour: Int = 24,
+        overlapMode: EventOverlapMode = EventOverlapMode.SideBySide,
     ) {
         rule.setContent {
             MaterialTheme(
@@ -103,6 +153,8 @@ class ScheduleViewSnapshotTest {
                             firstVisibleDate = today,
                             firstDayOfWeek = DayOfWeek.MONDAY,
                             initialScrollTime = LocalTime(8, 0),
+                            minHour = minHour,
+                            maxHour = maxHour,
                         )
                     val modifier = Modifier.fillMaxWidth().height(640.dp)
                     if (week) {
@@ -112,6 +164,7 @@ class ScheduleViewSnapshotTest {
                             state = state,
                             today = today,
                             currentTime = now,
+                            overlapMode = overlapMode,
                         )
                     } else {
                         DaySchedule(
@@ -121,6 +174,7 @@ class ScheduleViewSnapshotTest {
                             today = today,
                             currentTime = now,
                             showHalfHourLines = true,
+                            overlapMode = overlapMode,
                         )
                     }
                 }
@@ -164,6 +218,45 @@ class ScheduleViewSnapshotTest {
     @Config(qualifiers = "+night")
     fun paleEventColorsDark() {
         content(week = false, events = paleEvents)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun stackedOverlapLight() {
+        content(week = false, events = stackedEvents, overlapMode = EventOverlapMode.Stacked())
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun stackedOverlapDark() {
+        content(week = false, events = stackedEvents, overlapMode = EventOverlapMode.Stacked())
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun workingHoursWeekLight() {
+        content(week = true, events = workingHoursEvents, minHour = 8, maxHour = 18)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun workingHoursWeekDark() {
+        content(week = true, events = workingHoursEvents, minHour = 8, maxHour = 18)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun spanningAllDayHeaderLight() {
+        content(week = true, events = spanningAllDayEvents)
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun spanningAllDayHeaderDark() {
+        content(week = true, events = spanningAllDayEvents)
         rule.onRoot().captureRoboImage()
     }
 }

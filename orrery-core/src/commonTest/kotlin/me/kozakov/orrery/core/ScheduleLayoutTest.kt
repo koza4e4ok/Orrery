@@ -208,4 +208,215 @@ class ScheduleLayoutTest {
             layoutDaySchedule(day1, emptyList<CalendarEvent<Nothing>>(), minDurationMinutes = -1)
         }
     }
+
+    // minHour / maxHour visible window
+
+    @Test
+    fun visibleWindowClipsAndExcludesEventsOutsideTheHours() {
+        val layout =
+            layoutDaySchedule(
+                day1,
+                listOf(
+                    timed("early", "06:00", "07:30"),
+                    timed("edgeStart", "07:00", "08:00"),
+                    timed("crossStart", "07:30", "09:00"),
+                    timed("inside", "12:00", "13:00"),
+                    timed("crossEnd", "17:30", "19:00"),
+                    timed("atEnd", "18:00", "19:00"),
+                    timed("late", "20:00", "21:00"),
+                ),
+                minHour = 8,
+                maxHour = 18,
+            )
+        assertEquals(listOf("crossStart", "inside", "crossEnd"), layout.timedEvents.map { it.event.id })
+        assertEquals(480, layout.byId("crossStart").startMinute)
+        assertEquals(540, layout.byId("crossStart").endMinute)
+        assertEquals(720, layout.byId("inside").startMinute)
+        assertEquals(1050, layout.byId("crossEnd").startMinute)
+        assertEquals(1080, layout.byId("crossEnd").endMinute)
+        assertEquals(1080, layout.byId("crossEnd").displayEndMinute)
+    }
+
+    @Test
+    fun visibleWindowCapsMinimumDurationAtMaxHour() {
+        val layout =
+            layoutDaySchedule(
+                day1,
+                listOf(timed("zero", "08:00", "08:00"), timed("tail", "17:55", "18:00")),
+                minDurationMinutes = 30,
+                minHour = 8,
+                maxHour = 18,
+            )
+        assertEquals(480, layout.byId("zero").startMinute)
+        assertEquals(510, layout.byId("zero").displayEndMinute)
+        assertEquals(1075, layout.byId("tail").startMinute)
+        assertEquals(1080, layout.byId("tail").displayEndMinute)
+    }
+
+    @Test
+    fun visibleWindowClipsOvernightEvents() {
+        val overnight = timed("night", "22:00", "09:00", startDate = day1, endDate = day2)
+        val first = layoutDaySchedule(day1, listOf(overnight), minHour = 6, maxHour = 23).byId("night")
+        assertEquals(1320, first.startMinute)
+        assertEquals(1380, first.endMinute)
+        val second = layoutDaySchedule(day2, listOf(overnight), minHour = 6, maxHour = 23).byId("night")
+        assertEquals(360, second.startMinute)
+        assertEquals(540, second.endMinute)
+        assertTrue(layoutDaySchedule(day2, listOf(overnight), minHour = 10, maxHour = 23).timedEvents.isEmpty())
+    }
+
+    @Test
+    fun defaultWindowMatchesTheThreeArgumentOverload() {
+        val events =
+            listOf(
+                timed("a", "00:00", "01:00"),
+                timed("b", "00:30", "02:00"),
+                timed("c", "23:00", "23:59"),
+                timed("d", "23:50", "00:00", startDate = day1, endDate = day2),
+            )
+        assertEquals(
+            layoutDaySchedule(day1, events, 15),
+            layoutDaySchedule(day1, events, 15, minHour = 0, maxHour = 24, overlapMode = EventOverlapMode.SideBySide),
+        )
+    }
+
+    @Test
+    fun invalidHourBoundsAreRejected() {
+        val none = emptyList<CalendarEvent<Nothing>>()
+        assertFailsWith<IllegalArgumentException> { layoutDaySchedule(day1, none, minHour = -1) }
+        assertFailsWith<IllegalArgumentException> { layoutDaySchedule(day1, none, maxHour = 25) }
+        assertFailsWith<IllegalArgumentException> { layoutDaySchedule(day1, none, minHour = 10, maxHour = 10) }
+        assertFailsWith<IllegalArgumentException> { layoutDaySchedule(day1, none, minHour = 24) }
+    }
+
+    // EventOverlapMode.Stacked
+
+    @Test
+    fun stackedModeIndentsEachLaneAndExtendsToTheRightEdge() {
+        val layout =
+            layoutDaySchedule(
+                day1,
+                listOf(
+                    timed("a", "09:00", "11:00"),
+                    timed("b", "09:30", "10:30"),
+                    timed("c", "10:00", "10:45"),
+                    timed("solo", "13:00", "14:00"),
+                ),
+                overlapMode = EventOverlapMode.Stacked(),
+            )
+        assertEquals(0, layout.byId("a").columnIndex)
+        assertEquals(1, layout.byId("b").columnIndex)
+        assertEquals(2, layout.byId("c").columnIndex)
+        assertEquals(3, layout.byId("a").columnCount)
+        assertEquals(0f, layout.byId("a").leftFraction)
+        assertEquals(1f, layout.byId("a").widthFraction)
+        assertEquals(0.15f, layout.byId("b").leftFraction, 1e-6f)
+        assertEquals(0.85f, layout.byId("b").widthFraction, 1e-6f)
+        assertEquals(0.3f, layout.byId("c").leftFraction, 1e-6f)
+        assertEquals(0.7f, layout.byId("c").widthFraction, 1e-6f)
+        assertEquals(0f, layout.byId("solo").leftFraction)
+        assertEquals(1f, layout.byId("solo").widthFraction)
+    }
+
+    @Test
+    fun stackedModeCapsTheIndentAtThreeQuarters() {
+        val events = (0 until 6).map { timed("e$it", "09:0$it", "12:00") }
+        val layout = layoutDaySchedule(day1, events, overlapMode = EventOverlapMode.Stacked(laneIndentFraction = 0.2f))
+        assertEquals(0.6f, layout.byId("e3").leftFraction, 1e-6f)
+        assertEquals(0.75f, layout.byId("e4").leftFraction, 1e-6f)
+        assertEquals(0.75f, layout.byId("e5").leftFraction, 1e-6f)
+        assertEquals(0.25f, layout.byId("e5").widthFraction, 1e-6f)
+    }
+
+    @Test
+    fun stackedModeReusesFreedLanes() {
+        val layout =
+            layoutDaySchedule(
+                day1,
+                listOf(timed("a", "09:00", "10:00"), timed("b", "09:30", "11:00"), timed("c", "10:00", "10:30")),
+                overlapMode = EventOverlapMode.Stacked(0.1f),
+            )
+        assertEquals(0, layout.byId("c").columnIndex)
+        assertEquals(0f, layout.byId("c").leftFraction)
+        assertEquals(0.1f, layout.byId("b").leftFraction, 1e-6f)
+    }
+
+    @Test
+    fun stackedIndentMustBeAFraction() {
+        assertFailsWith<IllegalArgumentException> { EventOverlapMode.Stacked(-0.1f) }
+        assertFailsWith<IllegalArgumentException> { EventOverlapMode.Stacked(1.5f) }
+    }
+
+    // packAllDayBanners
+
+    private fun allDay(
+        id: String,
+        start: LocalDate,
+        end: LocalDate = start,
+    ): CalendarEvent<Nothing> = CalendarEvent(id = id, title = id, span = EventSpan.AllDay(start, end))
+
+    private val week = (13..19).map { LocalDate(2026, 7, it) }
+
+    @Test
+    fun bannersSpanTheCoveredColumnsAndPackIntoLanes() {
+        val banners =
+            packAllDayBanners(
+                week,
+                listOf(
+                    allDay("single", LocalDate(2026, 7, 15)),
+                    allDay("offsite", LocalDate(2026, 7, 15), LocalDate(2026, 7, 16)),
+                    allDay("trip", LocalDate(2026, 7, 14), LocalDate(2026, 7, 17)),
+                    allDay("later", LocalDate(2026, 7, 18), LocalDate(2026, 7, 19)),
+                    timed("meeting", "09:00", "10:00"),
+                ),
+            )
+        assertEquals(listOf("trip", "offsite", "single", "later"), banners.map { it.event.id })
+        val byId = banners.associateBy { it.event.id }
+        assertEquals(AllDayBanner(byId.getValue("trip").event, 1, 4, 0, false, false), byId["trip"])
+        assertEquals(2 to 3, byId.getValue("offsite").let { it.startColumn to it.endColumnInclusive })
+        assertEquals(1, byId.getValue("offsite").laneIndex)
+        assertEquals(2, byId.getValue("single").laneIndex)
+        assertEquals(0, byId.getValue("later").laneIndex)
+        assertEquals(5 to 6, byId.getValue("later").let { it.startColumn to it.endColumnInclusive })
+    }
+
+    @Test
+    fun bannersClipAtThePageEdges() {
+        val banners =
+            packAllDayBanners(
+                week,
+                listOf(
+                    allDay("before", LocalDate(2026, 7, 10), LocalDate(2026, 7, 14)),
+                    allDay("after", LocalDate(2026, 7, 18), LocalDate(2026, 7, 25)),
+                    allDay("whole", LocalDate(2026, 7, 1), LocalDate(2026, 7, 31)),
+                    allDay("outside", LocalDate(2026, 7, 20), LocalDate(2026, 7, 21)),
+                ),
+            ).associateBy { it.event.id }
+        assertEquals(setOf("before", "after", "whole"), banners.keys)
+        with(banners.getValue("before")) {
+            assertEquals(0 to 1, startColumn to endColumnInclusive)
+            assertTrue(clippedStart)
+            assertEquals(false, clippedEnd)
+        }
+        with(banners.getValue("after")) {
+            assertEquals(5 to 6, startColumn to endColumnInclusive)
+            assertEquals(false, clippedStart)
+            assertTrue(clippedEnd)
+        }
+        with(banners.getValue("whole")) {
+            assertEquals(0 to 6, startColumn to endColumnInclusive)
+            assertTrue(clippedStart)
+            assertTrue(clippedEnd)
+            assertEquals(0, laneIndex)
+        }
+    }
+
+    @Test
+    fun bannersDeduplicateRepeatedIdsAndHandleEmptyInput() {
+        val offsite = allDay("offsite", LocalDate(2026, 7, 15), LocalDate(2026, 7, 16))
+        val banners = packAllDayBanners(week, listOf(offsite, offsite, offsite))
+        assertEquals(1, banners.size)
+        assertTrue(packAllDayBanners(emptyList(), listOf(offsite)).isEmpty())
+        assertTrue(packAllDayBanners(week, emptyList<CalendarEvent<Nothing>>()).isEmpty())
+    }
 }

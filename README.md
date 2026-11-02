@@ -36,6 +36,62 @@ two-week strip.
   <img src="art/orrery-web-demo.gif" width="250" alt="Web demo: the same calendar tour running on Kotlin/Wasm in Chrome" />
 </p>
 
+<details>
+<summary><b>📸 Feature Screenshots Gallery (Collapsible Calendar, Event Banners, Range Styles, Progress Rings, Schedules, Year &amp; Heatmap, Style Presets, Pickers)</b></summary>
+<br />
+
+### Collapsible Calendar & Multi-Day Event Banners
+Expanded `Month` with spanning `WeekEventBanners` (`+N` overflow), `TwoWeeks` mode with drag handle, collapsed `Week` strip, and Dark theme with lunisolar sub-labels & event count badges:
+
+<p align="center">
+  <img src="art/screenshots/agenda_month_banners.png" width="230" alt="Expanded month calendar with spanning multi-day week event banners and agenda list" />&nbsp;&nbsp;
+  <img src="art/screenshots/agenda_twoweeks.png" width="230" alt="CollapsibleCalendarScaffold at the TwoWeeks stop with lunisolar sub-labels, event count badges, and drag handle" />&nbsp;&nbsp;
+  <img src="art/screenshots/agenda_week_collapsed.png" width="230" alt="Collapsed single-week strip over the scrollable agenda list" />&nbsp;&nbsp;
+  <img src="art/screenshots/agenda_dark.png" width="230" alt="Dark theme month calendar with lunisolar sub-labels, festival labels, corner badges, and agenda list" />
+</p>
+
+### Hospitality & Range Selection Styles
+`SplitDiagonal` check-in/check-out triangles and `SplitHorizontal` half-cell endpoints with same-day turnover (`Oct 29`) and nightly pricing sub-labels:
+
+<p align="center">
+  <img src="art/screenshots/range_diagonal.png" width="240" alt="Hospitality range selection with SplitDiagonal check-in/check-out triangles, turnover day, and nightly prices" />&nbsp;&nbsp;
+  <img src="art/screenshots/range_split_horizontal.png" width="240" alt="Hospitality range selection with SplitHorizontal check-in/check-out half-cells, turnover day, and nightly prices" />
+</p>
+
+### Progress Rings & Weekday Filtering
+Custom circular progress ring day cells across a `TwoWeeks` strip and `Month` grid, plus `visibleDaysOfWeek` (`Mon–Fri`) 5-column weekday filtering:
+
+<p align="center">
+  <img src="art/screenshots/habits_progress_month.png" width="240" alt="Habit tracker with circular progress rings across TwoWeeks and Month grids" />&nbsp;&nbsp;
+  <img src="art/screenshots/habits_weekdays_only.png" width="240" alt="Mon-Fri 5-column weekday filter with circular completion rings" />
+</p>
+
+### Time-Grid Schedules (`WeekSchedule` & `DaySchedule`)
+Working-hours `WeekSchedule` (`07:00–22:00`) with all-day banners, current-time indicator, and `SideBySide` timed event lanes, alongside `DaySchedule` with `EventOverlapMode.Stacked` cascading cards:
+
+<p align="center">
+  <img src="art/screenshots/schedule_week_side_by_side.png" width="240" alt="WeekSchedule with all-day event banners, working hours 07:00-22:00, current time indicator, and side-by-side timed event lanes" />&nbsp;&nbsp;
+  <img src="art/screenshots/schedule_week_stacked.png" width="240" alt="DaySchedule with EventOverlapMode.Stacked cascading overlapping event cards" />
+</p>
+
+### Year View, Contribution Heatmap & Style Presets
+12-month `YearCalendar` overview + GitHub-style `HeatmapCalendar`, and built-in `CalendarStyle` presets (`roundedSquareStyle`, `segmentedRangeStyle`, `borderedCardStyle` with Meizu `W`/`H` corner badges, and custom `DayDecorator` glow/festival styles):
+
+<p align="center">
+  <img src="art/screenshots/year_and_heatmap.png" width="240" alt="12-month YearCalendar overview and GitHub-style HeatmapCalendar contribution grid" />&nbsp;&nbsp;
+  <img src="art/screenshots/style_presets.png" width="240" alt="Style presets: roundedSquareStyle, segmentedRangeStyle, borderedCardStyle with Meizu W/H corner badges, and custom DayDecorator" />
+</p>
+
+### Material 3 Date & Date-Range Picker Dialogs
+Modal `OrreryDatePickerDialog` and full-screen `OrreryDateRangePickerDialog` with quick range preset chips:
+
+<p align="center">
+  <img src="art/screenshots/picker_date_modal.png" width="240" alt="Material 3 OrreryDatePickerDialog modal date picker" />&nbsp;&nbsp;
+  <img src="art/screenshots/picker_range_modal.png" width="240" alt="Material 3 OrreryDateRangePickerDialog full-screen range picker with quick preset chips" />
+</p>
+
+</details>
+
 **API reference:** [koza4e4ok.github.io/Orrery](https://koza4e4ok.github.io/Orrery/)
 (Dokka, published for each release).
 

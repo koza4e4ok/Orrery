@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -98,6 +99,12 @@ import kotlin.math.sqrt
  * outlines [CalendarDayShapes.dayShape] in the unclipped overlay. While a
  * pointer hovers an available, unselected day, [CalendarDayColors.hoverContainerColor]
  * fills the day shape.
+ *
+ * Available, unselected in-month days outside a range whose day of week is
+ * in [CalendarDayColors.weekendDays] draw their number in
+ * [CalendarDayColors.weekendContentColor] (today keeps its own color). Under
+ * `LayoutDirection.Rtl` the range band halves and split endpoint halves
+ * are mirrored so they still face the previous and next days.
  *
  * Besides the date as content description, the cell reports range
  * start / end / in range, today and unavailable as its accessibility
@@ -380,6 +387,7 @@ private fun DefaultDayContent(
     val pressInteractions = remember(interactionSource) { PressOnlyInteractionSource(interactionSource) }
     val showFocusRing = isFocused && available
     val showHover = isHovered && available && !isSelected
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val contentColor =
         when {
             !available -> colors.unavailableContentColor
@@ -389,6 +397,7 @@ private fun DefaultDayContent(
             day.position != DayPosition.MonthDate -> colors.outDateContentColor
             isToday && indicator is TodayIndicator.FilledCircle -> colors.selectedContentColor
             isToday -> colors.todayContentColor
+            day.date.dayOfWeek in colors.weekendDays -> colors.weekendContentColor
             else -> colors.contentColor
         }
     val hasOverlay =
@@ -403,7 +412,7 @@ private fun DefaultDayContent(
                 .defaultMinSize(minHeight = minCellHeight)
                 .drawBehind {
                     if (shapes.inRangeShape == RectangleShape) {
-                        drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor)
+                        drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor, isRtl)
                     }
                     if (split) {
                         drawSplitEndpoint(
@@ -412,6 +421,7 @@ private fun DefaultDayContent(
                             pmAlpha = pmHalfAlpha,
                             gap = if (isTurnover) TurnoverGap.toPx() else 0f,
                             color = colors.inRangeContainerColor,
+                            isRtl = isRtl,
                         )
                     }
                 }.selectable(
@@ -605,42 +615,46 @@ private fun DrawScope.drawRangeBand(
     startAlpha: Float,
     endAlpha: Float,
     color: Color,
+    isRtl: Boolean,
 ) {
     if (startAlpha <= 0f && endAlpha <= 0f) return
     val height = size.minDimension
     val top = (size.height - height) / 2f
-    val center = size.width / 2f
-    val ltr = layoutDirection == LayoutDirection.Ltr
 
     fun half(
-        left: Float,
-        right: Float,
+        bounds: Pair<Float, Float>,
         alpha: Float,
     ) {
         if (alpha > 0f) {
             drawRect(
                 color = color.copy(alpha = color.alpha * alpha),
-                topLeft = Offset(left, top),
-                size = Size(right - left, height),
+                topLeft = Offset(bounds.first, top),
+                size = Size(bounds.second - bounds.first, height),
             )
         }
     }
 
-    when {
-        startAlpha == endAlpha -> {
-            half(0f, size.width, startAlpha)
-        }
-
-        ltr -> {
-            half(0f, center, startAlpha)
-            half(center, size.width, endAlpha)
-        }
-
-        else -> {
-            half(center, size.width, startAlpha)
-            half(0f, center, endAlpha)
-        }
+    if (startAlpha == endAlpha) {
+        half(0f to size.width, startAlpha)
+    } else {
+        half(rangeBandHalfBounds(size.width, towardPrevious = true, isRtl = isRtl), startAlpha)
+        half(rangeBandHalfBounds(size.width, towardPrevious = false, isRtl = isRtl), endAlpha)
     }
+}
+
+/**
+ * Left and right x of the range band half facing the previous day
+ * ([towardPrevious]) or the next day in a cell [width] wide: in LTR the
+ * previous day is on the left, so a range start fills the right half and a
+ * range end the left half; RTL mirrors both.
+ */
+internal fun rangeBandHalfBounds(
+    width: Float,
+    towardPrevious: Boolean,
+    isRtl: Boolean,
+): Pair<Float, Float> {
+    val center = width / 2f
+    return if (towardPrevious != isRtl) 0f to center else center to width
 }
 
 /** Gap between the check-out (AM) and check-in (PM) halves of a turnover day. */
@@ -662,52 +676,72 @@ private fun DrawScope.drawSplitEndpoint(
     pmAlpha: Float,
     gap: Float,
     color: Color,
+    isRtl: Boolean,
 ) {
     if (amAlpha <= 0f && pmAlpha <= 0f) return
-    val w = size.width
     val h = size.minDimension
     val top = (size.height - h) / 2f
-    val ltr = layoutDirection == LayoutDirection.Ltr
-
-    // x in LTR terms (0 = edge toward the previous day), mirrored in RTL.
-    fun x(value: Float): Float = if (ltr) value else w - value
+    val (amPoints, pmPoints) = splitEndpointPolygons(style, size.width, h, gap, isRtl)
 
     fun fill(
         alpha: Float,
         points: List<Offset>,
     ) {
-        if (alpha <= 0f) return
+        if (alpha <= 0f || points.isEmpty()) return
         val path =
             Path().apply {
-                moveTo(x(points[0].x), top + points[0].y)
-                for (i in 1 until points.size) lineTo(x(points[i].x), top + points[i].y)
+                moveTo(points[0].x, top + points[0].y)
+                for (i in 1 until points.size) lineTo(points[i].x, top + points[i].y)
                 close()
             }
         drawPath(path, color.copy(alpha = color.alpha * alpha.coerceIn(0f, 1f)))
     }
 
-    when (style) {
-        RangeEndpointStyle.FullCell -> {
-            Unit
-        }
+    fill(amAlpha, amPoints)
+    fill(pmAlpha, pmPoints)
+}
 
-        RangeEndpointStyle.SplitHorizontal -> {
-            val half = gap / 2f
-            val center = w / 2f
-            fill(amAlpha, listOf(Offset(0f, 0f), Offset(center - half, 0f), Offset(center - half, h), Offset(0f, h)))
-            fill(pmAlpha, listOf(Offset(center + half, 0f), Offset(w, 0f), Offset(w, h), Offset(center + half, h)))
-        }
+/**
+ * Vertices of the check-out (AM) and check-in (PM) halves of a split range
+ * endpoint in a [w] × [h] strip, with [gap] between them. In LTR the AM half
+ * faces the previous day on the left: [RangeEndpointStyle.SplitHorizontal]
+ * puts it in the left half, [RangeEndpointStyle.SplitDiagonal] in the
+ * top-left triangle (PM bottom-right). RTL mirrors every x (`x' = w - x`),
+ * so AM sits on the right / top-right and PM on the left / bottom-left.
+ * [RangeEndpointStyle.FullCell] has no halves (two empty lists).
+ */
+internal fun splitEndpointPolygons(
+    style: RangeEndpointStyle,
+    w: Float,
+    h: Float,
+    gap: Float,
+    isRtl: Boolean,
+): Pair<List<Offset>, List<Offset>> {
+    val (am, pm) =
+        when (style) {
+            RangeEndpointStyle.FullCell -> {
+                emptyList<Offset>() to emptyList()
+            }
 
-        RangeEndpointStyle.SplitDiagonal -> {
-            // The diagonal is x / w + y / h = 1; moving it by d (perpendicular)
-            // shifts the right-hand side by d * sqrt(1 / w² + 1 / h²).
-            val shift = (gap / 2f) * sqrt(1f / (w * w) + 1f / (h * h))
-            val am = 1f - shift
-            val pm = shift
-            fill(amAlpha, listOf(Offset(0f, 0f), Offset(am * w, 0f), Offset(0f, am * h)))
-            fill(pmAlpha, listOf(Offset(w, pm * h), Offset(w, h), Offset(pm * w, h)))
+            RangeEndpointStyle.SplitHorizontal -> {
+                val center = w / 2f
+                val left = center - gap / 2f
+                val right = center + gap / 2f
+                listOf(Offset(0f, 0f), Offset(left, 0f), Offset(left, h), Offset(0f, h)) to
+                    listOf(Offset(right, 0f), Offset(w, 0f), Offset(w, h), Offset(right, h))
+            }
+
+            RangeEndpointStyle.SplitDiagonal -> {
+                // The diagonal is x / w + y / h = 1; moving it by d (perpendicular)
+                // shifts the right-hand side by d * sqrt(1 / w² + 1 / h²).
+                val shift = (gap / 2f) * sqrt(1f / (w * w) + 1f / (h * h))
+                val amEdge = 1f - shift
+                listOf(Offset(0f, 0f), Offset(amEdge * w, 0f), Offset(0f, amEdge * h)) to
+                    listOf(Offset(w, shift * h), Offset(w, h), Offset(shift * w, h))
+            }
         }
-    }
+    if (!isRtl) return am to pm
+    return am.map { Offset(w - it.x, it.y) } to pm.map { Offset(w - it.x, it.y) }
 }
 
 /**

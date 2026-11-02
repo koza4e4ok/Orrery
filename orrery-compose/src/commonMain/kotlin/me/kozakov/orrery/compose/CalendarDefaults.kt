@@ -30,6 +30,11 @@ import me.kozakov.orrery.core.isoWeekNumber
  * [focusedBorderColor] draws the keyboard / D-pad focus ring around the
  * day shape; [hoverContainerColor] fills the day shape while a pointer
  * hovers an available, unselected day (Desktop and Web).
+ *
+ * [weekendContentColor] colors the day number of available, unselected,
+ * in-month days whose day of week is in [weekendDays] (and that are not
+ * today or in a range); it defaults to [contentColor], so weekends look like
+ * weekdays until a distinct color is passed.
  */
 @Immutable
 public class CalendarDayColors(
@@ -48,7 +53,46 @@ public class CalendarDayColors(
     public val holidayLabelColor: Color = labelColor,
     public val focusedBorderColor: Color = todayIndicatorColor,
     public val hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
+    public val weekendContentColor: Color = contentColor,
+    public val weekendDays: Set<DayOfWeek> = DefaultWeekendDays,
 ) {
+    @Deprecated("Kept for binary compatibility; use the primary constructor.", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        containerColor: Color,
+        contentColor: Color,
+        todayContentColor: Color,
+        todayIndicatorColor: Color,
+        selectedContainerColor: Color,
+        selectedContentColor: Color,
+        inRangeContainerColor: Color,
+        inRangeContentColor: Color,
+        outDateContentColor: Color,
+        unavailableContainerColor: Color,
+        unavailableContentColor: Color,
+        labelColor: Color,
+        holidayLabelColor: Color = labelColor,
+        focusedBorderColor: Color = todayIndicatorColor,
+        hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
+    ) : this(
+        containerColor,
+        contentColor,
+        todayContentColor,
+        todayIndicatorColor,
+        selectedContainerColor,
+        selectedContentColor,
+        inRangeContainerColor,
+        inRangeContentColor,
+        outDateContentColor,
+        unavailableContainerColor,
+        unavailableContentColor,
+        labelColor,
+        holidayLabelColor,
+        focusedBorderColor,
+        hoverContainerColor,
+        contentColor,
+        DefaultWeekendDays,
+    )
+
     @Deprecated("Kept for binary compatibility; use the primary constructor.", level = DeprecationLevel.HIDDEN)
     public constructor(
         containerColor: Color,
@@ -80,8 +124,13 @@ public class CalendarDayColors(
         holidayLabelColor,
         todayIndicatorColor,
         contentColor.copy(alpha = 0.08f),
+        contentColor,
+        DefaultWeekendDays,
     )
 }
+
+/** Saturday and Sunday: the default weekend of [CalendarDayColors] and [CalendarDefaults.WeekHeader]. */
+internal val DefaultWeekendDays: Set<DayOfWeek> = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
 
 /**
  * Shapes and today-marker style used by [DefaultDay].
@@ -179,6 +228,8 @@ public object CalendarDefaults {
         holidayLabelColor: Color = MaterialTheme.colorScheme.primary,
         focusedBorderColor: Color = todayIndicatorColor,
         hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
+        weekendContentColor: Color = contentColor,
+        weekendDays: Set<DayOfWeek> = DefaultWeekendDays,
     ): CalendarDayColors =
         CalendarDayColors(
             containerColor,
@@ -196,6 +247,48 @@ public object CalendarDefaults {
             holidayLabelColor,
             focusedBorderColor,
             hoverContainerColor,
+            weekendContentColor,
+            weekendDays,
+        )
+
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with weekend colors.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Composable
+    public fun dayColors(
+        containerColor: Color = Color.Transparent,
+        contentColor: Color = MaterialTheme.colorScheme.onSurface,
+        todayContentColor: Color = MaterialTheme.colorScheme.primary,
+        todayIndicatorColor: Color = MaterialTheme.colorScheme.primary,
+        selectedContainerColor: Color = MaterialTheme.colorScheme.primary,
+        selectedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
+        inRangeContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+        inRangeContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+        outDateContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+        unavailableContainerColor: Color = Color.Transparent,
+        unavailableContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+        labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        holidayLabelColor: Color = MaterialTheme.colorScheme.primary,
+        focusedBorderColor: Color = todayIndicatorColor,
+        hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
+    ): CalendarDayColors =
+        dayColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            todayContentColor = todayContentColor,
+            todayIndicatorColor = todayIndicatorColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedContentColor = selectedContentColor,
+            inRangeContainerColor = inRangeContainerColor,
+            inRangeContentColor = inRangeContentColor,
+            outDateContentColor = outDateContentColor,
+            unavailableContainerColor = unavailableContainerColor,
+            unavailableContentColor = unavailableContentColor,
+            labelColor = labelColor,
+            holidayLabelColor = holidayLabelColor,
+            focusedBorderColor = focusedBorderColor,
+            hoverContainerColor = hoverContainerColor,
         )
 
     @Deprecated(
@@ -389,12 +482,19 @@ public object CalendarDefaults {
         unavailable: String = orreryString(OrreryString.DayUnavailable),
     ): CalendarDayStrings = CalendarDayStrings(rangeStart, rangeEnd, inRange, today, unavailable)
 
-    /** Weekday header row with localized short names. */
+    /**
+     * Weekday header row with localized short names in [contentColor];
+     * labels of [weekendDays] use [weekendContentColor] (the same color by
+     * default).
+     */
     @Composable
     public fun WeekHeader(
         daysOfWeek: List<DayOfWeek>,
         modifier: Modifier = Modifier,
         leadingSpacer: Boolean = false,
+        contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        weekendDays: Set<DayOfWeek> = DefaultWeekendDays,
+        weekendContentColor: Color = contentColor,
     ) {
         Row(modifier.fillMaxWidth().padding(vertical = 4.dp)) {
             if (leadingSpacer) {
@@ -406,10 +506,23 @@ public object CalendarDefaults {
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (day in weekendDays) weekendContentColor else contentColor,
                 )
             }
         }
+    }
+
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with weekend colors.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Composable
+    public fun WeekHeader(
+        daysOfWeek: List<DayOfWeek>,
+        modifier: Modifier = Modifier,
+        leadingSpacer: Boolean = false,
+    ) {
+        WeekHeader(daysOfWeek = daysOfWeek, modifier = modifier, leadingSpacer = leadingSpacer)
     }
 
     /** Alias of [WeekHeader] for weekday header rows with localized short names. */

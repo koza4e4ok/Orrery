@@ -10,6 +10,8 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -20,10 +22,15 @@ import me.kozakov.orrery.core.DayPosition
  * Shared state for arrow-key/D-pad edge paging: [page] scrolls to the
  * target date's page, then [pendingFocus] tells that date's cell to
  * grab focus once composed.
+ *
+ * [pageWeeks] is how far PageUp/PageDown move: that many weeks (a
+ * [WeekCalendar] page of `visibleWeeksCount` rows), or one month when null
+ * (month calendars).
  */
 @Stable
 internal class CalendarKeyboardNavigation(
     private val scope: CoroutineScope,
+    val pageWeeks: Int? = null,
     private val pageToDate: suspend (LocalDate) -> Unit,
 ) {
     val pendingFocus: MutableState<LocalDate?> = mutableStateOf(null)
@@ -33,6 +40,24 @@ internal class CalendarKeyboardNavigation(
             pageToDate(target)
             pendingFocus.value = target
         }
+    }
+}
+
+/**
+ * Day offset of a horizontal arrow [key] under [layoutDirection], or null
+ * for any other key. In LTR, DirectionLeft is −1 day and DirectionRight +1;
+ * RTL grids run right to left, so the keys swap (DirectionLeft moves to the
+ * next day, visually leftward).
+ */
+internal fun horizontalArrowDayOffset(
+    key: Key,
+    layoutDirection: LayoutDirection,
+): Int? {
+    val rtl = layoutDirection == LayoutDirection.Rtl
+    return when (key) {
+        Key.DirectionLeft -> if (rtl) 1 else -1
+        Key.DirectionRight -> if (rtl) -1 else 1
+        else -> null
     }
 }
 

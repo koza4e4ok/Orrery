@@ -2,6 +2,7 @@
 
 package me.kozakov.orrery.compose
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -549,6 +550,7 @@ public fun WeekCalendar(
         keyboardNavigation = keyboardNavigation,
         visibleWeeksCount = state.visibleWeeksCount,
         visibleDaysOfWeek = state.visibleDaysOfWeek,
+        animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(),
         dayContent = dayContent,
@@ -559,7 +561,38 @@ public fun WeekCalendar(
  * Horizontally paged week or multi-week calendar configured with
  * [visibleWeeksCount] (`1..4`, e.g. `2` for a two-week calendar view) and
  * [visibleDaysOfWeek] (e.g. Monday–Friday work week).
+ *
+ * @param animateHeight When true, changing [visibleWeeksCount] springs the
+ *   grid height to the new row count instead of jumping.
  */
+@Suppress("LongParameterList")
+@Composable
+public fun WeekCalendar(
+    state: WeekCalendarState,
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
+    visibleWeeksCount: Int = state.visibleWeeksCount,
+    visibleDaysOfWeek: Set<DayOfWeek> = state.visibleDaysOfWeek,
+    animateHeight: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    WeekCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        visibleWeeksCount = visibleWeeksCount,
+        visibleDaysOfWeek = visibleDaysOfWeek,
+        animateHeight = animateHeight,
+        weekHeader = weekHeader,
+        slots = CalendarSlots(),
+        dayContent = dayContent,
+    )
+}
+
+@Deprecated("Kept for binary compatibility; use the overload with animateHeight.", level = DeprecationLevel.HIDDEN)
 @Suppress("LongParameterList")
 @Composable
 public fun WeekCalendar(
@@ -579,6 +612,7 @@ public fun WeekCalendar(
         keyboardNavigation = keyboardNavigation,
         visibleWeeksCount = visibleWeeksCount,
         visibleDaysOfWeek = visibleDaysOfWeek,
+        animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(),
         dayContent = dayContent,
@@ -611,6 +645,7 @@ public fun WeekCalendar(
         keyboardNavigation = keyboardNavigation,
         visibleWeeksCount = state.visibleWeeksCount,
         visibleDaysOfWeek = state.visibleDaysOfWeek,
+        animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(weekOverlay, weekFooter),
         dayContent = dayContent,
@@ -626,6 +661,7 @@ private fun WeekCalendarContent(
     keyboardNavigation: Boolean,
     visibleWeeksCount: Int,
     visibleDaysOfWeek: Set<DayOfWeek>,
+    animateHeight: Boolean,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
     slots: CalendarSlots,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
@@ -654,6 +690,16 @@ private fun WeekCalendarContent(
         val pageCount = state.pageCount(visibleWeeksCount)
         LazyRow(
             state = state.listState,
+            // Springs the grid height when visibleWeeksCount changes.
+            modifier =
+                if (animateHeight) {
+                    Modifier.animateContentSize(
+                        animationSpec =
+                            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
+                    )
+                } else {
+                    Modifier
+                },
             flingBehavior = rememberSnapFlingBehavior(state.listState),
             userScrollEnabled = userScrollEnabled,
         ) {

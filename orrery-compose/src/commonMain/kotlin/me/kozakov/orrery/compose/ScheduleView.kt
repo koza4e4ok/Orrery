@@ -2,6 +2,9 @@
 
 package me.kozakov.orrery.compose
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
@@ -26,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -630,10 +634,26 @@ private fun <T> DayColumn(
             Modifier
         }
     val timed = layout.timedEvents
+    // Animated horizontal fractions per tile, so switching overlapMode slides
+    // and resizes tiles instead of jumping. Read during measure/placement only.
+    val placements = arrayOfNulls<TilePlacement>(timed.size)
     Layout(
         content = {
-            for (positioned in timed) {
+            timed.forEachIndexed { index, positioned ->
                 key(positioned.event.id) {
+                    val left =
+                        animateFloatAsState(
+                            targetValue = positioned.leftFraction,
+                            animationSpec = TilePlacementSpring,
+                            label = "EventTileLeftFraction",
+                        )
+                    val width =
+                        animateFloatAsState(
+                            targetValue = positioned.widthFraction,
+                            animationSpec = TilePlacementSpring,
+                            label = "EventTileWidthFraction",
+                        )
+                    placements[index] = TilePlacement(left, width)
                     Box(propagateMinConstraints = true) { eventContent(positioned) }
                 }
             }
@@ -651,7 +671,8 @@ private fun <T> DayColumn(
             measurables.mapIndexed { index, measurable ->
                 if (index < timed.size) {
                     val positioned = timed[index]
-                    val width = (columnWidth * positioned.widthFraction - gapX).roundToInt().coerceAtLeast(0)
+                    val widthFraction = placements[index]?.widthFraction?.value ?: positioned.widthFraction
+                    val width = (columnWidth * widthFraction - gapX).roundToInt().coerceAtLeast(0)
                     val minutes = positioned.displayEndMinute - positioned.startMinute
                     val height = (minutes / 60f * hourPx - gapY).roundToInt().coerceAtLeast(0)
                     measurable.measure(Constraints.fixed(width, height))
@@ -663,8 +684,9 @@ private fun <T> DayColumn(
             placeables.forEachIndexed { index, placeable ->
                 if (index < timed.size) {
                     val positioned = timed[index]
+                    val leftFraction = placements[index]?.leftFraction?.value ?: positioned.leftFraction
                     placeable.placeRelative(
-                        x = (columnWidth * positioned.leftFraction).roundToInt(),
+                        x = (columnWidth * leftFraction).roundToInt(),
                         y = ((positioned.startMinute - window.startMinute) / 60f * hourPx).roundToInt(),
                         zIndex = positioned.columnIndex.toFloat(),
                     )
@@ -676,6 +698,14 @@ private fun <T> DayColumn(
         }
     }
 }
+
+private class TilePlacement(
+    val leftFraction: State<Float>,
+    val widthFraction: State<Float>,
+)
+
+private val TilePlacementSpring =
+    spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)
 
 private fun timeAt(
     y: Float,

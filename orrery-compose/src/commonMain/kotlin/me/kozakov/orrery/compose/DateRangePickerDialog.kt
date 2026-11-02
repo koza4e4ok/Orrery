@@ -87,17 +87,26 @@ public fun OrreryDateRangePickerDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(horizontal = 24.dp),
                 ) {
-                    val start =
-                        state.selectedStartDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
-                            ?: strings.rangeStartPlaceholder
-                    val end =
-                        state.selectedEndDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
-                            ?: strings.rangeEndPlaceholder
-                    Text(
-                        "$start – $end",
-                        style = MaterialTheme.typography.headlineSmall,
+                    DirectionalHeadline(
+                        targetState = state.selectedStartDate to state.selectedEndDate,
+                        compare = { a, b ->
+                            compareNullableDates(a.first, b.first).takeIf { it != 0 }
+                                ?: compareNullableDates(a.second, b.second)
+                        },
+                        label = "rangePickerHeadline",
                         modifier = Modifier.weight(1f),
-                    )
+                    ) { (startDate, endDate) ->
+                        val start =
+                            startDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
+                                ?: strings.rangeStartPlaceholder
+                        val end =
+                            endDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
+                                ?: strings.rangeEndPlaceholder
+                        Text(
+                            "$start – $end",
+                            style = MaterialTheme.typography.headlineSmall,
+                        )
+                    }
                     IconButton(onClick = {
                         val next =
                             if (state.displayMode == DatePickerDisplayMode.Picker) {

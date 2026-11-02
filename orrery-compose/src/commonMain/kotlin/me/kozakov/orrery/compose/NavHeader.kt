@@ -2,6 +2,8 @@ package me.kozakov.orrery.compose
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -21,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +31,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
@@ -49,7 +55,11 @@ import me.kozakov.orrery.core.CalendarPages
  * the next-month chevron while the visible month differs from [today]
  * (and [today] lies within the state's month range); clicking it animates
  * the calendar back to [today].
+ *
+ * @param expanded Whether the picker opened by [onTitleClick] is showing; the
+ *   default title's dropdown triangle rotates to point up while it is.
  */
+@Suppress("LongParameterList")
 @Composable
 public fun CalendarNavHeader(
     state: CalendarState,
@@ -60,8 +70,9 @@ public fun CalendarNavHeader(
     showTodayButton: Boolean = false,
     today: YearMonth = currentYearMonth(),
     todayLabel: String = orreryString(OrreryString.Today),
+    expanded: Boolean = false,
     title: @Composable (YearMonth) -> Unit = { month ->
-        NavHeaderTitle(month, showDropdown = onTitleClick != null)
+        NavHeaderTitle(month, showDropdown = onTitleClick != null, expanded = expanded)
     },
 ) {
     val scope = rememberCoroutineScope()
@@ -127,6 +138,35 @@ public fun CalendarNavHeader(
     }
 }
 
+@Deprecated("Kept for binary compatibility; use the overload with expanded.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun CalendarNavHeader(
+    state: CalendarState,
+    modifier: Modifier = Modifier,
+    onTitleClick: (() -> Unit)? = null,
+    previousMonthContentDescription: String = orreryString(OrreryString.PreviousMonth),
+    nextMonthContentDescription: String = orreryString(OrreryString.NextMonth),
+    showTodayButton: Boolean = false,
+    today: YearMonth = currentYearMonth(),
+    todayLabel: String = orreryString(OrreryString.Today),
+    title: @Composable (YearMonth) -> Unit = { month ->
+        NavHeaderTitle(month, showDropdown = onTitleClick != null, expanded = false)
+    },
+) {
+    CalendarNavHeader(
+        state = state,
+        modifier = modifier,
+        onTitleClick = onTitleClick,
+        previousMonthContentDescription = previousMonthContentDescription,
+        nextMonthContentDescription = nextMonthContentDescription,
+        showTodayButton = showTodayButton,
+        today = today,
+        todayLabel = todayLabel,
+        expanded = false,
+        title = title,
+    )
+}
+
 @Deprecated("Kept for binary compatibility; use the overload with showTodayButton.", level = DeprecationLevel.HIDDEN)
 @Composable
 public fun CalendarNavHeader(
@@ -136,7 +176,7 @@ public fun CalendarNavHeader(
     previousMonthContentDescription: String = orreryString(OrreryString.PreviousMonth),
     nextMonthContentDescription: String = orreryString(OrreryString.NextMonth),
     title: @Composable (YearMonth) -> Unit = { month ->
-        NavHeaderTitle(month, showDropdown = onTitleClick != null)
+        NavHeaderTitle(month, showDropdown = onTitleClick != null, expanded = false)
     },
 ) {
     CalendarNavHeader(
@@ -156,6 +196,7 @@ private val TodayButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 4.
 private fun NavHeaderTitle(
     month: YearMonth,
     showDropdown: Boolean,
+    expanded: Boolean,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -163,7 +204,7 @@ private fun NavHeaderTitle(
     ) {
         Text(PlatformDateFormat.yearMonthTitle(month), style = MaterialTheme.typography.titleMedium)
         if (showDropdown) {
-            DropdownTriangle()
+            DropdownTriangle(expanded)
         }
     }
 }
@@ -190,10 +231,28 @@ private fun NavChevron(
     }
 }
 
+/** Current rotation of the title's dropdown triangle in degrees; exposed for tests. */
+internal val DropdownRotationKey = SemanticsPropertyKey<Float>("DropdownRotation")
+private var SemanticsPropertyReceiver.dropdownRotation by DropdownRotationKey
+
+private const val DROPDOWN_ROTATION_MILLIS = 200
+
 @Composable
-private fun DropdownTriangle() {
+private fun DropdownTriangle(expanded: Boolean) {
     val color = LocalContentColor.current
-    Canvas(Modifier.padding(start = 4.dp).size(12.dp)) {
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(durationMillis = DROPDOWN_ROTATION_MILLIS),
+        label = "DropdownTriangleRotation",
+    )
+    val currentRotation = rotation
+    Canvas(
+        Modifier
+            .padding(start = 4.dp)
+            .size(12.dp)
+            .semantics { dropdownRotation = currentRotation }
+            .graphicsLayer { rotationZ = rotation },
+    ) {
         val path =
             Path().apply {
                 moveTo(size.width * 0.2f, size.height * 0.35f)

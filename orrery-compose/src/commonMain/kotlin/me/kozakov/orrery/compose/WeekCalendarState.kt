@@ -25,6 +25,7 @@ private val UNBOUNDED_END_DATE = LocalDate(19999, 12, 31)
 
 /** State holder for [WeekCalendar]. */
 @Stable
+@Suppress("TooManyFunctions")
 public class WeekCalendarState internal constructor(
     startDate: LocalDate?,
     endDate: LocalDate?,
@@ -173,6 +174,38 @@ public class WeekCalendarState internal constructor(
             listState.animateScrollToItem(target)
         }
     }
+
+    /**
+     * Animates one page forward: [visibleWeeksCount] weeks after
+     * [firstVisibleWeek], staying on the last page at [endDate].
+     */
+    public suspend fun animateScrollToNextWeek() {
+        animateScrollToPage(relativePage(1))
+    }
+
+    /** Animates one page ([visibleWeeksCount] weeks) back, staying on the first page at [startDate]. */
+    public suspend fun animateScrollToPreviousWeek() {
+        animateScrollToPage(relativePage(-1))
+    }
+
+    /** Jumps one page ([visibleWeeksCount] weeks) forward, clamped to [endDate]. */
+    public suspend fun scrollToNextWeek() {
+        val target = relativePage(1)
+        programmaticScroll(target) { listState.scrollToItem(target) }
+    }
+
+    /** Jumps one page ([visibleWeeksCount] weeks) back, clamped to [startDate]. */
+    public suspend fun scrollToPreviousWeek() {
+        val target = relativePage(-1)
+        programmaticScroll(target) { listState.scrollToItem(target) }
+    }
+
+    private suspend fun animateScrollToPage(target: Int) {
+        programmaticScroll(target) { listState.animateScrollToItem(target) }
+    }
+
+    /** The page [offset] pages from the first visible one, clamped to `0 until weekCount`. */
+    private fun relativePage(offset: Int): Int = (listState.firstVisibleItemIndex + offset).coerceIn(0, weekCount - 1)
 
     private fun indexOf(date: LocalDate): Int =
         CalendarPages.weekIndex(effectiveStartDate, date, firstDayOfWeek, visibleWeeksCount).coerceIn(

@@ -38,7 +38,17 @@ public enum class OutDateClickPolicy {
     SelectAndScrollToMonth,
 }
 
-/** Snapshot-state wrapper around the core [SelectionEngine]. */
+/**
+ * Snapshot-state wrapper around the core [SelectionEngine].
+ *
+ * In [SelectionMode.Range], [disallowDisabledInRange], [minRangeDays] and
+ * [maxRangeDays] are the booking guardrails of [SelectionEngine] (inclusive
+ * day counts): a completing tap across a disabled date restarts the range at
+ * the tapped date when [disallowDisabledInRange] is true (otherwise the start
+ * stays), a span over [maxRangeDays] restarts at the tapped date, and a span
+ * under [minRangeDays] is ignored. Drags, keyboard range extension and [set]
+ * reject violations like the mode's own minDays/maxDays.
+ */
 @Stable
 @Suppress("TooManyFunctions")
 public class CalendarSelectionState internal constructor(
@@ -47,7 +57,46 @@ public class CalendarSelectionState internal constructor(
     internal val bounds: ClosedRange<LocalDate>?,
     disabled: DisabledDates,
     internal val onEvent: (SelectionEvent) -> Unit,
+    disallowDisabledInRange: Boolean = false,
+    minRangeDays: Int = 1,
+    maxRangeDays: Int? = null,
 ) {
+    init {
+        requireValidRangeDays(minRangeDays, maxRangeDays)
+    }
+
+    /** Whether a completing range tap across a disabled date restarts the range at the tapped date. */
+    public var disallowDisabledInRange: Boolean by mutableStateOf(disallowDisabledInRange)
+        internal set
+
+    /** Minimum inclusive range length in days (`>= 1`); shorter completing taps are ignored. */
+    public var minRangeDays: Int by mutableStateOf(minRangeDays)
+        private set
+
+    /** Maximum inclusive range length in days, or null for unbounded; longer taps restart the range. */
+    public var maxRangeDays: Int? by mutableStateOf(maxRangeDays)
+        private set
+
+    /** Updates [minRangeDays] and [maxRangeDays] together so the pair stays valid. */
+    internal fun updateRangeDays(
+        minRangeDays: Int,
+        maxRangeDays: Int?,
+    ) {
+        requireValidRangeDays(minRangeDays, maxRangeDays)
+        this.minRangeDays = minRangeDays
+        this.maxRangeDays = maxRangeDays
+    }
+
+    private fun engine(): SelectionEngine =
+        SelectionEngine(
+            mode = mode,
+            bounds = bounds,
+            disabled = disabled,
+            disallowDisabledInRange = disallowDisabledInRange,
+            minRangeDays = minRangeDays,
+            maxRangeDays = maxRangeDays,
+        )
+
     /**
      * Unavailable dates honored by clicks and drags and rendered
      * automatically by DefaultDay. Refreshed on recomposition by
@@ -69,7 +118,7 @@ public class CalendarSelectionState internal constructor(
         get() = mode !is SelectionMode.Week && mode !is SelectionMode.Month
 
     public fun click(date: LocalDate) {
-        val result = SelectionEngine(mode, bounds, disabled).click(selection, date)
+        val result = engine().click(selection, date)
         selection = result.selection
         result.events.forEach(onEvent)
     }
@@ -129,7 +178,7 @@ public class CalendarSelectionState internal constructor(
      * [Selection.rangeEnd] is ignored. See SelectionEngine.replace.
      */
     public fun set(selection: Selection) {
-        val result = SelectionEngine(mode, bounds, disabled).replace(this.selection, selection)
+        val result = engine().replace(this.selection, selection)
         this.selection = result.selection
         result.events.forEach(onEvent)
     }
@@ -161,7 +210,7 @@ public class CalendarSelectionState internal constructor(
         if (dragAnchor == null) return
         dragAnchor = null
         val range = selection.range ?: return
-        val violation = rangeViolation(range, mode, ::isDisabled) ?: return
+        val violation = rangeViolation(range, mode, ::isDisabled, minRangeDays, maxRangeDays) ?: return
         onEvent(violation)
         selection = Selection(rangeStart = range.start)
     }
@@ -197,6 +246,9 @@ public class CalendarSelectionState internal constructor(
             bounds: ClosedRange<LocalDate>?,
             disabled: DisabledDates,
             onEvent: (SelectionEvent) -> Unit,
+            disallowDisabledInRange: Boolean = false,
+            minRangeDays: Int = 1,
+            maxRangeDays: Int? = null,
         ): Saver<CalendarSelectionState, Any> =
             listSaver(
                 save = { state ->
@@ -227,6 +279,9 @@ public class CalendarSelectionState internal constructor(
                         bounds = bounds,
                         disabled = disabled,
                         onEvent = onEvent,
+                        disallowDisabledInRange = disallowDisabledInRange,
+                        minRangeDays = minRangeDays,
+                        maxRangeDays = maxRangeDays,
                     )
                 },
             )
@@ -247,7 +302,7 @@ internal fun CalendarSelectionState.extendRange(
     val bounds = bounds
     if (bounds != null && target !in bounds) return
     val proposed = Selection(rangeStart = minOf(anchor, target), rangeEnd = maxOf(anchor, target))
-    val violation = proposed.range?.let { rangeViolation(it, mode, ::isDisabled) }
+    val violation = proposed.range?.let { rangeViolation(it, mode, ::isDisabled, minRangeDays, maxRangeDays) }
     if (violation == null) {
         selection = proposed
     } else {
@@ -261,6 +316,8 @@ private fun rangeViolation(
     range: ClosedRange<LocalDate>,
     mode: SelectionMode,
     isDisabled: (LocalDate) -> Boolean,
+    minRangeDays: Int,
+    maxRangeDays: Int?,
 ): SelectionEvent? {
     val rangeMode = mode as? SelectionMode.Range ?: return null
     val days = range.start.daysUntil(range.endInclusive) + 1
@@ -286,7 +343,20 @@ private fun rangeViolation(
         min != null && days < min -> SelectionEvent.RangeTooShort(range.endInclusive, min)
         max != null && days > max -> SelectionEvent.RangeTooLong(range.endInclusive, max)
         blocked != null -> SelectionEvent.Intercepted(blocked)
+        days < minRangeDays -> SelectionEvent.RangeTooShort(range.endInclusive, minRangeDays)
+        maxRangeDays != null && days > maxRangeDays -> SelectionEvent.RangeTooLong(range.endInclusive, maxRangeDays)
         else -> null
+    }
+}
+
+/** Booking guardrail day counts are inclusive: min >= 1 and max (when set) >= min. */
+internal fun requireValidRangeDays(
+    minRangeDays: Int,
+    maxRangeDays: Int?,
+) {
+    require(minRangeDays >= 1) { "minRangeDays must be >= 1, was $minRangeDays" }
+    require(maxRangeDays == null || maxRangeDays >= minRangeDays) {
+        "maxRangeDays ($maxRangeDays) must be >= minRangeDays ($minRangeDays)"
     }
 }
 
@@ -306,6 +376,12 @@ private fun rangeViolation(
  * snapping and validation: it becomes the whole period containing its
  * `rangeStart`, or [Selection.Empty] when that period is out of bounds or
  * contains a disabled day (no event fires).
+ *
+ * [disallowDisabledInRange], [minRangeDays] and [maxRangeDays] are the
+ * booking range guardrails described on [CalendarSelectionState] (inclusive
+ * day counts; `minRangeDays >= 1`, `maxRangeDays` null or `>= minRangeDays`).
+ * Like [disabled] they are refreshed on recomposition rather than resetting
+ * the selection.
  */
 @Composable
 public fun rememberCalendarSelectionState(
@@ -314,11 +390,23 @@ public fun rememberCalendarSelectionState(
     bounds: ClosedRange<LocalDate>? = null,
     disabled: DisabledDates = DisabledDates.None,
     onEvent: (SelectionEvent) -> Unit = {},
+    disallowDisabledInRange: Boolean = false,
+    minRangeDays: Int = 1,
+    maxRangeDays: Int? = null,
 ): CalendarSelectionState {
+    requireValidRangeDays(minRangeDays, maxRangeDays)
     val resolvedMode = remember(mode) { mode.withLocaleFirstDayOfWeek() }
     val saver =
         remember(resolvedMode, bounds) {
-            CalendarSelectionState.saver(resolvedMode, bounds, disabled, onEvent)
+            CalendarSelectionState.saver(
+                resolvedMode,
+                bounds,
+                disabled,
+                onEvent,
+                disallowDisabledInRange,
+                minRangeDays,
+                maxRangeDays,
+            )
         }
     val state =
         rememberSaveable(resolvedMode, bounds, saver = saver) {
@@ -328,11 +416,36 @@ public fun rememberCalendarSelectionState(
                 bounds = bounds,
                 disabled = disabled,
                 onEvent = onEvent,
+                disallowDisabledInRange = disallowDisabledInRange,
+                minRangeDays = minRangeDays,
+                maxRangeDays = maxRangeDays,
             )
         }
-    SideEffect { state.disabled = disabled }
+    SideEffect {
+        state.disabled = disabled
+        state.disallowDisabledInRange = disallowDisabledInRange
+        state.updateRangeDays(minRangeDays, maxRangeDays)
+    }
     return state
 }
+
+@Deprecated("Kept for binary compatibility; use the overload with range guardrails.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun rememberCalendarSelectionState(
+    mode: SelectionMode = SelectionMode.Single(),
+    initialSelection: Selection = Selection.Empty,
+    bounds: ClosedRange<LocalDate>? = null,
+    disabled: DisabledDates = DisabledDates.None,
+    onEvent: (SelectionEvent) -> Unit = {},
+): CalendarSelectionState =
+    rememberCalendarSelectionState(
+        mode = mode,
+        initialSelection = initialSelection,
+        bounds = bounds,
+        disabled = disabled,
+        onEvent = onEvent,
+        disallowDisabledInRange = false,
+    )
 
 /** Fills a null [SelectionMode.Week.firstDayOfWeek] with the locale's first day of week. */
 internal fun SelectionMode.withLocaleFirstDayOfWeek(): SelectionMode =

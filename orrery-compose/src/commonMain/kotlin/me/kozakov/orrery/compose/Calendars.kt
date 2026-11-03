@@ -24,9 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -690,6 +693,7 @@ public fun WeekCalendar(
         keyboardNavigation = keyboardNavigation,
         visibleWeeksCount = state.visibleWeeksCount,
         visibleDaysOfWeek = state.visibleDaysOfWeek,
+        animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(),
         dayContent = dayContent,
@@ -700,7 +704,38 @@ public fun WeekCalendar(
  * Horizontally paged week or multi-week calendar configured with
  * [visibleWeeksCount] (`1..4`, e.g. `2` for a two-week calendar view) and
  * [visibleDaysOfWeek] (e.g. Monday–Friday work week).
+ *
+ * @param animateHeight When true, changing [visibleWeeksCount] springs the
+ *   grid height to the new row count instead of jumping.
  */
+@Suppress("LongParameterList")
+@Composable
+public fun WeekCalendar(
+    state: WeekCalendarState,
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
+    visibleWeeksCount: Int = state.visibleWeeksCount,
+    visibleDaysOfWeek: Set<DayOfWeek> = state.visibleDaysOfWeek,
+    animateHeight: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    WeekCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        visibleWeeksCount = visibleWeeksCount,
+        visibleDaysOfWeek = visibleDaysOfWeek,
+        animateHeight = animateHeight,
+        weekHeader = weekHeader,
+        slots = CalendarSlots(),
+        dayContent = dayContent,
+    )
+}
+
+@Deprecated("Kept for binary compatibility; use the overload with animateHeight.", level = DeprecationLevel.HIDDEN)
 @Suppress("LongParameterList")
 @Composable
 public fun WeekCalendar(
@@ -720,6 +755,7 @@ public fun WeekCalendar(
         keyboardNavigation = keyboardNavigation,
         visibleWeeksCount = visibleWeeksCount,
         visibleDaysOfWeek = visibleDaysOfWeek,
+        animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(),
         dayContent = dayContent,
@@ -752,6 +788,7 @@ public fun WeekCalendar(
         keyboardNavigation = keyboardNavigation,
         visibleWeeksCount = state.visibleWeeksCount,
         visibleDaysOfWeek = state.visibleDaysOfWeek,
+        animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(weekOverlay, weekFooter),
         dayContent = dayContent,
@@ -767,6 +804,7 @@ private fun WeekCalendarContent(
     keyboardNavigation: Boolean,
     visibleWeeksCount: Int,
     visibleDaysOfWeek: Set<DayOfWeek>,
+    animateHeight: Boolean,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
     slots: CalendarSlots,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
@@ -790,19 +828,60 @@ private fun WeekCalendarContent(
         } else {
             null
         }
+    val currentWeeksCount by rememberUpdatedState(visibleWeeksCount)
+    val currentVisibleDays by rememberUpdatedState(visibleDaysOfWeek)
+    var targetHeightPx by remember(state) { mutableIntStateOf(0) }
+    val animatedHeight = remember(state) { Animatable(Float.NaN) }
+    LaunchedEffect(targetHeightPx, animateHeight) {
+        if (targetHeightPx <= 0) return@LaunchedEffect
+        val target = targetHeightPx.toFloat()
+        if (!animateHeight || animatedHeight.value.isNaN()) {
+            animatedHeight.snapTo(target)
+        } else if (animatedHeight.value != target) {
+            animatedHeight.animateTo(
+                target,
+                spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
+            )
+        }
+    }
+    val density = LocalDensity.current
+    val heightModifier =
+        if (animateHeight && !animatedHeight.value.isNaN()) {
+            // Pin the height as soon as it is known so a new target can't snap for a frame before the spring starts;
+            // clip only while it differs from the content height, so settled pages keep their overdraw (focus rings).
+            val settled = !animatedHeight.isRunning && animatedHeight.value == targetHeightPx.toFloat()
+            Modifier
+                .height(with(density) { animatedHeight.value.toDp() })
+                .then(if (settled) Modifier else Modifier.clipToBounds())
+        } else {
+            Modifier
+        }
     Column(modifier) {
         weekHeader?.invoke(this, daysOfWeek(state.firstDayOfWeek, visibleDaysOfWeek))
         val pageCount = state.pageCount(visibleWeeksCount)
         LazyRow(
             state = state.listState,
+            modifier = heightModifier,
             flingBehavior = rememberSnapFlingBehavior(state.listState),
             userScrollEnabled = userScrollEnabled,
         ) {
-            items(count = pageCount, key = { it }) { index ->
-                val weeks = state.weeksAt(index, visibleWeeksCount, visibleDaysOfWeek)
+            items(
+                count = pageCount,
+                key = { index -> (currentWeeksCount.toLong() shl 32) or (index.toLong() and 0xFFFFFFFFL) },
+            ) { index ->
+                val weeks = state.weeksAt(index, currentWeeksCount, currentVisibleDays)
                 val rowCount = weeks.size
                 val weekFooter = slots.weekFooter
-                Column(Modifier.fillParentMaxWidth()) {
+                Column(
+                    Modifier
+                        .fillParentMaxWidth()
+                        .wrapContentHeight(align = Alignment.Top, unbounded = true)
+                        .onSizeChanged {
+                            if (it.height > 0 && index == state.listState.firstVisibleItemIndex) {
+                                targetHeightPx = it.height
+                            }
+                        },
+                ) {
                     weeks.forEachIndexed { row, week ->
                         Row(Modifier.fillMaxWidth()) {
                             val colCount = week.days.size

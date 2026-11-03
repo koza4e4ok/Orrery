@@ -1,8 +1,11 @@
 package me.kozakov.orrery.compose
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -73,12 +77,18 @@ public fun OrreryDatePickerDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        state.selectedDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
-                            ?: strings.headlinePlaceholder,
-                        style = MaterialTheme.typography.headlineLarge,
+                    DirectionalHeadline(
+                        targetState = state.selectedDate,
+                        compare = ::compareNullableDates,
+                        label = "datePickerHeadline",
                         modifier = Modifier.weight(1f),
-                    )
+                    ) { date ->
+                        Text(
+                            date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
+                                ?: strings.headlinePlaceholder,
+                            style = MaterialTheme.typography.headlineLarge,
+                        )
+                    }
                     DisplayModeToggle(state, strings)
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
@@ -98,6 +108,48 @@ public fun OrreryDatePickerDialog(
         }
     }
 }
+
+private const val HEADLINE_ANIMATION_MILLIS = 150
+
+/**
+ * Picker headline that slides and fades vertically when [targetState]
+ * changes: values later in time (positive [compare]) enter from below and
+ * push the old text up; earlier values enter from above.
+ */
+@Composable
+internal fun <T> DirectionalHeadline(
+    targetState: T,
+    compare: (T, T) -> Int,
+    label: String,
+    modifier: Modifier = Modifier,
+    content: @Composable (T) -> Unit,
+) {
+    AnimatedContent(
+        targetState = targetState,
+        modifier = modifier,
+        transitionSpec = {
+            val sign = if (compare(targetState, initialState) >= 0) 1 else -1
+            val slide = tween<IntOffset>(HEADLINE_ANIMATION_MILLIS)
+            val fade = tween<Float>(HEADLINE_ANIMATION_MILLIS)
+            (slideInVertically(slide) { (it / 2) * sign } + fadeIn(fade))
+                .togetherWith(slideOutVertically(slide) { -(it / 2) * sign } + fadeOut(fade))
+        },
+        contentAlignment = Alignment.CenterStart,
+        label = label,
+    ) { value -> content(value) }
+}
+
+/** Orders dates with null (no selection) before any date. */
+internal fun compareNullableDates(
+    a: LocalDate?,
+    b: LocalDate?,
+): Int =
+    when {
+        a == null && b == null -> 0
+        a == null -> -1
+        b == null -> 1
+        else -> a.compareTo(b)
+    }
 
 /** Calendar/text-input body of [OrreryDatePickerDialog], shared with [OrreryDateTimePickerDialog]. */
 @Composable

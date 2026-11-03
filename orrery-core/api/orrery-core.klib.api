@@ -586,7 +586,8 @@ final class me.kozakov.orrery.core/Selection { // me.kozakov.orrery.core/Selecti
 }
 
 final class me.kozakov.orrery.core/SelectionEngine { // me.kozakov.orrery.core/SelectionEngine|null[0]
-    constructor <init>(me.kozakov.orrery.core/SelectionMode, kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>? = ..., me.kozakov.orrery.core/DisabledDates = ...) // me.kozakov.orrery.core/SelectionEngine.<init>|<init>(me.kozakov.orrery.core.SelectionMode;kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>?;me.kozakov.orrery.core.DisabledDates){}[0]
+    constructor <init>(me.kozakov.orrery.core/SelectionMode, kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>? = ..., me.kozakov.orrery.core/DisabledDates = ..., kotlin/Boolean = ..., kotlin/Int = ..., kotlin/Int? = ...) // me.kozakov.orrery.core/SelectionEngine.<init>|<init>(me.kozakov.orrery.core.SelectionMode;kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>?;me.kozakov.orrery.core.DisabledDates;kotlin.Boolean;kotlin.Int;kotlin.Int?){}[0]
+    constructor <init>(me.kozakov.orrery.core/SelectionMode, kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>?, me.kozakov.orrery.core/DisabledDates) // me.kozakov.orrery.core/SelectionEngine.<init>|<init>(me.kozakov.orrery.core.SelectionMode;kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>?;me.kozakov.orrery.core.DisabledDates){}[0]
 
     final fun click(me.kozakov.orrery.core/Selection, kotlinx.datetime/LocalDate): me.kozakov.orrery.core/SelectionResult // me.kozakov.orrery.core/SelectionEngine.click|click(me.kozakov.orrery.core.Selection;kotlinx.datetime.LocalDate){}[0]
     final fun replace(me.kozakov.orrery.core/Selection, me.kozakov.orrery.core/Selection): me.kozakov.orrery.core/SelectionResult // me.kozakov.orrery.core/SelectionEngine.replace|replace(me.kozakov.orrery.core.Selection;me.kozakov.orrery.core.Selection){}[0]

@@ -1,7 +1,8 @@
 package me.kozakov.orrery.compose
 
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -37,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -101,6 +102,9 @@ public class CollapsibleCalendarState internal constructor(
             return anchors.minBy { abs(it.expandFraction - fraction) }
         }
 
+    /** True while a direct drag on the calendar is in progress. Snapshot-observable. */
+    internal var isDragging: Boolean by mutableStateOf(false)
+
     private val mutex = MutatorMutex()
 
     public suspend fun expand(): Unit = animateTo(1f)
@@ -110,10 +114,24 @@ public class CollapsibleCalendarState internal constructor(
     /** Animates to [anchor]; works for [CollapsibleCalendarAnchor.TwoWeeks] even without [enableTwoWeekStop]. */
     public suspend fun animateTo(anchor: CollapsibleCalendarAnchor): Unit = animateTo(anchor.expandFraction)
 
-    internal suspend fun animateTo(target: Float) {
+    /**
+     * Springs [expandFraction] to [target], starting at [initialVelocity]
+     * (expand fraction per second, positive = expanding) so a released drag or
+     * fling keeps its momentum.
+     */
+    internal suspend fun animateTo(
+        target: Float,
+        initialVelocity: Float = 0f,
+    ) {
+        val coerced = target.coerceIn(0f, 1f)
         mutex.mutate {
-            animate(expandFraction, target, animationSpec = tween(240)) { value, _ ->
-                expandFraction = value
+            animate(
+                initialValue = expandFraction,
+                targetValue = coerced,
+                initialVelocity = initialVelocity,
+                animationSpec = SettleSpring,
+            ) { value, _ ->
+                expandFraction = value.coerceIn(0f, 1f)
             }
         }
     }
@@ -178,6 +196,9 @@ public class CollapsibleCalendarState internal constructor(
 }
 
 private const val SETTLE_EPSILON = 0.001f
+
+private val SettleSpring =
+    spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)
 
 @Composable
 public fun rememberCollapsibleCalendarState(initialExpanded: Boolean = true): CollapsibleCalendarState =
@@ -339,6 +360,21 @@ internal class CollapsibleGeometry(
         }
     }
 
+    /**
+     * Converts a release velocity in px/s (positive = expand) into expand
+     * fraction per second at [fraction], using the slope of the segment the
+     * fraction is on ([heightAt] is piecewise linear around TwoWeeks).
+     */
+    fun fractionVelocity(
+        fraction: Float,
+        velocityPx: Float,
+    ): Float {
+        val upper = fraction >= twoWeeks
+        val spanPx = if (upper) maxHeight - midHeight else midHeight - minHeight
+        val spanFraction = if (upper) 1f - twoWeeks else twoWeeks
+        return if (spanPx <= 0f) 0f else velocityPx * spanFraction / spanPx
+    }
+
     /** Applies a vertical drag of [deltaPx] (positive = expand); returns the consumed pixels. */
     fun dragBy(
         state: CollapsibleCalendarState,
@@ -446,7 +482,8 @@ private fun CollapsibleCalendarScaffoldImpl(
                     val fraction = state.expandFraction
                     if (gesturesEnabled && fraction > 0f && fraction < 1f) {
                         val target = state.settleTarget(available.y, velocityThreshold = 0f)
-                        scope.launch { state.animateTo(target) }
+                        val velocity = currentGeometry.fractionVelocity(fraction, available.y)
+                        scope.launch { state.animateTo(target, initialVelocity = velocity) }
                         return available
                     }
                     return Velocity.Zero
@@ -459,8 +496,16 @@ private fun CollapsibleCalendarScaffoldImpl(
             state = dragState,
             orientation = Orientation.Vertical,
             enabled = gesturesEnabled && enableDirectDrag,
-            onDragStarted = { state.stopAnimation() },
-            onDragStopped = { velocity -> state.animateTo(state.settleTarget(velocity, thresholdPx)) },
+            onDragStarted = {
+                state.isDragging = true
+                state.stopAnimation()
+            },
+            onDragStopped = { velocity ->
+                state.isDragging = false
+                val target = state.settleTarget(velocity, thresholdPx)
+                val fractionVelocity = currentGeometry.fractionVelocity(state.expandFraction, velocity)
+                state.animateTo(target, initialVelocity = fractionVelocity)
+            },
         )
     Column(modifier.nestedScroll(connection)) {
         Column(dragModifier) {
@@ -472,7 +517,10 @@ private fun CollapsibleCalendarScaffoldImpl(
                     .height(with(density) { geometry.heightAt(fraction).toDp() })
                     .clipToBounds(),
             ) {
-                if (fraction > 0f) {
+                // The month grid stays fully opaque while it morphs: the clip and
+                // the vertical shift leave only the anchor week row visible at 0f,
+                // so swapping in the week pager once settled shows no blink.
+                if (fraction > 0f || state.isDragging) {
                     HorizontalCalendar(
                         state = calendarState,
                         weekHeader = null,
@@ -481,12 +529,7 @@ private fun CollapsibleCalendarScaffoldImpl(
                         modifier =
                             Modifier
                                 .wrapContentHeight(align = Alignment.Top, unbounded = true)
-                                .offset { IntOffset(0, -geometry.shiftAt(state.expandFraction).roundToInt()) }
-                                .graphicsLayer {
-                                    alpha =
-                                        (state.expandFraction / CollapsibleCalendarAnchor.TwoWeeks.expandFraction)
-                                            .coerceIn(0f, 1f)
-                                },
+                                .offset { IntOffset(0, -geometry.shiftAt(state.expandFraction).roundToInt()) },
                     )
                 } else {
                     WeekCalendar(

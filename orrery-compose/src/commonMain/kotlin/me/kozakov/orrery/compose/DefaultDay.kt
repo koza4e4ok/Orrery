@@ -1,5 +1,6 @@
 package me.kozakov.orrery.compose
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -388,7 +389,12 @@ private fun DefaultDayContent(
     val showFocusRing = isFocused && available
     val showHover = isHovered && available && !isSelected
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val contentColor =
+    val hoverAlpha by animateFloatAsState(
+        targetValue = if (showHover) 1f else 0f,
+        animationSpec = if (animateSelection) tween(durationMillis = 150) else snap(),
+        label = "DefaultDayHoverAlpha",
+    )
+    val targetContentColor =
         when {
             !available -> colors.unavailableContentColor
             splitEndpoint || isTurnover -> colors.inRangeContentColor
@@ -400,6 +406,11 @@ private fun DefaultDayContent(
             day.date.dayOfWeek in colors.weekendDays -> colors.weekendContentColor
             else -> colors.contentColor
         }
+    val contentColor by animateColorAsState(
+        targetValue = targetContentColor,
+        animationSpec = if (animateSelection) tween(durationMillis = 150) else snap(),
+        label = "DefaultDayContentColor",
+    )
     val hasOverlay =
         (isToday && !isSelected && (indicator is TodayIndicator.Ring || indicator is TodayIndicator.Underline)) ||
             decorators.any { it.layer == DecoratorLayer.Over } ||
@@ -479,8 +490,9 @@ private fun DefaultDayContent(
                     if (isToday && !isSelected && indicator is TodayIndicator.FilledCircle) {
                         drawDayShape(shapes.dayShape, colors.todayIndicatorColor)
                     }
-                    if (showHover) {
-                        drawDayShape(shapes.dayShape, colors.hoverContainerColor)
+                    if (hoverAlpha > 0f) {
+                        val hoverColor = colors.hoverContainerColor
+                        drawDayShape(shapes.dayShape, hoverColor.copy(alpha = hoverColor.alpha * hoverAlpha))
                     }
                     if (selectedScale > 0f) {
                         scale(selectedScale) {

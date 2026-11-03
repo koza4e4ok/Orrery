@@ -173,6 +173,9 @@ public final class me/kozakov/orrery/compose/CalendarSelectionState {
 	public final fun dragStart (Lkotlinx/datetime/LocalDate;)V
 	public final fun dragUpdate (Lkotlinx/datetime/LocalDate;)V
 	public final fun getDisabled ()Lme/kozakov/orrery/core/DisabledDates;
+	public final fun getDisallowDisabledInRange ()Z
+	public final fun getMaxRangeDays ()Ljava/lang/Integer;
+	public final fun getMinRangeDays ()I
 	public final fun getMode ()Lme/kozakov/orrery/core/SelectionMode;
 	public final fun getSelection ()Lme/kozakov/orrery/core/Selection;
 	public final fun isDisabled (Lkotlinx/datetime/LocalDate;)Z
@@ -190,6 +193,8 @@ public final class me/kozakov/orrery/compose/CalendarState {
 	public static final field Companion Lme/kozakov/orrery/compose/CalendarState$Companion;
 	public final fun animateScrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun animateScrollToMonth (Lkotlinx/datetime/YearMonth;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun animateScrollToNextMonth (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun animateScrollToPreviousMonth (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun animateScrollToToday (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getEndMonth ()Lkotlinx/datetime/YearMonth;
 	public final fun getFirstDayOfWeek ()Lkotlinx/datetime/DayOfWeek;
@@ -201,6 +206,8 @@ public final class me/kozakov/orrery/compose/CalendarState {
 	public final fun getVisibleDaysOfWeek ()Ljava/util/Set;
 	public final fun scrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun scrollToMonth (Lkotlinx/datetime/YearMonth;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun scrollToNextMonth (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun scrollToPreviousMonth (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun setFirstDayOfWeek (Lkotlinx/datetime/DayOfWeek;)V
 	public final fun setOutDateStyle (Lme/kozakov/orrery/core/OutDateStyle;)V
 	public final fun setVisibleDaysOfWeek (Ljava/util/Set;)V
@@ -238,7 +245,8 @@ public final class me/kozakov/orrery/compose/CalendarsKt {
 	public static final fun VerticalCalendar (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;ZZZLkotlin/jvm/functions/Function3;ZLme/kozakov/orrery/compose/CalendarSelectionState;ZLjava/util/Set;Lme/kozakov/orrery/compose/CalendarRowHeight;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
 	public static final fun VerticalCalendar (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;ZZZLkotlin/jvm/functions/Function3;ZLme/kozakov/orrery/compose/CalendarSelectionState;ZLkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
 	public static final fun VerticalCalendar (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;ZZZLkotlin/jvm/functions/Function3;ZLme/kozakov/orrery/compose/CalendarSelectionState;ZLkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
-	public static final fun WeekCalendar (Lme/kozakov/orrery/compose/WeekCalendarState;Landroidx/compose/ui/Modifier;ZZILjava/util/Set;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun WeekCalendar (Lme/kozakov/orrery/compose/WeekCalendarState;Landroidx/compose/ui/Modifier;ZZILjava/util/Set;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public static final fun WeekCalendar (Lme/kozakov/orrery/compose/WeekCalendarState;Landroidx/compose/ui/Modifier;ZZILjava/util/Set;ZLkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
 	public static final fun WeekCalendar (Lme/kozakov/orrery/compose/WeekCalendarState;Landroidx/compose/ui/Modifier;ZZLkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
 	public static final fun WeekCalendar (Lme/kozakov/orrery/compose/WeekCalendarState;Landroidx/compose/ui/Modifier;ZZLkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
 }
@@ -283,6 +291,7 @@ public final class me/kozakov/orrery/compose/ComposableSingletons$CalendarsKt {
 	public fun <init> ()V
 	public final fun getLambda$-1086514863$Orrery_orrery_compose ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-1615793813$Orrery_orrery_compose ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-1705325273$Orrery_orrery_compose ()Lkotlin/jvm/functions/Function4;
 	public final fun getLambda$-1725049576$Orrery_orrery_compose ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-548845113$Orrery_orrery_compose ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-882663645$Orrery_orrery_compose ()Lkotlin/jvm/functions/Function3;
@@ -345,7 +354,8 @@ public final class me/kozakov/orrery/compose/DatePickerDisplayMode : java/lang/E
 
 public final class me/kozakov/orrery/compose/DatePickerStateKt {
 	public static final fun rememberOrreryDatePickerState (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/YearMonth;Lkotlin/ranges/IntRange;Lme/kozakov/orrery/compose/DatePickerDisplayMode;Lme/kozakov/orrery/core/DisabledDates;Lkotlinx/datetime/DayOfWeek;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/OrreryDatePickerState;
-	public static final fun rememberOrreryDateRangePickerState (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/YearMonth;Lkotlin/ranges/IntRange;Lme/kozakov/orrery/compose/DatePickerDisplayMode;Ljava/lang/Integer;Ljava/lang/Integer;Lme/kozakov/orrery/core/DisabledDates;Lkotlinx/datetime/DayOfWeek;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/OrreryDateRangePickerState;
+	public static final synthetic fun rememberOrreryDateRangePickerState (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/YearMonth;Lkotlin/ranges/IntRange;Lme/kozakov/orrery/compose/DatePickerDisplayMode;Ljava/lang/Integer;Ljava/lang/Integer;Lme/kozakov/orrery/core/DisabledDates;Lkotlinx/datetime/DayOfWeek;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/OrreryDateRangePickerState;
+	public static final fun rememberOrreryDateRangePickerState (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/YearMonth;Lkotlin/ranges/IntRange;Lme/kozakov/orrery/compose/DatePickerDisplayMode;Ljava/lang/Integer;Ljava/lang/Integer;Lme/kozakov/orrery/core/DisabledDates;Lkotlinx/datetime/DayOfWeek;ZILjava/lang/Integer;Landroidx/compose/runtime/Composer;III)Lme/kozakov/orrery/compose/OrreryDateRangePickerState;
 }
 
 public final class me/kozakov/orrery/compose/DatePickerStrings {
@@ -529,7 +539,8 @@ public final class me/kozakov/orrery/compose/MonthYearPickerKt {
 
 public final class me/kozakov/orrery/compose/NavHeaderKt {
 	public static final synthetic fun CalendarNavHeader (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
-	public static final fun CalendarNavHeader (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;ZLkotlinx/datetime/YearMonth;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun CalendarNavHeader (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;ZLkotlinx/datetime/YearMonth;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CalendarNavHeader (Lme/kozakov/orrery/compose/CalendarState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;ZLkotlinx/datetime/YearMonth;Ljava/lang/String;ZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class me/kozakov/orrery/compose/ObservationKt {
@@ -553,8 +564,11 @@ public final class me/kozakov/orrery/compose/OrreryDatePickerState {
 
 public final class me/kozakov/orrery/compose/OrreryDateRangePickerState {
 	public static final field $stable I
+	public final fun getDisallowDisabledInRange ()Z
 	public final fun getDisplayMode ()Lme/kozakov/orrery/compose/DatePickerDisplayMode;
 	public final fun getDisplayedMonth ()Lkotlinx/datetime/YearMonth;
+	public final fun getMaxRangeDays ()Ljava/lang/Integer;
+	public final fun getMinRangeDays ()I
 	public final fun getSelectedEndDate ()Lkotlinx/datetime/LocalDate;
 	public final fun getSelectedStartDate ()Lkotlinx/datetime/LocalDate;
 	public final fun getYearRange ()Lkotlin/ranges/IntRange;
@@ -647,9 +661,15 @@ public final class me/kozakov/orrery/compose/ScheduleState {
 	public static final field $stable I
 	public static final field Companion Lme/kozakov/orrery/compose/ScheduleState$Companion;
 	public synthetic fun <init> (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;FFFIIIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun animateHourHeightTo-8Feqmps (FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateHourHeightTo-8Feqmps$default (Lme/kozakov/orrery/compose/ScheduleState;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun animateScrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun animateScrollToHour (IILandroidx/compose/ui/unit/Density;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun animateScrollToHour$default (Lme/kozakov/orrery/compose/ScheduleState;IILandroidx/compose/ui/unit/Density;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun animateScrollToNextDay (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun animateScrollToNextPage (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun animateScrollToPreviousDay (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun animateScrollToPreviousPage (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun animateScrollToTime (Lkotlinx/datetime/LocalTime;Landroidx/compose/ui/unit/Density;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getEndDate ()Lkotlinx/datetime/LocalDate;
 	public final fun getFirstDayOfWeek ()Lkotlinx/datetime/DayOfWeek;
@@ -666,6 +686,8 @@ public final class me/kozakov/orrery/compose/ScheduleState {
 	public final fun scrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun scrollToHour (IILandroidx/compose/ui/unit/Density;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun scrollToHour$default (Lme/kozakov/orrery/compose/ScheduleState;IILandroidx/compose/ui/unit/Density;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun scrollToNextPage (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun scrollToPreviousPage (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun scrollToTime (Lkotlinx/datetime/LocalTime;Landroidx/compose/ui/unit/Density;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun setFirstDayOfWeek (Lkotlinx/datetime/DayOfWeek;)V
 	public final fun setHourHeight-0680j_4 (F)V
@@ -704,7 +726,8 @@ public final class me/kozakov/orrery/compose/ScrollSource : java/lang/Enum {
 }
 
 public final class me/kozakov/orrery/compose/SelectionStateKt {
-	public static final fun rememberCalendarSelectionState (Lme/kozakov/orrery/core/SelectionMode;Lme/kozakov/orrery/core/Selection;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarSelectionState;
+	public static final synthetic fun rememberCalendarSelectionState (Lme/kozakov/orrery/core/SelectionMode;Lme/kozakov/orrery/core/Selection;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarSelectionState;
+	public static final fun rememberCalendarSelectionState (Lme/kozakov/orrery/core/SelectionMode;Lme/kozakov/orrery/core/Selection;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;Lkotlin/jvm/functions/Function1;ZILjava/lang/Integer;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarSelectionState;
 }
 
 public abstract interface class me/kozakov/orrery/compose/TodayIndicator {
@@ -780,6 +803,8 @@ public final class me/kozakov/orrery/compose/WeekCalendarState {
 	public static final field $stable I
 	public static final field Companion Lme/kozakov/orrery/compose/WeekCalendarState$Companion;
 	public final fun animateScrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun animateScrollToNextWeek (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun animateScrollToPreviousWeek (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getEndDate ()Lkotlinx/datetime/LocalDate;
 	public final fun getFirstDayOfWeek ()Lkotlinx/datetime/DayOfWeek;
 	public final fun getFirstVisibleWeek ()Lme/kozakov/orrery/core/CalendarWeek;
@@ -790,6 +815,8 @@ public final class me/kozakov/orrery/compose/WeekCalendarState {
 	public final fun getVisibleWeeksCount ()I
 	public final fun getWeekCount ()I
 	public final fun scrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun scrollToNextWeek (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun scrollToPreviousWeek (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun setFirstDayOfWeek (Lkotlinx/datetime/DayOfWeek;)V
 	public final fun setVisibleDaysOfWeek (Ljava/util/Set;)V
 	public final fun setVisibleWeeksCount (I)V

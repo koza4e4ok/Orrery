@@ -108,15 +108,18 @@ class RangeGuardrailsAndNavHelpersTest {
             WeekCalendar(state = state, visibleWeeksCount = 1, dayContent = {})
         }
         rule.waitForIdle()
-        assertEquals(LocalDate(2026, 7, 6), state.firstVisibleWeek.days.first().date)
+        val firstDay = state.firstVisibleWeek.days.first()
+        assertEquals(LocalDate(2026, 7, 6), firstDay.date)
 
         rule.runOnIdle { scope.launch { state.scrollToNextWeek() } }
         rule.waitForIdle()
-        assertEquals(LocalDate(2026, 7, 13), state.firstVisibleWeek.days.first().date)
+        val nextDay = state.firstVisibleWeek.days.first()
+        assertEquals(LocalDate(2026, 7, 13), nextDay.date)
 
         rule.runOnIdle { scope.launch { state.scrollToPreviousWeek() } }
         rule.waitForIdle()
-        assertEquals(LocalDate(2026, 7, 6), state.firstVisibleWeek.days.first().date)
+        val prevDay = state.firstVisibleWeek.days.first()
+        assertEquals(LocalDate(2026, 7, 6), prevDay.date)
     }
 
     @Test

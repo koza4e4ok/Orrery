@@ -107,7 +107,7 @@ class SelectionEngineTest {
     }
 
     @Test
-    fun `first tap, earlier tap and tap after a complete range still restart`() {
+    fun `first tap and earlier tap and tap after a complete range still restart`() {
         val e = engine(minRangeDays = 3, maxRangeDays = 5)
         assertEquals(Selection(rangeStart = jul(10)), e.click(Selection.Empty, jul(10)).selection)
         assertEquals(Selection(rangeStart = jul(5)), e.click(started, jul(5)).selection)

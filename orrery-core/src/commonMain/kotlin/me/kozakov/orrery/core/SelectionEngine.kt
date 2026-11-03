@@ -151,21 +151,7 @@ public class SelectionEngine(
         val range = proposed.range
         val blocked =
             if (range != null) {
-                // ⚡ Bolt optimization: Iterating over epoch days (integers) and converting back
-                // to LocalDate using fromEpochDays is significantly faster (~70-80% reduction in time)
-                // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`, which performs
-                // expensive calendar math on every step.
-                val startEpoch = range.start.toEpochDays()
-                val endEpoch = range.endInclusive.toEpochDays()
-                var firstBlocked: LocalDate? = null
-                for (epoch in startEpoch..endEpoch) {
-                    val date = LocalDate.fromEpochDays(epoch)
-                    if (date in disabled) {
-                        firstBlocked = date
-                        break
-                    }
-                }
-                firstBlocked
+                firstDisabledInRange(range.start, range.endInclusive, disabled)
             } else {
                 (listOfNotNull(proposed.single, proposed.rangeStart) + proposed.multi)
                     .firstOrNull { it in disabled }
@@ -238,7 +224,7 @@ public class SelectionEngine(
             return SelectionResult(current, listOf(SelectionEvent.RangeTooLong(date, max)))
         }
         val restarted = Selection(rangeStart = date)
-        val blocked = firstDisabled(start, date)
+        val blocked = firstDisabledInRange(start, date, disabled)
         if (blocked != null) {
             val event = listOf(SelectionEvent.Intercepted(blocked))
             return SelectionResult(if (disallowDisabledInRange) restarted else current, event)
@@ -250,19 +236,6 @@ public class SelectionEngine(
             return SelectionResult(current, listOf(SelectionEvent.RangeTooShort(date, minRangeDays)))
         }
         return SelectionResult(current.copy(rangeEnd = date), emptyList())
-    }
-
-    private fun firstDisabled(
-        start: LocalDate,
-        end: LocalDate,
-    ): LocalDate? {
-        // ⚡ Bolt optimization: Use epoch days iteration instead of `plus(1, DAY)`
-        // loop to avoid expensive per-step calendar calculations.
-        for (epoch in start.toEpochDays()..end.toEpochDays()) {
-            val cursor = LocalDate.fromEpochDays(epoch)
-            if (cursor in disabled) return cursor
-        }
-        return null
     }
 
     /**
@@ -283,14 +256,28 @@ public class SelectionEngine(
         val clamped = period.clampTo(bounds)
         val start = clamped.start
         val end = clamped.endInclusive
-        for (epoch in start.toEpochDays()..end.toEpochDays()) {
-            val cursor = LocalDate.fromEpochDays(epoch)
-            if (cursor in disabled) {
-                return SelectionResult(current, listOf(SelectionEvent.Intercepted(cursor)))
-            }
+        val blocked = firstDisabledInRange(start, end, disabled)
+        if (blocked != null) {
+            return SelectionResult(current, listOf(SelectionEvent.Intercepted(blocked)))
         }
         return SelectionResult(Selection(rangeStart = start, rangeEnd = end), emptyList())
     }
+}
+
+private fun firstDisabledInRange(
+    start: LocalDate,
+    end: LocalDate,
+    disabled: DisabledDates,
+): LocalDate? {
+    // ⚡ Bolt optimization: Iterating over epoch days (integers) and converting back
+    // to LocalDate using fromEpochDays is significantly faster (~70-80% reduction in time)
+    // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`, which performs
+    // expensive calendar math on every step.
+    for (epoch in start.toEpochDays()..end.toEpochDays()) {
+        val cursor = LocalDate.fromEpochDays(epoch)
+        if (cursor in disabled) return cursor
+    }
+    return null
 }
 
 /** Booking guardrail day counts are inclusive: min >= 1 and max (when set) >= min. */

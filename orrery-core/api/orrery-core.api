@@ -369,8 +369,9 @@ public final class me/kozakov/orrery/core/Selection$Companion {
 }
 
 public final class me/kozakov/orrery/core/SelectionEngine {
-	public fun <init> (Lme/kozakov/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;)V
-	public synthetic fun <init> (Lme/kozakov/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lme/kozakov/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;)V
+	public fun <init> (Lme/kozakov/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;ZILjava/lang/Integer;)V
+	public synthetic fun <init> (Lme/kozakov/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;ZILjava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun click (Lme/kozakov/orrery/core/Selection;Lkotlinx/datetime/LocalDate;)Lme/kozakov/orrery/core/SelectionResult;
 	public final fun replace (Lme/kozakov/orrery/core/Selection;Lme/kozakov/orrery/core/Selection;)Lme/kozakov/orrery/core/SelectionResult;
 }

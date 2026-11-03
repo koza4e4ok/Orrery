@@ -706,7 +706,12 @@ private fun WeekCalendarContent(
     val density = LocalDensity.current
     val heightModifier =
         if (animateHeight && !animatedHeight.value.isNaN()) {
-            Modifier.height(with(density) { animatedHeight.value.toDp() }).clipToBounds()
+            // Pin the height as soon as it is known so a new target can't snap for a frame before the spring starts;
+            // clip only while it differs from the content height, so settled pages keep their overdraw (focus rings).
+            val settled = !animatedHeight.isRunning && animatedHeight.value == targetHeightPx.toFloat()
+            Modifier
+                .height(with(density) { animatedHeight.value.toDp() })
+                .then(if (settled) Modifier else Modifier.clipToBounds())
         } else {
             Modifier
         }

@@ -97,18 +97,22 @@ public class ScheduleState internal constructor(
             spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
     ) {
         val coerced = target.coerceIn(minHourHeight, maxHourHeight)
+        val initialScroll = verticalScrollState.value.toFloat()
+        val initialHourHeight = hourHeight.value
         animate(
             typeConverter = Dp.VectorConverter,
             initialValue = hourHeight,
             targetValue = coerced,
             animationSpec = animationSpec,
         ) { value, _ ->
-            val old = hourHeight
             hourHeight = value
-            val scroll = verticalScrollState.value
-            if (old.value > 0f && scroll > 0) {
-                val newScroll = scroll * (hourHeight.value / old.value)
-                verticalScrollState.dispatchRawDelta(newScroll - scroll)
+            if (initialHourHeight > 0f) {
+                // Derive the scroll from the start values each frame so fractional deltas don't accumulate drift.
+                val targetScroll = (initialScroll * (value.value / initialHourHeight)).roundToInt()
+                val delta = (targetScroll - verticalScrollState.value).toFloat()
+                if (delta != 0f) {
+                    verticalScrollState.dispatchRawDelta(delta)
+                }
             }
         }
     }

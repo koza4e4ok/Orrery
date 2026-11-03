@@ -705,7 +705,7 @@ private fun WeekCalendarContent(
     }
     val density = LocalDensity.current
     val heightModifier =
-        if (animateHeight && animatedHeight.isRunning && !animatedHeight.value.isNaN()) {
+        if (animateHeight && !animatedHeight.value.isNaN()) {
             Modifier.height(with(density) { animatedHeight.value.toDp() }).clipToBounds()
         } else {
             Modifier
@@ -719,7 +719,10 @@ private fun WeekCalendarContent(
             flingBehavior = rememberSnapFlingBehavior(state.listState),
             userScrollEnabled = userScrollEnabled,
         ) {
-            items(count = pageCount, key = { index -> index + currentWeeksCount * 100_000 }) { index ->
+            items(
+                count = pageCount,
+                key = { index -> (currentWeeksCount.toLong() shl 32) or (index.toLong() and 0xFFFFFFFFL) },
+            ) { index ->
                 val weeks = state.weeksAt(index, currentWeeksCount, currentVisibleDays)
                 val rowCount = weeks.size
                 val weekFooter = slots.weekFooter

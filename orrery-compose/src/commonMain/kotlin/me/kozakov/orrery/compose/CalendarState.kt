@@ -168,13 +168,16 @@ public class CalendarState internal constructor(
     }
 
     /**
-     * True when any part of [month]'s grid item is laid out in the viewport;
-     * keyboard paging in [VerticalCalendar] then lets focus bring the target
-     * day into view instead of jumping the list to the month's top.
+     * True when [month]'s grid item lies fully inside the viewport; keyboard
+     * paging in [VerticalCalendar] then only moves focus. A month that is
+     * off screen or only partly peeking at the top or bottom edge is
+     * scrolled to instead.
      */
     internal fun isMonthVisible(month: YearMonth): Boolean {
         val gridIndex = indexOf(month) + itemsPerMonth - 1
-        return listState.layoutInfo.visibleItemsInfo.any { it.index == gridIndex }
+        val info = listState.layoutInfo
+        val item = info.visibleItemsInfo.firstOrNull { it.index == gridIndex } ?: return false
+        return item.offset >= info.viewportStartOffset && item.offset + item.size <= info.viewportEndOffset
     }
 
     private fun indexOf(month: YearMonth): Int =

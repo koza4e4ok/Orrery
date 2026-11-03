@@ -94,7 +94,8 @@ public final class me/kozakov/orrery/compose/CalendarDayStrings {
 public final class me/kozakov/orrery/compose/CalendarDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Lme/kozakov/orrery/compose/CalendarDefaults;
-	public final fun DaysOfWeekHeader (Ljava/util/List;Landroidx/compose/ui/Modifier;ZLandroidx/compose/runtime/Composer;II)V
+	public final synthetic fun DaysOfWeekHeader (Ljava/util/List;Landroidx/compose/ui/Modifier;ZLandroidx/compose/runtime/Composer;II)V
+	public final fun DaysOfWeekHeader-3XDdZGQ (Ljava/util/List;Landroidx/compose/ui/Modifier;ZJLjava/util/Set;JLandroidx/compose/runtime/Composer;II)V
 	public final fun MonthTitle (Lme/kozakov/orrery/core/CalendarMonth;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
 	public final synthetic fun WeekHeader (Ljava/util/List;Landroidx/compose/ui/Modifier;ZLandroidx/compose/runtime/Composer;II)V
 	public final fun WeekHeader-3XDdZGQ (Ljava/util/List;Landroidx/compose/ui/Modifier;ZJLjava/util/Set;JLandroidx/compose/runtime/Composer;II)V

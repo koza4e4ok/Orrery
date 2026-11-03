@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -706,7 +707,10 @@ private fun Modifier.gridLines(
                 drawLine(colors.halfHourLineColor, Offset(0f, half), Offset(size.width, half), stroke)
             }
         }
-        for (day in 0 until dayCount) {
+        // Column dividers sit on each day's start edge, next to the hour gutter:
+        // x = 0 in LTR, x = size.width in RTL, where the gutter is on the right.
+        val dividers = if (layoutDirection == LayoutDirection.Rtl) 1..dayCount else 0 until dayCount
+        for (day in dividers) {
             val x = size.width * day / dayCount
             drawLine(colors.gridLineColor, Offset(x, 0f), Offset(x, size.height), stroke)
         }

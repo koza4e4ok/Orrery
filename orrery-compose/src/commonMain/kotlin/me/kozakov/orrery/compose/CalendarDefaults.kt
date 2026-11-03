@@ -525,7 +525,33 @@ public object CalendarDefaults {
         WeekHeader(daysOfWeek = daysOfWeek, modifier = modifier, leadingSpacer = leadingSpacer)
     }
 
-    /** Alias of [WeekHeader] for weekday header rows with localized short names. */
+    /**
+     * Alias of [WeekHeader] for weekday header rows with localized short
+     * names; labels of [weekendDays] use [weekendContentColor].
+     */
+    @Composable
+    public fun DaysOfWeekHeader(
+        daysOfWeek: List<DayOfWeek>,
+        modifier: Modifier = Modifier,
+        leadingSpacer: Boolean = false,
+        contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        weekendDays: Set<DayOfWeek> = DefaultWeekendDays,
+        weekendContentColor: Color = contentColor,
+    ) {
+        WeekHeader(
+            daysOfWeek = daysOfWeek,
+            modifier = modifier,
+            leadingSpacer = leadingSpacer,
+            contentColor = contentColor,
+            weekendDays = weekendDays,
+            weekendContentColor = weekendContentColor,
+        )
+    }
+
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with weekend colors.",
+        level = DeprecationLevel.HIDDEN,
+    )
     @Composable
     public fun DaysOfWeekHeader(
         daysOfWeek: List<DayOfWeek>,

@@ -267,9 +267,7 @@ private const val DAYS_PER_WEEK = 7
  *   bottom row page the calendar; focus lands on the next/previous visible
  *   day or ±7 days once its cell is composed. RTL swaps which horizontal key
  *   means "toward the next day".
- * - PageUp/PageDown page one month back/forward (or
- *   [CalendarKeyboardNavigation.pageWeeks] weeks in a week calendar), or one
- *   year with Shift.
+ * - PageUp/PageDown page one month back/forward, or one year with Shift.
  * - Home/End focus the first/last cell of the current week row; with Ctrl
  *   or Meta they move to the first/last visible day of the focused date's month.
  * - Shift+Arrow with a [SelectionMode.Range] [selectionState] extends the
@@ -363,23 +361,13 @@ private fun DayKeyContext.handle(event: KeyEvent): Boolean =
 private val KeyEvent.isMonthModifier: Boolean
     get() = isCtrlPressed || isMetaPressed
 
-/**
- * PageUp/PageDown: one month (or one year) back/forward, keeping a visible
- * day near the day of month; a week calendar moves by its page of weeks.
- */
+/** PageUp/PageDown: one month (or one year) back/forward, keeping a visible day near the day of month. */
 private fun DayKeyContext.pageByPeriod(
     forward: Boolean,
     byYear: Boolean,
 ): Boolean {
-    val weeks = keyboard.pageWeeks
-    val rawTarget =
-        if (weeks != null && !byYear) {
-            val days = weeks * DAYS_PER_WEEK
-            day.date.plus(if (forward) days else -days, DateTimeUnit.DAY)
-        } else {
-            val unit = if (byYear) DateTimeUnit.YEAR else DateTimeUnit.MONTH
-            if (forward) day.date.plus(1, unit) else day.date.minus(1, unit)
-        }
+    val unit = if (byYear) DateTimeUnit.YEAR else DateTimeUnit.MONTH
+    val rawTarget = if (forward) day.date.plus(1, unit) else day.date.minus(1, unit)
     val target =
         if (rawTarget.dayOfWeek in visibleDaysOfWeek) {
             rawTarget

@@ -22,15 +22,10 @@ import me.kozakov.orrery.core.DayPosition
  * Shared state for arrow-key/D-pad edge paging: [page] scrolls to the
  * target date's page, then [pendingFocus] tells that date's cell to
  * grab focus once composed.
- *
- * [pageWeeks] is how far PageUp/PageDown move: that many weeks (a
- * [WeekCalendar] page of `visibleWeeksCount` rows), or one month when null
- * (month calendars).
  */
 @Stable
 internal class CalendarKeyboardNavigation(
     private val scope: CoroutineScope,
-    val pageWeeks: Int? = null,
     private val pageToDate: suspend (LocalDate) -> Unit,
 ) {
     val pendingFocus: MutableState<LocalDate?> = mutableStateOf(null)

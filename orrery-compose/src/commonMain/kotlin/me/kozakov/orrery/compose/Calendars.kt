@@ -784,10 +784,8 @@ private fun WeekCalendarContent(
     val scope = rememberCoroutineScope()
     val keyboard =
         if (keyboardNavigation) {
-            remember(state, scope, visibleWeeksCount) {
-                CalendarKeyboardNavigation(scope, pageWeeks = visibleWeeksCount) { date ->
-                    state.animateScrollToDate(date)
-                }
+            remember(state, scope) {
+                CalendarKeyboardNavigation(scope) { date -> state.animateScrollToDate(date) }
             }
         } else {
             null

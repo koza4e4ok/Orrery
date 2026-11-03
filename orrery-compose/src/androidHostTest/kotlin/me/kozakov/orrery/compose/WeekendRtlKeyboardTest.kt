@@ -225,7 +225,8 @@ class WeekendRtlKeyboardTest {
     fun verticalCalendarTreatsAPeekingMonthAsNotVisible() {
         val state = verticalContent()
         rule.runOnIdle {
-            assertTrue(state().listState.layoutInfo.visibleItemsInfo.any { it.index == 1 })
+            val layoutInfo = state().listState.layoutInfo
+            assertTrue(layoutInfo.visibleItemsInfo.any { it.index == 1 })
             assertTrue(state().isMonthVisible(YearMonth(2026, 7)))
             assertFalse(state().isMonthVisible(YearMonth(2026, 8)))
         }

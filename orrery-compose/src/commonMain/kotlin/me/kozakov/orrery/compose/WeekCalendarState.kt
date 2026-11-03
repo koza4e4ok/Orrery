@@ -163,16 +163,7 @@ public class WeekCalendarState internal constructor(
     }
 
     public suspend fun animateScrollToDate(date: LocalDate) {
-        val target = indexOf(date)
-        programmaticScroll(target) {
-            val current = listState.firstVisibleItemIndex
-            val farJumpPages = (FAR_JUMP_WEEKS / visibleWeeksCount).coerceAtLeast(1)
-            if (abs(target - current) > farJumpPages) {
-                val approach = if (target > current) target - 2 else target + 2
-                listState.scrollToItem(approach.coerceIn(0, weekCount - 1))
-            }
-            listState.animateScrollToItem(target)
-        }
+        animateScrollToPage(indexOf(date))
     }
 
     /**
@@ -200,8 +191,17 @@ public class WeekCalendarState internal constructor(
         programmaticScroll(target) { listState.scrollToItem(target) }
     }
 
+    /** Animates to page [target], first jumping next to it when it is more than [FAR_JUMP_WEEKS] weeks away. */
     private suspend fun animateScrollToPage(target: Int) {
-        programmaticScroll(target) { listState.animateScrollToItem(target) }
+        programmaticScroll(target) {
+            val current = listState.firstVisibleItemIndex
+            val farJumpPages = (FAR_JUMP_WEEKS / visibleWeeksCount).coerceAtLeast(1)
+            if (abs(target - current) > farJumpPages) {
+                val approach = if (target > current) target - 2 else target + 2
+                listState.scrollToItem(approach.coerceIn(0, weekCount - 1))
+            }
+            listState.animateScrollToItem(target)
+        }
     }
 
     /** The page [offset] pages from the first visible one, clamped to `0 until weekCount`. */

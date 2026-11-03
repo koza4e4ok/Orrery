@@ -30,7 +30,9 @@ import kotlinx.datetime.plus
  * [minRangeDays] and [maxRangeDays] combine with
  * [SelectionMode.Range.minDays] / [SelectionMode.Range.maxDays], which keep
  * their original behavior (the start stays on both violations).
- * [replace] rejects proposals that break any of these limits.
+ * [replace] rejects proposals that break any of these limits. A replaced
+ * range is rejected when an endpoint is disabled; disabled dates strictly
+ * inside it are rejected only when [disallowDisabledInRange] is true.
  */
 public class SelectionEngine(
     private val mode: SelectionMode,
@@ -76,6 +78,13 @@ public class SelectionEngine(
      * the proposed selection (no events) or [current] plus the first
      * violation. The proposal's shape must match the mode ([Selection.Empty]
      * matches every mode); a mismatch throws [IllegalArgumentException].
+     *
+     * In [SelectionMode.Range] a disabled endpoint is always rejected with
+     * [SelectionEvent.Intercepted]; disabled dates between the endpoints are
+     * rejected only when `disallowDisabledInRange` is true. The range length
+     * is checked against the mode's minDays/maxDays and against
+     * `minRangeDays` / `maxRangeDays` ([SelectionEvent.RangeTooShort],
+     * [SelectionEvent.RangeTooLong]).
      *
      * In [SelectionMode.Week] and [SelectionMode.Month] the proposal is first
      * snapped to the whole period containing [Selection.rangeStart], clamped
@@ -150,11 +159,20 @@ public class SelectionEngine(
     private fun disabledViolation(proposed: Selection): SelectionEvent? {
         val range = proposed.range
         val blocked =
-            if (range != null) {
-                firstDisabledInRange(range.start, range.endInclusive, disabled)
-            } else {
-                (listOfNotNull(proposed.single, proposed.rangeStart) + proposed.multi)
-                    .firstOrNull { it in disabled }
+            when {
+                range == null -> {
+                    (listOfNotNull(proposed.single, proposed.rangeStart) + proposed.multi)
+                        .firstOrNull { it in disabled }
+                }
+
+                // Week and Month periods are whole: a disabled day anywhere rejects them.
+                mode !is SelectionMode.Range || disallowDisabledInRange -> {
+                    firstDisabledInRange(range.start, range.endInclusive, disabled)
+                }
+
+                else -> {
+                    listOf(range.start, range.endInclusive).firstOrNull { it in disabled }
+                }
             }
         return blocked?.let { SelectionEvent.Intercepted(it) }
     }

@@ -152,7 +152,12 @@ public class OrreryDateRangePickerState internal constructor(
     maxDays: Int?,
     disabledDates: DisabledDates,
     firstDayOfWeek: DayOfWeek,
-    /** Whether a completing grid tap across a disabled date restarts the range at the tapped date. */
+    /**
+     * Whether a range may not span a disabled date. When true a completing
+     * grid tap across one restarts the range at the tapped date, and typed
+     * input or [setSelection] spanning one is rejected. A disabled start or
+     * end is always rejected.
+     */
     public val disallowDisabledInRange: Boolean = false,
     /** Minimum inclusive range length in days (`>= 1`). */
     public val minRangeDays: Int = 1,

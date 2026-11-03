@@ -47,7 +47,9 @@ public enum class OutDateClickPolicy {
  * the tapped date when [disallowDisabledInRange] is true (otherwise the start
  * stays), a span over [maxRangeDays] restarts at the tapped date, and a span
  * under [minRangeDays] is ignored. Drags, keyboard range extension and [set]
- * reject violations like the mode's own minDays/maxDays.
+ * reject violations like the mode's own minDays/maxDays: a disabled endpoint
+ * is always rejected, disabled dates inside the range only when
+ * [disallowDisabledInRange] is true.
  */
 @Stable
 @Suppress("TooManyFunctions")
@@ -210,7 +212,7 @@ public class CalendarSelectionState internal constructor(
         if (dragAnchor == null) return
         dragAnchor = null
         val range = selection.range ?: return
-        val violation = rangeViolation(range, mode, ::isDisabled, minRangeDays, maxRangeDays) ?: return
+        val violation = rangeViolation(range) ?: return
         onEvent(violation)
         selection = Selection(rangeStart = range.start)
     }
@@ -302,7 +304,7 @@ internal fun CalendarSelectionState.extendRange(
     val bounds = bounds
     if (bounds != null && target !in bounds) return
     val proposed = Selection(rangeStart = minOf(anchor, target), rangeEnd = maxOf(anchor, target))
-    val violation = proposed.range?.let { rangeViolation(it, mode, ::isDisabled, minRangeDays, maxRangeDays) }
+    val violation = proposed.range?.let { rangeViolation(it) }
     if (violation == null) {
         selection = proposed
     } else {
@@ -311,33 +313,22 @@ internal fun CalendarSelectionState.extendRange(
     }
 }
 
-/** The min/max length or disabled-date violation of [range] in [mode], or null when it is valid. */
-private fun rangeViolation(
-    range: ClosedRange<LocalDate>,
-    mode: SelectionMode,
-    isDisabled: (LocalDate) -> Boolean,
-    minRangeDays: Int,
-    maxRangeDays: Int?,
-): SelectionEvent? {
+/**
+ * The min/max length or disabled-date violation of [range] in [mode], or null
+ * when it is valid. Disabled endpoints always violate; disabled dates between
+ * them only when [CalendarSelectionState.disallowDisabledInRange] is true.
+ */
+private fun CalendarSelectionState.rangeViolation(range: ClosedRange<LocalDate>): SelectionEvent? {
     val rangeMode = mode as? SelectionMode.Range ?: return null
     val days = range.start.daysUntil(range.endInclusive) + 1
     val min = rangeMode.effectiveMin
     val max = rangeMode.effectiveMax
-
-    // ⚡ Bolt optimization: Iterating over epoch days (integers) and converting back
-    // to LocalDate using fromEpochDays is significantly faster (~70-80% reduction in time)
-    // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`, which performs
-    // expensive calendar math on every step.
-    val startEpoch = range.start.toEpochDays()
-    val endEpoch = range.endInclusive.toEpochDays()
-    var blocked: LocalDate? = null
-    for (epoch in startEpoch..endEpoch) {
-        val date = LocalDate.fromEpochDays(epoch)
-        if (isDisabled(date)) {
-            blocked = date
-            break
+    val blocked =
+        if (disallowDisabledInRange) {
+            firstDisabledIn(range)
+        } else {
+            listOf(range.start, range.endInclusive).firstOrNull(::isDisabled)
         }
-    }
 
     return when {
         min != null && days < min -> SelectionEvent.RangeTooShort(range.endInclusive, min)
@@ -347,6 +338,19 @@ private fun rangeViolation(
         maxRangeDays != null && days > maxRangeDays -> SelectionEvent.RangeTooLong(range.endInclusive, maxRangeDays)
         else -> null
     }
+}
+
+/** The first disabled date in [range], scanning every day including both endpoints. */
+private fun CalendarSelectionState.firstDisabledIn(range: ClosedRange<LocalDate>): LocalDate? {
+    // ⚡ Bolt optimization: Iterating over epoch days (integers) and converting back
+    // to LocalDate using fromEpochDays is significantly faster (~70-80% reduction in time)
+    // than using `generateSequence` with `plus(1, DateTimeUnit.DAY)`, which performs
+    // expensive calendar math on every step.
+    for (epoch in range.start.toEpochDays()..range.endInclusive.toEpochDays()) {
+        val date = LocalDate.fromEpochDays(epoch)
+        if (isDisabled(date)) return date
+    }
+    return null
 }
 
 /** Booking guardrail day counts are inclusive: min >= 1 and max (when set) >= min. */

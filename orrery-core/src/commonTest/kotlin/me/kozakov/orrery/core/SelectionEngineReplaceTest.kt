@@ -35,12 +35,43 @@ class SelectionEngineReplaceTest {
     }
 
     @Test
-    fun `range spanning a disabled date is rejected with Intercepted`() {
+    fun `range spanning a disabled date is rejected with Intercepted when disallowed`() {
         val engine =
-            SelectionEngine(SelectionMode.Range(), disabled = DisabledDates { dates(d8) })
+            SelectionEngine(
+                SelectionMode.Range(),
+                disabled = DisabledDates { dates(d8) },
+                disallowDisabledInRange = true,
+            )
         val result = engine.replace(Selection.Empty, range)
         assertEquals(Selection.Empty, result.selection)
         assertEquals(listOf<SelectionEvent>(SelectionEvent.Intercepted(d8)), result.events)
+    }
+
+    @Test
+    fun `range spanning a disabled date is accepted by default`() {
+        val engine =
+            SelectionEngine(SelectionMode.Range(), disabled = DisabledDates { dates(d8) })
+        val result = engine.replace(Selection.Empty, range)
+        assertEquals(range, result.selection)
+        assertTrue(result.events.isEmpty())
+    }
+
+    @Test
+    fun `disabled range endpoints are rejected whether or not disabled dates are allowed inside`() {
+        for (disallow in listOf(false, true)) {
+            val engine =
+                SelectionEngine(
+                    SelectionMode.Range(),
+                    disabled = DisabledDates { dates(d5, d10) },
+                    disallowDisabledInRange = disallow,
+                )
+            val startBlocked = engine.replace(Selection.Empty, range)
+            assertEquals(Selection.Empty, startBlocked.selection)
+            assertEquals(listOf<SelectionEvent>(SelectionEvent.Intercepted(d5)), startBlocked.events)
+            val endBlocked = engine.replace(Selection.Empty, Selection(rangeStart = d8, rangeEnd = d10))
+            assertEquals(Selection.Empty, endBlocked.selection)
+            assertEquals(listOf<SelectionEvent>(SelectionEvent.Intercepted(d10)), endBlocked.events)
+        }
     }
 
     @Test

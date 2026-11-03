@@ -1,5 +1,10 @@
 package me.kozakov.orrery.compose
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
@@ -81,6 +86,36 @@ public class ScheduleState internal constructor(
         set(value) {
             hourHeightState = value.coerceIn(minHourHeight, maxHourHeight)
         }
+
+    /**
+     * Animates [hourHeight] to [target] (clamped to [minHourHeight]..[maxHourHeight]),
+     * scaling the vertical scroll along so the time at the top of the grid stays in place.
+     */
+    public suspend fun animateHourHeightTo(
+        target: Dp,
+        animationSpec: AnimationSpec<Dp> =
+            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
+    ) {
+        val coerced = target.coerceIn(minHourHeight, maxHourHeight)
+        val initialScroll = verticalScrollState.value.toFloat()
+        val initialHourHeight = hourHeight.value
+        animate(
+            typeConverter = Dp.VectorConverter,
+            initialValue = hourHeight,
+            targetValue = coerced,
+            animationSpec = animationSpec,
+        ) { value, _ ->
+            hourHeight = value
+            if (initialHourHeight > 0f) {
+                // Derive the scroll from the start values each frame so fractional deltas don't accumulate drift.
+                val targetScroll = (initialScroll * (value.value / initialHourHeight)).roundToInt()
+                val delta = (targetScroll - verticalScrollState.value).toFloat()
+                if (delta != 0f) {
+                    verticalScrollState.dispatchRawDelta(delta)
+                }
+            }
+        }
+    }
 
     /** Vertical scroll state of the time grid (shared across columns and pages). */
     public val verticalScrollState: ScrollState = ScrollState(initialScrollOffset)

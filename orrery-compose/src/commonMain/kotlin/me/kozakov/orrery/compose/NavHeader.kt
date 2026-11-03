@@ -23,6 +23,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -110,16 +112,18 @@ public fun CalendarNavHeader(
         ) {
             val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
             val currentTitle by rememberUpdatedState(title)
-            AnimatedContent(
-                targetState = visibleMonth,
-                transitionSpec = {
-                    val forward = (targetState > initialState) != isRtl
-                    val sign = if (forward) 1 else -1
-                    (slideInHorizontally { (it / 2) * sign } + fadeIn())
-                        .togetherWith(slideOutHorizontally { -(it / 2) * sign } + fadeOut())
-                },
-                label = "navHeaderTitle",
-            ) { month -> currentTitle(month) }
+            CompositionLocalProvider(LocalNavHeaderExpanded provides expanded) {
+                AnimatedContent(
+                    targetState = visibleMonth,
+                    transitionSpec = {
+                        val forward = (targetState > initialState) != isRtl
+                        val sign = if (forward) 1 else -1
+                        (slideInHorizontally { (it / 2) * sign } + fadeIn())
+                            .togetherWith(slideOutHorizontally { -(it / 2) * sign } + fadeOut())
+                    },
+                    label = "navHeaderTitle",
+                ) { month -> currentTitle(month) }
+            }
         }
         IconButton(
             onClick = {
@@ -192,6 +196,8 @@ public fun CalendarNavHeader(
     )
 }
 
+private val LocalNavHeaderExpanded = compositionLocalOf { false }
+
 private val TodayButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
 
 @Composable
@@ -206,7 +212,7 @@ private fun NavHeaderTitle(
     ) {
         Text(PlatformDateFormat.yearMonthTitle(month), style = MaterialTheme.typography.titleMedium)
         if (showDropdown) {
-            DropdownTriangle(expanded)
+            DropdownTriangle(expanded || LocalNavHeaderExpanded.current)
         }
     }
 }

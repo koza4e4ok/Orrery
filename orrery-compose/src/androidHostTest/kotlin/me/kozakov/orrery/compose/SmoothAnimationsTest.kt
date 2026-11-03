@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsMatcher
@@ -144,9 +145,7 @@ class SmoothAnimationsTest {
         rule.waitForIdle()
         val one = rule.onNodeWithTag("week").getUnclippedBoundsInRoot().height
         rule.mainClock.autoAdvance = false
-        rule.runOnIdle { weeks = 2 }
-        rule.mainClock.advanceTimeByFrame()
-        rule.mainClock.advanceTimeByFrame()
+        rule.runOnIdle { Snapshot.withMutableSnapshot { weeks = 2 } }
         rule.mainClock.advanceTimeBy(64)
         val mid = rule.onNodeWithTag("week").getUnclippedBoundsInRoot().height
         rule.mainClock.autoAdvance = true
@@ -197,8 +196,7 @@ class SmoothAnimationsTest {
         assertEquals(0f, dropdownRotation())
 
         rule.mainClock.autoAdvance = false
-        rule.runOnIdle { expanded = true }
-        rule.mainClock.advanceTimeByFrame()
+        rule.runOnIdle { Snapshot.withMutableSnapshot { expanded = true } }
         rule.mainClock.advanceTimeBy(100)
         val mid = dropdownRotation()
         assertTrue("triangle should be mid-rotation but was $mid", mid > 0f && mid < 180f)

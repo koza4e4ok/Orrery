@@ -28,6 +28,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -266,7 +268,8 @@ private const val DAYS_PER_WEEK = 7
  *   day or ±7 days once its cell is composed. RTL swaps which horizontal key
  *   means "toward the next day".
  * - PageUp/PageDown page one month back/forward, or one year with Shift.
- * - Home/End focus the first/last cell of the current week row.
+ * - Home/End focus the first/last cell of the current week row; with Ctrl
+ *   or Meta they move to the first/last visible day of the focused date's month.
  * - Shift+Arrow with a [SelectionMode.Range] [selectionState] extends the
  *   range from its other endpoint (or this day) to the target date and
  *   moves focus there.
@@ -350,9 +353,13 @@ private class DayKeyContext(
 private fun DayKeyContext.handle(event: KeyEvent): Boolean =
     when (event.key) {
         Key.PageUp, Key.PageDown -> pageByPeriod(forward = event.key == Key.PageDown, byYear = event.isShiftPressed)
-        Key.MoveHome, Key.MoveEnd -> focusRowEdge(start = event.key == Key.MoveHome)
+        Key.MoveHome, Key.MoveEnd -> focusEdge(start = event.key == Key.MoveHome, ofMonth = event.isMonthModifier)
         else -> moveByArrow(event)
     }
+
+/** Ctrl (or Meta on macOS) turns Home/End into month-edge moves. */
+private val KeyEvent.isMonthModifier: Boolean
+    get() = isCtrlPressed || isMetaPressed
 
 /** PageUp/PageDown: one month (or one year) back/forward, keeping a visible day near the day of month. */
 private fun DayKeyContext.pageByPeriod(
@@ -371,7 +378,29 @@ private fun DayKeyContext.pageByPeriod(
     return true
 }
 
-/** Home/End: focus the first or last cell of this week row. */
+/**
+ * Home/End: focus the first or last cell of this week row; with [ofMonth]
+ * (Ctrl/Meta held), page to the first or last visible day of the focused
+ * date's month instead.
+ */
+private fun DayKeyContext.focusEdge(
+    start: Boolean,
+    ofMonth: Boolean,
+): Boolean {
+    if (!ofMonth) return focusRowEdge(start)
+    val first = LocalDate(day.date.year, day.date.month, 1)
+    val target =
+        if (start) {
+            first.takeIf { it.dayOfWeek in visibleDaysOfWeek } ?: stepToVisibleDate(first, 1, visibleDaysOfWeek)
+        } else {
+            val last = first.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
+            last.takeIf { it.dayOfWeek in visibleDaysOfWeek } ?: stepToVisibleDate(last, -1, visibleDaysOfWeek)
+        }
+    keyboard.page(target)
+    return true
+}
+
+/** Focus the first or last cell of this week row. */
 private fun DayKeyContext.focusRowEdge(start: Boolean): Boolean {
     val requester = if (start) rowFocusRequesters.firstOrNull() else rowFocusRequesters.lastOrNull()
     if (requester == null) return false
@@ -427,17 +456,13 @@ private fun stepToVisibleDate(
 }
 
 /** Day offset of an arrow [key] (RTL swaps the horizontal keys), or null for other keys. */
-private fun GridPosition.arrowDays(key: Key): Int? {
-    val towardNext = if (isRtl) Key.DirectionLeft else Key.DirectionRight
-    val towardPrevious = if (isRtl) Key.DirectionRight else Key.DirectionLeft
-    return when (key) {
-        towardNext -> 1
-        towardPrevious -> -1
-        Key.DirectionUp -> -DAYS_PER_WEEK
-        Key.DirectionDown -> DAYS_PER_WEEK
-        else -> null
-    }
-}
+private fun GridPosition.arrowDays(key: Key): Int? =
+    horizontalArrowDayOffset(key, if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr)
+        ?: when (key) {
+            Key.DirectionUp -> -DAYS_PER_WEEK
+            Key.DirectionDown -> DAYS_PER_WEEK
+            else -> null
+        }
 
 /** True when moving by [days] (±1 or ±7) leaves this page's grid. */
 private fun GridPosition.isAtEdge(days: Int): Boolean =

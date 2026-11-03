@@ -311,12 +311,20 @@ private fun HorizontalCalendarContent(
     }
 }
 
-/** Continuously scrolling vertical month list. */
+/**
+ * Continuously scrolling vertical month list.
+ *
+ * With [keyboardNavigation], day cells take arrow keys, Home/End and
+ * PageUp/PageDown like [HorizontalCalendar]: moving past a month's first or
+ * last row (or PageUp/PageDown by a month) scrolls the list so the target
+ * month is visible and focuses the target day.
+ */
 @Composable
 public fun VerticalCalendar(
     state: CalendarState = rememberCalendarState(),
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
     showWeekNumbers: Boolean = false,
     weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
     stickyMonthHeaders: Boolean = false,
@@ -332,6 +340,7 @@ public fun VerticalCalendar(
         state = state,
         modifier = modifier,
         userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
         showWeekNumbers = showWeekNumbers,
         weekNumber = weekNumber,
         stickyMonthHeaders = stickyMonthHeaders,
@@ -357,6 +366,7 @@ public fun VerticalCalendar(
     state: CalendarState = rememberCalendarState(),
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
     showWeekNumbers: Boolean = false,
     weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
     stickyMonthHeaders: Boolean = false,
@@ -374,6 +384,7 @@ public fun VerticalCalendar(
         state = state,
         modifier = modifier,
         userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
         showWeekNumbers = showWeekNumbers,
         weekNumber = weekNumber,
         stickyMonthHeaders = stickyMonthHeaders,
@@ -402,6 +413,7 @@ public fun VerticalCalendar(
     state: CalendarState = rememberCalendarState(),
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
     showWeekNumbers: Boolean = false,
     weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
     stickyMonthHeaders: Boolean = false,
@@ -420,6 +432,7 @@ public fun VerticalCalendar(
         state = state,
         modifier = modifier,
         userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
         showWeekNumbers = showWeekNumbers,
         weekNumber = weekNumber,
         stickyMonthHeaders = stickyMonthHeaders,
@@ -434,6 +447,117 @@ public fun VerticalCalendar(
     )
 }
 
+@Deprecated("Kept for binary compatibility; use the overload with keyboardNavigation.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun VerticalCalendar(
+    state: CalendarState = rememberCalendarState(),
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    stickyMonthHeaders: Boolean = false,
+    dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = { CalendarDefaults.MonthTitle(it) },
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    VerticalCalendar(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = true,
+        showWeekNumbers = showWeekNumbers,
+        weekNumber = weekNumber,
+        stickyMonthHeaders = stickyMonthHeaders,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        dayContent = dayContent,
+    )
+}
+
+@Deprecated("Kept for binary compatibility; use the overload with keyboardNavigation.", level = DeprecationLevel.HIDDEN)
+@Suppress("LongParameterList")
+@Composable
+public fun VerticalCalendar(
+    state: CalendarState = rememberCalendarState(),
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    stickyMonthHeaders: Boolean = false,
+    dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
+    visibleDaysOfWeek: Set<DayOfWeek> = state.visibleDaysOfWeek,
+    rowHeight: CalendarRowHeight = CalendarRowHeight.WrapContent,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = { CalendarDefaults.MonthTitle(it) },
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    VerticalCalendar(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = true,
+        showWeekNumbers = showWeekNumbers,
+        weekNumber = weekNumber,
+        stickyMonthHeaders = stickyMonthHeaders,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        visibleDaysOfWeek = visibleDaysOfWeek,
+        rowHeight = rowHeight,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        dayContent = dayContent,
+    )
+}
+
+@Deprecated("Kept for binary compatibility; use the overload with keyboardNavigation.", level = DeprecationLevel.HIDDEN)
+@Suppress("LongParameterList")
+@Composable
+public fun VerticalCalendar(
+    state: CalendarState = rememberCalendarState(),
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    stickyMonthHeaders: Boolean = false,
+    dragSelection: CalendarSelectionState? = null,
+    hapticsEnabled: Boolean = true,
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    monthHeader: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = { CalendarDefaults.MonthTitle(it) },
+    weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
+    weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
+    monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    VerticalCalendar(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = true,
+        showWeekNumbers = showWeekNumbers,
+        weekNumber = weekNumber,
+        stickyMonthHeaders = stickyMonthHeaders,
+        dragSelection = dragSelection,
+        hapticsEnabled = hapticsEnabled,
+        weekHeader = weekHeader,
+        monthHeader = monthHeader,
+        weekOverlay = weekOverlay,
+        weekFooter = weekFooter,
+        monthFooter = monthFooter,
+        dayContent = dayContent,
+    )
+}
+
 @Suppress("LongParameterList")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -441,6 +565,7 @@ private fun VerticalCalendarContent(
     state: CalendarState,
     modifier: Modifier,
     userScrollEnabled: Boolean,
+    keyboardNavigation: Boolean,
     showWeekNumbers: Boolean,
     weekNumber: @Composable (CalendarWeek) -> Unit,
     stickyMonthHeaders: Boolean,
@@ -457,6 +582,20 @@ private fun VerticalCalendarContent(
     val weekNumberSlot: (@Composable (CalendarWeek) -> Unit)? =
         if (showWeekNumbers) weekNumber else null
     val sticky = stickyMonthHeaders && monthHeader != null
+    val scope = rememberCoroutineScope()
+    val keyboard =
+        if (keyboardNavigation) {
+            remember(state, scope) {
+                CalendarKeyboardNavigation(scope) { date ->
+                    val month = YearMonth(date.year, date.month)
+                    if (!state.isMonthVisible(month)) {
+                        state.animateScrollToMonth(month)
+                    }
+                }
+            }
+        } else {
+            null
+        }
     LaunchedEffect(sticky) {
         val targetItemsPerMonth = if (sticky) 2 else 1
         if (state.itemsPerMonth != targetItemsPerMonth) {
@@ -504,6 +643,7 @@ private fun VerticalCalendarContent(
                                 weekNumber = weekNumberSlot,
                                 dragSelection = dragSelection,
                                 hapticsEnabled = hapticsEnabled,
+                                keyboardNavigation = keyboard,
                                 rowHeight = effectiveRowHeight,
                                 visibleDaysOfWeek = visibleDaysOfWeek,
                                 weekOverlay = slots.weekOverlay,
@@ -522,6 +662,7 @@ private fun VerticalCalendarContent(
                             weekNumber = weekNumberSlot,
                             dragSelection = dragSelection,
                             hapticsEnabled = hapticsEnabled,
+                            keyboardNavigation = keyboard,
                             rowHeight = effectiveRowHeight,
                             visibleDaysOfWeek = visibleDaysOfWeek,
                             weekOverlay = slots.weekOverlay,

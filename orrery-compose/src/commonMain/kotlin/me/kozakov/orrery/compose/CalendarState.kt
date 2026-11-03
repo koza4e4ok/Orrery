@@ -197,6 +197,19 @@ public class CalendarState internal constructor(
         listState.requestScrollToItem(index)
     }
 
+    /**
+     * True when [month]'s grid item lies fully inside the viewport; keyboard
+     * paging in [VerticalCalendar] then only moves focus. A month that is
+     * off screen or only partly peeking at the top or bottom edge is
+     * scrolled to instead.
+     */
+    internal fun isMonthVisible(month: YearMonth): Boolean {
+        val gridIndex = indexOf(month) + itemsPerMonth - 1
+        val info = listState.layoutInfo
+        val item = info.visibleItemsInfo.firstOrNull { it.index == gridIndex } ?: return false
+        return item.offset >= info.viewportStartOffset && item.offset + item.size <= info.viewportEndOffset
+    }
+
     private fun indexOf(month: YearMonth): Int =
         CalendarPages.monthIndex(effectiveStartMonth, month).coerceIn(0, monthCount - 1) * itemsPerMonth
 

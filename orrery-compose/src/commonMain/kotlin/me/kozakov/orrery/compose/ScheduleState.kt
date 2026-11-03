@@ -24,6 +24,7 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.daysUntil
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import me.kozakov.orrery.core.CalendarPages
 import kotlin.math.abs
@@ -162,6 +163,50 @@ public class ScheduleState internal constructor(
         }
         pager.animateScrollToPage(targetPage)
         firstVisibleDate = target
+    }
+
+    /**
+     * Animates to the next page: the next day in [DaySchedule], the next
+     * week in [WeekSchedule]. Stays on the last page at [endDate]. Before a
+     * schedule is attached it steps [firstVisibleDate] by one day.
+     */
+    public suspend fun animateScrollToNextPage() {
+        animateScrollToDate(relativePageDate(1))
+    }
+
+    /** Animates to the previous page (day or week), staying on the first page at [startDate]. */
+    public suspend fun animateScrollToPreviousPage() {
+        animateScrollToDate(relativePageDate(-1))
+    }
+
+    /** Jumps to the next page (day or week), clamped to [endDate]. */
+    public suspend fun scrollToNextPage() {
+        scrollToDate(relativePageDate(1))
+    }
+
+    /** Jumps to the previous page (day or week), clamped to [startDate]. */
+    public suspend fun scrollToPreviousPage() {
+        scrollToDate(relativePageDate(-1))
+    }
+
+    /** Animates [firstVisibleDate] one day forward, clamped to [endDate]. */
+    public suspend fun animateScrollToNextDay() {
+        animateScrollToDate(firstVisibleDate.plus(1, DateTimeUnit.DAY))
+    }
+
+    /** Animates [firstVisibleDate] one day back, clamped to [startDate]. */
+    public suspend fun animateScrollToPreviousDay() {
+        animateScrollToDate(firstVisibleDate.minus(1, DateTimeUnit.DAY))
+    }
+
+    /**
+     * First date of the page [offset] pages from [firstVisibleDate]'s page,
+     * clamped to the attached pager's pages; one day per page when detached.
+     */
+    private fun relativePageDate(offset: Int): LocalDate {
+        val pages = paging ?: return firstVisibleDate.plus(offset, DateTimeUnit.DAY)
+        val page = (pages.pageOf(firstVisibleDate) + offset).coerceIn(0, pages.pageCount - 1)
+        return pages.dateAt(page).coerceIn(effectiveStartDate, effectiveEndDate)
     }
 
     /**

@@ -133,6 +133,13 @@ public fun rememberOrreryDatePickerState(
  * display mode, and the visible month. Writes to [setSelection] are
  * validated like clicks (bounds, disabled dates, and range length);
  * an end before the start is dropped, other invalid writes are ignored.
+ *
+ * [disallowDisabledInRange], [minRangeDays] and [maxRangeDays] are the
+ * booking range guardrails of [CalendarSelectionState] (inclusive day
+ * counts). Grid taps follow them (a span across a disabled date or over
+ * [maxRangeDays] restarts at the tapped date when allowed, a span under
+ * [minRangeDays] is ignored); typed input and [setSelection] that break
+ * them are rejected, and the input face shows its invalid-range error.
  */
 @Stable
 public class OrreryDateRangePickerState internal constructor(
@@ -145,6 +152,17 @@ public class OrreryDateRangePickerState internal constructor(
     maxDays: Int?,
     disabledDates: DisabledDates,
     firstDayOfWeek: DayOfWeek,
+    /**
+     * Whether a range may not span a disabled date. When true a completing
+     * grid tap across one restarts the range at the tapped date, and typed
+     * input or [setSelection] spanning one is rejected. A disabled start or
+     * end is always rejected.
+     */
+    public val disallowDisabledInRange: Boolean = false,
+    /** Minimum inclusive range length in days (`>= 1`). */
+    public val minRangeDays: Int = 1,
+    /** Maximum inclusive range length in days, or null for unbounded. */
+    public val maxRangeDays: Int? = null,
 ) {
     internal val bounds: ClosedRange<LocalDate> =
         LocalDate(yearRange.first, 1, 1)..LocalDate(yearRange.last, 12, 31)
@@ -170,6 +188,9 @@ public class OrreryDateRangePickerState internal constructor(
             bounds = bounds,
             disabled = disabledDates,
             onEvent = {},
+            disallowDisabledInRange = disallowDisabledInRange,
+            minRangeDays = minRangeDays,
+            maxRangeDays = maxRangeDays,
         )
 
     public var displayMode: DatePickerDisplayMode by mutableStateOf(initialDisplayMode)
@@ -210,6 +231,9 @@ public class OrreryDateRangePickerState internal constructor(
             maxDays: Int?,
             disabledDates: DisabledDates,
             firstDayOfWeek: DayOfWeek,
+            disallowDisabledInRange: Boolean = false,
+            minRangeDays: Int = 1,
+            maxRangeDays: Int? = null,
         ): Saver<OrreryDateRangePickerState, Any> =
             listSaver(
                 save = {
@@ -231,13 +255,21 @@ public class OrreryDateRangePickerState internal constructor(
                         maxDays = maxDays,
                         disabledDates = disabledDates,
                         firstDayOfWeek = firstDayOfWeek,
+                        disallowDisabledInRange = disallowDisabledInRange,
+                        minRangeDays = minRangeDays,
+                        maxRangeDays = maxRangeDays,
                     )
                 },
             )
     }
 }
 
-/** Remembers saveable [OrreryDateRangePickerState] for [OrreryDateRangePickerDialog]. */
+/**
+ * Remembers saveable [OrreryDateRangePickerState] for [OrreryDateRangePickerDialog].
+ * Changing [minDays], [maxDays], [disallowDisabledInRange], [minRangeDays]
+ * or [maxRangeDays] recreates the state (keeping the saved selection only
+ * through restoration).
+ */
 @Composable
 public fun rememberOrreryDateRangePickerState(
     initialStartDate: LocalDate? = null,
@@ -250,13 +282,35 @@ public fun rememberOrreryDateRangePickerState(
     maxDays: Int? = null,
     disabledDates: DisabledDates = DisabledDates.None,
     firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
+    disallowDisabledInRange: Boolean = false,
+    minRangeDays: Int = 1,
+    maxRangeDays: Int? = null,
 ): OrreryDateRangePickerState {
+    requireValidRangeDays(minRangeDays, maxRangeDays)
     val saver =
-        remember(yearRange, firstDayOfWeek, minDays, maxDays) {
-            OrreryDateRangePickerState.saver(yearRange, minDays, maxDays, disabledDates, firstDayOfWeek)
+        remember(yearRange, firstDayOfWeek, minDays, maxDays, disallowDisabledInRange, minRangeDays, maxRangeDays) {
+            OrreryDateRangePickerState.saver(
+                yearRange,
+                minDays,
+                maxDays,
+                disabledDates,
+                firstDayOfWeek,
+                disallowDisabledInRange,
+                minRangeDays,
+                maxRangeDays,
+            )
         }
     val state =
-        rememberSaveable(yearRange, firstDayOfWeek, minDays, maxDays, saver = saver) {
+        rememberSaveable(
+            yearRange,
+            firstDayOfWeek,
+            minDays,
+            maxDays,
+            disallowDisabledInRange,
+            minRangeDays,
+            maxRangeDays,
+            saver = saver,
+        ) {
             OrreryDateRangePickerState(
                 initialStartDate = initialStartDate,
                 initialEndDate = initialEndDate,
@@ -267,8 +321,38 @@ public fun rememberOrreryDateRangePickerState(
                 maxDays = maxDays,
                 disabledDates = disabledDates,
                 firstDayOfWeek = firstDayOfWeek,
+                disallowDisabledInRange = disallowDisabledInRange,
+                minRangeDays = minRangeDays,
+                maxRangeDays = maxRangeDays,
             )
         }
     SideEffect { state.selection.disabled = disabledDates }
     return state
 }
+
+@Deprecated("Kept for binary compatibility; use the overload with range guardrails.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun rememberOrreryDateRangePickerState(
+    initialStartDate: LocalDate? = null,
+    initialEndDate: LocalDate? = null,
+    initialDisplayedMonth: YearMonth =
+        initialStartDate?.let { YearMonth(it.year, it.month) } ?: currentYearMonth(),
+    yearRange: IntRange = 1971..2055,
+    initialDisplayMode: DatePickerDisplayMode = DatePickerDisplayMode.Picker,
+    minDays: Int? = null,
+    maxDays: Int? = null,
+    disabledDates: DisabledDates = DisabledDates.None,
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
+): OrreryDateRangePickerState =
+    rememberOrreryDateRangePickerState(
+        initialStartDate = initialStartDate,
+        initialEndDate = initialEndDate,
+        initialDisplayedMonth = initialDisplayedMonth,
+        yearRange = yearRange,
+        initialDisplayMode = initialDisplayMode,
+        minDays = minDays,
+        maxDays = maxDays,
+        disabledDates = disabledDates,
+        firstDayOfWeek = firstDayOfWeek,
+        disallowDisabledInRange = false,
+    )

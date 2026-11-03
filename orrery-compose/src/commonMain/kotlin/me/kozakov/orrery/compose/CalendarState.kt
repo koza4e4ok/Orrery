@@ -25,6 +25,7 @@ private val UNBOUNDED_END_MONTH = YearMonth(19999, 12)
 
 /** State holder for [HorizontalCalendar] and [VerticalCalendar]. */
 @Stable
+@Suppress("TooManyFunctions")
 public class CalendarState internal constructor(
     startMonth: YearMonth?,
     endMonth: YearMonth?,
@@ -133,6 +134,35 @@ public class CalendarState internal constructor(
             }
             listState.animateScrollToItem(target)
         }
+    }
+
+    /**
+     * Animates to the month after [firstVisibleMonth]; stays on the last
+     * month when already there (clamped to [startMonth]..[endMonth]).
+     */
+    public suspend fun animateScrollToNextMonth() {
+        animateScrollToMonth(relativeMonth(1))
+    }
+
+    /** Animates to the month before [firstVisibleMonth], clamped to [startMonth]. */
+    public suspend fun animateScrollToPreviousMonth() {
+        animateScrollToMonth(relativeMonth(-1))
+    }
+
+    /** Jumps to the month after [firstVisibleMonth], clamped to [endMonth]. */
+    public suspend fun scrollToNextMonth() {
+        scrollToMonth(relativeMonth(1))
+    }
+
+    /** Jumps to the month before [firstVisibleMonth], clamped to [startMonth]. */
+    public suspend fun scrollToPreviousMonth() {
+        scrollToMonth(relativeMonth(-1))
+    }
+
+    /** The month [offset] pages from the first visible one, clamped to `0 until monthCount`. */
+    private fun relativeMonth(offset: Int): YearMonth {
+        val page = listState.firstVisibleItemIndex / itemsPerMonth
+        return CalendarPages.monthAt(effectiveStartMonth, (page + offset).coerceIn(0, monthCount - 1))
     }
 
     /** Animates back to the current month. */

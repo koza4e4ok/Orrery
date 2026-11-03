@@ -43,6 +43,7 @@ class SetSelectionTest {
                     mode = SelectionMode.Range(),
                     disabled = DisabledDates { daysOfWeek(DayOfWeek.SATURDAY) },
                     onEvent = { events.add(it) },
+                    disallowDisabledInRange = true,
                 )
         }
         // Jul 15..21 contains Saturday Jul 18
@@ -52,6 +53,24 @@ class SetSelectionTest {
             listOf<SelectionEvent>(SelectionEvent.Intercepted(LocalDate(2026, 7, 18))),
             events,
         )
+    }
+
+    @Test
+    fun proposalSpanningADisabledDateIsAppliedByDefault() {
+        lateinit var state: CalendarSelectionState
+        val events = mutableListOf<SelectionEvent>()
+        rule.setContent {
+            state =
+                rememberCalendarSelectionState(
+                    mode = SelectionMode.Range(),
+                    disabled = DisabledDates { daysOfWeek(DayOfWeek.SATURDAY) },
+                    onEvent = { events.add(it) },
+                )
+        }
+        // Jul 15..21 contains Saturday Jul 18; only the endpoints must be enabled.
+        rule.runOnIdle { state.set(SelectionPresets.nextDays(wed15, 7)) }
+        assertEquals(wed15..LocalDate(2026, 7, 21), state.selection.range)
+        assertTrue(events.isEmpty())
     }
 
     @Test

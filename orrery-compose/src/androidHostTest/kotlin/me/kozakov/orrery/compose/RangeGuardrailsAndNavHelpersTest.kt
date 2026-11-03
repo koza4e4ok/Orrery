@@ -200,7 +200,12 @@ class RangeGuardrailsAndNavHelpersTest {
             WeekCalendar(state = state, visibleWeeksCount = visibleWeeksCount, dayContent = {})
         }
 
-        fun firstVisible(): LocalDate = rule.runOnIdle { state.firstVisibleWeek.days.first().date }
+        fun firstVisible(): LocalDate =
+            rule.runOnIdle {
+                state.firstVisibleWeek.days
+                    .first()
+                    .date
+            }
 
         fun step(block: suspend WeekCalendarState.() -> Unit) {
             rule.runOnIdle { scope.launch { state.block() } }

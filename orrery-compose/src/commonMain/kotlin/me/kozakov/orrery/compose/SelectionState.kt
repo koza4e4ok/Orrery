@@ -323,6 +323,8 @@ private fun CalendarSelectionState.rangeViolation(range: ClosedRange<LocalDate>)
     val days = range.start.daysUntil(range.endInclusive) + 1
     val min = rangeMode.effectiveMin
     val max = rangeMode.effectiveMax
+    val minRange = minRangeDays
+    val maxRange = maxRangeDays
     val blocked =
         if (disallowDisabledInRange) {
             firstDisabledIn(range)
@@ -334,8 +336,8 @@ private fun CalendarSelectionState.rangeViolation(range: ClosedRange<LocalDate>)
         min != null && days < min -> SelectionEvent.RangeTooShort(range.endInclusive, min)
         max != null && days > max -> SelectionEvent.RangeTooLong(range.endInclusive, max)
         blocked != null -> SelectionEvent.Intercepted(blocked)
-        days < minRangeDays -> SelectionEvent.RangeTooShort(range.endInclusive, minRangeDays)
-        maxRangeDays != null && days > maxRangeDays -> SelectionEvent.RangeTooLong(range.endInclusive, maxRangeDays)
+        days < minRange -> SelectionEvent.RangeTooShort(range.endInclusive, minRange)
+        maxRange != null && days > maxRange -> SelectionEvent.RangeTooLong(range.endInclusive, maxRange)
         else -> null
     }
 }

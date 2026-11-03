@@ -2,7 +2,6 @@
 
 package me.kozakov.orrery.compose
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -27,7 +26,10 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -685,29 +687,52 @@ private fun WeekCalendarContent(
         } else {
             null
         }
+    val currentWeeksCount by rememberUpdatedState(visibleWeeksCount)
+    val currentVisibleDays by rememberUpdatedState(visibleDaysOfWeek)
+    var targetHeightPx by remember(state) { mutableIntStateOf(0) }
+    val animatedHeight = remember(state) { Animatable(Float.NaN) }
+    LaunchedEffect(targetHeightPx, animateHeight) {
+        if (targetHeightPx <= 0) return@LaunchedEffect
+        val target = targetHeightPx.toFloat()
+        if (!animateHeight || animatedHeight.value.isNaN()) {
+            animatedHeight.snapTo(target)
+        } else if (animatedHeight.value != target) {
+            animatedHeight.animateTo(
+                target,
+                spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
+            )
+        }
+    }
+    val density = LocalDensity.current
+    val heightModifier =
+        if (animateHeight && animatedHeight.isRunning && !animatedHeight.value.isNaN()) {
+            Modifier.height(with(density) { animatedHeight.value.toDp() }).clipToBounds()
+        } else {
+            Modifier
+        }
     Column(modifier) {
         weekHeader?.invoke(this, daysOfWeek(state.firstDayOfWeek, visibleDaysOfWeek))
         val pageCount = state.pageCount(visibleWeeksCount)
         LazyRow(
             state = state.listState,
-            // Springs the grid height when visibleWeeksCount changes.
-            modifier =
-                if (animateHeight) {
-                    Modifier.animateContentSize(
-                        animationSpec =
-                            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
-                    )
-                } else {
-                    Modifier
-                },
+            modifier = heightModifier,
             flingBehavior = rememberSnapFlingBehavior(state.listState),
             userScrollEnabled = userScrollEnabled,
         ) {
             items(count = pageCount, key = { it }) { index ->
-                val weeks = state.weeksAt(index, visibleWeeksCount, visibleDaysOfWeek)
+                val weeks = state.weeksAt(index, currentWeeksCount, currentVisibleDays)
                 val rowCount = weeks.size
                 val weekFooter = slots.weekFooter
-                Column(Modifier.fillParentMaxWidth()) {
+                Column(
+                    Modifier
+                        .fillParentMaxWidth()
+                        .wrapContentHeight(align = Alignment.Top, unbounded = true)
+                        .onSizeChanged {
+                            if (it.height > 0 && index == state.listState.firstVisibleItemIndex) {
+                                targetHeightPx = it.height
+                            }
+                        },
+                ) {
                     weeks.forEachIndexed { row, week ->
                         Row(Modifier.fillMaxWidth()) {
                             val colCount = week.days.size

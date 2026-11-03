@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -108,6 +109,7 @@ public fun CalendarNavHeader(
             contentAlignment = Alignment.Center,
         ) {
             val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+            val currentTitle by rememberUpdatedState(title)
             AnimatedContent(
                 targetState = visibleMonth,
                 transitionSpec = {
@@ -117,7 +119,7 @@ public fun CalendarNavHeader(
                         .togetherWith(slideOutHorizontally { -(it / 2) * sign } + fadeOut())
                 },
                 label = "navHeaderTitle",
-            ) { month -> title(month) }
+            ) { month -> currentTitle(month) }
         }
         IconButton(
             onClick = {

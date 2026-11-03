@@ -145,6 +145,8 @@ class SmoothAnimationsTest {
         val one = rule.onNodeWithTag("week").getUnclippedBoundsInRoot().height
         rule.mainClock.autoAdvance = false
         rule.runOnIdle { weeks = 2 }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeBy(64)
         val mid = rule.onNodeWithTag("week").getUnclippedBoundsInRoot().height
         rule.mainClock.autoAdvance = true
@@ -196,6 +198,7 @@ class SmoothAnimationsTest {
 
         rule.mainClock.autoAdvance = false
         rule.runOnIdle { expanded = true }
+        rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeBy(100)
         val mid = dropdownRotation()
         assertTrue("triangle should be mid-rotation but was $mid", mid > 0f && mid < 180f)

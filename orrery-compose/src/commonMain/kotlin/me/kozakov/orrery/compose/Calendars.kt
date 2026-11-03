@@ -719,7 +719,7 @@ private fun WeekCalendarContent(
             flingBehavior = rememberSnapFlingBehavior(state.listState),
             userScrollEnabled = userScrollEnabled,
         ) {
-            items(count = pageCount, key = { it }) { index ->
+            items(count = pageCount, key = { index -> index + currentWeeksCount * 100_000 }) { index ->
                 val weeks = state.weeksAt(index, currentWeeksCount, currentVisibleDays)
                 val rowCount = weeks.size
                 val weekFooter = slots.weekFooter

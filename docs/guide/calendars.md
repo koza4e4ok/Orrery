@@ -37,8 +37,22 @@ CollapsibleCalendarScaffold(
 }
 ```
 
-`HorizontalCalendar` and `WeekCalendar` also handle keyboard/D-pad navigation
-(with month-edge paging) and animate height between 4/5/6-week months.
+Every calendar handles keyboard/D-pad navigation (`keyboardNavigation`, on by
+default): arrow keys move by a day or a week row, `Home` / `End` jump to the row's
+ends, and `PageUp` / `PageDown` move a month (`Shift` for a year). Moving past the
+first or last row pages `HorizontalCalendar` and multi-row `WeekCalendar`
+(`visibleWeeksCount` 1..4) and scrolls `VerticalCalendar` to the target month.
+`HorizontalCalendar` animates height between 4/5/6-week months, and `WeekCalendar`
+springs its height when `visibleWeeksCount` changes (`animateHeight = false` turns
+it off).
+
+`CollapsibleCalendarScaffold` keeps the month grid opaque while it collapses, so the
+active week row stays in place without blinking, and a released drag or fling settles
+on a spring that carries its velocity.
+
+Under `LayoutDirection.Rtl` the grids, range bands, check-in / check-out halves and
+event banners mirror, and `Left` / `Right` follow the mirrored grid (`Left` moves to
+the next day).
 
 ## Calendar state and navigation
 
@@ -60,6 +74,14 @@ scope.launch { state.animateScrollToToday() } // also: scrollToMonth, (animate)S
 state.updateRange(newStart, newEnd)           // grow/shrink the range in place
 ```
 
+For your own toolbar arrows or shortcuts, the step helpers move one page and clamp
+to the state's bounds:
+
+```kotlin
+scope.launch { state.animateScrollToNextMonth() }         // also: PreviousMonth, scrollTo* without animation
+scope.launch { weekState.animateScrollToPreviousWeek() }  // one page of visibleWeeksCount weeks
+```
+
 Bounds are optional — the default state scrolls indefinitely in both
 directions, and one-sided ranges (fixed past, open future) work too. Far
 animated jumps teleport near the target before animating the landing, so
@@ -70,7 +92,11 @@ animated jumps teleport near the target before animating the landing, so
 dropdown, or in place of the month grid:
 
 ```kotlin
-CalendarNavHeader(state = state, onTitleClick = { showJumpPicker = true })
+CalendarNavHeader(
+    state = state,
+    onTitleClick = { showJumpPicker = true },
+    expanded = showJumpPicker, // rotates the title's dropdown chevron
+)
 
 if (showJumpPicker) {
     MonthYearPicker(

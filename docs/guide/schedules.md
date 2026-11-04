@@ -23,6 +23,19 @@ WeekSchedule(
 scope.launch { state.scrollToTime(LocalTime(14, 0), density) }
 ```
 
+Pinch-to-zoom is built in. For zoom buttons or shortcuts, `animateHourHeightTo`
+animates `hourHeight` (clamped to `minHourHeight..maxHourHeight`) and keeps the time
+at the top of the grid in place. The step helpers page the grid like a swipe:
+
+```kotlin
+scope.launch { state.animateHourHeightTo(104.dp) }   // optional animationSpec
+scope.launch { state.animateScrollToNextPage() }     // one page of daysPerPage days
+scope.launch { state.animateScrollToPreviousDay() }  // one day; also NextDay, scrollTo*Page
+```
+
+When `overlapMode` switches between `EventOverlapMode.SideBySide` and
+`EventOverlapMode.Stacked`, timed events slide to their new lanes.
+
 Overlapping timed events split the column into lanes and widen into free lanes
 to their right; overnight events are clipped to each day. The same packing is
 available without Compose as `layoutDaySchedule(date, events)` in `orrery-core`.

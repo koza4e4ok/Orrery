@@ -26,8 +26,34 @@ DefaultDay(
 ```
 
 `CalendarDayColors` covers every state (today, selected, in-range, out-date,
-unavailable, label); anything you don't override follows the Material theme, so
-dark mode and dynamic color work for free. The week header, week-number cell,
+unavailable, label, weekend); anything you don't override follows the Material theme, so
+dark mode and dynamic color work for free. With `animateSelection = true` (the
+default) the day number's color and the hover fill fade over 150 ms.
+
+To tint weekends, set `weekendContentColor` on the day colors and on the week
+header. `weekendDays` defaults to Saturday and Sunday; the weekend color defaults
+to the regular one, so nothing changes until you set it. Selected, in-range,
+out-date, unavailable and today cells keep their own colors:
+
+```kotlin
+val weekend = setOf(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY)
+val colors = CalendarDefaults.dayColors(
+    weekendContentColor = MaterialTheme.colorScheme.tertiary,
+    weekendDays = weekend,
+)
+
+HorizontalCalendar(
+    state = state,
+    weekHeader = { days ->
+        CalendarDefaults.WeekHeader(
+            days,
+            weekendDays = weekend,
+            weekendContentColor = MaterialTheme.colorScheme.tertiary,
+        )
+    },
+) { day -> DefaultDay(day, colors = colors) }
+```
+ The week header, week-number cell,
 and month title are also slots — the defaults are `CalendarDefaults.WeekHeader`,
 `CalendarDefaults.WeekNumber` (ISO week), and `CalendarDefaults.MonthTitle`.
 

@@ -2,6 +2,73 @@
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-11-04
+
+### Added
+
+- Booking range guardrails in `orrery-core` and `orrery-compose` (#102).
+  `SelectionEngine`, `CalendarSelectionState` / `rememberCalendarSelectionState`
+  and `OrreryDateRangePickerState` / `rememberOrreryDateRangePickerState` take
+  `disallowDisabledInRange` (default `false`), `minRangeDays` (default `1`) and
+  `maxRangeDays` (default `null`), counted in inclusive days (one night is
+  `minRangeDays = 2`). On the tap that would complete a `SelectionMode.Range`,
+  a span across a disabled date restarts the range at the tapped date when
+  `disallowDisabledInRange = true` (`Intercepted`), a span longer than
+  `maxRangeDays` restarts it there too (`RangeTooLong`), and a span shorter than
+  `minRangeDays` is ignored and keeps the start (`RangeTooShort`). Programmatic
+  writes (`set`, picker text input) are checked against the same limits. They
+  combine with `SelectionMode.Range(minDays, maxDays)`, which keeps its behavior.
+  `minRangeDays < 1` or `maxRangeDays < minRangeDays` throws. The previous
+  constructors and `remember*` signatures stay as hidden binary-compatible bridges.
+- Relative navigation helpers in `orrery-compose` (#102):
+  `CalendarState.(animate)ScrollToNextMonth()` / `(animate)ScrollToPreviousMonth()`,
+  `WeekCalendarState.(animate)ScrollToNextWeek()` / `(animate)ScrollToPreviousWeek()`
+  (one page of `visibleWeeksCount` weeks), and `ScheduleState.(animate)ScrollToNextPage()`
+  / `(animate)ScrollToPreviousPage()` (one page of `daysPerPage` days) plus
+  `animateScrollToNextDay()` / `animateScrollToPreviousDay()`. All of them clamp
+  to the state's bounds.
+- `ScheduleState.animateHourHeightTo(target, animationSpec)` (#101) animates the
+  hour height (clamped to `minHourHeight..maxHourHeight`) and scales the vertical
+  scroll so the time at the top of the grid stays in place, for toolbar zoom
+  buttons and shortcuts next to pinch-to-zoom.
+- `WeekCalendar(animateHeight = true)` springs the strip's height when
+  `visibleWeeksCount` changes (#101), and `CalendarNavHeader(expanded = ...)`
+  rotates the title's dropdown chevron while a jump picker is open.
+- Weekend styling in `orrery-compose` (#103). `CalendarDefaults.WeekHeader` and
+  `CalendarDefaults.DaysOfWeekHeader` take `contentColor`, `weekendDays`
+  (default Saturday and Sunday) and `weekendContentColor`;
+  `CalendarDayColors` / `CalendarDefaults.dayColors(...)` take
+  `weekendContentColor` and `weekendDays`, which `DefaultDay` uses for weekend
+  day numbers below the selected, in-range, out-date, unavailable and today
+  states. The weekend color defaults to the regular content color, so nothing
+  changes until you set it. The previous overloads stay as hidden bridges.
+- Keyboard navigation in `VerticalCalendar` and multi-row `WeekCalendar`
+  (`visibleWeeksCount` 1..4) (#103). `VerticalCalendar` gets
+  `keyboardNavigation` (default `true`): arrow keys, `Home` / `End` and
+  `PageUp` / `PageDown` (`Shift` for a year) work as in `HorizontalCalendar`, and
+  moving past a month's first or last row scrolls the list to the target month.
+
+### Changed
+
+- `CollapsibleCalendarScaffold` morphs between Month, TwoWeeks and Week without
+  fading the month grid, so the active week row no longer blinks at the end of a
+  collapse, and drags and flings settle on a velocity-aware spring instead of a
+  fixed 240 ms tween (#101).
+- `DefaultDay` animates its content color and hover fill (150 ms, `snap()` when
+  `animateSelection = false`); `DaySchedule` / `WeekSchedule` slide timed events
+  to their new lanes when `overlapMode` changes; the date and range picker
+  headlines slide up or down depending on the direction of the new date (#101).
+- Full RTL mirroring (#103): under `LayoutDirection.Rtl`, `DefaultDay` mirrors
+  range bands and `SplitHorizontal` / `SplitDiagonal` check-in / check-out
+  halves, the schedule grid draws its day dividers next to the hour gutter on the
+  right, and `Left` / `Right` arrow keys move one day forward / back to follow
+  the mirrored grid.
+- `:sample`: Trips adds a "Stay rules" chip (1–13 nights, no stay across a
+  booked night) and tints Friday and Saturday nights; Agenda's Day and Week grids
+  get page chevrons and an animated Zoom chip; Habits pages the two-week strip
+  with chevrons; the Almanac style studio uses the month step helpers and adds an
+  RTL preview.
+
 ## [0.9.0] - 2026-10-30
 
 ### Added
@@ -462,7 +529,8 @@
   is replaced by `decorators: List<DayDecorator>`. Migrate
   `decorator = { day -> ... }` to `decorators = listOf(DayDecorator { day -> ... })`.
 
-[Unreleased]: https://github.com/koza4e4ok/Orrery/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/koza4e4ok/Orrery/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/koza4e4ok/Orrery/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/koza4e4ok/Orrery/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/koza4e4ok/Orrery/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/koza4e4ok/Orrery/compare/v0.6.0...v0.7.0

@@ -139,11 +139,11 @@ The library ships these artifacts on **Maven Central** under the group
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("me.kozakov.orrery:orrery-compose:0.9.0")
+    implementation("me.kozakov.orrery:orrery-compose:0.9.1")
     // Optional DayInfoProvider modules:
-    implementation("me.kozakov.orrery:orrery-lunar:0.9.0")
-    implementation("me.kozakov.orrery:orrery-calendars:0.9.0")
-    implementation("me.kozakov.orrery:orrery-holidays:0.9.0")
+    implementation("me.kozakov.orrery:orrery-lunar:0.9.1")
+    implementation("me.kozakov.orrery:orrery-calendars:0.9.1")
+    implementation("me.kozakov.orrery:orrery-holidays:0.9.1")
 }
 ```
 
@@ -152,7 +152,7 @@ Using a [version catalog](https://docs.gradle.org/current/userguide/version_cata
 
 ```toml
 [versions]
-orrery = "0.9.0"
+orrery = "0.9.1"
 
 [libraries]
 orrery-compose   = { module = "me.kozakov.orrery:orrery-compose",   version.ref = "orrery" }
@@ -194,7 +194,7 @@ add [decorators](docs/guide/day-cells.md) for event dots or progress rings,
 
 The sample app (`sample/`) is five product-style screens: an Agenda with a
 collapsible calendar and named events (switchable to Day and Week time grids), a Trips booking flow with drag-select,
-nightly prices and blackout dates, a Habits tracker with streaks and animated
+nightly prices, blackout dates and stay rules (minimum / maximum nights, no stay across a booked night), a Habits tracker with streaks and animated
 progress rings, an Almanac backed by `orrery-lunar`, `orrery-calendars` and `orrery-holidays`, and a Pickers screen
 demonstrating all four picker dialogs.
 
@@ -202,14 +202,14 @@ demonstrating all four picker dialogs.
 
 | Area | What you get | Guide |
 | --- | --- | --- |
-| Calendars | `HorizontalCalendar`, `VerticalCalendar`, `WeekCalendar`, `YearCalendar`; unbounded scrolling; two-week and work-week (e.g. Mon–Fri) modes; `CollapsibleCalendarScaffold` with Month / TwoWeeks / Week stops; week numbers, sticky month headers, `CalendarNavHeader`, keyboard and D-pad navigation; Flow observation of visible months | [Calendars](docs/guide/calendars.md) |
-| Selection | Single (with auto-advance), range (min/max days), multi, week and month modes; long-press drag-to-select; `DisabledDates`; presets and validated programmatic writes; selection haptics | [Selection](docs/guide/selection.md) |
-| Day cells and styling | `DefaultDay` with per-state colors and shapes, today indicators, segmented or banded range fills, hospitality check-in / check-out range endpoints, `CalendarStyle` presets | [Day cells](docs/guide/day-cells.md) |
+| Calendars | `HorizontalCalendar`, `VerticalCalendar`, `WeekCalendar`, `YearCalendar`; unbounded scrolling; two-week and work-week (e.g. Mon–Fri) modes; `CollapsibleCalendarScaffold` with Month / TwoWeeks / Week stops and spring-settled drags; week numbers, sticky month headers, `CalendarNavHeader`; next / previous month and week step helpers; keyboard and D-pad navigation in every calendar; Flow observation of visible months | [Calendars](docs/guide/calendars.md) |
+| Selection | Single (with auto-advance), range (min/max days), multi, week and month modes; booking guardrails (minimum / maximum stay, no range across a disabled date); long-press drag-to-select; `DisabledDates`; presets and validated programmatic writes; selection haptics | [Selection](docs/guide/selection.md) |
+| Day cells and styling | `DefaultDay` with per-state colors and shapes, today indicators, segmented or banded range fills, hospitality check-in / check-out range endpoints, weekend tinting, animated color changes, `CalendarStyle` presets | [Day cells](docs/guide/day-cells.md) |
 | Decorators and heatmaps | Event dots, progress rings and bars, count badges, strikethrough, underline, custom `DrawScope` decorators, animated values; `HeatmapCalendar` and `HeatmapMonth` | [Day cells](docs/guide/day-cells.md) |
-| Events | `DaySchedule` / `WeekSchedule` time grids (side-by-side or stacked overlaps, working-hours window, all-day banners, pinch-to-zoom, current-time line); `Agenda`; multi-day `WeekEventBanners` on month calendars | [Schedules](docs/guide/schedules.md) |
+| Events | `DaySchedule` / `WeekSchedule` time grids (side-by-side or stacked overlaps, working-hours window, all-day banners, pinch-to-zoom and animated programmatic zoom, page step helpers, current-time line); `Agenda`; multi-day `WeekEventBanners` on month calendars | [Schedules](docs/guide/schedules.md) |
 | Pickers | `OrreryDatePickerDialog`, `OrreryDateRangePickerDialog` with preset chips, `OrreryDateTimePickerDialog`, `OrreryMonthPickerDialog`; calendar and text-input modes | [Pickers](docs/guide/pickers.md) |
 | Calendar systems | `orrery-lunar`: lunar dates (conversion golden-tested against CalendarView for every day of 1900–2099), 24 solar terms, festivals and 干支 years. `orrery-calendars`: Hijri (Umm al-Qura, tabular) and Persian, checked day by day against java.time and ICU4J. `orrery-holidays`: US, GB, DE and UA public holidays, checked against python-holidays for 2000–2050, plus your own rules | [Calendar systems](docs/guide/calendar-systems.md) |
-| Platform and quality | Material 3 theming with dark mode and dynamic color; accessibility semantics; RTL; locale-driven names and first day of week; built-in strings in English, Ukrainian, German, Spanish, Simplified Chinese and Japanese | |
+| Platform and quality | Material 3 theming with dark mode and dynamic color; accessibility semantics; RTL (mirrored range bands, check-in / check-out halves, schedule grid and arrow keys); locale-driven names and first day of week; built-in strings in English, Ukrainian, German, Spanish, Simplified Chinese and Japanese | |
 
 ## Stability and compatibility
 
@@ -219,14 +219,14 @@ Kotlin's ABI validation (`checkKotlinAbi`), so API changes are always deliberate
 
 | Orrery | Kotlin | Compose Multiplatform | Compose BOM (Android) | kotlinx-datetime | Android `compileSdk` |
 | --- | --- | --- | --- | --- | --- |
-| 0.7.0 – 0.9.0 | 2.4.21 | 1.12.2 | 2026.09.00 | 0.8.0 | 37 |
+| 0.7.0 – 0.9.1 | 2.4.21 | 1.12.2 | 2026.09.00 | 0.8.0 | 37 |
 | 0.6.0 | 2.4.0 | 1.11.1 | 2026.06.01 | 0.8.0 | 36 |
 
 These are the versions each release was built against. Android apps need `minSdk 23`
 and, from 0.7.0, `compileSdk 37` (Compose 1.12 requires it). Releases before 0.6.0
 are Android-only.
 
-> **Snapshots:** development builds are published as `0.9.1-SNAPSHOT` to the Central
+> **Snapshots:** development builds are published as `0.9.2-SNAPSHOT` to the Central
 > snapshots repository. To use them, add
 > `maven("https://central.sonatype.com/repository/maven-snapshots/")` to your repositories
 > and depend on the `-SNAPSHOT` version.

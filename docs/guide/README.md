@@ -7,7 +7,7 @@ Everything in these guides ships in `orrery-compose` unless marked otherwise. Al
 | Guide | Covers |
 | --- | --- |
 | [Calendars and navigation](calendars.md) | `HorizontalCalendar`, `VerticalCalendar`, `WeekCalendar`, `YearCalendar`, `CollapsibleCalendarScaffold`, calendar state, scrolling, `CalendarNavHeader`, `MonthYearPicker`, Flow observation, utilities |
-| [Selection and disabled dates](selection.md) | Single, range, multi, week and month selection, drag-to-select, presets, `DisabledDates` |
+| [Selection and disabled dates](selection.md) | Single, range, multi, week and month selection, drag-to-select, presets, booking guardrails, `DisabledDates` |
 | [Day cells, decorators and heatmaps](day-cells.md) | `DefaultDay`, colors and shapes, event dots, progress rings, badges, custom `DayDecorator`s, `HeatmapCalendar`, `HeatmapMonth` |
 | [Schedules and agenda](schedules.md) | `DaySchedule`, `WeekSchedule`, overlapping events, `Agenda` |
 | [Date picker dialogs](pickers.md) | Date, date range (with presets), date-time and month pickers |

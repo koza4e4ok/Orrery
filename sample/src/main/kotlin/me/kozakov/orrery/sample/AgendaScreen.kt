@@ -2,6 +2,7 @@ package me.kozakov.orrery.sample
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,9 +12,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,11 +85,16 @@ private enum class AgendaMode(
 private const val WORK_DAY_START_HOUR = 7
 private const val WORK_DAY_END_HOUR = 22
 
+/** Hour heights the time grids' Zoom chip animates between. */
+private val DefaultHourHeight = 60.dp
+private val ZoomedHourHeight = 104.dp
+
 /**
  * Personal agenda: a collapsible calendar (Month / TwoWeeks / Week stops, direct drag and a
  * grab handle) with event dots, count badges and a synchronized [Agenda]; a month grid with
  * multi-day [WeekEventBanners]; or the same events in a [DaySchedule] / [WeekSchedule] time
- * grid limited to working hours, with side-by-side or stacked overlapping events.
+ * grid limited to working hours, with side-by-side or stacked overlapping events, page
+ * chevrons and an animated zoom.
  */
 @Composable
 internal fun AgendaScreen() {
@@ -90,6 +102,7 @@ internal fun AgendaScreen() {
     var mode by rememberSaveable { mutableStateOf(AgendaMode.List) }
     var showYearOverview by rememberSaveable { mutableStateOf(false) }
     var stackedOverlap by rememberSaveable { mutableStateOf(false) }
+    var zoomed by rememberSaveable { mutableStateOf(false) }
     var now by remember { mutableStateOf(systemTimeOfDay()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -190,14 +203,31 @@ internal fun AgendaScreen() {
         }
         if (!showYearOverview && (mode == AgendaMode.Day || mode == AgendaMode.Week)) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                // One page is a day in Day mode and a week in Week mode.
+                IconButton(onClick = { scope.launch { scheduleState.animateScrollToPreviousPage() } }) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous page")
+                }
+                IconButton(onClick = { scope.launch { scheduleState.animateScrollToNextPage() } }) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next page")
+                }
                 FilterChip(
                     selected = stackedOverlap,
                     onClick = { stackedOverlap = !stackedOverlap },
                     label = { Text("Stacked overlap") },
+                )
+                FilterChip(
+                    selected = zoomed,
+                    onClick = {
+                        zoomed = !zoomed
+                        scope.launch {
+                            scheduleState.animateHourHeightTo(if (zoomed) ZoomedHourHeight else DefaultHourHeight)
+                        }
+                    },
+                    label = { Text("Zoom") },
                 )
                 Text(
                     "Working hours $WORK_DAY_START_HOUR:00–$WORK_DAY_END_HOUR:00",

@@ -32,8 +32,10 @@ fun PickDateButton() {
 
 Read `state.selectedDate` (or `selectedStartDate`/`selectedEndDate` on the range state) in
 your confirm button. The state factories accept an initial date/range, a
-`yearRange`, `disabledDates`, and (range only) `minDays`/`maxDays`; programmatic
-writes are validated like taps. Both dialogs localize entirely through
+`yearRange`, `disabledDates`, and (range only) `minDays`/`maxDays` plus the
+[booking guardrails](selection.md#booking-guardrails) `disallowDisabledInRange`,
+`minRangeDays` and `maxRangeDays`; programmatic writes and typed input are validated
+like taps. The headline slides up or down when the selected date moves forward or back. Both dialogs localize entirely through
 `DatePickerStrings` — override any message via `DatePickerDefaults.strings(...)`.
 
 ```kotlin

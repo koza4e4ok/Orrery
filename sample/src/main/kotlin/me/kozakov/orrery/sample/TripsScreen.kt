@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.daysUntil
@@ -56,6 +57,13 @@ import me.kozakov.orrery.core.SelectionMode
 import me.kozakov.orrery.core.SelectionPresets
 import java.time.format.DateTimeFormatter
 
+/** Booking guardrails in inclusive days: at least one night, at most 13 nights. */
+private const val MIN_STAY_DAYS = 2
+private const val MAX_STAY_DAYS = 14
+
+/** Friday and Saturday nights cost more (see [SampleData.nightlyPrice]), so they are tinted. */
+private val WeekendNights = setOf(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY)
+
 /**
  * How a tap picks the stay: a drag-selected range, a whole week or a whole month.
  * Week leaves firstDayOfWeek null, so it follows the locale like the calendar.
@@ -64,7 +72,7 @@ private enum class StayMode(
     val label: String,
     val mode: SelectionMode,
 ) {
-    Range("Range", SelectionMode.Range(minDays = 2)),
+    Range("Range", SelectionMode.Range()),
     Week("Week", SelectionMode.Week()),
     Month("Month", SelectionMode.Month()),
 }
@@ -81,7 +89,9 @@ private enum class EndpointOption(
 
 /**
  * Hotel-booking flow: drag-select a stay (or a week/month), nightly prices, blackout dates,
- * and hospitality range endpoints (check-in PM half, check-out AM half, turnover days).
+ * hospitality range endpoints (check-in PM half, check-out AM half, turnover days), and
+ * "Stay rules" guardrails: 1–13 nights, and a stay never spans a booked night (tapping
+ * past one starts a new stay there).
  */
 @Composable
 internal fun TripsScreen() {
@@ -91,6 +101,7 @@ internal fun TripsScreen() {
     val scope = rememberCoroutineScope()
     var stayMode by rememberSaveable { mutableStateOf(StayMode.Range) }
     var endpointOption by rememberSaveable { mutableStateOf(EndpointOption.Diagonal) }
+    var stayRules by rememberSaveable { mutableStateOf(true) }
     val selection =
         rememberCalendarSelectionState(
             mode = stayMode.mode,
@@ -99,16 +110,23 @@ internal fun TripsScreen() {
                 val message =
                     when (event) {
                         is SelectionEvent.RangeTooShort -> "Minimum stay is one night"
-                        is SelectionEvent.Intercepted -> "That range includes an unavailable date"
+                        is SelectionEvent.RangeTooLong -> "Maximum stay is 13 nights"
+                        is SelectionEvent.Intercepted -> "Those dates aren't available"
                         else -> "That selection isn't available"
                     }
                 scope.launch { snackbar.showSnackbar(message) }
             },
+            disallowDisabledInRange = stayRules,
+            minRangeDays = if (stayRules) MIN_STAY_DAYS else 1,
+            maxRangeDays = if (stayRules) MAX_STAY_DAYS else null,
         )
+    val weekendColor = MaterialTheme.colorScheme.tertiary
+    val dayColors =
+        CalendarDefaults.dayColors(weekendContentColor = weekendColor, weekendDays = WeekendNights)
     val dayStyle =
         if (endpointOption.style == RangeEndpointStyle.FullCell) {
             CalendarStyle(
-                colors = CalendarDefaults.dayColors(),
+                colors = dayColors,
                 shapes =
                     CalendarDefaults.dayShapes(
                         dayShape = RoundedCornerShape(12.dp),
@@ -116,7 +134,7 @@ internal fun TripsScreen() {
                     ),
             )
         } else {
-            CalendarDefaults.hospitalityStyle(rangeEndpointStyle = endpointOption.style)
+            CalendarDefaults.hospitalityStyle(rangeEndpointStyle = endpointOption.style, colors = dayColors)
         }
     // Back-to-back bookings: one guest checks out in the morning, the next checks in after noon.
     val turnoverDates =
@@ -189,7 +207,7 @@ internal fun TripsScreen() {
                 },
             )
             Row(
-                Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+                Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -199,6 +217,14 @@ internal fun TripsScreen() {
                         onClick = { stayMode = option },
                         label = { Text(option.label) },
                         modifier = Modifier.testTag("stay_mode_${option.name.lowercase()}"),
+                    )
+                }
+                if (stayMode == StayMode.Range) {
+                    FilterChip(
+                        selected = stayRules,
+                        onClick = { stayRules = !stayRules },
+                        label = { Text("Stay rules") },
+                        modifier = Modifier.testTag("stay_rules"),
                     )
                 }
             }
@@ -246,6 +272,13 @@ internal fun TripsScreen() {
                 modifier = Modifier.weight(1f).testTag("trips_calendar"),
                 stickyMonthHeaders = true,
                 dragSelection = selection,
+                weekHeader = { days ->
+                    CalendarDefaults.WeekHeader(
+                        days,
+                        weekendDays = WeekendNights,
+                        weekendContentColor = weekendColor,
+                    )
+                },
                 dayContent = { day ->
                     DefaultDay(
                         day = day,

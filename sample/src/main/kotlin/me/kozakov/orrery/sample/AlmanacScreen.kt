@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,9 +47,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -88,7 +91,6 @@ import me.kozakov.orrery.compose.rememberWeekCalendarState
 import me.kozakov.orrery.compose.rememberYearCalendarState
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.CalendarEvent
-import me.kozakov.orrery.core.CalendarPages
 import me.kozakov.orrery.core.DayInfoProvider
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.EventSpan
@@ -194,6 +196,7 @@ internal fun AlmanacScreen() {
     var firstDayOption by rememberSaveable { mutableStateOf(FirstDayOption.Monday) }
     var outDatesOption by rememberSaveable { mutableStateOf(OutDatesOption.EndOfRow) }
     var showWeekNumbers by rememberSaveable { mutableStateOf(false) }
+    var rtlPreview by rememberSaveable { mutableStateOf(false) }
     var showYearOverview by rememberSaveable { mutableStateOf(false) }
     var showControlsSheet by rememberSaveable { mutableStateOf(false) }
     var showMonthYearJump by rememberSaveable { mutableStateOf(false) }
@@ -337,10 +340,6 @@ internal fun AlmanacScreen() {
                 },
             )
         } else {
-            CalendarNavHeader(
-                state = calendarState,
-                onTitleClick = { showMonthYearJump = true },
-            )
             val decorators =
                 rememberShowcaseDecorators(
                     themePreset = themePreset,
@@ -348,38 +347,47 @@ internal fun AlmanacScreen() {
                     selection = selection,
                     today = today,
                 )
-            CollapsibleCalendarScaffold(
-                calendarState = calendarState,
-                weekState = weekState,
-                state = collapsible,
-                modifier = Modifier.weight(1f).testTag("almanac_calendar"),
-                weekHeader = { days ->
-                    CalendarDefaults.WeekHeader(days, leadingSpacer = showWeekNumbers)
-                },
-                dayContent = { day ->
-                    ShowcaseDayCell(
-                        day = day,
-                        today = today,
-                        selection = selection,
-                        provider = provider,
-                        themePreset = themePreset,
-                        cardGridSubMode = cardGridSubMode,
-                        showOutDates = outDatesOption.showOutDates,
-                        decorators = decorators,
-                    )
-                },
-            ) {
-                ShowcaseDetailList(
-                    activeDate = activeDate,
-                    selection = selection,
-                    system = system,
-                    calendarProvider = calendarProvider,
-                    country = country,
-                    eventsOnDate = events[activeDate].orEmpty(),
-                    themePreset = themePreset,
-                    collapsible = collapsible,
-                    onOpenControls = { showControlsSheet = true },
+            // RTL preview mirrors the header, grid, range bands and arrow keys without changing the app locale.
+            val layoutDirection = if (rtlPreview) LayoutDirection.Rtl else LocalLayoutDirection.current
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                CalendarNavHeader(
+                    state = calendarState,
+                    onTitleClick = { showMonthYearJump = true },
+                    expanded = showMonthYearJump,
                 )
+                CollapsibleCalendarScaffold(
+                    calendarState = calendarState,
+                    weekState = weekState,
+                    state = collapsible,
+                    modifier = Modifier.weight(1f).testTag("almanac_calendar"),
+                    weekHeader = { days ->
+                        CalendarDefaults.WeekHeader(days, leadingSpacer = showWeekNumbers)
+                    },
+                    dayContent = { day ->
+                        ShowcaseDayCell(
+                            day = day,
+                            today = today,
+                            selection = selection,
+                            provider = provider,
+                            themePreset = themePreset,
+                            cardGridSubMode = cardGridSubMode,
+                            showOutDates = outDatesOption.showOutDates,
+                            decorators = decorators,
+                        )
+                    },
+                ) {
+                    ShowcaseDetailList(
+                        activeDate = activeDate,
+                        selection = selection,
+                        system = system,
+                        calendarProvider = calendarProvider,
+                        country = country,
+                        eventsOnDate = events[activeDate].orEmpty(),
+                        themePreset = themePreset,
+                        collapsible = collapsible,
+                        onOpenControls = { showControlsSheet = true },
+                    )
+                }
             }
         }
     }
@@ -405,6 +413,8 @@ internal fun AlmanacScreen() {
                 onOutDatesChange = { outDatesOption = it },
                 showWeekNumbers = showWeekNumbers,
                 onShowWeekNumbersChange = { showWeekNumbers = it },
+                rtlPreview = rtlPreview,
+                onRtlPreviewChange = { rtlPreview = it },
                 selectionChoice = selectionChoice,
                 onSelectionChoiceChange = { selectionChoice = it },
                 system = system,
@@ -1023,6 +1033,8 @@ private fun DynamicControlsSheetContent(
     onOutDatesChange: (OutDatesOption) -> Unit,
     showWeekNumbers: Boolean,
     onShowWeekNumbersChange: (Boolean) -> Unit,
+    rtlPreview: Boolean,
+    onRtlPreviewChange: (Boolean) -> Unit,
     selectionChoice: StudioSelectionChoice,
     onSelectionChoiceChange: (StudioSelectionChoice) -> Unit,
     system: AlmanacSystem,
@@ -1097,21 +1109,13 @@ private fun DynamicControlsSheetContent(
             )
             AssistChip(
                 onClick = {
-                    scope.launch {
-                        calendarState.animateScrollToMonth(
-                            CalendarPages.monthAt(calendarState.firstVisibleMonth, -1),
-                        )
-                    }
+                    scope.launch { calendarState.animateScrollToPreviousMonth() }
                 },
                 label = { Text("Prev Month") },
             )
             AssistChip(
                 onClick = {
-                    scope.launch {
-                        calendarState.animateScrollToMonth(
-                            CalendarPages.monthAt(calendarState.firstVisibleMonth, 1),
-                        )
-                    }
+                    scope.launch { calendarState.animateScrollToNextMonth() }
                 },
                 label = { Text("Next Month") },
             )
@@ -1133,6 +1137,11 @@ private fun DynamicControlsSheetContent(
                 selected = showWeekNumbers,
                 onClick = { onShowWeekNumbersChange(!showWeekNumbers) },
                 label = { Text("Week Numbers") },
+            )
+            FilterChip(
+                selected = rtlPreview,
+                onClick = { onRtlPreviewChange(!rtlPreview) },
+                label = { Text("RTL Preview") },
             )
         }
 

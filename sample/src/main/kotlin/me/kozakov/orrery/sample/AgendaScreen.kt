@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -83,6 +84,8 @@ private enum class AgendaMode(
 
 /** Working hours shown by the [DaySchedule] / [WeekSchedule] time grids. */
 private const val WORK_DAY_START_HOUR = 7
+
+private const val COMPACT_HEIGHT_DP = 480
 private const val WORK_DAY_END_HOUR = 22
 
 /** Hour heights the time grids' Zoom chip animates between. */
@@ -154,7 +157,11 @@ internal fun AgendaScreen() {
             DayDecorators.badge { date -> events[date].orEmpty().size },
         )
     val selectedDay = selection.selection.single ?: today
+    // Sync the views to a newly selected day, but not again after rotation, which would undo paging.
+    var syncedDay by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(selectedDay) {
+        if (syncedDay == selectedDay.toString()) return@LaunchedEffect
+        syncedDay = selectedDay.toString()
         scheduleState.scrollToDate(selectedDay)
         agendaState.animateScrollToDate(selectedDay)
     }
@@ -167,24 +174,28 @@ internal fun AgendaScreen() {
     val dayEventsCount = events[selectedDay].orEmpty().size
     val lunarSubtitle = remember(selectedDay) { lunarProvider.info(selectedDay)?.label ?: "Schedule" }
 
+    // Short windows (landscape phones) drop the big date header so the time grid keeps its room.
+    val compactHeight = LocalConfiguration.current.screenHeightDp < COMPACT_HEIGHT_DP
     Column(Modifier.fillMaxSize()) {
-        SampleHeroHeader(
-            date = selectedDay,
-            today = today,
-            subtitle = "$lunarSubtitle · $dayEventsCount event${if (dayEventsCount == 1) "" else "s"}",
-            yearOverviewActive = showYearOverview,
-            onTodayClick = {
-                showYearOverview = false
-                scope.launch {
-                    calendarState.animateScrollToToday()
-                    weekState.animateScrollToDate(today)
-                    agendaState.animateScrollToDate(today)
-                    scheduleState.animateScrollToDate(today)
-                }
-                selection.set(Selection(single = today))
-            },
-            onToggleYearOverview = { showYearOverview = !showYearOverview },
-        )
+        if (!compactHeight) {
+            SampleHeroHeader(
+                date = selectedDay,
+                today = today,
+                subtitle = "$lunarSubtitle · $dayEventsCount event${if (dayEventsCount == 1) "" else "s"}",
+                yearOverviewActive = showYearOverview,
+                onTodayClick = {
+                    showYearOverview = false
+                    scope.launch {
+                        calendarState.animateScrollToToday()
+                        weekState.animateScrollToDate(today)
+                        agendaState.animateScrollToDate(today)
+                        scheduleState.animateScrollToDate(today)
+                    }
+                    selection.set(Selection(single = today))
+                },
+                onToggleYearOverview = { showYearOverview = !showYearOverview },
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -229,8 +240,11 @@ internal fun AgendaScreen() {
                     },
                     label = { Text("Zoom") },
                 )
+            }
+            if (!compactHeight) {
                 Text(
                     "Working hours $WORK_DAY_START_HOUR:00–$WORK_DAY_END_HOUR:00",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -253,7 +267,10 @@ internal fun AgendaScreen() {
                 },
             )
         } else {
-            CalendarNavHeader(state = calendarState)
+            // In short windows the time-grid modes rely on their day header for the dates.
+            if (!compactHeight || mode == AgendaMode.List || mode == AgendaMode.Month) {
+                CalendarNavHeader(state = calendarState)
+            }
             when (mode) {
                 AgendaMode.Day ->
                     DaySchedule(

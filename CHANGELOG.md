@@ -18,6 +18,8 @@
   right rows; `dayHeight` is now the minimum row height.
 - `WeekEventBanners` lanes grow to fit one line of text, so banner titles are no
   longer clipped at large font sizes.
+- `AgendaDefaults.EventRow` widens its time column to fit the time on one line
+  at large font sizes, and limits titles to two lines and subtitles to one.
 - Month event banners (`packWeekEventBanners`) order same-day timed events by
   start time instead of title, with all-day events first, so the earliest
   events stay visible when a day overflows.

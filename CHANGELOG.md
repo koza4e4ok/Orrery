@@ -18,6 +18,18 @@
 
 ### Fixed
 
+- `DayDecorators.progressRing` sits 3dp inside the cell, so it no longer
+  overlaps the today ring.
+- `DefaultDay` shows turnover days in the Full-cell range style, filled like the
+  range with a thin diagonal divider (previously they were ignored).
+- Schedule all-day rows take at most about a quarter of a short page, so
+  landscape and split-screen windows keep a visible time grid.
+- `MonthYearPicker` outlines the current year in the year grid, like the
+  current month.
+- `WeekEventBanners` dims a banner that lies only on out-of-month days, matching
+  those days.
+- Schedule tiles too narrow for their whole time range show only the start
+  time instead of cutting the range off mid-way.
 - `DefaultDay` keeps a 6dp band above and below a labelled day's text when it
   has decorators, so dots and bars no longer draw over the label at large font
   sizes.

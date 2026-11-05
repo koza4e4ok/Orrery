@@ -70,6 +70,9 @@ public class ScheduleColors(
  *
  * @property timeGutterWidth Minimum width of the hour gutter; it widens to fit
  *   the default hour labels.
+ * @property maxVisibleAllDayRows Most all-day rows, including the "+N" row;
+ *   fewer in short windows, where the all-day area takes at most about a
+ *   quarter of the height.
  */
 @Immutable
 public class ScheduleDimensions(
@@ -374,6 +377,9 @@ public object ScheduleDefaults {
             BoxWithConstraints(Modifier.padding(horizontal = 4.dp, vertical = 2.dp)) {
                 val titleStyle = MaterialTheme.typography.labelMedium
                 val titleMaxLines = rememberTitleMaxLines(event.title, titleStyle, maxWidth, maxHeight)
+                val timeStyle = MaterialTheme.typography.labelSmall
+                val timeText =
+                    rememberTileTimeText(positioned.startMinute, positioned.endMinute, is24Hour, timeStyle, maxWidth)
                 FittingColumn(Modifier) {
                     Text(
                         text = event.title,
@@ -383,12 +389,12 @@ public object ScheduleDefaults {
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text =
-                            clockLabel(positioned.startMinute, is24Hour) + " – " +
-                                clockLabel(positioned.endMinute, is24Hour),
-                        style = MaterialTheme.typography.labelSmall,
+                        text = timeText,
+                        style = timeStyle,
                         color = palette.content.copy(alpha = 0.8f),
                         maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     val subtitle = event.subtitle
                     if (subtitle != null) {
@@ -488,6 +494,28 @@ private fun rememberTitleMaxLines(
             val byWidth = if (maxWidth != Dp.Infinity && wordWidthPx > maxWidth.toPx()) 1 else MAX_TITLE_LINES
             minOf(byHeight, byWidth).coerceIn(1, MAX_TITLE_LINES)
         }
+    }
+}
+
+/**
+ * The tile's time line: the whole range when it fits [maxWidth], otherwise just the
+ * start time (long 12-hour ranges in narrow week columns), never a range cut mid-way.
+ */
+@Composable
+private fun rememberTileTimeText(
+    startMinute: Int,
+    endMinute: Int,
+    is24Hour: Boolean,
+    style: TextStyle,
+    maxWidth: Dp,
+): String {
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(startMinute, endMinute, is24Hour, style, maxWidth, density, measurer) {
+        val start = clockLabel(startMinute, is24Hour)
+        val range = start + " – " + clockLabel(endMinute, is24Hour)
+        val rangeWidth = measurer.measure(range, style, softWrap = false, maxLines = 1).size.width
+        if (maxWidth == Dp.Infinity || rangeWidth <= with(density) { maxWidth.toPx() }) range else start
     }
 }
 

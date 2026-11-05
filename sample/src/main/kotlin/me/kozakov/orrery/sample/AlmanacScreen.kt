@@ -140,6 +140,14 @@ internal enum class ShowcaseThemePreset(
     RoundedAndCard("Rounded & Card"),
 }
 
+/** The name a preset shows everywhere; Rounded & Card shows its active sub-mode. */
+private fun ShowcaseThemePreset.displayName(cardGridSubMode: Boolean): String =
+    if (this == ShowcaseThemePreset.RoundedAndCard) {
+        if (cardGridSubMode) "Card Grid" else "Rounded Square"
+    } else {
+        label
+    }
+
 internal enum class StudioSelectionChoice(
     val label: String,
 ) {
@@ -385,7 +393,7 @@ internal fun AlmanacScreen() {
                         calendarProvider = calendarProvider,
                         country = country,
                         eventsOnDate = events[activeDate].orEmpty(),
-                        themePreset = themePreset,
+                        themeName = themePreset.displayName(cardGridSubMode),
                         collapsible = collapsible,
                         onOpenControls = { showControlsSheet = true },
                     )
@@ -475,12 +483,7 @@ private fun ThemePresetStrip(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         ShowcaseThemePreset.entries.forEach { preset ->
-            val label =
-                if (preset == ShowcaseThemePreset.RoundedAndCard) {
-                    if (cardGridSubMode) "Card Grid" else "Rounded Square"
-                } else {
-                    preset.label
-                }
+            val label = preset.displayName(cardGridSubMode)
             FilterChip(
                 selected = selected == preset,
                 onClick = { onSelect(preset) },
@@ -503,6 +506,7 @@ private fun rememberShowcaseDecorators(
         remember {
             listOf(Color(0xFF1E88E5), Color(0xFFE53935), Color(0xFF43A047))
         }
+    val accentDot = MaterialTheme.colorScheme.primary
     val previewTarget =
         selection.selection.rangeStart?.let { start ->
             if (selection.selection.rangeEnd == null) start.plus(4, DateTimeUnit.DAY) else null
@@ -537,8 +541,13 @@ private fun rememberShowcaseDecorators(
 
         ShowcaseThemePreset.ColorfulGlow ->
             listOf(
+                // White only on the glowing (every third) days; the theme accent elsewhere, so plain cells show it.
                 DayDecorators.eventDots(selectedColor = Color.White, maxDots = 2) { date ->
-                    if (date.day % 4 == 0) listOf(Color.White) else emptyList()
+                    when {
+                        date.day % 4 != 0 -> emptyList()
+                        date.day % 3 == 0 -> listOf(Color.White)
+                        else -> listOf(accentDot)
+                    }
                 },
                 rangePreviewDec,
             )
@@ -848,7 +857,7 @@ private fun ShowcaseDetailList(
     calendarProvider: DayInfoProvider,
     country: HolidayCountry,
     eventsOnDate: List<CalendarEvent<Nothing>>,
-    themePreset: ShowcaseThemePreset,
+    themeName: String,
     collapsible: CollapsibleCalendarState,
     onOpenControls: () -> Unit,
 ) {
@@ -881,7 +890,7 @@ private fun ShowcaseDetailList(
                 )
                 AssistChip(
                     onClick = onOpenControls,
-                    label = { Text("Theme: ${themePreset.label} · Customize") },
+                    label = { Text("Theme: $themeName · Customize") },
                 )
             }
         }

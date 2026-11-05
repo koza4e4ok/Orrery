@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- `WeekCalendar` and `CollapsibleCalendarScaffold` take `showWeekNumbers` /
+  `weekNumber` like `HorizontalCalendar`; the previous signatures stay as hidden
+  binary-compatible bridges.
+
 ### Fixed
 
 - Month event banners (`packWeekEventBanners`) order same-day timed events by
@@ -31,6 +37,7 @@
   narrow.
 - The date-time picker headline stays on one line, stepping down to a smaller
   type style when the date and time don't fit side by side.
+- Almanac sample: the weekday header stays aligned when week numbers are on.
 
 ## [0.9.1] - 2026-11-04
 

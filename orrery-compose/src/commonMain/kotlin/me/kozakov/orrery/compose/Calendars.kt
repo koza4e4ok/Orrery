@@ -8,6 +8,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -696,6 +698,7 @@ public fun WeekCalendar(
         animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(),
+        weekNumber = null,
         dayContent = dayContent,
     )
 }
@@ -707,7 +710,42 @@ public fun WeekCalendar(
  *
  * @param animateHeight When true, changing [visibleWeeksCount] springs the
  *   grid height to the new row count instead of jumping.
+ * @param showWeekNumbers Shows a leading week-number column, as in [HorizontalCalendar].
+ * @param weekNumber Content of that column for each week.
  */
+@Suppress("LongParameterList")
+@Composable
+public fun WeekCalendar(
+    state: WeekCalendarState,
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    keyboardNavigation: Boolean = true,
+    visibleWeeksCount: Int = state.visibleWeeksCount,
+    visibleDaysOfWeek: Set<DayOfWeek> = state.visibleDaysOfWeek,
+    animateHeight: Boolean = true,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+) {
+    WeekCalendarContent(
+        state = state,
+        modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
+        keyboardNavigation = keyboardNavigation,
+        visibleWeeksCount = visibleWeeksCount,
+        visibleDaysOfWeek = visibleDaysOfWeek,
+        animateHeight = animateHeight,
+        weekHeader = weekHeader,
+        slots = CalendarSlots(),
+        weekNumber = if (showWeekNumbers) weekNumber else null,
+        dayContent = dayContent,
+    )
+}
+
+@Deprecated("Kept for binary compatibility; use the overload with showWeekNumbers.", level = DeprecationLevel.HIDDEN)
 @Suppress("LongParameterList")
 @Composable
 public fun WeekCalendar(
@@ -731,6 +769,7 @@ public fun WeekCalendar(
         animateHeight = animateHeight,
         weekHeader = weekHeader,
         slots = CalendarSlots(),
+        weekNumber = null,
         dayContent = dayContent,
     )
 }
@@ -758,6 +797,7 @@ public fun WeekCalendar(
         animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(),
+        weekNumber = null,
         dayContent = dayContent,
     )
 }
@@ -791,6 +831,7 @@ public fun WeekCalendar(
         animateHeight = true,
         weekHeader = weekHeader,
         slots = CalendarSlots(weekOverlay, weekFooter),
+        weekNumber = null,
         dayContent = dayContent,
     )
 }
@@ -807,6 +848,7 @@ private fun WeekCalendarContent(
     animateHeight: Boolean,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
     slots: CalendarSlots,
+    weekNumber: (@Composable (CalendarWeek) -> Unit)?,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
 ) {
     require(visibleWeeksCount in 1..4) { "visibleWeeksCount ($visibleWeeksCount) must be in 1..4" }
@@ -884,6 +926,11 @@ private fun WeekCalendarContent(
                 ) {
                     weeks.forEachIndexed { row, week ->
                         Row(Modifier.fillMaxWidth()) {
+                            if (weekNumber != null) {
+                                Box(Modifier.width(WeekNumberColumnWidth), contentAlignment = Alignment.Center) {
+                                    weekNumber(week)
+                                }
+                            }
                             val colCount = week.days.size
                             val rowFocusRequesters = rememberRowFocusRequesters(keyboard != null, colCount)
                             WeekDays(week, slots.weekOverlay) {

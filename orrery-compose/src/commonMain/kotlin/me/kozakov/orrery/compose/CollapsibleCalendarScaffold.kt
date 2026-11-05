@@ -260,6 +260,7 @@ public fun CollapsibleCalendarScaffold(
         gesturesEnabled = gesturesEnabled,
         enableDirectDrag = true,
         dragHandle = null,
+        weekNumber = null,
         weekHeader = weekHeader,
         dayContent = dayContent,
         content = content,
@@ -278,7 +279,46 @@ public fun CollapsibleCalendarScaffold(
  * While collapsed, paging the week strip horizontally keeps [calendarState]
  * on the paged week's month, and while expanded, paging months keeps
  * [weekState] inside the visible month.
+ *
+ * @param showWeekNumbers Shows a leading week-number column in both the month
+ *   grid and the collapsed week strip, as in [HorizontalCalendar].
+ * @param weekNumber Content of that column for each week.
  */
+@Composable
+public fun CollapsibleCalendarScaffold(
+    calendarState: CalendarState,
+    weekState: WeekCalendarState,
+    modifier: Modifier = Modifier,
+    state: CollapsibleCalendarState = rememberCollapsibleCalendarState(),
+    dayHeight: Dp = 48.dp,
+    gesturesEnabled: Boolean = true,
+    enableDirectDrag: Boolean = true,
+    dragHandle: (@Composable () -> Unit)? = null,
+    showWeekNumbers: Boolean = false,
+    weekNumber: @Composable (CalendarWeek) -> Unit = { CalendarDefaults.WeekNumber(it) },
+    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = {
+        CalendarDefaults.WeekHeader(it, leadingSpacer = showWeekNumbers)
+    },
+    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
+    content: @Composable () -> Unit,
+) {
+    CollapsibleCalendarScaffoldImpl(
+        calendarState = calendarState,
+        weekState = weekState,
+        modifier = modifier,
+        state = state,
+        dayHeight = dayHeight,
+        gesturesEnabled = gesturesEnabled,
+        enableDirectDrag = enableDirectDrag,
+        dragHandle = dragHandle,
+        weekNumber = if (showWeekNumbers) weekNumber else null,
+        weekHeader = weekHeader,
+        dayContent = dayContent,
+        content = content,
+    )
+}
+
+@Deprecated("Kept for binary compatibility; use the overload with showWeekNumbers.", level = DeprecationLevel.HIDDEN)
 @Composable
 public fun CollapsibleCalendarScaffold(
     calendarState: CalendarState,
@@ -302,6 +342,7 @@ public fun CollapsibleCalendarScaffold(
         gesturesEnabled = gesturesEnabled,
         enableDirectDrag = enableDirectDrag,
         dragHandle = dragHandle,
+        weekNumber = null,
         weekHeader = weekHeader,
         dayContent = dayContent,
         content = content,
@@ -411,6 +452,7 @@ private fun CollapsibleCalendarScaffoldImpl(
     gesturesEnabled: Boolean,
     enableDirectDrag: Boolean,
     dragHandle: (@Composable () -> Unit)?,
+    weekNumber: (@Composable (CalendarWeek) -> Unit)?,
     weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)?,
     dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
     content: @Composable () -> Unit,
@@ -523,6 +565,8 @@ private fun CollapsibleCalendarScaffoldImpl(
                 if (fraction > 0f || state.isDragging) {
                     HorizontalCalendar(
                         state = calendarState,
+                        showWeekNumbers = weekNumber != null,
+                        weekNumber = weekNumber ?: { CalendarDefaults.WeekNumber(it) },
                         weekHeader = null,
                         animateHeight = false,
                         dayContent = dayContent,
@@ -534,6 +578,8 @@ private fun CollapsibleCalendarScaffoldImpl(
                 } else {
                     WeekCalendar(
                         state = weekState,
+                        showWeekNumbers = weekNumber != null,
+                        weekNumber = weekNumber ?: { CalendarDefaults.WeekNumber(it) },
                         weekHeader = null,
                         dayContent = dayContent,
                     )

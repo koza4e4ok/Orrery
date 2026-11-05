@@ -361,6 +361,7 @@ internal fun AlmanacScreen() {
                     weekState = weekState,
                     state = collapsible,
                     modifier = Modifier.weight(1f).testTag("almanac_calendar"),
+                    showWeekNumbers = showWeekNumbers,
                     weekHeader = { days ->
                         CalendarDefaults.WeekHeader(days, leadingSpacer = showWeekNumbers)
                     },

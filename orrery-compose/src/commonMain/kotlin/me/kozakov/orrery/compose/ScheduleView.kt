@@ -509,9 +509,12 @@ private fun rememberGutterWidth(minWidth: Dp): Dp {
     val density = LocalDensity.current
     return remember(is24Hour, labelStyle, density, measurer, minWidth) {
         val widest = (0 until 24).maxOf { measurer.measure(clockLabel(it * 60, is24Hour), labelStyle).size.width }
-        maxOf(minWidth, with(density) { widest.toDp() } + HourLabelEndPadding)
+        maxOf(minWidth, with(density) { widest.toDp() } + HourLabelEndPadding + GutterStartPadding)
     }
 }
+
+/** Space kept before the widest hour label when the gutter widens to fit it. */
+private val GutterStartPadding = 4.dp
 
 /** Which ends of the all-day banner being drawn continue past the visible days. */
 internal data class AllDayBannerEdges(

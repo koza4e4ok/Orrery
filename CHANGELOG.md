@@ -11,6 +11,8 @@
   no longer cross their text.
 - Schedule tile titles show only the lines that fit the tile and fall back to
   one ellipsized line instead of breaking their first word mid-way.
+- Schedule all-day chips draw an end square and flush when the event continues
+  before or after the visible days, matching month-view banners.
 
 ## [0.9.1] - 2026-11-04
 

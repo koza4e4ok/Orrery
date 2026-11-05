@@ -178,7 +178,11 @@ public object ScheduleDefaults {
         }
     }
 
-    /** Default all-day chip shown above the time grid. */
+    /**
+     * Default all-day chip shown above the time grid. Inside a schedule's
+     * all-day row, an end whose event continues past the visible days is drawn
+     * square and flush with the column edge.
+     */
     @Composable
     public fun AllDayEventChip(
         event: CalendarEvent<*>,
@@ -188,7 +192,17 @@ public object ScheduleDefaults {
         onClick: (() -> Unit)? = null,
     ) {
         val palette = eventPalette(event, colors)
-        val shape = RoundedCornerShape(dimensions.tileCornerRadius)
+        val edges = LocalAllDayBannerEdges.current
+        val radius = dimensions.tileCornerRadius
+        val startRadius = if (edges.clippedStart) 0.dp else radius
+        val endRadius = if (edges.clippedEnd) 0.dp else radius
+        val shape =
+            RoundedCornerShape(
+                topStart = startRadius,
+                bottomStart = startRadius,
+                topEnd = endRadius,
+                bottomEnd = endRadius,
+            )
         val interactionSource = remember { MutableInteractionSource() }
         val isFocused by interactionSource.collectIsFocusedAsState()
         Row(

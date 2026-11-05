@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -124,6 +125,27 @@ class ScheduleTileRenderingTest {
         // "Go" fits line one; "somewhere" is ellipsized on line two instead of being split.
         tile("Go somewhere", width = 44.dp, height = 120.dp)
         assertEquals(2, titleLineCount("Go somewhere"))
+    }
+
+    @Test
+    fun allDayChipSquaresOffTheEndThatContinues() {
+        val summit =
+            CalendarEvent<Nothing>(id = "s", title = "Summit", span = EventSpan.AllDay(day), colorArgb = 0xFF1E88E5)
+        rule.setContent {
+            MaterialTheme {
+                Box(Modifier.testTag("host").size(120.dp, 24.dp).background(Color.Black)) {
+                    CompositionLocalProvider(
+                        LocalAllDayBannerEdges provides AllDayBannerEdges(clippedStart = false, clippedEnd = true),
+                    ) {
+                        ScheduleDefaults.AllDayEventChip(summit, ScheduleDefaults.colors())
+                    }
+                }
+            }
+        }
+        val chip = pixel("host", 100.dp, 12.dp)
+        // Outermost top corner pixels (the chip sits at the top); pixel() clamps 120dp to the last column.
+        assertColorNear(chip, pixel("host", 120.dp, 0.dp)) // top end corner: square
+        assertColorNear(Color.Black, pixel("host", 0.dp, 0.dp)) // top start corner: rounded, background shows
     }
 
     @Test

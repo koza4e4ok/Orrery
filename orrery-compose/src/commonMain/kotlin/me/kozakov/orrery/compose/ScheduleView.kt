@@ -27,12 +27,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -491,6 +493,16 @@ private class HourWindow(
     val endMinute: Int get() = endHour * 60
 }
 
+/** Which ends of the all-day banner being drawn continue past the visible days. */
+internal data class AllDayBannerEdges(
+    val clippedStart: Boolean,
+    val clippedEnd: Boolean,
+)
+
+/** Read by [ScheduleDefaults.AllDayEventChip] to square off continuing ends. */
+internal val LocalAllDayBannerEdges =
+    staticCompositionLocalOf { AllDayBannerEdges(clippedStart = false, clippedEnd = false) }
+
 /**
  * All-day header: [banners] span the columns they cover, one lane per row. When
  * there are more lanes than [ScheduleDimensions.maxVisibleAllDayRows], the last
@@ -528,7 +540,14 @@ private fun <T> AllDayRow(
             content = {
                 for (banner in visible) {
                     key(banner.event.id) {
-                        Box(propagateMinConstraints = true) { allDayEventContent(banner.event) }
+                        Box(propagateMinConstraints = true) {
+                            CompositionLocalProvider(
+                                LocalAllDayBannerEdges provides
+                                    AllDayBannerEdges(banner.clippedStart, banner.clippedEnd),
+                            ) {
+                                allDayEventContent(banner.event)
+                            }
+                        }
                     }
                 }
                 for (column in overflowColumns) {
@@ -555,7 +574,9 @@ private fun <T> AllDayRow(
                     if (index < visible.size) {
                         val banner = visible[index]
                         val span = banner.endColumnInclusive - banner.startColumn + 1
-                        val bannerWidth = (columnWidth * span).roundToInt() - 2 * inset
+                        val startInset = if (banner.clippedStart) 0 else inset
+                        val endInset = if (banner.clippedEnd) 0 else inset
+                        val bannerWidth = (columnWidth * span).roundToInt() - startInset - endInset
                         measurable.measure(Constraints.fixed(bannerWidth.coerceAtLeast(0), rowHeight))
                     } else {
                         val maxWidth = (columnWidth.roundToInt() - 2 * inset).coerceAtLeast(0)
@@ -568,7 +589,8 @@ private fun <T> AllDayRow(
                 placeables.forEachIndexed { index, placeable ->
                     if (index < visible.size) {
                         val banner = visible[index]
-                        val x = (columnWidth * banner.startColumn).roundToInt() + inset
+                        val startInset = if (banner.clippedStart) 0 else inset
+                        val x = (columnWidth * banner.startColumn).roundToInt() + startInset
                         placeable.placeRelative(x, banner.laneIndex * (rowHeight + rowGap))
                     } else {
                         val column = overflowColumns[index - visible.size]

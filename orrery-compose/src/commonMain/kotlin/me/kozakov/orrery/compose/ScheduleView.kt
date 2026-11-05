@@ -43,6 +43,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -418,6 +420,7 @@ private fun <T> SchedulePage(
             packAllDayBanners(layouts.map { it.date }, layouts.flatMap { it.allDayEvents })
         }
     val showAllDay = banners.isNotEmpty()
+    val gutterWidth = rememberGutterWidth(dimensions.timeGutterWidth)
     Column(Modifier.fillMaxSize()) {
         if (dayHeader != null || showAllDay) {
             Column(
@@ -430,7 +433,7 @@ private fun <T> SchedulePage(
             ) {
                 if (dayHeader != null) {
                     Row(Modifier.fillMaxWidth()) {
-                        Spacer(Modifier.width(dimensions.timeGutterWidth))
+                        Spacer(Modifier.width(gutterWidth))
                         for (layout in layouts) {
                             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                                 dayHeader(layout.date, layout.date == options.today)
@@ -439,7 +442,7 @@ private fun <T> SchedulePage(
                     }
                 }
                 if (showAllDay) {
-                    AllDayRow(banners, layouts.size, colors, dimensions, strings, slots.allDayEventContent)
+                    AllDayRow(banners, layouts.size, gutterWidth, colors, dimensions, strings, slots.allDayEventContent)
                 }
             }
         }
@@ -451,7 +454,7 @@ private fun <T> SchedulePage(
                 .verticalScroll(state.verticalScrollState),
         ) {
             Row(Modifier.fillMaxWidth().height(hourHeight * window.hourCount)) {
-                HourGutter(hourHeight, window, dimensions.timeGutterWidth, state.verticalScrollState, slots.hourLabel)
+                HourGutter(hourHeight, window, gutterWidth, state.verticalScrollState, slots.hourLabel)
                 Row(
                     Modifier
                         .weight(1f)
@@ -494,6 +497,25 @@ private class HourWindow(
     val endMinute: Int get() = endHour * 60
 }
 
+/**
+ * Width of the hour gutter: [minWidth], or wider when the default hour labels
+ * need it (a 12-hour clock such as "12:00 PM", or large system text).
+ */
+@Composable
+private fun rememberGutterWidth(minWidth: Dp): Dp {
+    val is24Hour = systemUses24HourClock()
+    val labelStyle = MaterialTheme.typography.labelSmall
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(is24Hour, labelStyle, density, measurer, minWidth) {
+        val widest = (0 until 24).maxOf { measurer.measure(clockLabel(it * 60, is24Hour), labelStyle).size.width }
+        maxOf(minWidth, with(density) { widest.toDp() } + HourLabelEndPadding + GutterStartPadding)
+    }
+}
+
+/** Space kept before the widest hour label when the gutter widens to fit it. */
+private val GutterStartPadding = 4.dp
+
 /** Which ends of the all-day banner being drawn continue past the visible days. */
 internal data class AllDayBannerEdges(
     val clippedStart: Boolean,
@@ -513,6 +535,7 @@ internal val LocalAllDayBannerEdges =
 private fun <T> AllDayRow(
     banners: List<AllDayBanner<T>>,
     columnCount: Int,
+    gutterWidth: Dp,
     colors: ScheduleColors,
     dimensions: ScheduleDimensions,
     strings: ScheduleStrings,
@@ -531,7 +554,7 @@ private fun <T> AllDayRow(
     Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
         Text(
             text = strings.allDayLabel,
-            modifier = Modifier.width(dimensions.timeGutterWidth).padding(end = 8.dp),
+            modifier = Modifier.width(gutterWidth).padding(end = 8.dp),
             style = MaterialTheme.typography.labelSmall,
             color = colors.hourLabelColor,
             textAlign = TextAlign.End,

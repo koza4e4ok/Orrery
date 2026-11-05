@@ -4,7 +4,8 @@ public final class me/kozakov/orrery/compose/AgendaDefaults {
 	public final fun DayHeader (Lkotlinx/datetime/LocalDate;ZLandroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/AgendaStrings;Landroidx/compose/runtime/Composer;II)V
 	public final fun EmptyDay (Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/AgendaStrings;Landroidx/compose/runtime/Composer;II)V
 	public final fun EmptyRange (Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/AgendaStrings;Landroidx/compose/runtime/Composer;II)V
-	public final fun EventRow (Lme/kozakov/orrery/core/CalendarEvent;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Lme/kozakov/orrery/compose/AgendaStrings;Lkotlinx/datetime/LocalDate;Landroidx/compose/runtime/Composer;II)V
+	public final synthetic fun EventRow (Lme/kozakov/orrery/core/CalendarEvent;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Lme/kozakov/orrery/compose/AgendaStrings;Lkotlinx/datetime/LocalDate;Landroidx/compose/runtime/Composer;II)V
+	public final fun EventRow (Lme/kozakov/orrery/core/CalendarEvent;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Lme/kozakov/orrery/compose/AgendaStrings;Lkotlinx/datetime/LocalDate;ZLandroidx/compose/runtime/Composer;II)V
 	public final fun strings (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/AgendaStrings;
 }
 
@@ -641,8 +642,10 @@ public final class me/kozakov/orrery/compose/ScheduleDefaults {
 	public static final field INSTANCE Lme/kozakov/orrery/compose/ScheduleDefaults;
 	public final fun AllDayEventChip (Lme/kozakov/orrery/core/CalendarEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
 	public final fun DayHeader (Lkotlinx/datetime/LocalDate;ZLme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
-	public final fun EventTile (Lme/kozakov/orrery/core/PositionedEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
-	public final fun HourLabel (ILme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public final synthetic fun EventTile (Lme/kozakov/orrery/core/PositionedEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public final fun EventTile (Lme/kozakov/orrery/core/PositionedEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;ZLandroidx/compose/runtime/Composer;II)V
+	public final synthetic fun HourLabel (ILme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public final fun HourLabel (ILme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;ZLandroidx/compose/runtime/Composer;II)V
 	public final fun NowIndicator (Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)V
 	public final fun colors-J08w3-E (JJJJJJJJJLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/ScheduleColors;
 	public final fun dimensions-IzGr3o8 (FFFFFFFFI)Lme/kozakov/orrery/compose/ScheduleDimensions;

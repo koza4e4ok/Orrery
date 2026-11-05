@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Agenda rows, schedule tiles and schedule hour labels follow the device's
+  12/24-hour setting (new `is24Hour` parameter on `AgendaDefaults.EventRow`,
+  `ScheduleDefaults.HourLabel` and `ScheduleDefaults.EventTile`; the previous
+  signatures stay as hidden binary-compatible bridges), and the schedule's hour
+  gutter widens to fit its labels.
+
 ### Added
 
 - `WeekCalendar` and `CollapsibleCalendarScaffold` take `showWeekNumbers` /
@@ -10,6 +18,18 @@
 
 ### Fixed
 
+- `DefaultDay` keeps a 6dp band above and below a labelled day's text when it
+  has decorators, so dots and bars no longer draw over the label at large font
+  sizes.
+- `CollapsibleCalendarScaffold` measures its rows, so a month with tall rows
+  (large text, labels) is no longer clipped and the Two Weeks/Week stops show the
+  right rows; `dayHeight` is now the minimum row height.
+- `WeekEventBanners` lanes grow to fit one line of text, so banner titles are no
+  longer clipped at large font sizes.
+- `AgendaDefaults.EventRow` widens its time column to fit the time on one line
+  at large font sizes, and limits titles to two lines and subtitles to one.
+- Date, month and date-range picker headlines stay on one line, stepping down to
+  a smaller type style at large font sizes.
 - Month event banners (`packWeekEventBanners`) order same-day timed events by
   start time instead of title, with all-day events first, so the earliest
   events stay visible when a day overflows.

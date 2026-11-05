@@ -121,9 +121,10 @@ public fun OrreryMonthPickerDialog(
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text(
-                    state.selectedMonth?.let(PlatformDateFormat::yearMonthTitle) ?: strings.headlinePlaceholder,
+                FittingHeadline(
+                    text = state.selectedMonth?.let(PlatformDateFormat::yearMonthTitle) ?: strings.headlinePlaceholder,
                     style = MaterialTheme.typography.headlineLarge,
+                    compactStyle = MaterialTheme.typography.headlineSmall,
                 )
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 val todayMonth = YearMonth(today.year, today.month)

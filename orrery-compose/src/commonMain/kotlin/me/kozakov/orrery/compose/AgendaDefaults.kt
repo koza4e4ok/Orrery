@@ -26,10 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.EventSpan
 
@@ -98,8 +100,14 @@ public object AgendaDefaults {
 
     /**
      * Default event row in [Agenda]: a leading vertical color bar, a time
-     * label ("All day" or `HH:mm – HH:mm` clamped to the rendered day's
+     * label ("All day" or a start – end time clamped to the rendered day's
      * `00:00..24:00` window), the event title, and an optional subtitle.
+     * The time column is at least 104dp and widens to keep a range on one
+     * line; long 12-hour ranges wrap after the dash instead. The title shows up
+     * to two lines and the subtitle one, both ellipsized.
+     *
+     * @param is24Hour Clock for the time label; defaults to the device setting,
+     *   like the date-time picker.
      */
     @Composable
     public fun EventRow(
@@ -108,11 +116,31 @@ public object AgendaDefaults {
         onClick: (() -> Unit)? = null,
         strings: AgendaStrings = strings(),
         date: LocalDate? = LocalAgendaDate.current,
+        is24Hour: Boolean = systemUses24HourClock(),
     ) {
         val barColor = event.colorArgb?.let(::Color) ?: MaterialTheme.colorScheme.primary
-        val timeText = eventTimeLabel(event.span, date, strings)
+        val timeText = eventTimeLabel(event.span, date, strings, is24Hour)
         val subtitle = event.subtitle
         val barHeight = if (subtitle != null) 44.dp else 36.dp
+        val timeStyle = MaterialTheme.typography.labelLarge
+        val textMeasurer = rememberTextMeasurer()
+        val density = LocalDensity.current
+        // Same width on every row so titles line up: at least 104dp, wide enough for a whole
+        // range on one line when that stays under 128dp, else for one time (the range then
+        // breaks after its dash).
+        val timeColumnWidth =
+            remember(textMeasurer, timeStyle, density, strings, is24Hour) {
+                fun width(text: String) =
+                    with(density) {
+                        textMeasurer
+                            .measure(text, timeStyle)
+                            .size.width
+                            .toDp()
+                    }
+                val range = width(widestTimeLabel(strings, is24Hour))
+                val single = width(widestSingleTimeLabel(strings, is24Hour))
+                maxOf(104.dp, if (range <= MaxOneLineTimeColumn) range else single)
+            }
         val interactionSource = remember { MutableInteractionSource() }
         val isFocused by interactionSource.collectIsFocusedAsState()
         Row(
@@ -143,9 +171,11 @@ public object AgendaDefaults {
             Spacer(Modifier.width(12.dp))
             Text(
                 text = timeText,
-                modifier = Modifier.width(104.dp),
-                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.width(timeColumnWidth),
+                style = timeStyle,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
@@ -153,16 +183,32 @@ public object AgendaDefaults {
                     text = event.title,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
         }
+    }
+
+    @Deprecated("Kept for binary compatibility; use the overload with is24Hour.", level = DeprecationLevel.HIDDEN)
+    @Composable
+    public fun EventRow(
+        event: CalendarEvent<*>,
+        modifier: Modifier = Modifier,
+        onClick: (() -> Unit)? = null,
+        strings: AgendaStrings = strings(),
+        date: LocalDate? = LocalAgendaDate.current,
+    ) {
+        EventRow(event, modifier, onClick, strings, date, is24Hour = systemUses24HourClock())
     }
 
     /** Default placeholder for a day without events when `showEmptyDays = true`. */
@@ -204,24 +250,72 @@ internal fun eventTimeLabel(
     span: EventSpan,
     date: LocalDate?,
     strings: AgendaStrings,
+    is24Hour: Boolean,
 ): String =
     when (span) {
-        is EventSpan.AllDay -> strings.allDayLabel
+        is EventSpan.AllDay -> {
+            strings.allDayLabel
+        }
+
         is EventSpan.Timed -> {
-            val startLabel =
-                if (date != null) {
-                    if (span.start.date < date) "00:00" else span.start.time.formatHhMm()
-                } else {
-                    if (span.start.date < span.end.date) "00:00" else span.start.time.formatHhMm()
-                }
-            val endLabel =
+            val startsBefore = if (date != null) span.start.date < date else span.start.date < span.end.date
+            val startMinute = if (startsBefore) 0 else span.start.time.hour * 60 + span.start.time.minute
+            val endMinute =
                 if (date != null && span.end.date > date) {
-                    "24:00"
+                    MINUTES_PER_DAY
                 } else {
-                    span.end.time.formatHhMm()
+                    span.end.time.hour * 60 + span.end.time.minute
                 }
-            "$startLabel – $endLabel"
+            timeRange(clockLabel(startMinute, is24Hour), clockLabel(endMinute, is24Hour), is24Hour)
         }
     }
 
-private fun LocalTime.formatHhMm(): String = hour.toString().padStart(2, '0') + ":" + minute.toString().padStart(2, '0')
+/**
+ * "start – end". 12-hour times are long, so the range may wrap, but only after
+ * the dash: the times themselves keep no-break spaces.
+ */
+private fun timeRange(
+    start: String,
+    end: String,
+    is24Hour: Boolean,
+): String =
+    if (is24Hour) {
+        "$start – $end"
+    } else {
+        start.replace(' ', NO_BREAK_SPACE) + NO_BREAK_SPACE + "– " + end.replace(' ', NO_BREAK_SPACE)
+    }
+
+private const val NO_BREAK_SPACE = '\u00A0'
+
+/** Widest the time column grows to keep a whole range on one line. */
+private val MaxOneLineTimeColumn = 128.dp
+
+private const val MINUTES_PER_DAY = 24 * 60
+
+/**
+ * A minute of the day on the given clock. 24:00 (an event running past midnight)
+ * keeps its 24-hour spelling, and becomes 12:00 AM on a 12-hour clock.
+ */
+internal fun clockLabel(
+    minuteOfDay: Int,
+    is24Hour: Boolean,
+): String =
+    if (is24Hour) {
+        (minuteOfDay / 60).toString().padStart(2, '0') + ":" + (minuteOfDay % 60).toString().padStart(2, '0')
+    } else {
+        PlatformDateFormat.formatTime((minuteOfDay / 60) % 24, minuteOfDay % 60, is24Hour = false)
+    }
+
+/** The widest label the time column has to fit: an all-day label or a full-day time range. */
+private fun widestTimeLabel(
+    strings: AgendaStrings,
+    is24Hour: Boolean,
+): String =
+    listOf(strings.allDayLabel, timeRange(clockLabel(0, is24Hour), clockLabel(MINUTES_PER_DAY, is24Hour), is24Hour))
+        .maxBy { it.length }
+
+/** The widest first line of a range that breaks after its dash. */
+private fun widestSingleTimeLabel(
+    strings: AgendaStrings,
+    is24Hour: Boolean,
+): String = listOf(strings.allDayLabel, clockLabel(0, is24Hour) + " –").maxBy { it.length }

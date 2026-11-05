@@ -45,6 +45,7 @@ import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.EventSpan
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,6 +61,10 @@ import org.robolectric.annotation.GraphicsMode
 class KeyboardFocusTest {
     @get:Rule
     val rule = createComposeRule()
+
+    // Time labels follow the device clock; these tests assert 24-hour text.
+    @Before
+    fun use24HourClock() = setSystem24HourClock(true)
 
     private lateinit var inputModeManager: InputModeManager
 

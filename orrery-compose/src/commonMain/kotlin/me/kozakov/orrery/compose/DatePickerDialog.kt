@@ -83,10 +83,12 @@ public fun OrreryDatePickerDialog(
                         label = "datePickerHeadline",
                         modifier = Modifier.weight(1f),
                     ) { date ->
-                        Text(
-                            date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
-                                ?: strings.headlinePlaceholder,
+                        FittingHeadline(
+                            text =
+                                date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
+                                    ?: strings.headlinePlaceholder,
                             style = MaterialTheme.typography.headlineLarge,
+                            compactStyle = MaterialTheme.typography.headlineSmall,
                         )
                     }
                     DisplayModeToggle(state, strings)

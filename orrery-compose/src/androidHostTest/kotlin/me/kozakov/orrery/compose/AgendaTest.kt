@@ -24,6 +24,7 @@ import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.eventsByDate
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +32,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AgendaTest {
     @get:Rule val rule = createComposeRule()
+
+    // Time labels follow the device clock; these tests assert 24-hour text.
+    @Before
+    fun use24HourClock() = setSystem24HourClock(true)
 
     private val jul15 = LocalDate(2026, 7, 15)
     private val jul16 = LocalDate(2026, 7, 16)

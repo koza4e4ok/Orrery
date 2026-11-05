@@ -18,9 +18,10 @@
 - Binary compatibility: changing a public signature means adding a new overload and keeping the old one as `@Deprecated("Kept for binary compatibility; use the overload with <param>.", level = DeprecationLevel.HIDDEN)`. Then run `./gradlew :orrery-compose:updateKotlinAbi` (or `:orrery-core:`) and commit `*/api/` changes. `checkKotlinAbi` must pass, and the dump diff may only **add** entries.
 - Run module-scoped Gradle tasks only:
   - core: `./gradlew :orrery-core:jvmTest --tests "<FQCN>"`
-  - compose: `./gradlew :orrery-compose:testDebugUnitTest --tests "<FQCN>"`
-  - screenshots: `./gradlew :orrery-compose:verifyRoborazziDebug` (plain `testDebugUnitTest` does **not** compare goldens)
-- Snapshot policy: a task may change goldens **only** in the snapshots its bug affects. If `verifyRoborazziDebug` fails, run `./gradlew :orrery-compose:recordRoborazziDebug`, list the changed PNGs with `git status --porcelain '*.png'`, **open every changed PNG** and confirm the change is the intended fix. Commit goldens in the same commit as the fix.
+  - compose: `./gradlew :orrery-compose:testAndroidHostTest --tests "<FQCN>"`
+  - screenshots: `./gradlew :orrery-compose:verifyRoborazziDebug` (plain `testDebugUnitTest` does **not** compare goldens). The `*Debug` names are aliases that reject `--tests`; for one class use `./gradlew :orrery-compose:verifyRoborazziAndroidHostTest --tests "<FQCN>"`.
+- **Known baseline failures (user decision, 2026-11-05):** on untouched `main`, `DateTimePickerDialogSnapshotTest.timeStepLight`, `DateTimePickerDialogSnapshotTest.stepTransitionMidway` and `CompactHeightDialogSnapshotTest.dateTimePickerTimeStepCompactHeight` fail by a few anti-aliased pixels around the clock dial's selected "9". Leave those 3 goldens untouched. "Screenshots pass" means no failures other than these 3.
+- Snapshot policy: a task may change goldens **only** in the snapshots its bug affects. If `verifyRoborazziDebug` fails, run `./gradlew :orrery-compose:recordRoborazziDebug`, list the changed PNGs with `git status --porcelain '*.png'`, **open every changed PNG** and confirm the change is the intended fix. Then restore the 3 known-baseline goldens with `git checkout -- 'orrery-compose/src/androidHostTest/snapshots/*TimeStep*' 'orrery-compose/src/androidHostTest/snapshots/*stepTransitionMidway*' 'orrery-compose/src/androidHostTest/snapshots/*timeStepLight*'`, unless the task's own fix legitimately changed them. Commit goldens in the same commit as the fix.
 - Pixel tests need `@GraphicsMode(GraphicsMode.Mode.NATIVE)` on the class (see `DayDecoratorsTest`).
 - Fixed test dates: July 2026, today = `LocalDate(2026, 7, 15)`, `DayOfWeek.MONDAY`, unless a task says otherwise.
 - Each task appends one line under `## [Unreleased]` → `### Fixed` (or `### Added`) in `CHANGELOG.md`. Create the subsection the first time.
@@ -266,7 +267,7 @@ class ScheduleTileRenderingTest {
 ```
 
 - [ ] **Step 2: Run it and confirm it fails**
-      Run: `./gradlew :orrery-compose:testDebugUnitTest --tests "me.kozakov.orrery.compose.ScheduleTileRenderingTest"`
+      Run: `./gradlew :orrery-compose:testAndroidHostTest --tests "me.kozakov.orrery.compose.ScheduleTileRenderingTest"`
       Expected: FAIL. The pixel on the line is near-black and the pixel off the line is pink.
 
 - [ ] **Step 3: Implement** in `ScheduleDefaults.kt`:
@@ -542,7 +543,7 @@ The initial scroll lands exactly on an hour line, and labels are centred on thei
 ```
 
 - [ ] **Step 2: Run it and confirm it fails**
-      Run: `./gradlew :orrery-compose:testDebugUnitTest --tests "me.kozakov.orrery.compose.ScheduleViewTest"`. Expected: the new test FAILs (the label sits half a label height above the grid top).
+      Run: `./gradlew :orrery-compose:testAndroidHostTest --tests "me.kozakov.orrery.compose.ScheduleViewTest"`. Expected: the new test FAILs (the label sits half a label height above the grid top).
 
 - [ ] **Step 3: Implement.** Change `HourGutter` to take the scroll state (import `androidx.compose.foundation.ScrollState`):
 
@@ -704,7 +705,7 @@ class OutDateDimmingTest {
 Note: each test calls `setContent` once. If `colors()` followed by a second `setContent` throws in some test, split that test so it calls `setContent` once.
 
 - [ ] **Step 2: Run the class and confirm it fails.**
-      `./gradlew :orrery-compose:testDebugUnitTest --tests "me.kozakov.orrery.compose.OutDateDimmingTest"` → compile error (`resolveDayLabelColor` is unresolved). After adding a stub that returns the old logic, `outDateLabel…` and `outDateDecoratorsAreDimmed` FAIL.
+      `./gradlew :orrery-compose:testAndroidHostTest --tests "me.kozakov.orrery.compose.OutDateDimmingTest"` → compile error (`resolveDayLabelColor` is unresolved). After adding a stub that returns the old logic, `outDateLabel…` and `outDateDecoratorsAreDimmed` FAIL.
 
 - [ ] **Step 3: Implement** in `DefaultDay.kt`:
 
@@ -904,7 +905,7 @@ class SpanningBarsTest {
 ```
 
 - [ ] **Step 2: Run it and confirm it fails** (compile errors: no `contentBottom`, no `firstDayOfWeek` parameter).
-      `./gradlew :orrery-compose:testDebugUnitTest --tests "me.kozakov.orrery.compose.SpanningBarsTest"`
+      `./gradlew :orrery-compose:testAndroidHostTest --tests "me.kozakov.orrery.compose.SpanningBarsTest"`
 
 - [ ] **Step 3: Implement `DayCellDrawState.contentBottom`.**
 
@@ -1049,7 +1050,7 @@ The label `Box` in `WeekColumn` has no width, so "Sep" (wider than a 12dp cell) 
     }
 ```
 
-- [ ] **Step 2: Run it and confirm it fails.** `./gradlew :orrery-compose:testDebugUnitTest --tests "me.kozakov.orrery.compose.HeatmapCalendarTest"` → FAIL (two widths).
+- [ ] **Step 2: Run it and confirm it fails.** `./gradlew :orrery-compose:testAndroidHostTest --tests "me.kozakov.orrery.compose.HeatmapCalendarTest"` → FAIL (two widths).
 
 - [ ] **Step 3: Implement.** Replace the label `Box` (imports: `androidx.compose.foundation.layout.size`, `androidx.compose.foundation.layout.wrapContentWidth`):
 

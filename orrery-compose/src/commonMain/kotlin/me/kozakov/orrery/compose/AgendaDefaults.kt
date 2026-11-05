@@ -102,8 +102,9 @@ public object AgendaDefaults {
      * Default event row in [Agenda]: a leading vertical color bar, a time
      * label ("All day" or a start – end time clamped to the rendered day's
      * `00:00..24:00` window), the event title, and an optional subtitle.
-     * The time column is at least 104dp and widens to fit its longest label;
-     * the title shows up to two lines and the subtitle one, both ellipsized.
+     * The time column is at least 104dp and widens to keep a range on one
+     * line; long 12-hour ranges wrap after the dash instead. The title shows up
+     * to two lines and the subtitle one, both ellipsized.
      *
      * @param is24Hour Clock for the time label; defaults to the device setting,
      *   like the date-time picker.
@@ -124,17 +125,21 @@ public object AgendaDefaults {
         val timeStyle = MaterialTheme.typography.labelLarge
         val textMeasurer = rememberTextMeasurer()
         val density = LocalDensity.current
-        // Same width on every row so titles line up; at least 104dp, wider when large text needs it.
+        // Same width on every row so titles line up: at least 104dp, wide enough for a whole
+        // range on one line when that stays under 128dp, else for one time (the range then
+        // breaks after its dash).
         val timeColumnWidth =
             remember(textMeasurer, timeStyle, density, strings, is24Hour) {
-                val widest =
-                    textMeasurer
-                        .measure(
-                            widestTimeLabel(strings, is24Hour),
-                            timeStyle,
-                            maxLines = 1,
-                        ).size.width
-                maxOf(104.dp, with(density) { widest.toDp() })
+                fun width(text: String) =
+                    with(density) {
+                        textMeasurer
+                            .measure(text, timeStyle)
+                            .size.width
+                            .toDp()
+                    }
+                val range = width(widestTimeLabel(strings, is24Hour))
+                val single = width(widestSingleTimeLabel(strings, is24Hour))
+                maxOf(104.dp, if (range <= MaxOneLineTimeColumn) range else single)
             }
         val interactionSource = remember { MutableInteractionSource() }
         val isFocused by interactionSource.collectIsFocusedAsState()
@@ -169,8 +174,8 @@ public object AgendaDefaults {
                 modifier = Modifier.width(timeColumnWidth),
                 style = timeStyle,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                softWrap = false,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
@@ -261,9 +266,29 @@ internal fun eventTimeLabel(
                 } else {
                     span.end.time.hour * 60 + span.end.time.minute
                 }
-            clockLabel(startMinute, is24Hour) + " – " + clockLabel(endMinute, is24Hour)
+            timeRange(clockLabel(startMinute, is24Hour), clockLabel(endMinute, is24Hour), is24Hour)
         }
     }
+
+/**
+ * "start – end". 12-hour times are long, so the range may wrap, but only after
+ * the dash: the times themselves keep no-break spaces.
+ */
+private fun timeRange(
+    start: String,
+    end: String,
+    is24Hour: Boolean,
+): String =
+    if (is24Hour) {
+        "$start – $end"
+    } else {
+        start.replace(' ', NO_BREAK_SPACE) + NO_BREAK_SPACE + "– " + end.replace(' ', NO_BREAK_SPACE)
+    }
+
+private const val NO_BREAK_SPACE = '\u00A0'
+
+/** Widest the time column grows to keep a whole range on one line. */
+private val MaxOneLineTimeColumn = 128.dp
 
 private const val MINUTES_PER_DAY = 24 * 60
 
@@ -286,5 +311,11 @@ private fun widestTimeLabel(
     strings: AgendaStrings,
     is24Hour: Boolean,
 ): String =
-    listOf(strings.allDayLabel, clockLabel(0, is24Hour) + " – " + clockLabel(MINUTES_PER_DAY, is24Hour))
+    listOf(strings.allDayLabel, timeRange(clockLabel(0, is24Hour), clockLabel(MINUTES_PER_DAY, is24Hour), is24Hour))
         .maxBy { it.length }
+
+/** The widest first line of a range that breaks after its dash. */
+private fun widestSingleTimeLabel(
+    strings: AgendaStrings,
+    is24Hour: Boolean,
+): String = listOf(strings.allDayLabel, clockLabel(0, is24Hour) + " –").maxBy { it.length }

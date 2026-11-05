@@ -4,9 +4,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
@@ -15,14 +20,17 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.EventSpan
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
-// en-US with "Use 24-hour format" off: times read like "12:30 PM".
+// Native graphics for real text widths; en-US with "Use 24-hour format" off: times read like "12:30 PM".
 @RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "en-rUS")
 class ClockFormatTest {
     @get:Rule val rule = createComposeRule()
@@ -72,5 +80,26 @@ class ClockFormatTest {
     fun explicit24HourOverridesTheDevice() {
         rule.setContent { MaterialTheme { AgendaDefaults.EventRow(lunch, date = day, is24Hour = true) } }
         rule.onNodeWithText("12:30 – 13:30", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun twelveHourAgendaRangeBreaksAfterTheDashInANarrowColumn() {
+        rule.setContent {
+            MaterialTheme { AgendaDefaults.EventRow(lunch, modifier = Modifier.testTag("row"), date = day) }
+        }
+        val time = rule.onNode(clock("12:30"), useUnmergedTree = true)
+        val bounds = time.getUnclippedBoundsInRoot()
+        assertTrue(
+            "time column ${bounds.right - bounds.left} is wider than 128dp",
+            bounds.right - bounds.left <= 128.dp,
+        )
+        val layouts = mutableListOf<TextLayoutResult>()
+        time.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        val layout = layouts.single()
+        val firstLine =
+            layout.layoutInput.text.text
+                .substring(0, layout.getLineEnd(0))
+                .trim()
+        assertTrue("first line '$firstLine' should end at the dash", firstLine.endsWith("–"))
     }
 }

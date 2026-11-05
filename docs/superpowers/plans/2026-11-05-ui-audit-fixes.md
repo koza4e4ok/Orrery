@@ -1216,6 +1216,8 @@ git commit -m "fix(compose): fall back to short month names in a narrow month gr
 
 If the placeholder string isn't "Selected date" in this locale, use `DatePickerDefaults.strings().headlinePlaceholder` captured in `content()`.
 
+> **Execution note:** the tests live in a new `DateTimePickerHeadlineTest` (native graphics, Pixel 5). Under Robolectric's metrics only the placeholder case reproduced; the date case is kept as a regression guard.
+
 - [ ] **Step 2: Run them and confirm they fail** (`lineCount` 2).
 - [ ] **Step 3: Implement.** Add parameters to `HeadlineStepPill`: `style: TextStyle` and `onOverflow: () -> Unit` (import `androidx.compose.ui.text.TextStyle`). Change its `Text`:
 

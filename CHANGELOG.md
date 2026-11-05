@@ -29,6 +29,8 @@
 - `MonthYearPicker` switches the month grid to short names (with full-name
   accessibility labels) instead of breaking a name mid-word when the grid is
   narrow.
+- The date-time picker headline stays on one line, stepping down to a smaller
+  type style when the date and time don't fit side by side.
 
 ## [0.9.1] - 2026-11-04
 

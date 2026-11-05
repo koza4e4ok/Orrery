@@ -56,6 +56,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -259,6 +261,9 @@ public fun OrreryDateTimePickerDialog(
             tonalElevation = 6.dp,
             modifier = modifier.requiredWidth(360.dp),
         ) {
+            var compactHeadline by remember { mutableStateOf(false) }
+            val headlineStyle =
+                if (compactHeadline) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineSmall
             Column(Modifier.padding(24.dp)) {
                 Text(
                     if (onDateStep) strings.title else strings.timeTitle,
@@ -266,8 +271,8 @@ public fun OrreryDateTimePickerDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // The pills share one weighted row so the date only wraps when the
-                    // time and the toggle leave it too little room.
+                    // The pills share one weighted row; if the date would wrap, both drop
+                    // to titleLarge so it fits on one line.
                     Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                         HeadlineStepPill(
                             text =
@@ -275,6 +280,8 @@ public fun OrreryDateTimePickerDialog(
                                     ?: dateStrings.headlinePlaceholder,
                             active = onDateStep,
                             onClick = { state.step = DateTimePickerStep.Date },
+                            style = headlineStyle,
+                            onOverflow = { compactHeadline = true },
                             modifier = Modifier.weight(1f, fill = false),
                         )
                         HeadlineStepPill(
@@ -282,6 +289,8 @@ public fun OrreryDateTimePickerDialog(
                             active = !onDateStep,
                             enabled = date != null,
                             onClick = { state.step = DateTimePickerStep.Time },
+                            style = headlineStyle,
+                            onOverflow = { compactHeadline = true },
                         )
                     }
                     if (onDateStep) {
@@ -379,6 +388,8 @@ private fun HeadlineStepPill(
     text: String,
     active: Boolean,
     onClick: () -> Unit,
+    style: TextStyle,
+    onOverflow: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
@@ -393,8 +404,11 @@ private fun HeadlineStepPill(
     )
     Text(
         text,
-        style = MaterialTheme.typography.headlineSmall,
+        style = style,
         color = content,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        onTextLayout = { if (it.didOverflowHeight) onOverflow() },
         modifier =
             modifier
                 .clip(RoundedCornerShape(16.dp))

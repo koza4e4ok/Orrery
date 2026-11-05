@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- `DayDecorators.progressRing` sits 3dp inside the cell, so it no longer
+  overlaps the today ring.
 - `DefaultDay` keeps a 6dp band above and below a labelled day's text when it
   has decorators, so dots and bars no longer draw over the label at large font
   sizes.

@@ -65,7 +65,12 @@ public class ScheduleColors(
     public val defaultEventAccentColor: Color,
 )
 
-/** Sizes used by [DaySchedule], [WeekSchedule] and the [ScheduleDefaults] slots. */
+/**
+ * Sizes used by [DaySchedule], [WeekSchedule] and the [ScheduleDefaults] slots.
+ *
+ * @property timeGutterWidth Minimum width of the hour gutter; it widens to fit
+ *   the default hour labels.
+ */
 @Immutable
 public class ScheduleDimensions(
     public val timeGutterWidth: Dp,
@@ -244,21 +249,37 @@ public object ScheduleDefaults {
         }
     }
 
-    /** Default hour label in the time gutter, e.g. "08:00". */
+    /**
+     * Default hour label in the time gutter, e.g. "08:00" or "8:00 AM".
+     *
+     * @param is24Hour Clock for the label; defaults to the device setting.
+     */
+    @Composable
+    public fun HourLabel(
+        hour: Int,
+        colors: ScheduleColors,
+        modifier: Modifier = Modifier,
+        is24Hour: Boolean = systemUses24HourClock(),
+    ) {
+        Text(
+            text = clockLabel(hour * 60, is24Hour),
+            modifier = modifier.fillMaxWidth().padding(end = HourLabelEndPadding),
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.hourLabelColor,
+            textAlign = TextAlign.End,
+            maxLines = 1,
+            softWrap = false,
+        )
+    }
+
+    @Deprecated("Kept for binary compatibility; use the overload with is24Hour.", level = DeprecationLevel.HIDDEN)
     @Composable
     public fun HourLabel(
         hour: Int,
         colors: ScheduleColors,
         modifier: Modifier = Modifier,
     ) {
-        Text(
-            text = hour.toString().padStart(2, '0') + ":00",
-            modifier = modifier.fillMaxWidth().padding(end = 8.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.hourLabelColor,
-            textAlign = TextAlign.End,
-            maxLines = 1,
-        )
+        HourLabel(hour, colors, modifier, is24Hour = systemUses24HourClock())
     }
 
     /** Default current-time line: a dot at the start edge and a horizontal line. */
@@ -298,6 +319,8 @@ public object ScheduleDefaults {
      * the surface) so grid lines never show through: a leading accent
      * stripe, the title, the time range clipped to the column's day, and an
      * optional subtitle.
+     *
+     * @param is24Hour Clock for the time range; defaults to the device setting.
      */
     @Composable
     public fun EventTile(
@@ -306,6 +329,7 @@ public object ScheduleDefaults {
         dimensions: ScheduleDimensions = dimensions(),
         modifier: Modifier = Modifier,
         onClick: (() -> Unit)? = null,
+        is24Hour: Boolean = systemUses24HourClock(),
     ) {
         val event = positioned.event
         val palette = eventPalette(event, colors)
@@ -359,7 +383,9 @@ public object ScheduleDefaults {
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = minuteLabel(positioned.startMinute) + " – " + minuteLabel(positioned.endMinute),
+                        text =
+                            clockLabel(positioned.startMinute, is24Hour) + " – " +
+                                clockLabel(positioned.endMinute, is24Hour),
                         style = MaterialTheme.typography.labelSmall,
                         color = palette.content.copy(alpha = 0.8f),
                         maxLines = 1,
@@ -377,6 +403,18 @@ public object ScheduleDefaults {
                 }
             }
         }
+    }
+
+    @Deprecated("Kept for binary compatibility; use the overload with is24Hour.", level = DeprecationLevel.HIDDEN)
+    @Composable
+    public fun EventTile(
+        positioned: PositionedEvent<*>,
+        colors: ScheduleColors,
+        dimensions: ScheduleDimensions = dimensions(),
+        modifier: Modifier = Modifier,
+        onClick: (() -> Unit)? = null,
+    ) {
+        EventTile(positioned, colors, dimensions, modifier, onClick, is24Hour = systemUses24HourClock())
     }
 }
 
@@ -416,6 +454,9 @@ private fun FittingColumn(
 }
 
 private const val MAX_TITLE_LINES = 2
+
+/** End padding of the default hour label; the gutter reserves it when sizing to the labels. */
+internal val HourLabelEndPadding = 8.dp
 
 /**
  * Title lines for a tile: at most [MAX_TITLE_LINES], no more than whole lines
@@ -514,6 +555,3 @@ internal fun contrastRatio(
 ): Float = (maxOf(a, b) + WCAG_FLARE) / (minOf(a, b) + WCAG_FLARE)
 
 private const val WCAG_FLARE = 0.05f
-
-private fun minuteLabel(minuteOfDay: Int): String =
-    (minuteOfDay / 60).toString().padStart(2, '0') + ":" + (minuteOfDay % 60).toString().padStart(2, '0')

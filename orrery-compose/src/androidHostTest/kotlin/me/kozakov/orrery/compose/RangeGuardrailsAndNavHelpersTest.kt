@@ -20,6 +20,7 @@ import me.kozakov.orrery.core.SelectionMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,6 +30,10 @@ import org.junit.runner.RunWith
 class RangeGuardrailsAndNavHelpersTest {
     @get:Rule
     val rule = createComposeRule()
+
+    // Time labels follow the device clock; these tests assert 24-hour text.
+    @Before
+    fun use24HourClock() = setSystem24HourClock(true)
 
     @Test
     fun selectionStateAppliesBookingGuardrails() {

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Agenda rows, schedule tiles and schedule hour labels follow the device's
+  12/24-hour setting (new `is24Hour` parameter on `AgendaDefaults.EventRow`,
+  `ScheduleDefaults.HourLabel` and `ScheduleDefaults.EventTile`; the previous
+  signatures stay as hidden binary-compatible bridges), and the schedule's hour
+  gutter widens to fit its labels.
+
 ### Added
 
 - `WeekCalendar` and `CollapsibleCalendarScaffold` take `showWeekNumbers` /

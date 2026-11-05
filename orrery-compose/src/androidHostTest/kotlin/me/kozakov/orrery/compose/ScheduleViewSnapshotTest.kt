@@ -22,6 +22,7 @@ import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.EventOverlapMode
 import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.eventsByDate
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,6 +34,10 @@ import org.robolectric.annotation.GraphicsMode
 @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5)
 class ScheduleViewSnapshotTest {
     @get:Rule val rule = createComposeRule()
+
+    // Time labels follow the device clock; these tests assert 24-hour text.
+    @Before
+    fun use24HourClock() = setSystem24HourClock(true)
 
     private val today = LocalDate(2026, 7, 15)
     private val now = LocalTime(10, 15)

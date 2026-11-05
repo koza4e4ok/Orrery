@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -21,6 +23,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -177,5 +180,58 @@ class FontScaleLayoutTest {
             MaterialTheme { AgendaDefaults.EventRow(lunch, date = LocalDate(2026, 7, 15)) }
         }
         assertEquals(1, rule.onNodeWithText("12:30 – 13:30", useUnmergedTree = true).lineCount())
+    }
+
+    @Test
+    @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5, fontScale = 1.3f)
+    fun rangePickerHeadlineStaysOnOneLine() {
+        rule.setContent {
+            MaterialTheme {
+                OrreryDateRangePickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = { TextButton(onClick = {}) { Text("Save") } },
+                    state =
+                        rememberOrreryDateRangePickerState(
+                            initialStartDate = LocalDate(2026, 9, 28),
+                            initialEndDate = LocalDate(2026, 10, 30),
+                            initialDisplayedMonth = YearMonth(2026, 9),
+                        ),
+                    today = LocalDate(2026, 9, 15),
+                )
+            }
+        }
+        assertEquals(1, rule.onNodeWithText("Sep 28, 2026 – Oct 30, 2026", useUnmergedTree = true).lineCount())
+    }
+
+    @Test
+    @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5, fontScale = 1.3f)
+    fun datePickerHeadlineStaysOnOneLine() {
+        rule.setContent {
+            MaterialTheme {
+                OrreryDatePickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = { TextButton(onClick = {}) { Text("OK") } },
+                    state = rememberOrreryDatePickerState(initialDate = LocalDate(2026, 9, 28)),
+                    today = LocalDate(2026, 9, 15),
+                )
+            }
+        }
+        assertEquals(1, rule.onNodeWithText("Sep 28, 2026", useUnmergedTree = true).lineCount())
+    }
+
+    @Test
+    @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5, fontScale = 1.3f)
+    fun monthPickerHeadlineStaysOnOneLine() {
+        rule.setContent {
+            MaterialTheme {
+                OrreryMonthPickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = { TextButton(onClick = {}) { Text("OK") } },
+                    state = rememberOrreryMonthPickerState(initialSelectedMonth = YearMonth(2026, 9)),
+                    today = LocalDate(2026, 9, 15),
+                )
+            }
+        }
+        assertEquals(1, rule.onNodeWithText("September 2026", useUnmergedTree = true).lineCount())
     }
 }

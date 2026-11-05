@@ -102,9 +102,10 @@ public fun OrreryDateRangePickerDialog(
                         val end =
                             endDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
                                 ?: strings.rangeEndPlaceholder
-                        Text(
-                            "$start – $end",
+                        FittingHeadline(
+                            text = "$start – $end",
                             style = MaterialTheme.typography.headlineSmall,
+                            compactStyle = MaterialTheme.typography.titleLarge,
                         )
                     }
                     IconButton(onClick = {

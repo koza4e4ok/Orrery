@@ -285,10 +285,11 @@ class HospitalitySelectionTest {
     }
 
     @Test
-    fun fullCellIgnoresTurnoverDates() {
+    fun fullCellFillsTurnoverDates() {
         setCell(TURNOVER, RangeEndpointStyle.FullCell, setOf(TURNOVER))
-        assertColorNear(Color.White, pixel(4.dp, 4.dp))
-        assertColorNear(Color.White, pixel(44.dp, 44.dp))
+        // Filled on both sides of the thin divider (this test's in-range color is red).
+        assertColorNear(Color.Red, pixel(4.dp, 4.dp))
+        assertColorNear(Color.Red, pixel(44.dp, 44.dp))
     }
 
     @Test

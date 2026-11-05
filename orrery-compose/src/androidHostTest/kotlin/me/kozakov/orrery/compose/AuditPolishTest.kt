@@ -72,4 +72,31 @@ class AuditPolishTest {
         assertNear(Color.White, pixel("cell", 24.dp, 1.dp))
         assertNear(Color.Red, pixel("cell", 24.dp, 4.dp))
     }
+
+    @Test
+    fun fullCellTurnoverDayIsFilled() {
+        var inRange = Color.Unspecified
+        rule.setContent {
+            MaterialTheme {
+                val style = CalendarDefaults.hospitalityStyle(rangeEndpointStyle = RangeEndpointStyle.FullCell)
+                inRange = style.colors.inRangeContainerColor
+                Box(Modifier.testTag("cell").size(48.dp).background(Color.White)) {
+                    DefaultDay(
+                        day = CalendarDay(LocalDate(2026, 7, 14), DayPosition.MonthDate),
+                        style = style,
+                        turnoverDates = setOf(LocalDate(2026, 7, 14)),
+                        today = LocalDate(2026, 7, 1),
+                    )
+                }
+            }
+        }
+        val fill = rule.runOnIdle { inRange }
+        val expected = fill.copy(alpha = 1f).compositeOverWhite(fill.alpha)
+        // Two corners on opposite sides of the divider, away from the day number.
+        assertNear(expected, pixel("cell", 6.dp, 6.dp))
+        assertNear(expected, pixel("cell", 42.dp, 42.dp))
+    }
+
+    private fun Color.compositeOverWhite(alpha: Float) =
+        Color(red * alpha + (1 - alpha), green * alpha + (1 - alpha), blue * alpha + (1 - alpha))
 }

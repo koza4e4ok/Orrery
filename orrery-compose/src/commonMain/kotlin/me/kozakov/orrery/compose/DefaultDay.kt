@@ -223,7 +223,8 @@ public fun DefaultDay(
  * [CalendarDayShapes.rangeEndpointStyle] ([RangeEndpointStyle.SplitHorizontal]
  * or [RangeEndpointStyle.SplitDiagonal]) these cells fill both the AM and
  * the PM half with a 2.dp gap between them; [RangeEndpointStyle.FullCell]
- * ignores them. Pass an empty set when there are none.
+ * fills them like the range with a thin diagonal divider. Pass an empty set
+ * when there are none.
  *
  * Taps on [CalendarDay]s outside the rendered month (InDate / OutDate)
  * follow [outDateClickPolicy] through [CalendarSelectionState.onDayClick]:
@@ -327,7 +328,7 @@ private fun DefaultDayContent(
     val isRangeEnd = selectionState?.isRangeEnd(day.date) == true
     val endpointStyle = shapes.rangeEndpointStyle
     val split = endpointStyle != RangeEndpointStyle.FullCell
-    val isTurnover = split && day.date in turnoverDates
+    val isTurnover = day.date in turnoverDates
     // Split styles draw range endpoints as half-cell fills instead of selectedShape.
     val splitEndpoint = split && (isRangeStart || isRangeEnd)
     val showSelectedShape = isSelected && !splitEndpoint
@@ -424,6 +425,8 @@ private fun DefaultDayContent(
             decorators.any { it.layer == DecoratorLayer.Over } ||
             showFocusRing ||
             showCellBorder
+    val surface = MaterialTheme.colorScheme.surface
+    val turnoverDividerColor = if (colors.containerColor.alpha > 0f) colors.containerColor else surface
     Box(
         modifier =
             modifier
@@ -442,6 +445,12 @@ private fun DefaultDayContent(
                             color = colors.inRangeContainerColor,
                             isRtl = isRtl,
                         )
+                    } else if (isTurnover) {
+                        // Full-cell turnover: filled like the range, with a thin divider where a split cell would part.
+                        drawRect(colors.inRangeContainerColor)
+                        val start = if (isRtl) Offset(size.width, size.height) else Offset(0f, size.height)
+                        val end = if (isRtl) Offset(0f, 0f) else Offset(size.width, 0f)
+                        drawLine(turnoverDividerColor, start, end, TurnoverGap.toPx())
                     }
                 }.selectable(
                     selected = isSelected,

@@ -565,6 +565,8 @@ and add to `SampleData`:
 
 ---
 
+> **Execution note (found in Task 9 on the emulator):** with #112's 12-hour times, half-width week tiles cut "9:15 AM – 10:15 AM" to "9:". `EventTile` now shows only the start time when the range doesn't fit, ellipsizing as a last resort. Covered by `AuditPolishTest.narrowTileShowsOnlyTheStartTimeWhenTheRangeDoesNotFit`. Committed separately.
+
 ### Task 10: Verification and hand-off
 
 - [ ] **Step 1:** `./gradlew ktlintCheck detekt checkKotlinAbi :orrery-core:jvmTest :orrery-compose:verifyRoborazziAndroidHostTest :orrery-compose:desktopTest :orrery-compose:wasmJsTest :sample:assembleDebug`. Expected: only the 3 known goldens fail; `checkKotlinAbi` passes with no dump changes.

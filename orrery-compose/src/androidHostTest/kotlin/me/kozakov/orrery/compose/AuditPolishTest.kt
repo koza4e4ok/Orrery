@@ -21,12 +21,14 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.CalendarWeek
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.EventSpan
+import me.kozakov.orrery.core.PositionedEvent
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -197,6 +199,41 @@ class AuditPolishTest {
         // Column 5 of 7 starts at 250dp; sample the lane's middle. Full red has green ≈ 0.22; at 38% over white ≈ 0.70.
         val green = pixel("row", 300.dp, 9.dp).green
         assertTrue("banner green $green", green > 0.6f)
+    }
+
+    @Test
+    fun narrowTileShowsOnlyTheStartTimeWhenTheRangeDoesNotFit() {
+        val review =
+            PositionedEvent(
+                event =
+                    CalendarEvent<Nothing>(
+                        id = "r",
+                        title = "Code review",
+                        span =
+                            EventSpan.Timed(
+                                LocalDateTime(2026, 7, 15, 9, 15),
+                                LocalDateTime(2026, 7, 15, 10, 15),
+                            ),
+                    ),
+                date = LocalDate(2026, 7, 15),
+                startMinute = 9 * 60 + 15,
+                endMinute = 10 * 60 + 15,
+                displayEndMinute = 10 * 60 + 15,
+                columnIndex = 0,
+                columnCount = 1,
+                leftFraction = 0f,
+                widthFraction = 1f,
+            )
+        rule.setContent {
+            MaterialTheme {
+                Box(Modifier.size(64.dp, 80.dp)) {
+                    ScheduleDefaults.EventTile(review, ScheduleDefaults.colors(), is24Hour = false)
+                }
+            }
+        }
+        // "9:15 AM – 10:15 AM" can't fit 64dp, so the tile shows its start time alone, never a cut-off range.
+        rule.onNode(hasText("9:15", substring = true), useUnmergedTree = true).assertExists()
+        rule.onNode(hasText("–", substring = true), useUnmergedTree = true).assertDoesNotExist()
     }
 }
 

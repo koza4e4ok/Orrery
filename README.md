@@ -139,11 +139,11 @@ The library ships these artifacts on **Maven Central** under the group
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("me.kozakov.orrery:orrery-compose:0.9.1")
+    implementation("me.kozakov.orrery:orrery-compose:0.9.2")
     // Optional DayInfoProvider modules:
-    implementation("me.kozakov.orrery:orrery-lunar:0.9.1")
-    implementation("me.kozakov.orrery:orrery-calendars:0.9.1")
-    implementation("me.kozakov.orrery:orrery-holidays:0.9.1")
+    implementation("me.kozakov.orrery:orrery-lunar:0.9.2")
+    implementation("me.kozakov.orrery:orrery-calendars:0.9.2")
+    implementation("me.kozakov.orrery:orrery-holidays:0.9.2")
 }
 ```
 
@@ -152,7 +152,7 @@ Using a [version catalog](https://docs.gradle.org/current/userguide/version_cata
 
 ```toml
 [versions]
-orrery = "0.9.1"
+orrery = "0.9.2"
 
 [libraries]
 orrery-compose   = { module = "me.kozakov.orrery:orrery-compose",   version.ref = "orrery" }
@@ -219,7 +219,7 @@ Kotlin's ABI validation (`checkKotlinAbi`), so API changes are always deliberate
 
 | Orrery | Kotlin | Compose Multiplatform | Compose BOM (Android) | kotlinx-datetime | Android `compileSdk` |
 | --- | --- | --- | --- | --- | --- |
-| 0.7.0 – 0.9.1 | 2.4.21 | 1.12.2 | 2026.09.00 | 0.8.0 | 37 |
+| 0.7.0 – 0.9.2 | 2.4.21 | 1.12.2 | 2026.09.00 | 0.8.0 | 37 |
 | 0.6.0 | 2.4.0 | 1.11.1 | 2026.06.01 | 0.8.0 | 36 |
 
 These are the versions each release was built against. Android apps need `minSdk 23`

@@ -36,6 +36,7 @@ import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.packWeekEventBanners
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +49,10 @@ import org.robolectric.annotation.GraphicsMode
 @Config(fontScale = 1.3f)
 class FontScaleLayoutTest {
     @get:Rule val rule = createComposeRule()
+
+    // Time labels follow the device clock; these tests assert 24-hour text.
+    @Before
+    fun use24HourClock() = setSystem24HourClock(true)
 
     private fun SemanticsNodeInteraction.lineCount(): Int {
         val results = mutableListOf<TextLayoutResult>()

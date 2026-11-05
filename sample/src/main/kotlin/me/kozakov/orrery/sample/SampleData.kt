@@ -90,10 +90,47 @@ internal object SampleData {
                             )
                         }
                     }
+                    // Wednesdays: a review overlaps the standup, to demo the schedule's overlap modes.
+                    if (date.dayOfWeek == DayOfWeek.WEDNESDAY) {
+                        add(
+                            timedEvent(
+                                "$date-standup",
+                                date,
+                                LocalTime(9, 0),
+                                LocalTime(9, 30),
+                                "Team standup",
+                                WORK_COLOR,
+                            ),
+                        )
+                        add(
+                            timedEvent(
+                                "$date-review",
+                                date,
+                                LocalTime(9, 15),
+                                LocalTime(10, 15),
+                                "Code review",
+                                WORK_COLOR,
+                            ),
+                        )
+                    }
                 }
             }
         return (spanningEventsFor(range) + rawEvents).eventsByDate(range)
     }
+
+    private fun timedEvent(
+        id: String,
+        date: LocalDate,
+        start: LocalTime,
+        end: LocalTime,
+        title: String,
+        colorArgb: Long,
+    ) = CalendarEvent<Nothing>(
+        id = id,
+        title = title,
+        span = EventSpan.Timed(LocalDateTime(date, start), LocalDateTime(date, end)),
+        colorArgb = colorArgb,
+    )
 
     private fun spanningEventsFor(range: ClosedRange<LocalDate>): List<CalendarEvent<Nothing>> =
         buildList {

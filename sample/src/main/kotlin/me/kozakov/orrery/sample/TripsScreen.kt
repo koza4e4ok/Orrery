@@ -51,6 +51,7 @@ import me.kozakov.orrery.compose.rememberCalendarSelectionState
 import me.kozakov.orrery.compose.rememberCalendarState
 import me.kozakov.orrery.core.CalendarPages
 import me.kozakov.orrery.core.DayInfo
+import me.kozakov.orrery.core.DisabledDates
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionEvent
 import me.kozakov.orrery.core.SelectionMode
@@ -96,7 +97,8 @@ private enum class EndpointOption(
 @Composable
 internal fun TripsScreen() {
     val today = remember { currentDate() }
-    val disabled = remember(today) { SampleData.blackoutDates(today) }
+    val blackouts = remember(today) { SampleData.blackoutDates(today) }
+    val pastOnly = remember(today) { DisabledDates { before(today) } }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var stayMode by rememberSaveable { mutableStateOf(StayMode.Range) }
@@ -105,7 +107,8 @@ internal fun TripsScreen() {
     val selection =
         rememberCalendarSelectionState(
             mode = stayMode.mode,
-            disabled = disabled,
+            // Whole-month stays ignore the short blackouts so the demo can book next month.
+            disabled = if (stayMode == StayMode.Month) pastOnly else blackouts,
             onEvent = { event ->
                 val message =
                     when (event) {

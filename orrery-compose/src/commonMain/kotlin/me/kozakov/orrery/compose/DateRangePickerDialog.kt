@@ -160,6 +160,8 @@ public fun OrreryDateRangePickerDialog(
                                         today = today,
                                         colors = colors,
                                         shapes = shapes,
+                                        // Each month is its own section, so its neighbors' days would repeat.
+                                        showOutDates = false,
                                     )
                                 }
                             }

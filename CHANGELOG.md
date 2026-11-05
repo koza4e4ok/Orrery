@@ -24,6 +24,8 @@
   longer draw over a day's secondary label.
 - `HeatmapCalendar` month labels no longer widen their week column, which
   caused uneven, off-by-one gaps between months.
+- `OrreryDateRangePickerDialog` hides out-of-month days, so boundary weeks (and
+  selected ranges) are no longer drawn under two months.
 
 ## [0.9.1] - 2026-11-04
 

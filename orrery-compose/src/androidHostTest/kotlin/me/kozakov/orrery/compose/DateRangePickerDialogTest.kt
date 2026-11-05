@@ -3,6 +3,8 @@ package me.kozakov.orrery.compose
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -19,6 +21,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class DateRangePickerDialogTest {
@@ -45,6 +48,13 @@ class DateRangePickerDialogTest {
                 )
             }
         }
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h2400dp")
+    fun boundaryWeekDaysAppearOnlyUnderTheirOwnMonth() {
+        content()
+        rule.onAllNodes(hasContentDescription("August 1, 2026", substring = true)).assertCountEquals(1)
     }
 
     @Test

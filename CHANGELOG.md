@@ -20,6 +20,8 @@
   longer clipped at large font sizes.
 - `AgendaDefaults.EventRow` widens its time column to fit the time on one line
   at large font sizes, and limits titles to two lines and subtitles to one.
+- Date, month and date-range picker headlines stay on one line, stepping down to
+  a smaller type style at large font sizes.
 - Month event banners (`packWeekEventBanners`) order same-day timed events by
   start time instead of title, with all-day events first, so the earliest
   events stay visible when a day overflows.

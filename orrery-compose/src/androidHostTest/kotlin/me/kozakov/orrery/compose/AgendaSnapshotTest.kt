@@ -19,6 +19,7 @@ import kotlinx.datetime.LocalDateTime
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.eventsByDate
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,6 +31,10 @@ import org.robolectric.annotation.GraphicsMode
 @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5)
 class AgendaSnapshotTest {
     @get:Rule val rule = createComposeRule()
+
+    // Time labels follow the device clock; these tests assert 24-hour text.
+    @Before
+    fun use24HourClock() = setSystem24HourClock(true)
 
     private val start = LocalDate(2026, 7, 1)
     private val end = LocalDate(2026, 7, 31)

@@ -49,6 +49,8 @@ public fun interface DayDecorator {
 
 private const val DAYS_PER_WEEK = 7
 
+private val ProgressRingInset = 3.dp
+
 /** What [DefaultDay] knows about the cell when a built-in decorator draws. */
 internal class DayCellDrawState(
     val selected: Boolean,
@@ -472,7 +474,10 @@ public object DayDecorators {
             }
         }
 
-    /** 0f..1f progress arc around the cell; null draws nothing. */
+    /**
+     * 0f..1f progress arc around the cell; null draws nothing. The ring sits 3dp
+     * inside the cell so it stays clear of the today or selection outline.
+     */
     @Composable
     public fun progressRing(
         strokeWidth: Dp = 2.dp,
@@ -484,7 +489,8 @@ public object DayDecorators {
             val value = progress(day.date)
             if (value != null) {
                 val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
-                val side = size.minDimension - strokeWidth.toPx()
+                // Inset so the ring never overlaps the cell's today/selection outline.
+                val side = size.minDimension - 2 * ProgressRingInset.toPx() - strokeWidth.toPx()
                 val topLeft = Offset((size.width - side) / 2f, (size.height - side) / 2f)
                 val arcSize = Size(side, side)
                 drawArc(

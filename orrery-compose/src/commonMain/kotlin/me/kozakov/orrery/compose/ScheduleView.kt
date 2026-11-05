@@ -13,6 +13,7 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +44,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -418,64 +421,80 @@ private fun <T> SchedulePage(
             packAllDayBanners(layouts.map { it.date }, layouts.flatMap { it.allDayEvents })
         }
     val showAllDay = banners.isNotEmpty()
-    Column(Modifier.fillMaxSize()) {
-        if (dayHeader != null || showAllDay) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .drawBehind {
-                        val y = size.height - 0.5.dp.toPx()
-                        drawLine(colors.gridLineColor, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
-                    },
-            ) {
-                if (dayHeader != null) {
-                    Row(Modifier.fillMaxWidth()) {
-                        Spacer(Modifier.width(dimensions.timeGutterWidth))
-                        for (layout in layouts) {
-                            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                dayHeader(layout.date, layout.date == options.today)
+    val gutterWidth = rememberGutterWidth(dimensions.timeGutterWidth)
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        // The all-day area takes at most about a quarter of the page, so short windows keep a time grid.
+        val rowStep = dimensions.allDayChipHeight + 2.dp
+        val rowsByHeight = if (maxHeight == Dp.Infinity) Int.MAX_VALUE else ((maxHeight / 4 + 2.dp) / rowStep).toInt()
+        val allDayRows = minOf(dimensions.maxVisibleAllDayRows, rowsByHeight.coerceAtLeast(2))
+        Column(Modifier.fillMaxSize()) {
+            if (dayHeader != null || showAllDay) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .drawBehind {
+                            val y = size.height - 0.5.dp.toPx()
+                            drawLine(colors.gridLineColor, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
+                        },
+                ) {
+                    if (dayHeader != null) {
+                        Row(Modifier.fillMaxWidth()) {
+                            Spacer(Modifier.width(gutterWidth))
+                            for (layout in layouts) {
+                                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                                    dayHeader(layout.date, layout.date == options.today)
+                                }
                             }
                         }
                     }
-                }
-                if (showAllDay) {
-                    AllDayRow(banners, layouts.size, colors, dimensions, strings, slots.allDayEventContent)
+                    if (showAllDay) {
+                        AllDayRow(
+                            banners,
+                            layouts.size,
+                            gutterWidth,
+                            allDayRows,
+                            colors,
+                            dimensions,
+                            strings,
+                            slots.allDayEventContent,
+                        )
+                    }
                 }
             }
-        }
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .pinchToZoomHours(state, options.zoomGesturesEnabled)
-                .verticalScroll(state.verticalScrollState),
-        ) {
-            Row(Modifier.fillMaxWidth().height(hourHeight * window.hourCount)) {
-                HourGutter(hourHeight, window, dimensions.timeGutterWidth, state.verticalScrollState, slots.hourLabel)
-                Row(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .gridLines(layouts.size, hourHeight, window.hourCount, options.showHalfHourLines, colors),
-                ) {
-                    for (layout in layouts) {
-                        key(layout.date) {
-                            DayColumn(
-                                layout = layout,
-                                nowMinute =
-                                    options.currentTime
-                                        ?.takeIf { layout.date == options.today }
-                                        ?.let { it.hour * 60 + it.minute }
-                                        ?.takeIf { it in window.startMinute..window.endMinute },
-                                hourHeight = hourHeight,
-                                window = window,
-                                dimensions = dimensions,
-                                slotMinutes = if (options.showHalfHourLines) 30 else 60,
-                                onEmptySlotClick = onEmptySlotClick,
-                                nowIndicator = slots.nowIndicator,
-                                eventContent = slots.eventContent,
-                                modifier = Modifier.weight(1f).fillMaxHeight(),
-                            )
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .pinchToZoomHours(state, options.zoomGesturesEnabled)
+                    .verticalScroll(state.verticalScrollState),
+            ) {
+                Row(Modifier.fillMaxWidth().height(hourHeight * window.hourCount)) {
+                    HourGutter(hourHeight, window, gutterWidth, state.verticalScrollState, slots.hourLabel)
+                    Row(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .gridLines(layouts.size, hourHeight, window.hourCount, options.showHalfHourLines, colors),
+                    ) {
+                        for (layout in layouts) {
+                            key(layout.date) {
+                                DayColumn(
+                                    layout = layout,
+                                    nowMinute =
+                                        options.currentTime
+                                            ?.takeIf { layout.date == options.today }
+                                            ?.let { it.hour * 60 + it.minute }
+                                            ?.takeIf { it in window.startMinute..window.endMinute },
+                                    hourHeight = hourHeight,
+                                    window = window,
+                                    dimensions = dimensions,
+                                    slotMinutes = if (options.showHalfHourLines) 30 else 60,
+                                    onEmptySlotClick = onEmptySlotClick,
+                                    nowIndicator = slots.nowIndicator,
+                                    eventContent = slots.eventContent,
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                )
+                            }
                         }
                     }
                 }
@@ -493,6 +512,25 @@ private class HourWindow(
     val startMinute: Int get() = startHour * 60
     val endMinute: Int get() = endHour * 60
 }
+
+/**
+ * Width of the hour gutter: [minWidth], or wider when the default hour labels
+ * need it (a 12-hour clock such as "12:00 PM", or large system text).
+ */
+@Composable
+private fun rememberGutterWidth(minWidth: Dp): Dp {
+    val is24Hour = systemUses24HourClock()
+    val labelStyle = MaterialTheme.typography.labelSmall
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(is24Hour, labelStyle, density, measurer, minWidth) {
+        val widest = (0 until 24).maxOf { measurer.measure(clockLabel(it * 60, is24Hour), labelStyle).size.width }
+        maxOf(minWidth, with(density) { widest.toDp() } + HourLabelEndPadding + GutterStartPadding)
+    }
+}
+
+/** Space kept before the widest hour label when the gutter widens to fit it. */
+private val GutterStartPadding = 4.dp
 
 /** Which ends of the all-day banner being drawn continue past the visible days. */
 internal data class AllDayBannerEdges(
@@ -513,12 +551,14 @@ internal val LocalAllDayBannerEdges =
 private fun <T> AllDayRow(
     banners: List<AllDayBanner<T>>,
     columnCount: Int,
+    gutterWidth: Dp,
+    maxRowsLimit: Int,
     colors: ScheduleColors,
     dimensions: ScheduleDimensions,
     strings: ScheduleStrings,
     allDayEventContent: @Composable (CalendarEvent<T>) -> Unit,
 ) {
-    val maxRows = dimensions.maxVisibleAllDayRows.coerceAtLeast(1)
+    val maxRows = maxRowsLimit.coerceAtLeast(1)
     val laneCount = (banners.maxOfOrNull { it.laneIndex } ?: -1) + 1
     val visibleLanes = if (laneCount <= maxRows) laneCount else maxRows - 1
     val visible = banners.filter { it.laneIndex < visibleLanes }
@@ -531,7 +571,7 @@ private fun <T> AllDayRow(
     Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
         Text(
             text = strings.allDayLabel,
-            modifier = Modifier.width(dimensions.timeGutterWidth).padding(end = 8.dp),
+            modifier = Modifier.width(gutterWidth).padding(end = 8.dp),
             style = MaterialTheme.typography.labelSmall,
             color = colors.hourLabelColor,
             textAlign = TextAlign.End,

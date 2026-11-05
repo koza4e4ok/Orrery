@@ -176,12 +176,12 @@ private fun DateTimeCard() {
         OrreryDateTimePickerDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
-                Button(onClick = {
+                TextButton(onClick = {
                     result = state.selectedDateTime?.toString()
                     showDialog = false
                 }) { Text("OK") }
             },
-            dismissButton = { Button(onClick = { showDialog = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } },
             state = state,
         )
     }
@@ -216,7 +216,7 @@ private fun MonthCard() {
         OrreryMonthPickerDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
-                Button(
+                TextButton(
                     onClick = {
                         result = state.selectedMonth?.toString()
                         showDialog = false

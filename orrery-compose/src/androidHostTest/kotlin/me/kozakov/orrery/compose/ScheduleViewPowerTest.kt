@@ -34,6 +34,7 @@ import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.eventsByDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +45,10 @@ import kotlin.math.roundToInt
 @RunWith(AndroidJUnit4::class)
 class ScheduleViewPowerTest {
     @get:Rule val rule = createComposeRule()
+
+    // Time labels follow the device clock; these tests assert 24-hour text.
+    @Before
+    fun use24HourClock() = setSystem24HourClock(true)
 
     private val jul15 = LocalDate(2026, 7, 15)
     private val jul17 = LocalDate(2026, 7, 17)

@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
@@ -222,7 +223,8 @@ public fun DefaultDay(
  * [CalendarDayShapes.rangeEndpointStyle] ([RangeEndpointStyle.SplitHorizontal]
  * or [RangeEndpointStyle.SplitDiagonal]) these cells fill both the AM and
  * the PM half with a 2.dp gap between them; [RangeEndpointStyle.FullCell]
- * ignores them. Pass an empty set when there are none.
+ * fills them like the range with a thin diagonal divider. Pass an empty set
+ * when there are none.
  *
  * Taps on [CalendarDay]s outside the rendered month (InDate / OutDate)
  * follow [outDateClickPolicy] through [CalendarSelectionState.onDayClick]:
@@ -326,7 +328,7 @@ private fun DefaultDayContent(
     val isRangeEnd = selectionState?.isRangeEnd(day.date) == true
     val endpointStyle = shapes.rangeEndpointStyle
     val split = endpointStyle != RangeEndpointStyle.FullCell
-    val isTurnover = split && day.date in turnoverDates
+    val isTurnover = day.date in turnoverDates
     // Split styles draw range endpoints as half-cell fills instead of selectedShape.
     val splitEndpoint = split && (isRangeStart || isRangeEnd)
     val showSelectedShape = isSelected && !splitEndpoint
@@ -423,6 +425,8 @@ private fun DefaultDayContent(
             decorators.any { it.layer == DecoratorLayer.Over } ||
             showFocusRing ||
             showCellBorder
+    val surface = MaterialTheme.colorScheme.surface
+    val turnoverDividerColor = if (colors.containerColor.alpha > 0f) colors.containerColor else surface
     Box(
         modifier =
             modifier
@@ -441,6 +445,12 @@ private fun DefaultDayContent(
                             color = colors.inRangeContainerColor,
                             isRtl = isRtl,
                         )
+                    } else if (isTurnover) {
+                        // Full-cell turnover: filled like the range, with a thin divider where a split cell would part.
+                        drawRect(colors.inRangeContainerColor)
+                        val start = if (isRtl) Offset(size.width, size.height) else Offset(0f, size.height)
+                        val end = if (isRtl) Offset(0f, 0f) else Offset(size.width, 0f)
+                        drawLine(turnoverDividerColor, start, end, TurnoverGap.toPx())
                     }
                 }.selectable(
                     selected = isSelected,
@@ -527,9 +537,18 @@ private fun DefaultDayContent(
                     .indication(pressInteractions, ripple()),
             )
         }
+        val reserveDecoratorBand = label != null && decorators.isNotEmpty()
+        val decoratorBandPx = with(LocalDensity.current) { DecoratorBand.toPx() }
         Column(
-            // Built-in stacked decorators read this to stay below the number and label.
-            modifier = Modifier.onPlaced { contentBottomPx = it.boundsInParent().bottom },
+            // Built-in stacked decorators read contentBottom to stay below the number and label.
+            modifier =
+                Modifier
+                    .then(if (reserveDecoratorBand) Modifier.padding(vertical = DecoratorBand) else Modifier)
+                    // onPlaced sees the padded bounds; contentBottom must stay at the label's real bottom.
+                    .onPlaced {
+                        val band = if (reserveDecoratorBand) decoratorBandPx else 0f
+                        contentBottomPx = it.boundsInParent().bottom - band
+                    },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -811,6 +830,9 @@ internal fun resolveDayLabelColor(
 
 /** Material's disabled-content alpha, applied to every decorator on an out-of-month day. */
 internal const val OUT_DATE_DECORATOR_ALPHA = 0.38f
+
+/** Space kept above and below a labelled day's text so bottom decorators never draw over the label. */
+internal val DecoratorBand = 6.dp
 
 /** Draws [decorators] of [layer], through a translucent layer on out-of-month days. */
 internal fun DrawScope.drawDecorators(

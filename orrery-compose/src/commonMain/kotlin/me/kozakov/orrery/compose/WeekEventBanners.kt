@@ -17,12 +17,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.CalendarWeek
+import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.WeekBannerPackResult
 import me.kozakov.orrery.core.WeekEventBanner
 import me.kozakov.orrery.core.packWeekEventBanners
@@ -56,7 +59,8 @@ import kotlin.math.roundToInt
  * `Modifier.matchParentSize()` to keep the row's height.
  *
  * @param packResult Lanes for one week row, from [packWeekEventBanners].
- * @param laneHeight Height of one banner lane.
+ * @param laneHeight Minimum height of one banner lane; lanes grow to fit one
+ *   line of text at large font sizes.
  * @param laneSpacing Vertical gap between lanes.
  * @param topInset Space above the first lane (the day number area).
  * @param onEventClick Called with the event when a banner is clicked; banners
@@ -84,12 +88,14 @@ public fun <T> WeekEventBanners(
         onEventClick = onEventClick,
         onOverflowClick = onOverflowClick,
         overflowLabel = overflowLabel,
+        dimmedColumns = emptySet(),
     )
 }
 
 /**
  * Packs [events] for [week] with [packWeekEventBanners] and draws them with
- * [WeekEventBanners]; drop it straight into a `weekOverlay` slot.
+ * [WeekEventBanners]; drop it straight into a `weekOverlay` slot. A banner
+ * lying only on out-of-month days of [week] is dimmed like those days.
  *
  * @param maxVisibleLanes Banner lanes before events overflow into `+N`.
  */
@@ -117,6 +123,12 @@ public fun <T> WeekEventBanners(
         onEventClick = onEventClick,
         onOverflowClick = onOverflowClick,
         overflowLabel = overflowLabel,
+        dimmedColumns =
+            remember(week) {
+                week.days.indices
+                    .filter { week.days[it].position != DayPosition.MonthDate }
+                    .toSet()
+            },
     )
 }
 
@@ -138,6 +150,8 @@ private class BannerSlot(
 )
 
 private val BannerEdgeInset = 2.dp
+
+private val BannerTextVerticalPadding = 2.dp
 private val BannerTextPadding = 4.dp
 
 @Composable
@@ -148,6 +162,7 @@ private fun <T> WeekEventBannersContent(
     onEventClick: ((CalendarEvent<T>) -> Unit)?,
     onOverflowClick: ((LocalDate, Int) -> Unit)?,
     overflowLabel: (Int) -> String,
+    dimmedColumns: Set<Int>,
 ) {
     val columns = packResult.weekDates.size
     val banners = packResult.banners.filter { it.startColumn in 0 until columns && it.endColumnInclusive < columns }
@@ -167,10 +182,20 @@ private fun <T> WeekEventBannersContent(
             )
         } + overflowColumns.map { (col, _) -> BannerSlot(col, col, overflowLane, insetStart = true, insetEnd = true) }
     val usedLanes = if (overflowColumns.isEmpty()) overflowLane else overflowLane + 1
+    val textMeasurer = rememberTextMeasurer()
+    val bannerTextStyle = MaterialTheme.typography.labelSmall
+    // One line of banner text plus a little air, so large system text is never cut off.
+    val minLanePx =
+        remember(textMeasurer, bannerTextStyle) {
+            textMeasurer.measure("Ag", bannerTextStyle, maxLines = 1).size.height
+        }
     Layout(
         modifier = modifier,
         content = {
-            banners.forEach { banner -> BannerChip(banner, onEventClick) }
+            banners.forEach { banner ->
+                val dimmed = (banner.startColumn..banner.endColumnInclusive).all { it in dimmedColumns }
+                BannerChip(banner, onEventClick, dimmed)
+            }
             overflowColumns.forEach { (col, count) ->
                 val date = packResult.weekDates[col]
                 OverflowChip(
@@ -181,7 +206,7 @@ private fun <T> WeekEventBannersContent(
         },
     ) { measurables, constraints ->
         val width = if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth
-        val laneHeight = metrics.laneHeight.roundToPx()
+        val laneHeight = maxOf(metrics.laneHeight.roundToPx(), minLanePx + BannerTextVerticalPadding.roundToPx())
         val laneStep = laneHeight + metrics.laneSpacing.roundToPx()
         val topInset = metrics.topInset.roundToPx()
         val edgeInset = BannerEdgeInset.roundToPx()
@@ -208,6 +233,7 @@ private fun <T> WeekEventBannersContent(
 private fun <T> BannerChip(
     banner: WeekEventBanner<T>,
     onEventClick: ((CalendarEvent<T>) -> Unit)?,
+    dimmed: Boolean,
 ) {
     val event = banner.event
     val colorScheme = MaterialTheme.colorScheme
@@ -228,6 +254,8 @@ private fun <T> BannerChip(
     Box(
         modifier =
             Modifier
+                // Out-of-month only: dimmed like those days' numbers and decorators.
+                .then(if (dimmed) Modifier.alpha(OUT_DATE_DECORATOR_ALPHA) else Modifier)
                 .eventFocusRing(onEventClick != null && isFocused, shape, colorScheme.onSurface)
                 .clip(shape)
                 .background(container)

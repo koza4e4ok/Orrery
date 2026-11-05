@@ -1089,6 +1089,8 @@ git add orrery-compose CHANGELOG.md
 git commit -m "fix(compose): keep heatmap week columns equal width under month labels"
 ```
 
+> **Execution note (found in Task 13 on the emulator):** with fixed-width columns, a label on the last column overflowed past the grid and was clipped ("No…"). Labels in the last two columns now overflow toward the start (`Alignment.End`); covered by `aLabelOnTheLastColumnStaysInsideTheGrid`. Committed separately.
+
 ---
 
 ### Task 9: The range picker dialog doesn't repeat the weeks at month boundaries (bug 7)

@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.DayPosition
@@ -132,4 +134,37 @@ class AuditPolishTest {
         rule.onNodeWithText("+2", useUnmergedTree = true).assertExists()
         rule.onNodeWithText("Trip 3", useUnmergedTree = true).assertDoesNotExist()
     }
+
+    @Test
+    fun yearGridOutlinesTheCurrentYear() {
+        var primary = Color.Unspecified
+        rule.setContent {
+            MaterialTheme {
+                primary = MaterialTheme.colorScheme.primary
+                MonthYearPicker(
+                    current = YearMonth(2026, 7),
+                    range = YearMonth(2024, 1)..YearMonth(2028, 12),
+                    onSelect = {},
+                    modifier = Modifier.testTag("picker"),
+                )
+            }
+        }
+        val year = rule.onNode(hasText("2026"), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val picker = rule.onNodeWithTag("picker").fetchSemanticsNode().boundsInRoot
+        val map = rule.onNodeWithTag("picker").captureToImage().toPixelMap()
+        // Scan left from just outside the year text (skipping its anti-aliased edge) to the outline.
+        val y = (year.center.y - picker.top).toInt()
+        // The year grid has 3 columns; stay inside the 2026 cell.
+        val columnWidth = (picker.right - picker.left) / 3
+        val cellLeft = (((year.center.x - picker.left) / columnWidth).toInt() * columnWidth).toInt()
+        val background = map[1, y]
+        val outline =
+            ((year.left - picker.left).toInt() - GLYPH_EDGE_PX downTo cellLeft)
+                .map { map[it, y] }
+                .firstOrNull { abs(it.red - background.red) + abs(it.green - background.green) > 0.1f }
+        assertTrue("no outline left of 2026", outline != null)
+        assertNear(rule.runOnIdle { primary }, outline!!, tolerance = 0.15f)
+    }
 }
+
+private const val GLYPH_EDGE_PX = 3

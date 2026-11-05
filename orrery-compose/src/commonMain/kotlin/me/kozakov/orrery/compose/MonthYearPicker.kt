@@ -211,7 +211,11 @@ private fun YearGrid(
         ) {
             items(years.size) { index ->
                 val year = years[index]
-                TextButton(onClick = { onYearClick(year) }) {
+                TextButton(
+                    onClick = { onYearClick(year) },
+                    // Outlined like the current month in the month grid.
+                    border = if (year == currentYear) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
+                ) {
                     Text(
                         year.toString(),
                         color = if (year == currentYear) MaterialTheme.colorScheme.primary else Color.Unspecified,

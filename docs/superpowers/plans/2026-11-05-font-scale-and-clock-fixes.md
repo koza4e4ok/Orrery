@@ -798,6 +798,8 @@ git commit -m "feat(compose): agenda and schedule times follow the device 12/24-
 
 ---
 
+> **Execution note (found in Task 7 on the emulator):** sizing the Agenda time column for the widest *range* made it about half the screen on a 12-hour clock ("12:00 AM – 12:00 AM"). The column now fits a whole range only while that stays ≤ 128dp; otherwise it fits one time, and 12-hour ranges wrap after the dash, using no-break spaces inside each time. Covered by `ClockFormatTest.twelveHourAgendaRangeBreaksAfterTheDashInANarrowColumn`. Committed separately.
+
 ### Task 7: Full verification and on-device check
 
 - [ ] **Step 1:** Run the final CI-equivalent command from Global Constraints. Expected: only the 3 known baseline goldens fail. Paste the result in the hand-off.

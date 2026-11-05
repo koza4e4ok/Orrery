@@ -13,6 +13,8 @@
   one ellipsized line instead of breaking their first word mid-way.
 - Schedule all-day chips draw an end square and flush when the event continues
   before or after the visible days, matching month-view banners.
+- The schedule's top hour label slides fully into view instead of being half
+  hidden under the header.
 
 ## [0.9.1] - 2026-11-04
 

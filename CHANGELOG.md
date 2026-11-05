@@ -22,6 +22,8 @@
   overlaps the today ring.
 - `DefaultDay` shows turnover days in the Full-cell range style, filled like the
   range with a thin diagonal divider (previously they were ignored).
+- Schedule all-day rows take at most about a quarter of a short page, so
+  landscape and split-screen windows keep a visible time grid.
 - `DefaultDay` keeps a 6dp band above and below a labelled day's text when it
   has decorators, so dots and bars no longer draw over the label at large font
   sizes.

@@ -37,7 +37,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -500,11 +502,7 @@ private fun DefaultDayContent(
                         }
                     }
                     val cellState = DayCellDrawState(selectedScale >= 0.5f, colors.selectedContentColor, label != null)
-                    decorators.forEach { decorator ->
-                        if (decorator.layer == DecoratorLayer.Behind) {
-                            drawDecorator(decorator, day, cellState)
-                        }
-                    }
+                    drawDecorators(decorators, DecoratorLayer.Behind, day, cellState)
                 },
         )
         // Ripple layer: a centered square clipped to dayShape so touch feedback
@@ -525,16 +523,16 @@ private fun DefaultDayContent(
                 color = contentColor,
             )
             if (label != null && info != null) {
-                val colorArgb = info.colorArgb
                 val resolvedLabelColor =
-                    when {
-                        !available -> colors.unavailableContentColor
-                        splitEndpoint || isTurnover -> colors.inRangeContentColor
-                        isSelected -> colors.selectedContentColor
-                        colorArgb != null -> Color(colorArgb)
-                        info.isHoliday -> colors.holidayLabelColor
-                        else -> colors.labelColor
-                    }
+                    resolveDayLabelColor(
+                        colors = colors,
+                        available = available,
+                        onRangeEndpoint = splitEndpoint || isTurnover,
+                        isSelected = isSelected,
+                        isOutDate = day.position != DayPosition.MonthDate,
+                        colorArgb = info.colorArgb,
+                        isHoliday = info.isHoliday,
+                    )
                 Text(
                     text = label,
                     modifier = Modifier.padding(horizontal = 2.dp),
@@ -582,11 +580,7 @@ private fun DefaultDayContent(
                         }
                     }
                     val cellState = DayCellDrawState(selectedScale >= 0.5f, colors.selectedContentColor, label != null)
-                    decorators.forEach { decorator ->
-                        if (decorator.layer == DecoratorLayer.Over) {
-                            drawDecorator(decorator, day, cellState)
-                        }
-                    }
+                    drawDecorators(decorators, DecoratorLayer.Over, day, cellState)
                     if (showFocusRing) {
                         val focusStrokePx = shapes.focusedBorderWidth.toPx()
                         if (selectedScale >= 0.5f) {
@@ -772,4 +766,46 @@ internal fun DrawScope.drawDayShape(
     translate((size.width - side) / 2f, (size.height - side) / 2f) {
         drawOutline(shape.createOutline(Size(side, side), layoutDirection, this), color, style = style)
     }
+}
+
+/** Secondary label color: the out-date dimming wins over the label's own color, like the day number. */
+internal fun resolveDayLabelColor(
+    colors: CalendarDayColors,
+    available: Boolean,
+    onRangeEndpoint: Boolean,
+    isSelected: Boolean,
+    isOutDate: Boolean,
+    colorArgb: Long?,
+    isHoliday: Boolean,
+): Color =
+    when {
+        !available -> colors.unavailableContentColor
+        onRangeEndpoint -> colors.inRangeContentColor
+        isSelected -> colors.selectedContentColor
+        isOutDate -> colors.outDateContentColor
+        colorArgb != null -> Color(colorArgb)
+        isHoliday -> colors.holidayLabelColor
+        else -> colors.labelColor
+    }
+
+/** Material's disabled-content alpha, applied to every decorator on an out-of-month day. */
+internal const val OUT_DATE_DECORATOR_ALPHA = 0.38f
+
+/** Draws [decorators] of [layer], through a translucent layer on out-of-month days. */
+internal fun DrawScope.drawDecorators(
+    decorators: List<DayDecorator>,
+    layer: DecoratorLayer,
+    day: CalendarDay,
+    cell: DayCellDrawState,
+) {
+    val chosen = decorators.filter { it.layer == layer }
+    if (chosen.isEmpty()) return
+    if (day.position == DayPosition.MonthDate) {
+        chosen.forEach { drawDecorator(it, day, cell) }
+        return
+    }
+    val canvas = drawContext.canvas
+    canvas.saveLayer(size.toRect(), Paint().apply { alpha = OUT_DATE_DECORATOR_ALPHA })
+    chosen.forEach { drawDecorator(it, day, cell) }
+    canvas.restore()
 }

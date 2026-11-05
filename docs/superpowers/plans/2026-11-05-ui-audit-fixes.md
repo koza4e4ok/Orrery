@@ -21,7 +21,7 @@
   - compose: `./gradlew :orrery-compose:testAndroidHostTest --tests "<FQCN>"`
   - screenshots: `./gradlew :orrery-compose:verifyRoborazziDebug` (plain `testDebugUnitTest` does **not** compare goldens). The `*Debug` names are aliases that reject `--tests`; for one class use `./gradlew :orrery-compose:verifyRoborazziAndroidHostTest --tests "<FQCN>"`.
 - **Known baseline failures (user decision, 2026-11-05):** on untouched `main`, `DateTimePickerDialogSnapshotTest.timeStepLight`, `DateTimePickerDialogSnapshotTest.stepTransitionMidway` and `CompactHeightDialogSnapshotTest.dateTimePickerTimeStepCompactHeight` fail by a few anti-aliased pixels around the clock dial's selected "9". Leave those 3 goldens untouched. "Screenshots pass" means no failures other than these 3.
-- Snapshot policy: a task may change goldens **only** in the snapshots its bug affects. If `verifyRoborazziDebug` fails, run `./gradlew :orrery-compose:recordRoborazziDebug`, list the changed PNGs with `git status --porcelain '*.png'`, **open every changed PNG** and confirm the change is the intended fix. Then restore the 3 known-baseline goldens with `git checkout -- 'orrery-compose/src/androidHostTest/snapshots/*TimeStep*' 'orrery-compose/src/androidHostTest/snapshots/*stepTransitionMidway*' 'orrery-compose/src/androidHostTest/snapshots/*timeStepLight*'`, unless the task's own fix legitimately changed them. Commit goldens in the same commit as the fix.
+- Snapshot policy: a task may change goldens **only** in the snapshots its bug affects. If `verifyRoborazziDebug` fails, run `./gradlew :orrery-compose:recordRoborazziDebug`, list the changed PNGs with `git status --porcelain '*.png'`, **open every changed PNG** and confirm the change is the intended fix. Then restore the 3 known-baseline goldens with `git checkout -- 'orrery-compose/src/androidHostTest/snapshots/*TimeStep*' 'orrery-compose/src/androidHostTest/snapshots/*stepTransitionMidway*' 'orrery-compose/src/androidHostTest/snapshots/*timeStepLight*'`, unless the task's own fix legitimately changed them. Record with `:orrery-compose:recordRoborazziAndroidHostTest --tests "<FQCN>"` for just the affected classes, and `git checkout --` any recorded PNG whose test was passing (recording rewrites sub-threshold noise too). Commit goldens in the same commit as the fix.
 - Pixel tests need `@GraphicsMode(GraphicsMode.Mode.NATIVE)` on the class (see `DayDecoratorsTest`).
 - Fixed test dates: July 2026, today = `LocalDate(2026, 7, 15)`, `DayOfWeek.MONDAY`, unless a task says otherwise.
 - Each task appends one line under `## [Unreleased]` → `### Fixed` (or `### Added`) in `CHANGELOG.md`. Create the subsection the first time.
@@ -601,7 +601,7 @@ git commit -m "fix(compose): keep the top schedule hour label fully visible"
 **Interfaces:**
 
 - Produces `internal fun resolveDayLabelColor(colors: CalendarDayColors, available: Boolean, onRangeEndpoint: Boolean, isSelected: Boolean, isOutDate: Boolean, colorArgb: Long?, isHoliday: Boolean): Color`
-- Produces `internal const val OutDateDecoratorAlpha = 0.38f` and `internal fun DrawScope.drawDecorators(decorators: List<DayDecorator>, layer: DecoratorLayer, day: CalendarDay, cell: DayCellDrawState)` in `DefaultDay.kt`. Task 7 passes a richer `cell` through this function.
+- Produces `internal const val OUT_DATE_DECORATOR_ALPHA = 0.38f` and `internal fun DrawScope.drawDecorators(decorators: List<DayDecorator>, layer: DecoratorLayer, day: CalendarDay, cell: DayCellDrawState)` in `DefaultDay.kt`. Task 7 passes a richer `cell` through this function.
 
 - [ ] **Step 1: Write failing tests**
 
@@ -735,7 +735,7 @@ internal fun resolveDayLabelColor(
     }
 
 /** Material's disabled-content alpha, applied to every decorator on an out-of-month day. */
-internal const val OutDateDecoratorAlpha = 0.38f
+internal const val OUT_DATE_DECORATOR_ALPHA = 0.38f
 
 /** Draws [decorators] of [layer], through a translucent layer on out-of-month days. */
 internal fun DrawScope.drawDecorators(
@@ -751,7 +751,7 @@ internal fun DrawScope.drawDecorators(
         return
     }
     val canvas = drawContext.canvas
-    canvas.saveLayer(size.toRect(), Paint().apply { alpha = OutDateDecoratorAlpha })
+    canvas.saveLayer(size.toRect(), Paint().apply { alpha = OUT_DATE_DECORATOR_ALPHA })
     chosen.forEach { drawDecorator(it, day, cell) }
     canvas.restore()
 }

@@ -15,6 +15,9 @@
   before or after the visible days, matching month-view banners.
 - The schedule's top hour label slides fully into view instead of being half
   hidden under the header.
+- `DefaultDay` dims an out-of-month day's secondary label and all its
+  decorators (dots, badges, bars, rings) like its number; decorators draw at
+  38% opacity there.
 
 ## [0.9.1] - 2026-11-04
 

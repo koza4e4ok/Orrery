@@ -25,8 +25,11 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DayPosition
+import me.kozakov.orrery.core.EventSpan
+import me.kozakov.orrery.core.packWeekEventBanners
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -128,5 +131,35 @@ class FontScaleLayoutTest {
         assertTrue("anchor row top ${anchorCell.top} is above $top", anchorCell.top >= top)
         assertTrue("second row ends ${nextCell.bottom} past ${below.top}", nextCell.bottom <= below.top + 0.5.dp)
         cell("July 27, 2026").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun bannerLaneIsAtLeastOneLineOfText() {
+        val week = (6..12).map { LocalDate(2026, 7, it) }
+        val gym = CalendarEvent<Nothing>(id = "g", title = "Gym", span = EventSpan.AllDay(LocalDate(2026, 7, 8)))
+        rule.setContent {
+            MaterialTheme {
+                WeekEventBanners(
+                    packResult = packWeekEventBanners(week, listOf(gym)),
+                    modifier = Modifier.testTag("banners"),
+                    topInset = 0.dp,
+                )
+            }
+        }
+        val lane = rule.onNodeWithTag("banners").getUnclippedBoundsInRoot()
+        val layouts = mutableListOf<TextLayoutResult>()
+        rule
+            .onNodeWithText("Gym", useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        // The chip clamps the Text node, so compare with the text's natural line height.
+        val textHeight =
+            with(rule.density) {
+                layouts
+                    .single()
+                    .multiParagraph.height
+                    .toDp()
+            }
+        val laneHeight = lane.bottom - lane.top
+        assertTrue("lane $laneHeight < text $textHeight", laneHeight >= textHeight)
     }
 }

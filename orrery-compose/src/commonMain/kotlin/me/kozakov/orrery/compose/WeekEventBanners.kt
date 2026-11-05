@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -56,7 +57,8 @@ import kotlin.math.roundToInt
  * `Modifier.matchParentSize()` to keep the row's height.
  *
  * @param packResult Lanes for one week row, from [packWeekEventBanners].
- * @param laneHeight Height of one banner lane.
+ * @param laneHeight Minimum height of one banner lane; lanes grow to fit one
+ *   line of text at large font sizes.
  * @param laneSpacing Vertical gap between lanes.
  * @param topInset Space above the first lane (the day number area).
  * @param onEventClick Called with the event when a banner is clicked; banners
@@ -138,6 +140,8 @@ private class BannerSlot(
 )
 
 private val BannerEdgeInset = 2.dp
+
+private val BannerTextVerticalPadding = 2.dp
 private val BannerTextPadding = 4.dp
 
 @Composable
@@ -167,6 +171,13 @@ private fun <T> WeekEventBannersContent(
             )
         } + overflowColumns.map { (col, _) -> BannerSlot(col, col, overflowLane, insetStart = true, insetEnd = true) }
     val usedLanes = if (overflowColumns.isEmpty()) overflowLane else overflowLane + 1
+    val textMeasurer = rememberTextMeasurer()
+    val bannerTextStyle = MaterialTheme.typography.labelSmall
+    // One line of banner text plus a little air, so large system text is never cut off.
+    val minLanePx =
+        remember(textMeasurer, bannerTextStyle) {
+            textMeasurer.measure("Ag", bannerTextStyle, maxLines = 1).size.height
+        }
     Layout(
         modifier = modifier,
         content = {
@@ -181,7 +192,7 @@ private fun <T> WeekEventBannersContent(
         },
     ) { measurables, constraints ->
         val width = if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth
-        val laneHeight = metrics.laneHeight.roundToPx()
+        val laneHeight = maxOf(metrics.laneHeight.roundToPx(), minLanePx + BannerTextVerticalPadding.roundToPx())
         val laneStep = laneHeight + metrics.laneSpacing.roundToPx()
         val topInset = metrics.topInset.roundToPx()
         val edgeInset = BannerEdgeInset.roundToPx()

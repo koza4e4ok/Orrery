@@ -16,6 +16,8 @@
 - `CollapsibleCalendarScaffold` measures its rows, so a month with tall rows
   (large text, labels) is no longer clipped and the Two Weeks/Week stops show the
   right rows; `dayHeight` is now the minimum row height.
+- `WeekEventBanners` lanes grow to fit one line of text, so banner titles are no
+  longer clipped at large font sizes.
 - Month event banners (`packWeekEventBanners`) order same-day timed events by
   start time instead of title, with all-day events first, so the earliest
   events stay visible when a day overflows.

@@ -26,7 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -100,6 +103,8 @@ public object AgendaDefaults {
      * Default event row in [Agenda]: a leading vertical color bar, a time
      * label ("All day" or `HH:mm – HH:mm` clamped to the rendered day's
      * `00:00..24:00` window), the event title, and an optional subtitle.
+     * The time column is at least 104dp and widens to fit its longest label;
+     * the title shows up to two lines and the subtitle one, both ellipsized.
      */
     @Composable
     public fun EventRow(
@@ -113,6 +118,15 @@ public object AgendaDefaults {
         val timeText = eventTimeLabel(event.span, date, strings)
         val subtitle = event.subtitle
         val barHeight = if (subtitle != null) 44.dp else 36.dp
+        val timeStyle = MaterialTheme.typography.labelLarge
+        val textMeasurer = rememberTextMeasurer()
+        val density = LocalDensity.current
+        // Same width on every row so titles line up; at least 104dp, wider when large text needs it.
+        val timeColumnWidth =
+            remember(textMeasurer, timeStyle, density, strings) {
+                val widest = textMeasurer.measure(widestTimeLabel(strings), timeStyle, maxLines = 1).size.width
+                maxOf(104.dp, with(density) { widest.toDp() })
+            }
         val interactionSource = remember { MutableInteractionSource() }
         val isFocused by interactionSource.collectIsFocusedAsState()
         Row(
@@ -143,9 +157,11 @@ public object AgendaDefaults {
             Spacer(Modifier.width(12.dp))
             Text(
                 text = timeText,
-                modifier = Modifier.width(104.dp),
-                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.width(timeColumnWidth),
+                style = timeStyle,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                softWrap = false,
             )
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
@@ -153,12 +169,16 @@ public object AgendaDefaults {
                     text = event.title,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -223,5 +243,9 @@ internal fun eventTimeLabel(
             "$startLabel – $endLabel"
         }
     }
+
+/** The widest label the time column has to fit: an all-day label or a full-day time range. */
+private fun widestTimeLabel(strings: AgendaStrings): String =
+    listOf(strings.allDayLabel, "00:00 – 24:00").maxBy { it.length }
 
 private fun LocalTime.formatHhMm(): String = hour.toString().padStart(2, '0') + ":" + minute.toString().padStart(2, '0')

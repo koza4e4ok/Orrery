@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.CalendarEvent
@@ -30,6 +31,7 @@ import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.packWeekEventBanners
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -161,5 +163,19 @@ class FontScaleLayoutTest {
             }
         val laneHeight = lane.bottom - lane.top
         assertTrue("lane $laneHeight < text $textHeight", laneHeight >= textHeight)
+    }
+
+    @Test
+    fun agendaTimeLabelStaysOnOneLine() {
+        val lunch =
+            CalendarEvent<Nothing>(
+                id = "l",
+                title = "Lunch with Sam",
+                span = EventSpan.Timed(LocalDateTime(2026, 7, 15, 12, 30), LocalDateTime(2026, 7, 15, 13, 30)),
+            )
+        rule.setContent {
+            MaterialTheme { AgendaDefaults.EventRow(lunch, date = LocalDate(2026, 7, 15)) }
+        }
+        assertEquals(1, rule.onNodeWithText("12:30 – 13:30", useUnmergedTree = true).lineCount())
     }
 }

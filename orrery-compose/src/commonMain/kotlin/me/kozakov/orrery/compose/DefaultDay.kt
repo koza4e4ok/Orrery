@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
@@ -527,9 +528,18 @@ private fun DefaultDayContent(
                     .indication(pressInteractions, ripple()),
             )
         }
+        val reserveDecoratorBand = label != null && decorators.isNotEmpty()
+        val decoratorBandPx = with(LocalDensity.current) { DecoratorBand.toPx() }
         Column(
-            // Built-in stacked decorators read this to stay below the number and label.
-            modifier = Modifier.onPlaced { contentBottomPx = it.boundsInParent().bottom },
+            // Built-in stacked decorators read contentBottom to stay below the number and label.
+            modifier =
+                Modifier
+                    .then(if (reserveDecoratorBand) Modifier.padding(vertical = DecoratorBand) else Modifier)
+                    // onPlaced sees the padded bounds; contentBottom must stay at the label's real bottom.
+                    .onPlaced {
+                        val band = if (reserveDecoratorBand) decoratorBandPx else 0f
+                        contentBottomPx = it.boundsInParent().bottom - band
+                    },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -811,6 +821,9 @@ internal fun resolveDayLabelColor(
 
 /** Material's disabled-content alpha, applied to every decorator on an out-of-month day. */
 internal const val OUT_DATE_DECORATOR_ALPHA = 0.38f
+
+/** Space kept above and below a labelled day's text so bottom decorators never draw over the label. */
+internal val DecoratorBand = 6.dp
 
 /** Draws [decorators] of [layer], through a translucent layer on out-of-month days. */
 internal fun DrawScope.drawDecorators(

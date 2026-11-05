@@ -13,6 +13,9 @@
 - `DefaultDay` keeps a 6dp band above and below a labelled day's text when it
   has decorators, so dots and bars no longer draw over the label at large font
   sizes.
+- `CollapsibleCalendarScaffold` measures its rows, so a month with tall rows
+  (large text, labels) is no longer clipped and the Two Weeks/Week stops show the
+  right rows; `dayHeight` is now the minimum row height.
 - Month event banners (`packWeekEventBanners`) order same-day timed events by
   start time instead of title, with all-day events first, so the earliest
   events stay visible when a day overflows.

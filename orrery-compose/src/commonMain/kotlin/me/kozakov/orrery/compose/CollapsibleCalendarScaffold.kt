@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -238,6 +239,9 @@ private fun rememberAnchoredCollapsibleState(
  * content is scrolled down at its top. Vertical drags directly on the week
  * header and the calendar collapse/expand it too. Programmatic control via
  * [CollapsibleCalendarState.expand]/[CollapsibleCalendarState.collapse].
+ *
+ * [dayHeight] is the minimum row height; rows taller than it (large text,
+ * labels) are measured and used for the collapse geometry.
  */
 @Composable
 public fun CollapsibleCalendarScaffold(
@@ -279,6 +283,9 @@ public fun CollapsibleCalendarScaffold(
  * While collapsed, paging the week strip horizontally keeps [calendarState]
  * on the paged week's month, and while expanded, paging months keeps
  * [weekState] inside the visible month.
+ *
+ * [dayHeight] is the minimum row height; rows taller than it (large text,
+ * labels) are measured and used for the collapse geometry.
  *
  * @param showWeekNumbers Shows a leading week-number column in both the month
  *   grid and the collapsed week strip, as in [HorizontalCalendar].
@@ -467,8 +474,11 @@ private fun CollapsibleCalendarScaffoldImpl(
     val anchorRow = grid.weeks.indexOfFirst { it.startDate() == weekStart }.coerceAtLeast(0)
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
-    val dayPx = with(density) { dayHeight.toPx() }
-    val geometry = remember(dayPx, rows, anchorRow) { CollapsibleGeometry(dayPx, rows, anchorRow) }
+    val minRowPx = with(density) { dayHeight.toPx() }
+    // Rows wrap their day cells, so large text or labels make them taller than dayHeight.
+    var measuredRowPx by remember { mutableFloatStateOf(0f) }
+    val rowPx = maxOf(minRowPx, measuredRowPx)
+    val geometry = remember(rowPx, rows, anchorRow) { CollapsibleGeometry(rowPx, rows, anchorRow) }
     val currentGeometry by rememberUpdatedState(geometry)
     val thresholdPx = with(density) { SETTLE_VELOCITY_THRESHOLD.toPx() }
 
@@ -573,11 +583,13 @@ private fun CollapsibleCalendarScaffoldImpl(
                         modifier =
                             Modifier
                                 .wrapContentHeight(align = Alignment.Top, unbounded = true)
+                                .onSizeChanged { if (it.height > 0) measuredRowPx = it.height.toFloat() / rows }
                                 .offset { IntOffset(0, -geometry.shiftAt(state.expandFraction).roundToInt()) },
                     )
                 } else {
                     WeekCalendar(
                         state = weekState,
+                        modifier = Modifier.onSizeChanged { if (it.height > 0) measuredRowPx = it.height.toFloat() },
                         showWeekNumbers = weekNumber != null,
                         weekNumber = weekNumber ?: { CalendarDefaults.WeekNumber(it) },
                         weekHeader = null,

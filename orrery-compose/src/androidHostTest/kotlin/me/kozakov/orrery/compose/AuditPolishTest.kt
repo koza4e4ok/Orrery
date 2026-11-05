@@ -2,6 +2,8 @@ package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
@@ -12,12 +14,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.DayPosition
+import me.kozakov.orrery.core.EventSpan
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -99,4 +105,31 @@ class AuditPolishTest {
 
     private fun Color.compositeOverWhite(alpha: Float) =
         Color(red * alpha + (1 - alpha), green * alpha + (1 - alpha), blue * alpha + (1 - alpha))
+
+    @Test
+    fun shortScheduleCapsAllDayRows() {
+        val day = LocalDate(2026, 7, 15)
+        val allDay =
+            (1..3).map {
+                CalendarEvent<Nothing>(
+                    id = "a$it",
+                    title = "Trip $it",
+                    span = EventSpan.AllDay(day),
+                )
+            }
+        rule.setContent {
+            MaterialTheme {
+                DaySchedule(
+                    events = { if (it == day) allDay else emptyList() },
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    state = rememberScheduleState(firstVisibleDate = day, firstDayOfWeek = DayOfWeek.MONDAY),
+                    today = day,
+                    dayHeader = null,
+                )
+            }
+        }
+        // 200dp / 4 = 50dp fits 2 rows of 20dp + 2dp gap: one chip and a "+2" overflow.
+        rule.onNodeWithText("+2", useUnmergedTree = true).assertExists()
+        rule.onNodeWithText("Trip 3", useUnmergedTree = true).assertDoesNotExist()
+    }
 }

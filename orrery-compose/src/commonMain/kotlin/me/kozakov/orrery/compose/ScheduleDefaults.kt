@@ -70,6 +70,9 @@ public class ScheduleColors(
  *
  * @property timeGutterWidth Minimum width of the hour gutter; it widens to fit
  *   the default hour labels.
+ * @property maxVisibleAllDayRows Most all-day rows, including the "+N" row;
+ *   fewer in short windows, where the all-day area takes at most about a
+ *   quarter of the height.
  */
 @Immutable
 public class ScheduleDimensions(

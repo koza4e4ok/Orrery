@@ -28,6 +28,8 @@
   current month.
 - `WeekEventBanners` dims a banner that lies only on out-of-month days, matching
   those days.
+- Schedule tiles too narrow for their whole time range show only the start
+  time instead of cutting the range off mid-way.
 - `DefaultDay` keeps a 6dp band above and below a labelled day's text when it
   has decorators, so dots and bars no longer draw over the label at large font
   sizes.

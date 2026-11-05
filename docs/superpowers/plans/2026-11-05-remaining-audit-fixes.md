@@ -465,6 +465,8 @@ with
 
 ---
 
+> **Execution note (Task 7):** the screen height comes from `LocalConfiguration.screenHeightDp` instead of `BoxWithConstraints` (simpler in the Android-only sample). Hiding only the hero header wasn't enough on the emulator: in landscape the time grid was still 0px. Compact height also drops the working-hours line, plus the month header in Day/Week modes.
+
 ### Task 8: Almanac and Pickers polish
 
 **Files:** Modify `sample/src/main/kotlin/me/kozakov/orrery/sample/AlmanacScreen.kt`, `sample/src/main/kotlin/me/kozakov/orrery/sample/PickersScreen.kt`.

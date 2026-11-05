@@ -28,8 +28,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +54,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
@@ -391,6 +395,7 @@ private fun DefaultDayContent(
     val showFocusRing = isFocused && available
     val showHover = isHovered && available && !isSelected
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    var contentBottomPx by remember { mutableFloatStateOf(Float.NaN) }
     val hoverAlpha by animateFloatAsState(
         targetValue = if (showHover) 1f else 0f,
         animationSpec = if (animateSelection) tween(durationMillis = 150) else snap(),
@@ -501,7 +506,13 @@ private fun DefaultDayContent(
                             drawDayShape(shapes.selectedShape, colors.selectedContainerColor)
                         }
                     }
-                    val cellState = DayCellDrawState(selectedScale >= 0.5f, colors.selectedContentColor, label != null)
+                    val cellState =
+                        DayCellDrawState(
+                            selectedScale >= 0.5f,
+                            colors.selectedContentColor,
+                            label != null,
+                            contentBottom = contentBottomPx,
+                        )
                     drawDecorators(decorators, DecoratorLayer.Behind, day, cellState)
                 },
         )
@@ -516,7 +527,11 @@ private fun DefaultDayContent(
                     .indication(pressInteractions, ripple()),
             )
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            // Built-in stacked decorators read this to stay below the number and label.
+            modifier = Modifier.onPlaced { contentBottomPx = it.boundsInParent().bottom },
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(
                 text = day.date.day.toString(),
                 style = MaterialTheme.typography.bodyMedium,
@@ -579,7 +594,13 @@ private fun DefaultDayContent(
                             }
                         }
                     }
-                    val cellState = DayCellDrawState(selectedScale >= 0.5f, colors.selectedContentColor, label != null)
+                    val cellState =
+                        DayCellDrawState(
+                            selectedScale >= 0.5f,
+                            colors.selectedContentColor,
+                            label != null,
+                            contentBottom = contentBottomPx,
+                        )
                     drawDecorators(decorators, DecoratorLayer.Over, day, cellState)
                     if (showFocusRing) {
                         val focusStrokePx = shapes.focusedBorderWidth.toPx()

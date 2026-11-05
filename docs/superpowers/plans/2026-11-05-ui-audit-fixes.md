@@ -1020,6 +1020,8 @@ Add to the `stackedBars` KDoc: "In [DefaultDay], bars that would overlap the day
 
 - [ ] **Step 7: Update the sample call.** In `AlmanacScreen.kt` (around line 570), add `firstDayOfWeek = calendarState.firstDayOfWeek` to `DayDecorators.spanningEventBars(...)`. If `calendarState` isn't in scope there, pass the screen's first-day value the same way the month calendar gets it.
 
+> **Execution note:** the lane/bar limit applies only when the cell has a secondary label (`cell.hasLabel`). Applying it to every cell dropped `stackedBars`' third bar on unlabelled days, which only sat in the number's descent area and was never part of the bug.
+
 - [ ] **Step 8: Run the tests.** Run `SpanningBarsTest` (PASS) and then all of `./gradlew :orrery-compose:testDebugUnitTest`. Existing `DayDecoratorsTest` cases for spanning bars that assumed per-cell stacking may need new expected y positions. Update them only if the new position matches the week-packed rule, and say so in the commit body.
 - [ ] **Step 9: ABI.** Run `./gradlew :orrery-compose:updateKotlinAbi` and check that `git diff orrery-compose/api` only **adds** the new `spanningEventBars` signature; the old one remains. Then run `./gradlew :orrery-compose:checkKotlinAbi :sample:assembleDebug`. Expected: PASS.
 - [ ] **Step 10: Screenshots.** Run `verifyRoborazziDebug`. Decorator snapshots using spanning or stacked bars may change. Record, open each changed PNG, and confirm bars stay level along a week and below labels.

@@ -18,6 +18,10 @@
 - `DefaultDay` dims an out-of-month day's secondary label and all its
   decorators (dots, badges, bars, rings) like its number; decorators draw at
   38% opacity there.
+- `DayDecorators.spanningEventBars` keeps each multi-day event on one lane
+  across its week row (new `firstDayOfWeek` parameter; the previous signature
+  stays as a hidden binary-compatible bridge), and it and `stackedBars` no
+  longer draw over a day's secondary label.
 
 ## [0.9.1] - 2026-11-04
 

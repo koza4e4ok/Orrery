@@ -22,6 +22,8 @@
   across its week row (new `firstDayOfWeek` parameter; the previous signature
   stays as a hidden binary-compatible bridge), and it and `stackedBars` no
   longer draw over a day's secondary label.
+- `HeatmapCalendar` month labels no longer widen their week column, which
+  caused uneven, off-by-one gaps between months.
 
 ## [0.9.1] - 2026-11-04
 

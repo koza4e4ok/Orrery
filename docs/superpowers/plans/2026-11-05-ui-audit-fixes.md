@@ -1056,6 +1056,8 @@ The label `Box` in `WeekColumn` has no width, so "Sep" (wider than a 12dp cell) 
     }
 ```
 
+> **Execution note:** `HeatmapCalendarTest` runs without native graphics, so labels measure as zero width and the test passed before the fix. The test lives in a new `HeatmapLabelLayoutTest` with `@GraphicsMode(NATIVE)`; it reproduced widths `[14, 21, 25, 22, 19]` before the fix.
+
 - [ ] **Step 2: Run it and confirm it fails.** `./gradlew :orrery-compose:testAndroidHostTest --tests "me.kozakov.orrery.compose.HeatmapCalendarTest"` → FAIL (two widths).
 
 - [ ] **Step 3: Implement.** Replace the label `Box` (imports: `androidx.compose.foundation.layout.size`, `androidx.compose.foundation.layout.wrapContentWidth`):

@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -33,10 +34,13 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -329,29 +333,33 @@ public object ScheduleDefaults {
                     .fillMaxHeight()
                     .background(palette.accent),
             )
-            FittingColumn(Modifier.padding(horizontal = 4.dp, vertical = 2.dp)) {
-                Text(
-                    text = event.title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = palette.content,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = minuteLabel(positioned.startMinute) + " – " + minuteLabel(positioned.endMinute),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = palette.content.copy(alpha = 0.8f),
-                    maxLines = 1,
-                )
-                val subtitle = event.subtitle
-                if (subtitle != null) {
+            BoxWithConstraints(Modifier.padding(horizontal = 4.dp, vertical = 2.dp)) {
+                val titleStyle = MaterialTheme.typography.labelMedium
+                val titleMaxLines = rememberTitleMaxLines(event.title, titleStyle, maxWidth, maxHeight)
+                FittingColumn(Modifier) {
                     Text(
-                        text = subtitle,
+                        text = event.title,
+                        style = titleStyle,
+                        color = palette.content,
+                        maxLines = titleMaxLines,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = minuteLabel(positioned.startMinute) + " – " + minuteLabel(positioned.endMinute),
                         style = MaterialTheme.typography.labelSmall,
                         color = palette.content.copy(alpha = 0.8f),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
+                    val subtitle = event.subtitle
+                    if (subtitle != null) {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = palette.content.copy(alpha = 0.8f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             }
         }
@@ -389,6 +397,41 @@ private fun FittingColumn(
                 placeable.placeRelative(0, y)
                 y += placeable.height
             }
+        }
+    }
+}
+
+private const val MAX_TITLE_LINES = 2
+
+/**
+ * Title lines for a tile: at most [MAX_TITLE_LINES], no more than whole lines
+ * fit in [maxHeight], and one ellipsized line when the first word is wider
+ * than [maxWidth], so narrow week columns never break a word mid-way.
+ */
+@Composable
+private fun rememberTitleMaxLines(
+    title: String,
+    style: TextStyle,
+    maxWidth: Dp,
+    maxHeight: Dp,
+): Int {
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(title, style, maxWidth, maxHeight, density, measurer) {
+        with(density) {
+            val lineHeightPx = measurer.measure("A", style).size.height
+            val byHeight =
+                if (maxHeight == Dp.Infinity || lineHeightPx == 0) {
+                    MAX_TITLE_LINES
+                } else {
+                    (maxHeight.toPx() / lineHeightPx).toInt()
+                }
+            // With two lines at most, only a too-wide first word gets split across lines;
+            // a later one wraps to the last line and is ellipsized there.
+            val firstWord = title.trimStart().substringBefore(' ')
+            val wordWidthPx = measurer.measure(firstWord, style, softWrap = false, maxLines = 1).size.width
+            val byWidth = if (maxWidth != Dp.Infinity && wordWidthPx > maxWidth.toPx()) 1 else MAX_TITLE_LINES
+            minOf(byHeight, byWidth).coerceIn(1, MAX_TITLE_LINES)
         }
     }
 }

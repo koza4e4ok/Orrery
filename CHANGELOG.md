@@ -9,6 +9,8 @@
   events stay visible when a day overflows.
 - Schedule event tiles and all-day chips are filled opaque, so hour grid lines
   no longer cross their text.
+- Schedule tile titles show only the lines that fit the tile and fall back to
+  one ellipsized line instead of breaking their first word mid-way.
 
 ## [0.9.1] - 2026-11-04
 

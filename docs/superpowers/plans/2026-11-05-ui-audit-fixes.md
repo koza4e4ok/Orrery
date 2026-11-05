@@ -371,7 +371,7 @@ private const val MAX_TITLE_LINES = 2
 
 /**
  * Title lines for a tile: at most [MAX_TITLE_LINES], no more than whole lines
- * fit in [maxHeight], and one ellipsized line when the longest word is wider
+ * fit in [maxHeight], and one ellipsized line when the first word is wider
  * than [maxWidth], so narrow week columns never break a word mid-way.
  */
 @Composable
@@ -388,14 +388,18 @@ private fun rememberTitleMaxLines(
             val lineHeightPx = measurer.measure("A", style).size.height
             val byHeight =
                 if (maxHeight == Dp.Infinity || lineHeightPx == 0) MAX_TITLE_LINES else (maxHeight.toPx() / lineHeightPx).toInt()
-            val longestWord = title.split(' ').maxByOrNull { it.length }.orEmpty()
-            val wordWidthPx = measurer.measure(longestWord, style, softWrap = false, maxLines = 1).size.width
+            // With two lines at most, only a too-wide first word gets split across lines;
+            // a later one wraps to the last line and is ellipsized there.
+            val firstWord = title.trimStart().substringBefore(' ')
+            val wordWidthPx = measurer.measure(firstWord, style, softWrap = false, maxLines = 1).size.width
             val byWidth = if (maxWidth != Dp.Infinity && wordWidthPx > maxWidth.toPx()) 1 else MAX_TITLE_LINES
             minOf(byHeight, byWidth).coerceIn(1, MAX_TITLE_LINES)
         }
     }
 }
 ```
+
+> **Execution note:** the first draft checked the *longest* word, which turned "Sprint / plan…" into "Spri…". It now checks the *first* word, covered by the test `aLongLaterWordStillLetsTheTitleUseTwoLines`.
 
 - [ ] **Step 4: Run the class.** Expected: all PASS.
 - [ ] **Step 5: Screenshots.** Run `verifyRoborazziDebug`. Only schedule snapshots with short or narrow tiles may change. Record and review as in the Global Constraints.

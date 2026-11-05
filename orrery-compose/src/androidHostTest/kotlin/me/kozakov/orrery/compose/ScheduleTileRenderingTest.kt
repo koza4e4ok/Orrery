@@ -10,9 +10,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -21,6 +25,7 @@ import kotlinx.datetime.LocalDateTime
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.PositionedEvent
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -74,6 +79,51 @@ class ScheduleTileRenderingTest {
                 abs(expected.green - actual.green) <= tolerance &&
                 abs(expected.blue - actual.blue) <= tolerance
         assertTrue("expected ~$expected but was $actual", close)
+    }
+
+    private fun tile(
+        title: String,
+        width: Dp,
+        height: Dp,
+    ) {
+        rule.setContent {
+            MaterialTheme {
+                Box(Modifier.size(width, height)) {
+                    ScheduleDefaults.EventTile(positioned(title), ScheduleDefaults.colors())
+                }
+            }
+        }
+    }
+
+    private fun titleLineCount(title: String): Int {
+        val results = mutableListOf<TextLayoutResult>()
+        rule.onNodeWithText(title).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(results) }
+        return results.single().lineCount
+    }
+
+    @Test
+    fun shortTileShowsOnlyTheTitleLinesThatFit() {
+        tile("Team standup", width = 64.dp, height = 28.dp)
+        assertEquals(1, titleLineCount("Team standup"))
+    }
+
+    @Test
+    fun tallTileStillWrapsTheTitleOverTwoLines() {
+        tile("Team standup", width = 64.dp, height = 120.dp)
+        assertEquals(2, titleLineCount("Team standup"))
+    }
+
+    @Test
+    fun narrowTileNeverBreaksAWordMidway() {
+        tile("Morning run", width = 44.dp, height = 120.dp)
+        assertEquals(1, titleLineCount("Morning run"))
+    }
+
+    @Test
+    fun aLongLaterWordStillLetsTheTitleUseTwoLines() {
+        // "Go" fits line one; "somewhere" is ellipsized on line two instead of being split.
+        tile("Go somewhere", width = 44.dp, height = 120.dp)
+        assertEquals(2, titleLineCount("Go somewhere"))
     }
 
     @Test

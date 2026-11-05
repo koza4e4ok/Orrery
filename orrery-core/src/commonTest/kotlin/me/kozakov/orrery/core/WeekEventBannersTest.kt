@@ -145,6 +145,42 @@ class WeekEventBannersTest {
         assertTrue(banner.continuesIntoNextWeek)
     }
 
+    private fun timed(
+        id: String,
+        title: String,
+        day: Int,
+        hour: Int,
+    ): CalendarEvent<Nothing> =
+        CalendarEvent(
+            id = id,
+            title = title,
+            span = EventSpan.Timed(LocalDateTime(2026, 7, day, hour, 0), LocalDateTime(2026, 7, day, hour + 1, 0)),
+        )
+
+    @Test
+    fun timedEventsOnTheSameDayPackInStartTimeOrder() {
+        val result =
+            packWeekEventBanners(
+                week,
+                listOf(
+                    timed("book", "Book club", 11, 19),
+                    timed("one", "1:1 with manager", 11, 16),
+                    timed("lunch", "Lunch with Sam", 11, 12),
+                    allDay("summit", jul(10), jul(12), title = "Summit"),
+                ),
+                maxVisibleLanes = 3,
+            )
+        assertEquals(listOf("summit", "lunch", "one"), result.banners.sortedBy { it.laneIndex }.map { it.event.id })
+        assertEquals(1, result.overflowCountByColumn[5])
+    }
+
+    @Test
+    fun allDayEventsPackBeforeTimedEventsStartingTheSameDay() {
+        val result =
+            packWeekEventBanners(week, listOf(timed("a-timed", "A", 8, 9), allDay("z-all-day", jul(8), title = "Z")))
+        assertEquals(listOf("z-all-day", "a-timed"), result.banners.map { it.event.id })
+    }
+
     @Test
     fun weekDatesMaySkipDays() {
         val workWeek = (6..10).map { jul(it) }

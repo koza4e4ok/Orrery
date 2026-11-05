@@ -7,6 +7,8 @@
 - Month event banners (`packWeekEventBanners`) order same-day timed events by
   start time instead of title, with all-day events first, so the earliest
   events stay visible when a day overflows.
+- Schedule event tiles and all-day chips are filled opaque, so hour grid lines
+  no longer cross their text.
 
 ## [0.9.1] - 2026-11-04
 

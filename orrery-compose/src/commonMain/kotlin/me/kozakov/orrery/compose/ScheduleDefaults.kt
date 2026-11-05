@@ -194,7 +194,7 @@ public object ScheduleDefaults {
                     .height(dimensions.allDayChipHeight)
                     .eventFocusRing(onClick != null && isFocused, shape, MaterialTheme.colorScheme.onSurface)
                     .clip(shape)
-                    .background(palette.container)
+                    .background(palette.container.compositeOver(MaterialTheme.colorScheme.surface))
                     .then(
                         if (onClick != null) {
                             Modifier.clickable(
@@ -276,8 +276,10 @@ public object ScheduleDefaults {
     }
 
     /**
-     * Default timed event tile: a leading accent stripe, the title, the time
-     * range clipped to the column's day, and an optional subtitle.
+     * Default timed event tile, filled opaque (the event tint composited over
+     * the surface) so grid lines never show through: a leading accent
+     * stripe, the title, the time range clipped to the column's day, and an
+     * optional subtitle.
      */
     @Composable
     public fun EventTile(
@@ -294,7 +296,7 @@ public object ScheduleDefaults {
             positioned.columnCount > 1 &&
                 positioned.leftFraction + positioned.widthFraction > 0.99f &&
                 (positioned.columnIndex == 0 || positioned.widthFraction > 0.501f)
-        val containerColor = if (isStacked) palette.container.compositeOver(surface) else palette.container
+        val containerColor = palette.container.compositeOver(surface)
         val shape = RoundedCornerShape(dimensions.tileCornerRadius)
         val borderModifier =
             if (isStacked && positioned.columnIndex > 0) Modifier.border(1.dp, surface, shape) else Modifier

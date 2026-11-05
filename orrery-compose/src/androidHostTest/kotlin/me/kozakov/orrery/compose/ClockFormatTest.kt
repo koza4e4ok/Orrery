@@ -9,6 +9,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
@@ -101,5 +102,37 @@ class ClockFormatTest {
                 .substring(0, layout.getLineEnd(0))
                 .trim()
         assertTrue("first line '$firstLine' should end at the dash", firstLine.endsWith("–"))
+    }
+
+    @Test
+    fun widenedGutterKeepsSpaceBeforeTheHourLabels() {
+        rule.setContent {
+            MaterialTheme {
+                DaySchedule(
+                    events = { emptyList<CalendarEvent<Nothing>>() },
+                    modifier = Modifier.fillMaxWidth().height(600.dp).testTag("schedule"),
+                    state =
+                        rememberScheduleState(
+                            firstVisibleDate = day,
+                            firstDayOfWeek = DayOfWeek.MONDAY,
+                            initialScrollTime = LocalTime(9, 0),
+                        ),
+                    today = day,
+                    dayHeader = null,
+                )
+            }
+        }
+        val start = rule.onNodeWithTag("schedule").getUnclippedBoundsInRoot().left
+        val label =
+            rule.onNode(
+                hasText("10:00", substring = true) and hasText("AM", substring = true),
+                useUnmergedTree = true,
+            )
+        val left = label.getUnclippedBoundsInRoot().left
+        val layouts = mutableListOf<TextLayoutResult>()
+        label.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        // The Text fills the gutter and right-aligns, so the glyphs start at its line left.
+        val glyphLeft = left + with(rule.density) { layouts.single().getLineLeft(0).toDp() }
+        assertTrue("label starts ${glyphLeft - start} from the edge", glyphLeft - start >= 4.dp)
     }
 }

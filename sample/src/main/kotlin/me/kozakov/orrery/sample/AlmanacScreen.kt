@@ -346,6 +346,7 @@ internal fun AlmanacScreen() {
                     events = events,
                     selection = selection,
                     today = today,
+                    firstDayOfWeek = firstDayOption.dayOfWeek,
                 )
             // RTL preview mirrors the header, grid, range bands and arrow keys without changing the app locale.
             val layoutDirection = if (rtlPreview) LayoutDirection.Rtl else LocalLayoutDirection.current
@@ -360,6 +361,7 @@ internal fun AlmanacScreen() {
                     weekState = weekState,
                     state = collapsible,
                     modifier = Modifier.weight(1f).testTag("almanac_calendar"),
+                    showWeekNumbers = showWeekNumbers,
                     weekHeader = { days ->
                         CalendarDefaults.WeekHeader(days, leadingSpacer = showWeekNumbers)
                     },
@@ -495,6 +497,7 @@ private fun rememberShowcaseDecorators(
     events: Map<LocalDate, List<CalendarEvent<Nothing>>>,
     selection: CalendarSelectionState,
     today: LocalDate,
+    firstDayOfWeek: DayOfWeek,
 ): List<DayDecorator> {
     val dotPalette =
         remember {
@@ -573,6 +576,7 @@ private fun rememberShowcaseDecorators(
                     },
                     maxBars = 2,
                     barHeight = 3.5.dp,
+                    firstDayOfWeek = firstDayOfWeek,
                 ),
                 rangePreviewDec,
             )

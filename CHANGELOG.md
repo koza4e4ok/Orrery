@@ -2,6 +2,43 @@
 
 ## [Unreleased]
 
+### Added
+
+- `WeekCalendar` and `CollapsibleCalendarScaffold` take `showWeekNumbers` /
+  `weekNumber` like `HorizontalCalendar`; the previous signatures stay as hidden
+  binary-compatible bridges.
+
+### Fixed
+
+- Month event banners (`packWeekEventBanners`) order same-day timed events by
+  start time instead of title, with all-day events first, so the earliest
+  events stay visible when a day overflows.
+- Schedule event tiles and all-day chips are filled opaque, so hour grid lines
+  no longer cross their text.
+- Schedule tile titles show only the lines that fit the tile and fall back to
+  one ellipsized line instead of breaking their first word mid-way.
+- Schedule all-day chips draw an end square and flush when the event continues
+  before or after the visible days, matching month-view banners.
+- The schedule's top hour label slides fully into view instead of being half
+  hidden under the header.
+- `DefaultDay` dims an out-of-month day's secondary label and all its
+  decorators (dots, badges, bars, rings) like its number; decorators draw at
+  38% opacity there.
+- `DayDecorators.spanningEventBars` keeps each multi-day event on one lane
+  across its week row (new `firstDayOfWeek` parameter; the previous signature
+  stays as a hidden binary-compatible bridge), and it and `stackedBars` no
+  longer draw over a day's secondary label.
+- `HeatmapCalendar` month labels no longer widen their week column, which
+  caused uneven, off-by-one gaps between months.
+- `OrreryDateRangePickerDialog` hides out-of-month days, so boundary weeks (and
+  selected ranges) are no longer drawn under two months.
+- `MonthYearPicker` switches the month grid to short names (with full-name
+  accessibility labels) instead of breaking a name mid-word when the grid is
+  narrow.
+- The date-time picker headline stays on one line, stepping down to a smaller
+  type style when the date and time don't fit side by side.
+- Almanac sample: the weekday header stays aligned when week numbers are on.
+
 ## [0.9.1] - 2026-11-04
 
 ### Added
@@ -85,7 +122,7 @@
   one cell) and takes `calendarState` / `outDateClickPolicy`.
 - `OutDateClickPolicy` (`Ignore`, `SelectOnly`, `SelectAndScrollToMonth`) and
   `CalendarSelectionState.onDayClick(day, calendarState, outDateClickPolicy,
-  coroutineScope)`: taps on in-dates / out-dates can be ignored, only select, or
+coroutineScope)`: taps on in-dates / out-dates can be ignored, only select, or
   select and animate the calendar to the date's month (#83).
 - `SelectionMode.Single(allowClear)` in `orrery-core` (#83). `allowClear = true`
   lets a tap on the selected day clear the selection; the default `false` keeps
@@ -104,7 +141,7 @@
 - Schedule view power features (#85). `orrery-core`: `EventOverlapMode`
   (`SideBySide`, `Stacked(laneIndentFraction = 0.15f)`), a
   `layoutDaySchedule(date, events, minDurationMinutes, minHour, maxHour,
-  overlapMode)` overload that clips timed events to the visible
+overlapMode)` overload that clips timed events to the visible
   `minHour:00..maxHour:00` window and can cascade overlapping events, and
   `packAllDayBanners` / `AllDayBanner` to lay out multi-day all-day events
   across day columns. `orrery-compose`: `ScheduleState.minHour` /
@@ -132,7 +169,7 @@
   `WeekCalendarState.visibleWeekChanges()` flows emitting `VisibleMonthChange` /
   `VisibleWeekChange` with the source of each change (#84).
 - Multi-day event title banners (#81). `packWeekEventBanners(weekDates, events,
-  maxVisibleLanes = 3)` in `orrery-core` packs the events overlapping a week row
+maxVisibleLanes = 3)` in `orrery-core` packs the events overlapping a week row
   into greedy lanes (earlier start, then longer span, then title, then id) and
   returns `WeekBannerPackResult`: one `WeekEventBanner` per visible event (start
   / end column, lane, `continuesFromPreviousWeek` / `continuesIntoNextWeek`)
@@ -173,9 +210,9 @@
 - `DayDecorators.spanningEventBars`, `DayDecorators.stackedBars`, and
   `DayDecorators.rangePreview` in `orrery-compose`, plus a redesigned universal
   `:sample` showcase app with `SampleHeroHeader`, in-place `YearCalendar`
-  overview jump, live-switchable visual theme presets (*M3 Default*, *Meizu
-  Badges*, *Colorful Glow*, *Solar Progress*, *Stacked & Spanning*, *Rounded &
-  Card*), and a dynamic controls bottom sheet (#67).
+  overview jump, live-switchable visual theme presets (_M3 Default_, _Meizu
+  Badges_, _Colorful Glow_, _Solar Progress_, _Stacked & Spanning_, _Rounded &
+  Card_), and a dynamic controls bottom sheet (#67).
 - Visible keyboard / D-pad focus rings and pointer hover states (#61).
   `DefaultDay` draws a ring of `CalendarDayShapes.focusedBorderWidth` (default
   `2.dp`) in `CalendarDayColors.focusedBorderColor` (default

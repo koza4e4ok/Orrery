@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -130,6 +131,16 @@ class ScheduleViewTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun hourLabelAtTheViewportTopIsNotCutOff() {
+        daySchedule(initialScrollTime = LocalTime(8, 0))
+        val label8 = rule.onNodeWithText("08:00").getUnclippedBoundsInRoot()
+        val label9 = rule.onNodeWithText("09:00").getUnclippedBoundsInRoot()
+        val hourHeight = rule.runOnIdle { state.hourHeight }
+        val gridTop = label9.top + (label9.bottom - label9.top) / 2 - hourHeight
+        assertTrue("08:00 top ${label8.top} is above the grid top $gridTop", label8.top >= gridTop - 0.5.dp)
     }
 
     @Test

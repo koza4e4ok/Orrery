@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -225,12 +226,18 @@ private fun WeekColumn(
         verticalArrangement = Arrangement.spacedBy(cellSpacing),
     ) {
         if (showMonthLabels) {
-            Box(Modifier.height(labelHeight)) {
+            // Fixed to the cell width; the label overflows without widening the column, toward
+            // the end, or toward the start near the grid's end so the last label isn't cut off.
+            val labelAlignment = if (index >= state.weekCount - 2) Alignment.End else Alignment.Start
+            Box(Modifier.size(width = cellSize, height = labelHeight)) {
                 monthLabelFor(state, index)?.let { label ->
                     Text(
                         text = label,
+                        modifier = Modifier.wrapContentWidth(labelAlignment, unbounded = true),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        softWrap = false,
                     )
                 }
             }

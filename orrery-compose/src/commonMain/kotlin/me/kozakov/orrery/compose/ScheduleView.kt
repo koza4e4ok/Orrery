@@ -5,6 +5,7 @@ package me.kozakov.orrery.compose
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
@@ -27,12 +28,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -448,7 +451,7 @@ private fun <T> SchedulePage(
                 .verticalScroll(state.verticalScrollState),
         ) {
             Row(Modifier.fillMaxWidth().height(hourHeight * window.hourCount)) {
-                HourGutter(hourHeight, window, dimensions.timeGutterWidth, slots.hourLabel)
+                HourGutter(hourHeight, window, dimensions.timeGutterWidth, state.verticalScrollState, slots.hourLabel)
                 Row(
                     Modifier
                         .weight(1f)
@@ -491,6 +494,16 @@ private class HourWindow(
     val endMinute: Int get() = endHour * 60
 }
 
+/** Which ends of the all-day banner being drawn continue past the visible days. */
+internal data class AllDayBannerEdges(
+    val clippedStart: Boolean,
+    val clippedEnd: Boolean,
+)
+
+/** Read by [ScheduleDefaults.AllDayEventChip] to square off continuing ends. */
+internal val LocalAllDayBannerEdges =
+    staticCompositionLocalOf { AllDayBannerEdges(clippedStart = false, clippedEnd = false) }
+
 /**
  * All-day header: [banners] span the columns they cover, one lane per row. When
  * there are more lanes than [ScheduleDimensions.maxVisibleAllDayRows], the last
@@ -528,7 +541,14 @@ private fun <T> AllDayRow(
             content = {
                 for (banner in visible) {
                     key(banner.event.id) {
-                        Box(propagateMinConstraints = true) { allDayEventContent(banner.event) }
+                        Box(propagateMinConstraints = true) {
+                            CompositionLocalProvider(
+                                LocalAllDayBannerEdges provides
+                                    AllDayBannerEdges(banner.clippedStart, banner.clippedEnd),
+                            ) {
+                                allDayEventContent(banner.event)
+                            }
+                        }
                     }
                 }
                 for (column in overflowColumns) {
@@ -555,7 +575,9 @@ private fun <T> AllDayRow(
                     if (index < visible.size) {
                         val banner = visible[index]
                         val span = banner.endColumnInclusive - banner.startColumn + 1
-                        val bannerWidth = (columnWidth * span).roundToInt() - 2 * inset
+                        val startInset = if (banner.clippedStart) 0 else inset
+                        val endInset = if (banner.clippedEnd) 0 else inset
+                        val bannerWidth = (columnWidth * span).roundToInt() - startInset - endInset
                         measurable.measure(Constraints.fixed(bannerWidth.coerceAtLeast(0), rowHeight))
                     } else {
                         val maxWidth = (columnWidth.roundToInt() - 2 * inset).coerceAtLeast(0)
@@ -568,7 +590,8 @@ private fun <T> AllDayRow(
                 placeables.forEachIndexed { index, placeable ->
                     if (index < visible.size) {
                         val banner = visible[index]
-                        val x = (columnWidth * banner.startColumn).roundToInt() + inset
+                        val startInset = if (banner.clippedStart) 0 else inset
+                        val x = (columnWidth * banner.startColumn).roundToInt() + startInset
                         placeable.placeRelative(x, banner.laneIndex * (rowHeight + rowGap))
                     } else {
                         val column = overflowColumns[index - visible.size]
@@ -586,6 +609,7 @@ private fun HourGutter(
     hourHeight: Dp,
     window: HourWindow,
     width: Dp,
+    scrollState: ScrollState,
     hourLabel: @Composable (Int) -> Unit,
 ) {
     Layout(
@@ -600,10 +624,13 @@ private fun HourGutter(
         val labelConstraints = Constraints(minWidth = constraints.maxWidth, maxWidth = constraints.maxWidth)
         val placeables = measurables.map { it.measure(labelConstraints) }
         layout(constraints.maxWidth, constraints.maxHeight) {
+            val viewportTop = scrollState.value
             placeables.forEachIndexed { row, placeable ->
                 // Center each label on its hour line, kept inside the gutter at both ends.
                 val maxY = (constraints.maxHeight - placeable.height).coerceAtLeast(0)
-                val y = (row * hourPx - placeable.height / 2f).roundToInt().coerceIn(0, maxY)
+                var y = (row * hourPx - placeable.height / 2f).roundToInt().coerceIn(0, maxY)
+                // A label cut by the viewport's top edge slides down to sit fully inside it.
+                if (y < viewportTop && y + placeable.height > viewportTop) y = viewportTop.coerceAtMost(maxY)
                 placeable.placeRelative(0, y)
             }
         }

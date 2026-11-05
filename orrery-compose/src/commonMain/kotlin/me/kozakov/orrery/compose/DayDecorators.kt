@@ -21,11 +21,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.CalendarEvent
+import me.kozakov.orrery.core.packWeekEventBanners
 
 /** Draw layer for a [DayDecorator]: behind or over the day content. */
 public enum class DecoratorLayer { Behind, Over }
@@ -44,11 +47,15 @@ public fun interface DayDecorator {
     public fun DrawScope.draw(day: CalendarDay)
 }
 
+private const val DAYS_PER_WEEK = 7
+
 /** What [DefaultDay] knows about the cell when a built-in decorator draws. */
 internal class DayCellDrawState(
     val selected: Boolean,
     val selectedContentColor: Color,
     val hasLabel: Boolean,
+    /** Bottom of the day number and label in px from the cell top; NaN when unknown. */
+    val contentBottom: Float = Float.NaN,
 ) {
     internal companion object {
         val Unknown = DayCellDrawState(selected = false, selectedContentColor = Color.Unspecified, hasLabel = false)
@@ -174,9 +181,11 @@ public object DayDecorators {
      * flush to the start edge (x = 0 in LTR); otherwise it starts inset
      * with a rounded cap. If it continues to the next calendar day, it
      * extends flush to the end edge (x = size.width in LTR); otherwise it
-     * ends inset with a rounded cap. Events are sorted by (startDate, id)
-     * so multi-day events stay aligned on the same horizontal track across
-     * adjacent days.
+     * ends inset with a rounded cap. Lanes are packed per week row (starting
+     * on [firstDayOfWeek], which must match the calendar's) in
+     * [packWeekEventBanners] order, so a multi-day event keeps one height
+     * across the days it spans. In [DefaultDay], lanes that would overlap the
+     * secondary label are not drawn.
      */
     @Composable
     public fun spanningEventBars(
@@ -185,6 +194,7 @@ public object DayDecorators {
         barHeight: Dp = 4.dp,
         barSpacing: Dp = 2.dp,
         defaultColor: Color = MaterialTheme.colorScheme.primary,
+        firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
     ): DayDecorator =
         SpanningEventBars(
             eventsByDate = eventsByDate,
@@ -192,6 +202,28 @@ public object DayDecorators {
             barHeight = barHeight,
             barSpacing = barSpacing,
             defaultColor = defaultColor,
+            firstDayOfWeek = firstDayOfWeek,
+        )
+
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with firstDayOfWeek.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Composable
+    public fun spanningEventBars(
+        eventsByDate: (LocalDate) -> List<CalendarEvent<*>>,
+        maxBars: Int = 2,
+        barHeight: Dp = 4.dp,
+        barSpacing: Dp = 2.dp,
+        defaultColor: Color = MaterialTheme.colorScheme.primary,
+    ): DayDecorator =
+        spanningEventBars(
+            eventsByDate = eventsByDate,
+            maxBars = maxBars,
+            barHeight = barHeight,
+            barSpacing = barSpacing,
+            defaultColor = defaultColor,
+            firstDayOfWeek = PlatformDateFormat.firstDayOfWeek(),
         )
 
     private class SpanningEventBars(
@@ -200,6 +232,7 @@ public object DayDecorators {
         private val barHeight: Dp,
         private val barSpacing: Dp,
         private val defaultColor: Color,
+        private val firstDayOfWeek: DayOfWeek,
     ) : CellAwareDayDecorator {
         override val layer: DecoratorLayer
             get() = DecoratorLayer.Over
@@ -209,24 +242,30 @@ public object DayDecorators {
             cell: DayCellDrawState,
         ) {
             if (maxBars <= 0) return
-            val active =
-                eventsByDate(day.date)
-                    .sortedWith(compareBy<CalendarEvent<*>> { it.span.startDate }.thenBy { it.id })
-                    .take(maxBars)
-            if (active.isEmpty()) return
-
-            val prevDate = day.date.minus(1, DateTimeUnit.DAY)
-            val nextDate = day.date.plus(1, DateTimeUnit.DAY)
-            val prevIds = eventsByDate(prevDate).mapTo(hashSetOf()) { it.id }
-            val nextIds = eventsByDate(nextDate).mapTo(hashSetOf()) { it.id }
+            // Lanes are packed for the whole week row, so an event sits at the same height in every cell it spans.
+            val column = (day.date.dayOfWeek.isoDayNumber - firstDayOfWeek.isoDayNumber + DAYS_PER_WEEK) % DAYS_PER_WEEK
+            val weekStart = day.date.minus(column, DateTimeUnit.DAY)
+            val weekDates = List(DAYS_PER_WEEK) { weekStart.plus(it, DateTimeUnit.DAY) }
+            val weekEvents = weekDates.flatMap(eventsByDate).distinctBy { it.id }
+            val banners = packWeekEventBanners(weekDates, weekEvents, maxVisibleLanes = maxBars).banners
+            val here = banners.filter { column in it.startColumn..it.endColumnInclusive }
+            if (here.isEmpty()) return
 
             val heightPx = barHeight.toPx()
             val spacingPx = barSpacing.toPx()
+            val bottomMargin = (if (cell.hasLabel) 1.dp else 3.dp).toPx()
+            val usedLanes = banners.maxOf { it.laneIndex } + 1
+            val fittingLanes =
+                if (!cell.hasLabel || cell.contentBottom.isNaN()) {
+                    usedLanes
+                } else {
+                    val free = size.height - bottomMargin - cell.contentBottom
+                    ((free + spacingPx) / (heightPx + spacingPx)).toInt().coerceAtLeast(1)
+                }
+            val lanes = minOf(usedLanes, fittingLanes)
+            val stackTop = size.height - bottomMargin - (lanes * heightPx + (lanes - 1) * spacingPx)
             val insetPx = 4.dp.toPx()
             val radius = CornerRadius(heightPx / 2f, heightPx / 2f)
-            val totalHeight = active.size * heightPx + (active.size - 1) * spacingPx
-            val bottomMargin = (if (cell.hasLabel) 1.dp else 3.dp).toPx()
-            var topY = size.height - bottomMargin - totalHeight
             val isLtr = layoutDirection == LayoutDirection.Ltr
             val selectedBarColor =
                 if (cell.selected) {
@@ -236,21 +275,21 @@ public object DayDecorators {
                 }
 
             val path = Path()
-            active.forEach { event ->
-                val continuesFromPrev = event.span.startDate <= prevDate && event.id in prevIds
-                val continuesToNext = event.span.endDate >= nextDate && event.id in nextIds
-                val color = selectedBarColor ?: event.colorArgb?.let(::Color) ?: defaultColor
+            for (banner in here) {
+                if (banner.laneIndex >= lanes) continue
+                val event = banner.event
+                val continuesFromPrev = event.span.startDate < day.date
+                val continuesToNext = event.span.endDate > day.date
                 drawSpanningBar(
                     path = path,
-                    topY = topY,
+                    topY = stackTop + banner.laneIndex * (heightPx + spacingPx),
                     heightPx = heightPx,
                     insetPx = insetPx,
                     radius = radius,
                     leftFlush = if (isLtr) continuesFromPrev else continuesToNext,
                     rightFlush = if (isLtr) continuesToNext else continuesFromPrev,
-                    color = color,
+                    color = selectedBarColor ?: event.colorArgb?.let(::Color) ?: defaultColor,
                 )
-                topY += heightPx + spacingPx
             }
         }
 
@@ -291,7 +330,8 @@ public object DayDecorators {
      * bottom of the cell.
      *
      * In [DefaultDay], bars on a selected day draw in the cell's selected
-     * content color so they stay visible on the selection fill.
+     * content color so they stay visible on the selection fill, and bars that
+     * would overlap the secondary label are not drawn.
      */
     public fun stackedBars(
         maxBars: Int = 3,
@@ -320,8 +360,6 @@ public object DayDecorators {
             cell: DayCellDrawState,
         ) {
             if (maxBars <= 0) return
-            val bars = colors(day.date).take(maxBars)
-            if (bars.isEmpty()) return
             val selectedBarColor =
                 if (cell.selected) {
                     cell.selectedContentColor.takeIf { it.isSpecified }
@@ -331,8 +369,17 @@ public object DayDecorators {
             val widthPx = barWidth.toPx().coerceAtMost(size.width)
             val heightPx = barHeight.toPx()
             val gapPx = spacing.toPx()
-            val totalHeight = bars.size * heightPx + (bars.size - 1) * gapPx
             val bottomMargin = (if (cell.hasLabel) 1.5.dp else 4.dp).toPx()
+            val fitting =
+                if (!cell.hasLabel || cell.contentBottom.isNaN()) {
+                    maxBars
+                } else {
+                    val free = size.height - bottomMargin - cell.contentBottom
+                    ((free + gapPx) / (heightPx + gapPx)).toInt().coerceAtLeast(1)
+                }
+            val bars = colors(day.date).take(minOf(maxBars, fitting))
+            if (bars.isEmpty()) return
+            val totalHeight = bars.size * heightPx + (bars.size - 1) * gapPx
             val leftX = (size.width - widthPx) / 2f
             var topY = size.height - bottomMargin - totalHeight
             val corner = CornerRadius(heightPx / 2f, heightPx / 2f)

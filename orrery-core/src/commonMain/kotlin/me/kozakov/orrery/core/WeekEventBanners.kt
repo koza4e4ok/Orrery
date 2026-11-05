@@ -48,8 +48,9 @@ public data class WeekBannerPackResult<out T>(
  * Google Calendar-style banner row.
  *
  * Events are placed greedily, in this order: earlier start date first, then
- * longer span (in days) first, then [CalendarEvent.title], then
- * [CalendarEvent.id]. Each event takes the lowest lane in
+ * longer span (in days) first, then [EventSpan.AllDay] before
+ * [EventSpan.Timed], then earlier start time, then [CalendarEvent.title],
+ * then [CalendarEvent.id]. Each event takes the lowest lane in
  * `0 until maxVisibleLanes` that is free across all of its columns. An event
  * that fits in no lane adds one to [WeekBannerPackResult.overflowCountByColumn]
  * for every column it covers.
@@ -125,5 +126,7 @@ private fun PackCandidate<*>.spanDays(): Long {
 private val PackingOrder: Comparator<PackCandidate<*>> =
     compareBy<PackCandidate<*>> { it.event.span.startDate }
         .thenByDescending { it.spanDays() }
+        // All-day events (null) sort before timed ones, which go in start-time order.
+        .thenBy { (it.event.span as? EventSpan.Timed)?.start?.time }
         .thenBy { it.event.title }
         .thenBy { it.event.id }

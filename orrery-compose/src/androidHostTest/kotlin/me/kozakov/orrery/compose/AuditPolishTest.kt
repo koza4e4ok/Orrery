@@ -24,6 +24,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.CalendarEvent
+import me.kozakov.orrery.core.CalendarWeek
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.EventSpan
 import org.junit.Assert.assertTrue
@@ -164,6 +165,38 @@ class AuditPolishTest {
                 .firstOrNull { abs(it.red - background.red) + abs(it.green - background.green) > 0.1f }
         assertTrue("no outline left of 2026", outline != null)
         assertNear(rule.runOnIdle { primary }, outline!!, tolerance = 0.15f)
+    }
+
+    @Test
+    fun bannerOnlyOnOutOfMonthDaysIsDimmed() {
+        // Mon Jul 27 – Sun Aug 2, July grid: Aug 1–2 are out-of-month.
+        val week =
+            CalendarWeek(
+                (27..31).map { CalendarDay(LocalDate(2026, 7, it), DayPosition.MonthDate) } +
+                    (1..2).map { CalendarDay(LocalDate(2026, 8, it), DayPosition.OutDate) },
+            )
+        val trip =
+            CalendarEvent<Nothing>(
+                id = "t",
+                title = "",
+                span = EventSpan.AllDay(LocalDate(2026, 8, 1), LocalDate(2026, 8, 2)),
+                colorArgb = 0xFFE53935,
+            )
+        rule.setContent {
+            MaterialTheme {
+                Box(Modifier.testTag("row").size(350.dp, 40.dp).background(Color.White)) {
+                    WeekEventBanners(
+                        week = week,
+                        events = listOf(trip),
+                        modifier = Modifier.fillMaxWidth(),
+                        topInset = 0.dp,
+                    )
+                }
+            }
+        }
+        // Column 5 of 7 starts at 250dp; sample the lane's middle. Full red has green ≈ 0.22; at 38% over white ≈ 0.70.
+        val green = pixel("row", 300.dp, 9.dp).green
+        assertTrue("banner green $green", green > 0.6f)
     }
 }
 

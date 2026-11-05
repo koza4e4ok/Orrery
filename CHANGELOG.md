@@ -26,6 +26,8 @@
   landscape and split-screen windows keep a visible time grid.
 - `MonthYearPicker` outlines the current year in the year grid, like the
   current month.
+- `WeekEventBanners` dims a banner that lies only on out-of-month days, matching
+  those days.
 - `DefaultDay` keeps a 6dp band above and below a labelled day's text when it
   has decorators, so dots and bars no longer draw over the label at large font
   sizes.

@@ -33,6 +33,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -257,6 +258,8 @@ private fun MonthGrid(
         TextButton(onClick = onBack) {
             Text(year.toString(), style = MaterialTheme.typography.titleMedium)
         }
+        // Any full name that would wrap switches the whole grid to short names.
+        var shortNames by remember { mutableStateOf(false) }
         LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.fillMaxWidth()) {
             items(12) { index ->
                 val month = Month(index + 1)
@@ -282,9 +285,14 @@ private fun MonthGrid(
                             null
                         },
                 ) {
+                    val fullName = PlatformDateFormat.monthName(month, short = false)
                     Text(
-                        PlatformDateFormat.monthName(month, short = false),
+                        PlatformDateFormat.monthName(month, short = shortNames),
+                        // Short names keep the full name for accessibility services.
+                        modifier = if (shortNames) Modifier.semantics { contentDescription = fullName } else Modifier,
                         fontWeight = if (yearMonth == current) FontWeight.Bold else null,
+                        maxLines = 1,
+                        onTextLayout = { if (it.didOverflowHeight) shortNames = true },
                     )
                 }
             }

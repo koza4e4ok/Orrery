@@ -1154,6 +1154,8 @@ git commit -m "fix(compose): hide out-dates in the range picker's month list"
     }
 ```
 
+> **Execution note:** this test lives in a new `MonthYearPickerLayoutTest` with `@GraphicsMode(NATIVE)` for real text metrics (see Task 8).
+
 - [ ] **Step 2: Run it and confirm it fails** (only "September" exists, wrapped).
 - [ ] **Step 3: Implement.** In `MonthGrid`, before `LazyVerticalGrid`: `var shortNames by remember { mutableStateOf(false) }`. Replace the month `Text` with the code below (imports: `androidx.compose.ui.semantics.contentDescription`; `semantics` is already imported):
 

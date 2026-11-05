@@ -26,6 +26,9 @@
   caused uneven, off-by-one gaps between months.
 - `OrreryDateRangePickerDialog` hides out-of-month days, so boundary weeks (and
   selected ranges) are no longer drawn under two months.
+- `MonthYearPicker` switches the month grid to short names (with full-name
+  accessibility labels) instead of breaking a name mid-word when the grid is
+  narrow.
 
 ## [0.9.1] - 2026-11-04
 

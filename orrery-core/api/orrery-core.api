@@ -32,6 +32,20 @@ public final class me/kozakov/orrery/core/AutoSelectKt {
 	public static final fun autoSelectDate (Lkotlinx/datetime/YearMonth;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/AutoSelectDay;Lkotlinx/datetime/LocalDate;)Lkotlinx/datetime/LocalDate;
 }
 
+public final class me/kozakov/orrery/core/ByDay {
+	public fun <init> (Lkotlinx/datetime/DayOfWeek;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Lkotlinx/datetime/DayOfWeek;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlinx/datetime/DayOfWeek;
+	public final fun component2 ()Ljava/lang/Integer;
+	public final fun copy (Lkotlinx/datetime/DayOfWeek;Ljava/lang/Integer;)Lme/kozakov/orrery/core/ByDay;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/ByDay;Lkotlinx/datetime/DayOfWeek;Ljava/lang/Integer;ILjava/lang/Object;)Lme/kozakov/orrery/core/ByDay;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDayOfWeek ()Lkotlinx/datetime/DayOfWeek;
+	public final fun getOrdinal ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class me/kozakov/orrery/core/CalendarDay {
 	public fun <init> (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayPosition;)V
 	public final fun component1 ()Lkotlinx/datetime/LocalDate;
@@ -46,30 +60,42 @@ public final class me/kozakov/orrery/core/CalendarDay {
 }
 
 public final class me/kozakov/orrery/core/CalendarEvent {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/RecurrenceInstance;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/RecurrenceInstance;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Lme/kozakov/orrery/core/EventSpan;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/Long;
 	public final fun component6 ()Ljava/lang/Object;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent;
+	public final fun component7 ()Lme/kozakov/orrery/core/RecurrenceRule;
+	public final fun component8 ()Lme/kozakov/orrery/core/RecurrenceInstance;
+	public final synthetic fun copy (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/RecurrenceInstance;)Lme/kozakov/orrery/core/CalendarEvent;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarEvent;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarEvent;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/RecurrenceInstance;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getColorArgb ()Ljava/lang/Long;
 	public final fun getId ()Ljava/lang/String;
+	public final fun getInstance ()Lme/kozakov/orrery/core/RecurrenceInstance;
 	public final fun getPayload ()Ljava/lang/Object;
+	public final fun getRecurrence ()Lme/kozakov/orrery/core/RecurrenceRule;
 	public final fun getSpan ()Lme/kozakov/orrery/core/EventSpan;
 	public final fun getSubtitle ()Ljava/lang/String;
 	public final fun getTitle ()Ljava/lang/String;
 	public fun hashCode ()I
+	public final fun occurrencesIn (Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/InvalidDatePolicy;)Ljava/util/List;
+	public static synthetic fun occurrencesIn$default (Lme/kozakov/orrery/core/CalendarEvent;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/InvalidDatePolicy;ILjava/lang/Object;)Ljava/util/List;
 	public final fun occursOn (Lkotlinx/datetime/LocalDate;)Z
 	public fun toString ()Ljava/lang/String;
 }
 
 public final class me/kozakov/orrery/core/CalendarEventKt {
 	public static final fun eventsByDate (Ljava/lang/Iterable;Lkotlin/ranges/ClosedRange;)Ljava/util/Map;
+	public static final fun expandRecurring (Ljava/lang/Iterable;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/InvalidDatePolicy;)Ljava/util/List;
+	public static synthetic fun expandRecurring$default (Ljava/lang/Iterable;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/InvalidDatePolicy;ILjava/lang/Object;)Ljava/util/List;
 }
 
 public final class me/kozakov/orrery/core/CalendarMonth {
@@ -267,6 +293,16 @@ public final class me/kozakov/orrery/core/EventSpan$Timed : me/kozakov/orrery/co
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class me/kozakov/orrery/core/Frequency : java/lang/Enum {
+	public static final field DAILY Lme/kozakov/orrery/core/Frequency;
+	public static final field MONTHLY Lme/kozakov/orrery/core/Frequency;
+	public static final field WEEKLY Lme/kozakov/orrery/core/Frequency;
+	public static final field YEARLY Lme/kozakov/orrery/core/Frequency;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/core/Frequency;
+	public static fun values ()[Lme/kozakov/orrery/core/Frequency;
+}
+
 public final class me/kozakov/orrery/core/HeatmapSummary {
 	public fun <init> (III)V
 	public final fun component1 ()I
@@ -284,6 +320,14 @@ public final class me/kozakov/orrery/core/HeatmapSummary {
 
 public final class me/kozakov/orrery/core/HeatmapSummaryKt {
 	public static final fun heatmapSummary (Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/core/HeatmapSummary;
+}
+
+public final class me/kozakov/orrery/core/InvalidDatePolicy : java/lang/Enum {
+	public static final field ClampToMonthEnd Lme/kozakov/orrery/core/InvalidDatePolicy;
+	public static final field SkipInvalid Lme/kozakov/orrery/core/InvalidDatePolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/core/InvalidDatePolicy;
+	public static fun values ()[Lme/kozakov/orrery/core/InvalidDatePolicy;
 }
 
 public final class me/kozakov/orrery/core/MonthGridKt {
@@ -333,6 +377,82 @@ public final class me/kozakov/orrery/core/PositionedEvent {
 	public final fun getWidthFraction ()F
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/RecurrenceInstance {
+	public fun <init> (Ljava/lang/String;Lkotlinx/datetime/LocalDate;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRecurrenceId ()Lkotlinx/datetime/LocalDate;
+	public final fun getSeriesId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/RecurrenceRule {
+	public static final field Companion Lme/kozakov/orrery/core/RecurrenceRule$Companion;
+	public fun <init> (Lme/kozakov/orrery/core/Frequency;ILjava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/lang/Integer;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;Ljava/util/Set;)V
+	public synthetic fun <init> (Lme/kozakov/orrery/core/Frequency;ILjava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/lang/Integer;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun asSequence (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/InvalidDatePolicy;)Lkotlin/sequences/Sequence;
+	public static synthetic fun asSequence$default (Lme/kozakov/orrery/core/RecurrenceRule;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/InvalidDatePolicy;ILjava/lang/Object;)Lkotlin/sequences/Sequence;
+	public final fun copy (Lme/kozakov/orrery/core/Frequency;ILjava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/lang/Integer;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;Ljava/util/Set;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public static synthetic fun copy$default (Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/Frequency;ILjava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/lang/Integer;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/DayOfWeek;Ljava/util/Set;ILjava/lang/Object;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun exDatesToRfc5545String ()Ljava/lang/String;
+	public final fun getByDay ()Ljava/util/Set;
+	public final fun getByMonth ()Ljava/util/Set;
+	public final fun getByMonthDay ()Ljava/util/Set;
+	public final fun getBySetPos ()Ljava/util/Set;
+	public final fun getCount ()Ljava/lang/Integer;
+	public final fun getExDates ()Ljava/util/Set;
+	public final fun getFrequency ()Lme/kozakov/orrery/core/Frequency;
+	public final fun getInterval ()I
+	public final fun getUntil ()Lkotlinx/datetime/LocalDate;
+	public final fun getWeekStart ()Lkotlinx/datetime/DayOfWeek;
+	public fun hashCode ()I
+	public final fun occurrences (Lkotlinx/datetime/LocalDate;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/InvalidDatePolicy;)Ljava/util/List;
+	public static synthetic fun occurrences$default (Lme/kozakov/orrery/core/RecurrenceRule;Lkotlinx/datetime/LocalDate;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/InvalidDatePolicy;ILjava/lang/Object;)Ljava/util/List;
+	public final fun toRfc5545String (Z)Ljava/lang/String;
+	public static synthetic fun toRfc5545String$default (Lme/kozakov/orrery/core/RecurrenceRule;ZILjava/lang/Object;)Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class me/kozakov/orrery/core/RecurrenceRule$Companion {
+	public final fun daily (I)Lme/kozakov/orrery/core/RecurrenceRule;
+	public static synthetic fun daily$default (Lme/kozakov/orrery/core/RecurrenceRule$Companion;IILjava/lang/Object;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public final fun monthlyOnDay (I)Lme/kozakov/orrery/core/RecurrenceRule;
+	public final fun monthlyOnLastDay ()Lme/kozakov/orrery/core/RecurrenceRule;
+	public final fun monthlyOnNth (ILkotlinx/datetime/DayOfWeek;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public final fun parse (Ljava/lang/String;Ljava/util/Set;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public static synthetic fun parse$default (Lme/kozakov/orrery/core/RecurrenceRule$Companion;Ljava/lang/String;Ljava/util/Set;ILjava/lang/Object;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public final fun parseExDates (Ljava/lang/String;)Ljava/util/Set;
+	public final fun parseOrNull (Ljava/lang/String;Ljava/util/Set;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public static synthetic fun parseOrNull$default (Lme/kozakov/orrery/core/RecurrenceRule$Companion;Ljava/lang/String;Ljava/util/Set;ILjava/lang/Object;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public final fun weekly ([Lkotlinx/datetime/DayOfWeek;I)Lme/kozakov/orrery/core/RecurrenceRule;
+	public static synthetic fun weekly$default (Lme/kozakov/orrery/core/RecurrenceRule$Companion;[Lkotlinx/datetime/DayOfWeek;IILjava/lang/Object;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public final fun yearly ()Lme/kozakov/orrery/core/RecurrenceRule;
+}
+
+public final class me/kozakov/orrery/core/RecurrenceRuleBuilder {
+	public final fun byDay ([Lkotlinx/datetime/DayOfWeek;)V
+	public final fun byMonth ([I)V
+	public final fun byMonthDay ([I)V
+	public final fun bySetPos ([I)V
+	public final fun exDate ([Lkotlinx/datetime/LocalDate;)V
+	public final fun getCount ()Ljava/lang/Integer;
+	public final fun getInterval ()I
+	public final fun getUntil ()Lkotlinx/datetime/LocalDate;
+	public final fun getWeekStart ()Lkotlinx/datetime/DayOfWeek;
+	public final fun last (Lkotlinx/datetime/DayOfWeek;)V
+	public final fun nth (ILkotlinx/datetime/DayOfWeek;)V
+	public final fun setCount (Ljava/lang/Integer;)V
+	public final fun setInterval (I)V
+	public final fun setUntil (Lkotlinx/datetime/LocalDate;)V
+	public final fun setWeekStart (Lkotlinx/datetime/DayOfWeek;)V
+}
+
+public final class me/kozakov/orrery/core/RecurrenceRuleBuilderKt {
+	public static final fun recurrenceRule (Lme/kozakov/orrery/core/Frequency;Lkotlin/jvm/functions/Function1;)Lme/kozakov/orrery/core/RecurrenceRule;
+	public static synthetic fun recurrenceRule$default (Lme/kozakov/orrery/core/Frequency;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lme/kozakov/orrery/core/RecurrenceRule;
 }
 
 public final class me/kozakov/orrery/core/ScheduleLayoutKt {

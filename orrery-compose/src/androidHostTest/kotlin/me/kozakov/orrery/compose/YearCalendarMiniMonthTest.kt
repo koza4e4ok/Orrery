@@ -79,11 +79,13 @@ class YearCalendarMiniMonthTest {
             .onNodeWithContentDescription("July 2026")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Today"))
-            .performClick()
-        assertEquals(YearMonth(2026, 7), clicked)
+        // February sits in the first row, on screen on the default test window.
         rule
-            .onNodeWithContentDescription("March 2026")
+            .onNodeWithContentDescription("February 2026")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
+            .performClick()
+        assertEquals(YearMonth(2026, 2), clicked)
     }
 
     @OptIn(ExperimentalComposeUiApi::class)

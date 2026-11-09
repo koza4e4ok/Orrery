@@ -143,9 +143,14 @@ class MiniMonthTest {
                 }
             }
         }
-        val small = rule.onNodeWithTag("small", useUnmergedTree = true).fetchSemanticsNode().size.height
-        val large = rule.onNodeWithTag("large", useUnmergedTree = true).fetchSemanticsNode().size.height
+        val small = heightOf("small")
+        val large = heightOf("large")
         assertTrue("large ($large) should be taller than small ($small)", large > small * 3 / 2)
+    }
+
+    private fun heightOf(tag: String): Int {
+        val node = rule.onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode()
+        return node.size.height
     }
 
     private fun redPixels(

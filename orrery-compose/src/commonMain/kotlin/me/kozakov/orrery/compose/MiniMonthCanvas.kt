@@ -26,6 +26,7 @@ import kotlinx.datetime.YearMonth
 import kotlinx.datetime.isoDayNumber
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.Selection
+import kotlin.math.roundToInt
 
 private const val DAYS_PER_WEEK = 7
 
@@ -290,9 +291,12 @@ internal class MiniMonthPainter(
             val radius = minOf(cellWidth, rowHeight, MiniDayMaxRadius.toPx() * 2) / 2
             for (day in 1..model.dayCount) {
                 val column = model.column(day)
-                val left = (if (rtl) DAYS_PER_WEEK - 1 - column else column) * cellWidth
+                val visualColumn = if (rtl) DAYS_PER_WEEK - 1 - column else column
+                // Whole-pixel cell edges, so adjacent pill segments meet without a seam.
+                val left = (visualColumn * cellWidth).roundToInt().toFloat()
+                val right = ((visualColumn + 1) * cellWidth).roundToInt().toFloat()
                 val top = title.size.height + model.row(day) * rowHeight
-                drawDay(day, column, Rect(left, top, left + cellWidth, top + rowHeight), radius)
+                drawDay(day, column, Rect(left, top, right, top + rowHeight), radius)
             }
         }
 

@@ -16,7 +16,6 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.requestFocus
@@ -167,7 +166,8 @@ class FocusSnapshotTest {
                 monthContent = { CalendarDefaults.MiniMonth(it, today = LocalDate(2026, 7, 15)) },
             )
         }
-        rule.onNodeWithText("Mar").keyboardFocus()
+        // The canvas mini-month is described by its month and year (#87).
+        rule.onNodeWithContentDescription("March 2026").keyboardFocus()
         rule.onRoot().captureRoboImage()
     }
 }

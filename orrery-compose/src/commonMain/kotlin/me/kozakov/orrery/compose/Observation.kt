@@ -3,6 +3,7 @@ package me.kozakov.orrery.compose
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.CalendarWeek
 import me.kozakov.orrery.core.Selection
@@ -65,6 +66,71 @@ public fun CalendarState.visibleMonthChanges(): Flow<VisibleMonthChange> =
 public fun WeekCalendarState.visibleWeekChanges(): Flow<VisibleWeekChange> =
     snapshotFlow { VisibleWeekChange(firstVisibleWeek, lastScrollSource) }
         .distinctUntilChanged { old, new -> old.week == new.week }
+
+/**
+ * Emits the dates a lazy loader should have ready for this month pager:
+ * [CalendarState.visibleDateRange] widened by [prefetchMonths] whole months on
+ * each side (`0` = exactly the visible grids), clamped to
+ * [CalendarState.startMonth]..[CalendarState.endMonth] but never narrower than
+ * the visible range. The first value is emitted immediately; later values only
+ * when the range changes (including mid-swipe, when a second month enters the
+ * viewport). Not debounced: apply `debounce` downstream if loads are costly.
+ * Collect outside composition.
+ *
+ * @throws IllegalArgumentException when [prefetchMonths] is negative.
+ */
+public fun CalendarState.visibleDateRangeFlow(prefetchMonths: Int = 1): Flow<ClosedRange<LocalDate>> {
+    require(prefetchMonths >= 0) { "prefetchMonths ($prefetchMonths) must be >= 0" }
+    return snapshotFlow { prefetchedDateRange(prefetchMonths) }.distinctUntilChanged()
+}
+
+/**
+ * Emits the dates a lazy loader should have ready for this week strip:
+ * [WeekCalendarState.visibleDateRange] widened by [prefetchWeeks] week rows on
+ * each side (`0` = exactly the visible pages), clamped to the weeks containing
+ * [WeekCalendarState.startDate] and [WeekCalendarState.endDate] but never
+ * narrower than the visible range. Emits immediately, then on every change;
+ * collect outside composition.
+ *
+ * @throws IllegalArgumentException when [prefetchWeeks] is negative.
+ */
+public fun WeekCalendarState.visibleDateRangeFlow(prefetchWeeks: Int = 1): Flow<ClosedRange<LocalDate>> {
+    require(prefetchWeeks >= 0) { "prefetchWeeks ($prefetchWeeks) must be >= 0" }
+    return snapshotFlow { prefetchedDateRange(prefetchWeeks) }.distinctUntilChanged()
+}
+
+/**
+ * Emits the dates a lazy loader should have ready for a
+ * [CollapsibleCalendarScaffold] driven by this state, [calendarState] and
+ * [weekState] (pass the same states as to the scaffold):
+ *
+ * - [CollapsibleCalendarAnchor.Week] (`expandFraction == 0`): the week strip's
+ *   page widened by [prefetchWeeks] week rows, as for [WeekCalendarState].
+ * - Up to [CollapsibleCalendarAnchor.TwoWeeks]: the anchor week row plus its
+ *   neighbour, widened by [prefetchWeeks] week rows.
+ * - Above TwoWeeks: the month pager's range widened by [prefetchMonths], as
+ *   for [CalendarState].
+ *
+ * While the calendar is dragged the larger range of the two stops it is
+ * between is reported, so partly visible rows stay loaded; a settle animation
+ * emits at most once per stop crossed. The range shrinks on collapse: keep
+ * cached data instead of evicting it on a smaller range. Collect outside
+ * composition.
+ *
+ * @throws IllegalArgumentException when [prefetchMonths] or [prefetchWeeks] is negative.
+ */
+public fun CollapsibleCalendarState.visibleDateRangeFlow(
+    calendarState: CalendarState,
+    weekState: WeekCalendarState,
+    prefetchMonths: Int = 1,
+    prefetchWeeks: Int = 1,
+): Flow<ClosedRange<LocalDate>> {
+    require(prefetchMonths >= 0) { "prefetchMonths ($prefetchMonths) must be >= 0" }
+    require(prefetchWeeks >= 0) { "prefetchWeeks ($prefetchWeeks) must be >= 0" }
+    return snapshotFlow {
+        prefetchedDateRange(calendarState, weekState, prefetchMonths, prefetchWeeks)
+    }.distinctUntilChanged()
+}
 
 /** Emits every selection change, deduplicated; collect outside composition. */
 public fun CalendarSelectionState.selectionChanges(): Flow<Selection> =

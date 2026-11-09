@@ -73,7 +73,7 @@ public class WeekCalendarState internal constructor(
             visibleDaysOfWeekState = value
         }
 
-    private val effectiveStartDate: LocalDate
+    internal val effectiveStartDate: LocalDate
         get() = startDate ?: UNBOUNDED_START_DATE
 
     private val effectiveEndDate: LocalDate
@@ -103,6 +103,46 @@ public class WeekCalendarState internal constructor(
     /** All [visibleWeeksCount] week rows of the first visible page. */
     public val firstVisibleWeeks: List<CalendarWeek>
         get() = weeksAt(listState.firstVisibleItemIndex)
+
+    /** Start of the first (unfiltered) week row of the first visible page. */
+    internal val firstVisibleWeekStart: LocalDate
+        get() = pageStart(listState.firstVisibleItemIndex)
+
+    private fun pageStart(index: Int): LocalDate =
+        CalendarPages.weekAt(effectiveStartDate, index, firstDayOfWeek, visibleWeeksCount)
+
+    /**
+     * The dates painted by the pages that currently intersect the viewport
+     * (any pixel counts, so a half-swiped strip covers both pages): every day
+     * of their [visibleWeeksCount] week rows, from the first day of the week.
+     * Hidden [visibleDaysOfWeek] do not narrow the range. Before the first
+     * layout this is the page at [firstVisibleWeek]. Snapshot-observable; see
+     * [visibleDateRangeFlow] for a prefetching flow.
+     */
+    public val visibleDateRange: ClosedRange<LocalDate>
+        get() = prefetchedDateRange(prefetchWeeks = 0)
+
+    /**
+     * [visibleDateRange] widened by [prefetchWeeks] week rows per side, clamped
+     * to the weeks containing [startDate] and [endDate].
+     */
+    internal fun prefetchedDateRange(prefetchWeeks: Int): ClosedRange<LocalDate> {
+        val lastPage = weekCount - 1
+        val span = listState.visibleIndexSpan()
+        val firstPage = (span?.first ?: listState.firstVisibleItemIndex).coerceIn(0, lastPage)
+        val lastVisiblePage = (span?.last ?: 0).coerceIn(firstPage, lastPage)
+        val exactStart = pageStart(firstPage)
+        val exactEnd = pageStart(lastVisiblePage).shiftDays(7 * visibleWeeksCount - 1)
+        val exact = exactStart..exactEnd
+        if (prefetchWeeks == 0) return exact
+        return widenWithin(
+            exact = exact,
+            wantedStart = exactStart.shiftDays(-7 * prefetchWeeks),
+            wantedEnd = exactEnd.shiftDays(7 * prefetchWeeks),
+            minBound = startDate?.let { CalendarPages.weekStart(it, firstDayOfWeek) },
+            maxBound = endDate?.let { CalendarPages.weekStart(it, firstDayOfWeek).shiftDays(6) },
+        )
+    }
 
     internal fun weekAt(
         index: Int,

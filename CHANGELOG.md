@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### Added
+
+- Viewport date ranges for lazy loading (#87): `CalendarState.visibleDateRange` and
+  `WeekCalendarState.visibleDateRange` (the dates painted by every page that is at
+  least partly on screen), plus `visibleDateRangeFlow(prefetchMonths = 1)`,
+  `visibleDateRangeFlow(prefetchWeeks = 1)` and
+  `CollapsibleCalendarState.visibleDateRangeFlow(calendarState, weekState, ...)`,
+  which widen the range by whole months/weeks, clamp it to the configured bounds
+  and only emit changes.
+
+### Changed
+
+- `CalendarDefaults.MiniMonth` draws the whole month on one canvas with shared,
+  cached text layouts instead of composing about 40 nodes per month, so
+  `YearCalendar` pages compose and scroll faster. The month is now one
+  accessibility node described by its month and year (with "today" and selected
+  state) instead of reading every day number. Signatures are unchanged.
+
 ## [0.9.2] - 2026-11-05
 
 ### Changed

@@ -1,3 +1,4 @@
 dtstart|rrule|ours|oracle|source
-20261102|FREQ=WEEKLY;BYDAY=TU;COUNT=3|20261102 20261103 20261110|20261103 20261110 20261117|https://www.rfc-editor.org/rfc/rfc5545#section-3.3.10 (COUNT: DTSTART counts as the first occurrence)
+20261102|FREQ=WEEKLY;BYDAY=TU;COUNT=3|20261102 20261103 20261110|20261103 20261110 20261117|RFC 5545 section 3.3.10 COUNT: DTSTART counts as the first occurrence https://www.rfc-editor.org/rfc/rfc5545#section-3.3.10
+20220505|FREQ=WEEKLY;BYMONTH=5,6;BYDAY=WE,TH,SU;BYSETPOS=-2,3;COUNT=4|20220505 20220508 20220512 20220515|20220505 20220512 20220515 20220519|RFC 5545 section 3.3.10 BYSETPOS: positions within the whole WKST week; dateutil cuts the first week at DTSTART https://www.rfc-editor.org/rfc/rfc5545#section-3.3.10
 20260131|FREQ=MONTHLY;COUNT=3|20260131 20260228 20260331|20260131 20260331 20260531|Orrery InvalidDatePolicy.ClampToMonthEnd (non-standard opt-in; RFC 5545 section 3.3.10 skips invalid dates)

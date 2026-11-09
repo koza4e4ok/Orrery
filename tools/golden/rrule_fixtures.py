@@ -8,8 +8,9 @@ Writes orrery-core/src/jvmTest/resources/golden/rrule-fixtures.txt with one case
 `dtstart|rrule|from|to|dates` (dates yyyyMMdd, space separated, the rule's occurrences in the
 inclusive window from..to). The corpus is pseudo-random with a fixed seed and only contains
 rules Orrery supports. DTSTART is always a date the rule generates, because RFC 5545 makes
-DTSTART the first instance even when it does not match the rule while dateutil drops it; that
-intentional divergence and the month-end clamp policy are listed, with oracle values, in
+DTSTART the first instance even when it does not match the rule while dateutil drops it. WEEKLY
+rules with BYSETPOS are left out because dateutil applies BYSETPOS to a first week cut off at
+DTSTART. These intentional divergences and the month-end clamp policy are listed, with oracle values, in
 golden/rrule-exceptions.csv (rewritten here as well).
 python-dateutil (Apache-2.0/BSD) is only a test oracle: nothing from it ships in the library.
 """
@@ -64,7 +65,8 @@ def random_rule(rng):
             ordinal = rng.choice(ordinals)
             tokens.append(day if ordinal is None else "%d%s" % (ordinal, day))
         parts.append("BYDAY=" + ",".join(tokens))
-    if (by_month or has_month_day or has_day) and rng.random() < 0.3:
+    # dateutil evaluates WEEKLY BYSETPOS on a first week cut off at DTSTART (see exceptions).
+    if freq != "WEEKLY" and (by_month or has_month_day or has_day) and rng.random() < 0.3:
         parts.append("BYSETPOS=" + ",".join(map(str, sorted(pick(rng, [1, 2, -1, -2, 3], 1, 2)))))
     bound = rng.random()
     if bound < 0.45:
@@ -130,7 +132,15 @@ def main():
             datetime.datetime(2026, 11, 2),
             "FREQ=WEEKLY;BYDAY=TU;COUNT=3",
             "20261102 20261103 20261110",
-            "https://www.rfc-editor.org/rfc/rfc5545#section-3.3.10 (COUNT: DTSTART counts as the first occurrence)",
+            "RFC 5545 section 3.3.10 COUNT: DTSTART counts as the first occurrence"
+            " https://www.rfc-editor.org/rfc/rfc5545#section-3.3.10",
+        ),
+        (
+            datetime.datetime(2022, 5, 5),
+            "FREQ=WEEKLY;BYMONTH=5,6;BYDAY=WE,TH,SU;BYSETPOS=-2,3;COUNT=4",
+            "20220505 20220508 20220512 20220515",
+            "RFC 5545 section 3.3.10 BYSETPOS: positions within the whole WKST week; dateutil cuts the first"
+            " week at DTSTART https://www.rfc-editor.org/rfc/rfc5545#section-3.3.10",
         ),
         (
             datetime.datetime(2026, 1, 31),

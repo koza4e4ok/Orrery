@@ -143,7 +143,8 @@ class RecurringCalendarEventTest {
         assertEquals(listOf(d("2026-01-05"), d("2026-01-08"), d("2026-01-12"), d("2026-01-15")), byDate.keys.toList())
         assertEquals("standup@2026-01-08", byDate.getValue(d("2026-01-08")).single().id)
         val days = listOf(weekend).eventsByDate(d("2026-01-10")..d("2026-01-12"))
-        assertEquals(listOf("weekend@2026-01-09"), days.values.flatten().map { it.id }.distinct())
+        val ids = days.values.flatten().map { it.id }
+        assertEquals(listOf("weekend@2026-01-09"), ids.distinct())
         assertEquals(3, days.size)
     }
 

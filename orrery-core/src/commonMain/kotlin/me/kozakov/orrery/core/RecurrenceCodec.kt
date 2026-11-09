@@ -85,7 +85,12 @@ internal object RecurrenceCodec {
         val trimmed = text.trim()
         val colon = trimmed.indexOf(':')
         if (colon < 0) return trimmed
-        val property = trimmed.substring(0, colon).substringBefore(';').trim().uppercase()
+        val property =
+            trimmed
+                .substring(0, colon)
+                .substringBefore(';')
+                .trim()
+                .uppercase()
         require(property == name) { "Unsupported RRULE part $property" }
         return trimmed.substring(colon + 1).trim()
     }
@@ -195,10 +200,12 @@ internal object RecurrenceCodec {
 
     private fun weekdayCode(day: DayOfWeek): String = weekdayCodes[day.isoDayNumber - 1]
 
-    private fun formatDate(date: LocalDate): String =
-        date.year.toString().padStart(4, '0') +
-            date.month.number.toString().padStart(2, '0') +
+    private fun formatDate(date: LocalDate): String {
+        val month = date.month.number
+        return date.year.toString().padStart(4, '0') +
+            month.toString().padStart(2, '0') +
             date.day.toString().padStart(2, '0')
+    }
 
     private fun invalid(message: String): Nothing = throw IllegalArgumentException(message)
 }

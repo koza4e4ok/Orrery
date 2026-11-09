@@ -183,7 +183,11 @@ class RecurrenceExpansionTest {
         assertEquals(expected, expand("FREQ=DAILY;UNTIL=20260105T000000Z", "2026-01-01"))
         assertEquals(
             expected,
-            RecurrenceRule.daily().copy(until = d("2026-01-05")).asSequence(d("2026-01-01")).toList(),
+            RecurrenceRule
+                .daily()
+                .copy(until = d("2026-01-05"))
+                .asSequence(d("2026-01-01"))
+                .toList(),
         )
         assertEquals(emptyList(), expand("FREQ=DAILY;UNTIL=20251231", "2026-01-01"))
     }
@@ -267,7 +271,12 @@ class RecurrenceExpansionTest {
 
     @Test
     fun `unbounded sequences are lazy and an empty window returns nothing`() {
-        val mondays = RecurrenceRule.weekly(DayOfWeek.MONDAY).asSequence(d("2026-01-05")).take(3).toList()
+        val mondays =
+            RecurrenceRule
+                .weekly(DayOfWeek.MONDAY)
+                .asSequence(d("2026-01-05"))
+                .take(3)
+                .toList()
         assertEquals(dates("2026-01-05", "2026-01-12", "2026-01-19"), mondays)
         assertEquals(emptyList(), RecurrenceRule.daily().occurrences(d("2026-01-01"), d("2026-02-01")..d("2026-01-01")))
         assertEquals(emptyList(), RecurrenceRule.daily().occurrences(d("2026-01-10"), d("2026-01-01")..d("2026-01-09")))

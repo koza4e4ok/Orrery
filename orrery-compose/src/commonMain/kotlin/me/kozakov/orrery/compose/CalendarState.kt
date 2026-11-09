@@ -82,6 +82,39 @@ public class CalendarState internal constructor(
     public val firstVisibleMonth: YearMonth
         get() = CalendarPages.monthAt(effectiveStartMonth, listState.firstVisibleItemIndex / itemsPerMonth)
 
+    /**
+     * The dates painted by the month pages that currently intersect the
+     * viewport (any pixel counts, so a half-swiped pager covers both months):
+     * from the first date of the first visible month's grid to the last date
+     * of the last visible month's grid. The in/out dates of partial weeks are
+     * included unless [outDateStyle] is [OutDateStyle.None]; hidden
+     * [visibleDaysOfWeek] do not narrow the range. Before the first layout
+     * this is the grid of [firstVisibleMonth]. Snapshot-observable; see
+     * [visibleDateRangeFlow] for a prefetching flow.
+     */
+    public val visibleDateRange: ClosedRange<LocalDate>
+        get() = prefetchedDateRange(prefetchMonths = 0)
+
+    /** [visibleDateRange] widened by [prefetchMonths] whole months per side, clamped to [startMonth]..[endMonth]. */
+    internal fun prefetchedDateRange(prefetchMonths: Int): ClosedRange<LocalDate> {
+        val lastPage = monthCount - 1
+        val span = listState.visibleIndexSpan()
+        val firstPage = ((span?.first ?: listState.firstVisibleItemIndex) / itemsPerMonth).coerceIn(0, lastPage)
+        val lastVisiblePage = ((span?.last ?: 0) / itemsPerMonth).coerceIn(firstPage, lastPage)
+        val first = CalendarPages.monthAt(effectiveStartMonth, firstPage)
+        val last = CalendarPages.monthAt(effectiveStartMonth, lastVisiblePage)
+        val exact =
+            monthGridStart(first, firstDayOfWeek, outDateStyle)..monthGridEnd(last, firstDayOfWeek, outDateStyle)
+        if (prefetchMonths == 0) return exact
+        return widenWithin(
+            exact = exact,
+            wantedStart = CalendarPages.monthAt(first, -prefetchMonths).firstDay,
+            wantedEnd = CalendarPages.monthAt(last, prefetchMonths).lastDay,
+            minBound = startMonth?.firstDay,
+            maxBound = endMonth?.lastDay,
+        )
+    }
+
     private var programmaticScrolls: Int by mutableIntStateOf(0)
 
     /** Month the last programmatic scroll (or the initial state) left visible. */

@@ -56,6 +56,12 @@ public sealed interface EventSpan {
  * @property subtitle Optional secondary text (location, room, summary).
  * @property colorArgb Optional 0xAARRGGBB color hint (UI-agnostic in `orrery-core`).
  * @property payload Optional domain object attached by the consumer.
+ * @property recurrence Recurrence rule of a series master; [span] is the first occurrence
+ *   (RFC 5545 `DTSTART`) and every occurrence keeps its duration. Null for plain events and for
+ *   expanded occurrences. Expand with [occurrencesIn] or [expandRecurring]; [eventsByDate] does it
+ *   automatically.
+ * @property instance Set on occurrences produced by [occurrencesIn]: identifies the series and
+ *   the occurrence start date.
  */
 public data class CalendarEvent<out T>(
     public val id: String,
@@ -64,10 +70,136 @@ public data class CalendarEvent<out T>(
     public val subtitle: String? = null,
     public val colorArgb: Long? = null,
     public val payload: T? = null,
+    public val recurrence: RecurrenceRule? = null,
+    public val instance: RecurrenceInstance? = null,
 ) {
+    /** Binary-compatible 6-argument constructor for callers compiled against 0.9.x. */
+    @Deprecated(
+        message = "Binary compatibility bridge for the 6-arg CalendarEvent constructor",
+        level = DeprecationLevel.HIDDEN,
+    )
+    public constructor(
+        id: String,
+        title: String,
+        span: EventSpan,
+        subtitle: String? = null,
+        colorArgb: Long? = null,
+        payload: T? = null,
+    ) : this(
+        id = id,
+        title = title,
+        span = span,
+        subtitle = subtitle,
+        colorArgb = colorArgb,
+        payload = payload,
+        recurrence = null,
+        instance = null,
+    )
+
+    /** Binary-compatible 6-argument copy bridge for callers compiled against 0.9.x. */
+    @Deprecated(
+        message = "Binary compatibility bridge for the 6-arg CalendarEvent.copy",
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Suppress("LongParameterList")
+    public fun copy(
+        id: String = this.id,
+        title: String = this.title,
+        span: EventSpan = this.span,
+        subtitle: String? = this.subtitle,
+        colorArgb: Long? = this.colorArgb,
+        payload: @UnsafeVariance T? = this.payload,
+    ): CalendarEvent<T> =
+        CalendarEvent(
+            id = id,
+            title = title,
+            span = span,
+            subtitle = subtitle,
+            colorArgb = colorArgb,
+            payload = payload,
+            recurrence = recurrence,
+            instance = instance,
+        )
+
     /** True if this event covers any part of [date]. */
     public fun occursOn(date: LocalDate): Boolean = date >= span.startDate && date <= span.endDate
+
+    /**
+     * Occurrences of this event that overlap [range], in chronological order.
+     *
+     * Without [recurrence] this is `listOf(this)` when [span] overlaps [range], otherwise empty.
+     * For a series master every occurrence keeps the master's duration (`endDate - startDate` in
+     * days, and the start and end times of a timed event), so a multi-day occurrence that began
+     * before [range] but still overlaps it is included. [RecurrenceRule.count] is counted from
+     * the master's start date, and [RecurrenceRule.exDates] remove whole occurrences by start
+     * date.
+     *
+     * Each occurrence has `id = "<master id>@<yyyy-MM-dd start date>"`, no [recurrence], and
+     * [instance] set to `RecurrenceInstance(master id, start date)`; the other fields are copied.
+     */
+    public fun occurrencesIn(
+        range: ClosedRange<LocalDate>,
+        invalidDatePolicy: InvalidDatePolicy = InvalidDatePolicy.SkipInvalid,
+    ): List<CalendarEvent<T>> {
+        val rangeStart = range.start.toEpochDays()
+        val rangeEnd = range.endInclusive.toEpochDays()
+        if (rangeStart > rangeEnd) return emptyList()
+        val rule = recurrence
+        if (rule == null) return if (overlaps(span, rangeStart, rangeEnd)) listOf(this) else emptyList()
+        val durationDays = span.endDate.toEpochDays() - span.startDate.toEpochDays()
+        val window = LocalDate.fromEpochDays(rangeStart - durationDays)..range.endInclusive
+        return rule
+            .occurrences(span.startDate, window, invalidDatePolicy)
+            .map { start -> occurrenceAt(start, durationDays) }
+            .filter { overlaps(it.span, rangeStart, rangeEnd) }
+    }
+
+    private fun occurrenceAt(
+        start: LocalDate,
+        durationDays: Long,
+    ): CalendarEvent<T> {
+        val end = LocalDate.fromEpochDays(start.toEpochDays() + durationDays)
+        val shifted =
+            when (val original = span) {
+                is EventSpan.AllDay -> EventSpan.AllDay(start, end)
+                is EventSpan.Timed -> {
+                    EventSpan.Timed(
+                        start = LocalDateTime(start, original.start.time),
+                        end = LocalDateTime(end, original.end.time),
+                    )
+                }
+            }
+        return CalendarEvent(
+            id = "$id@$start",
+            title = title,
+            span = shifted,
+            subtitle = subtitle,
+            colorArgb = colorArgb,
+            payload = payload,
+            recurrence = null,
+            instance = RecurrenceInstance(seriesId = id, recurrenceId = start),
+        )
+    }
 }
+
+private fun overlaps(
+    span: EventSpan,
+    rangeStartEpoch: Long,
+    rangeEndEpoch: Long,
+): Boolean = span.startDate.toEpochDays() <= rangeEndEpoch && span.endDate.toEpochDays() >= rangeStartEpoch
+
+/**
+ * Expands every recurring event ([CalendarEvent.recurrence] set) into its occurrences that
+ * overlap [range] and keeps every other event that overlaps [range], via
+ * [CalendarEvent.occurrencesIn].
+ *
+ * The result follows the input order (each master's occurrences are chronological in its place)
+ * and is not re-sorted. Expanded occurrences pass through unchanged, so the call is idempotent.
+ */
+public fun <T> Iterable<CalendarEvent<T>>.expandRecurring(
+    range: ClosedRange<LocalDate>,
+    invalidDatePolicy: InvalidDatePolicy = InvalidDatePolicy.SkipInvalid,
+): List<CalendarEvent<T>> = flatMap { it.occurrencesIn(range, invalidDatePolicy) }
 
 /**
  * Groups events by each [LocalDate] they cover within [range], sorted in
@@ -76,6 +208,9 @@ public data class CalendarEvent<out T>(
  *    [CalendarEvent.title], then [CalendarEvent.id])
  * 2. [EventSpan.Timed] events (ordered by [EventSpan.Timed.start], then
  *    [EventSpan.Timed.end], then [CalendarEvent.title], then [CalendarEvent.id])
+ *
+ * Recurring events ([CalendarEvent.recurrence] set) are expanded first with [expandRecurring], so
+ * each occurrence is bucketed under the dates it covers.
  *
  * Iterates via epoch days (matching Orrery's existing Bolt optimization) to avoid
  * `DateTimeUnit.DAY` allocation overhead.
@@ -87,8 +222,9 @@ public fun <T> Iterable<CalendarEvent<T>>.eventsByDate(
     val rangeEndEpoch = range.endInclusive.toEpochDays()
     if (rangeStartEpoch > rangeEndEpoch) return emptyMap()
 
+    val events = if (any { it.recurrence != null }) expandRecurring(range) else this
     val buckets = mutableMapOf<Long, MutableList<CalendarEvent<T>>>()
-    for (event in this) {
+    for (event in events) {
         val startEpoch = maxOf(event.span.startDate.toEpochDays(), rangeStartEpoch)
         val endEpoch = minOf(event.span.endDate.toEpochDays(), rangeEndEpoch)
         for (epoch in startEpoch..endEpoch) {

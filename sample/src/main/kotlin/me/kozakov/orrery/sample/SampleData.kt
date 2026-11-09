@@ -14,6 +14,7 @@ import kotlinx.datetime.plus
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.DisabledDates
 import me.kozakov.orrery.core.EventSpan
+import me.kozakov.orrery.core.RecurrenceRule
 import me.kozakov.orrery.core.eventsByDate
 
 internal data class Habit(
@@ -115,8 +116,28 @@ internal object SampleData {
                     }
                 }
             }
-        return (spanningEventsFor(range) + rawEvents).eventsByDate(range)
+        return (spanningEventsFor(range) + rawEvents + recurringEvents).eventsByDate(range)
     }
+
+    /** Recurring series masters; eventsByDate expands them over the requested range. */
+    private val recurringEvents =
+        listOf(
+            CalendarEvent<Nothing>(
+                id = "retro",
+                title = "Weekly retro",
+                span = EventSpan.Timed(LocalDateTime(2026, 1, 2, 17, 0), LocalDateTime(2026, 1, 2, 17, 30)),
+                colorArgb = WORK_COLOR,
+                recurrence = RecurrenceRule.weekly(DayOfWeek.FRIDAY),
+            ),
+            CalendarEvent<Nothing>(
+                id = "rent",
+                title = "Pay rent",
+                subtitle = "Last day of every month",
+                span = EventSpan.AllDay(LocalDate(2026, 1, 31)),
+                colorArgb = PERSONAL_COLOR,
+                recurrence = RecurrenceRule.monthlyOnLastDay(),
+            ),
+        )
 
     private fun timedEvent(
         id: String,

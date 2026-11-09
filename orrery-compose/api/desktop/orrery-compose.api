@@ -204,6 +204,7 @@ public final class me/kozakov/orrery/compose/CalendarState {
 	public final fun getMonthCount ()I
 	public final fun getOutDateStyle ()Lme/kozakov/orrery/core/OutDateStyle;
 	public final fun getStartMonth ()Lkotlinx/datetime/YearMonth;
+	public final fun getVisibleDateRange ()Lkotlin/ranges/ClosedRange;
 	public final fun getVisibleDaysOfWeek ()Ljava/util/Set;
 	public final fun scrollToDate (Lkotlinx/datetime/LocalDate;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun scrollToMonth (Lkotlinx/datetime/YearMonth;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -553,6 +554,12 @@ public final class me/kozakov/orrery/compose/NavHeaderKt {
 
 public final class me/kozakov/orrery/compose/ObservationKt {
 	public static final fun selectionChanges (Lme/kozakov/orrery/compose/CalendarSelectionState;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun visibleDateRangeFlow (Lme/kozakov/orrery/compose/CalendarState;I)Lkotlinx/coroutines/flow/Flow;
+	public static final fun visibleDateRangeFlow (Lme/kozakov/orrery/compose/CollapsibleCalendarState;Lme/kozakov/orrery/compose/CalendarState;Lme/kozakov/orrery/compose/WeekCalendarState;II)Lkotlinx/coroutines/flow/Flow;
+	public static final fun visibleDateRangeFlow (Lme/kozakov/orrery/compose/WeekCalendarState;I)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun visibleDateRangeFlow$default (Lme/kozakov/orrery/compose/CalendarState;IILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun visibleDateRangeFlow$default (Lme/kozakov/orrery/compose/CollapsibleCalendarState;Lme/kozakov/orrery/compose/CalendarState;Lme/kozakov/orrery/compose/WeekCalendarState;IIILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun visibleDateRangeFlow$default (Lme/kozakov/orrery/compose/WeekCalendarState;IILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun visibleMonthChanges (Lme/kozakov/orrery/compose/CalendarState;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun visibleMonths (Lme/kozakov/orrery/compose/CalendarState;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun visiblePages (Lme/kozakov/orrery/compose/WeekCalendarState;)Lkotlinx/coroutines/flow/Flow;
@@ -821,6 +828,7 @@ public final class me/kozakov/orrery/compose/WeekCalendarState {
 	public final fun getFirstVisibleWeeks ()Ljava/util/List;
 	public final fun getLastScrollSource ()Lme/kozakov/orrery/compose/ScrollSource;
 	public final fun getStartDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getVisibleDateRange ()Lkotlin/ranges/ClosedRange;
 	public final fun getVisibleDaysOfWeek ()Ljava/util/Set;
 	public final fun getVisibleWeeksCount ()I
 	public final fun getWeekCount ()I

@@ -4,6 +4,20 @@
 
 ### Added
 
+- RFC 5545 recurrence in `orrery-core` (#86): `RecurrenceRule` (`FREQ` DAILY to
+  YEARLY, `INTERVAL`, `COUNT`, `UNTIL`, `BYDAY` with ordinals, `BYMONTHDAY`,
+  `BYMONTH`, `BYSETPOS`, `WKST`, `EXDATE`) with an RRULE/EXDATE parser and
+  canonical formatter, the `recurrenceRule {}` DSL and companion factories.
+  Expansion follows RFC 5545 section 3.3.10: invalid dates such as 31 February
+  are skipped without consuming `COUNT` (`BYMONTHDAY=-1` is the last day of the
+  month, `InvalidDatePolicy.ClampToMonthEnd` is an explicit opt-in), `COUNT` is
+  counted from `DTSTART` whatever the query window, and `EXDATE` removes dates
+  without refilling. Unsupported parts (`BYYEARDAY`, `BYWEEKNO`, time parts,
+  `RDATE`, `EXRULE`, sub-daily frequencies) are rejected.
+- `CalendarEvent.recurrence` and `CalendarEvent.instance`, `occurrencesIn` and
+  `expandRecurring`; multi-day occurrences keep their duration. `eventsByDate`
+  expands recurring events automatically. The previous 6-argument constructor and
+  `copy` stay as hidden binary-compatible bridges.
 - Viewport date ranges for lazy loading (#87): `CalendarState.visibleDateRange` and
   `WeekCalendarState.visibleDateRange` (the dates painted by every page that is at
   least partly on screen), plus `visibleDateRangeFlow(prefetchMonths = 1)`,

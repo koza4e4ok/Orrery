@@ -30,6 +30,30 @@ final enum class me.kozakov.orrery.core/DayPosition : kotlin/Enum<me.kozakov.orr
     final fun values(): kotlin/Array<me.kozakov.orrery.core/DayPosition> // me.kozakov.orrery.core/DayPosition.values|values#static(){}[0]
 }
 
+final enum class me.kozakov.orrery.core/Frequency : kotlin/Enum<me.kozakov.orrery.core/Frequency> { // me.kozakov.orrery.core/Frequency|null[0]
+    enum entry DAILY // me.kozakov.orrery.core/Frequency.DAILY|null[0]
+    enum entry MONTHLY // me.kozakov.orrery.core/Frequency.MONTHLY|null[0]
+    enum entry WEEKLY // me.kozakov.orrery.core/Frequency.WEEKLY|null[0]
+    enum entry YEARLY // me.kozakov.orrery.core/Frequency.YEARLY|null[0]
+
+    final val entries // me.kozakov.orrery.core/Frequency.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.core/Frequency> // me.kozakov.orrery.core/Frequency.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.core/Frequency // me.kozakov.orrery.core/Frequency.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.core/Frequency> // me.kozakov.orrery.core/Frequency.values|values#static(){}[0]
+}
+
+final enum class me.kozakov.orrery.core/InvalidDatePolicy : kotlin/Enum<me.kozakov.orrery.core/InvalidDatePolicy> { // me.kozakov.orrery.core/InvalidDatePolicy|null[0]
+    enum entry ClampToMonthEnd // me.kozakov.orrery.core/InvalidDatePolicy.ClampToMonthEnd|null[0]
+    enum entry SkipInvalid // me.kozakov.orrery.core/InvalidDatePolicy.SkipInvalid|null[0]
+
+    final val entries // me.kozakov.orrery.core/InvalidDatePolicy.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<me.kozakov.orrery.core/InvalidDatePolicy> // me.kozakov.orrery.core/InvalidDatePolicy.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): me.kozakov.orrery.core/InvalidDatePolicy // me.kozakov.orrery.core/InvalidDatePolicy.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<me.kozakov.orrery.core/InvalidDatePolicy> // me.kozakov.orrery.core/InvalidDatePolicy.values|values#static(){}[0]
+}
+
 final enum class me.kozakov.orrery.core/OutDateStyle : kotlin/Enum<me.kozakov.orrery.core/OutDateStyle> { // me.kozakov.orrery.core/OutDateStyle|null[0]
     enum entry EndOfGrid // me.kozakov.orrery.core/OutDateStyle.EndOfGrid|null[0]
     enum entry EndOfRow // me.kozakov.orrery.core/OutDateStyle.EndOfRow|null[0]
@@ -311,13 +335,18 @@ final class <#A: out kotlin/Any?> me.kozakov.orrery.core/AllDayBanner { // me.ko
 
 final class <#A: out kotlin/Any?> me.kozakov.orrery.core/CalendarEvent { // me.kozakov.orrery.core/CalendarEvent|null[0]
     constructor <init>(kotlin/String, kotlin/String, me.kozakov.orrery.core/EventSpan, kotlin/String? = ..., kotlin/Long? = ..., #A? = ...) // me.kozakov.orrery.core/CalendarEvent.<init>|<init>(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?){}[0]
+    constructor <init>(kotlin/String, kotlin/String, me.kozakov.orrery.core/EventSpan, kotlin/String? = ..., kotlin/Long? = ..., #A? = ..., me.kozakov.orrery.core/RecurrenceRule? = ..., me.kozakov.orrery.core/RecurrenceInstance? = ...) // me.kozakov.orrery.core/CalendarEvent.<init>|<init>(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?;me.kozakov.orrery.core.RecurrenceRule?;me.kozakov.orrery.core.RecurrenceInstance?){}[0]
 
     final val colorArgb // me.kozakov.orrery.core/CalendarEvent.colorArgb|{}colorArgb[0]
         final fun <get-colorArgb>(): kotlin/Long? // me.kozakov.orrery.core/CalendarEvent.colorArgb.<get-colorArgb>|<get-colorArgb>(){}[0]
     final val id // me.kozakov.orrery.core/CalendarEvent.id|{}id[0]
         final fun <get-id>(): kotlin/String // me.kozakov.orrery.core/CalendarEvent.id.<get-id>|<get-id>(){}[0]
+    final val instance // me.kozakov.orrery.core/CalendarEvent.instance|{}instance[0]
+        final fun <get-instance>(): me.kozakov.orrery.core/RecurrenceInstance? // me.kozakov.orrery.core/CalendarEvent.instance.<get-instance>|<get-instance>(){}[0]
     final val payload // me.kozakov.orrery.core/CalendarEvent.payload|{}payload[0]
         final fun <get-payload>(): #A? // me.kozakov.orrery.core/CalendarEvent.payload.<get-payload>|<get-payload>(){}[0]
+    final val recurrence // me.kozakov.orrery.core/CalendarEvent.recurrence|{}recurrence[0]
+        final fun <get-recurrence>(): me.kozakov.orrery.core/RecurrenceRule? // me.kozakov.orrery.core/CalendarEvent.recurrence.<get-recurrence>|<get-recurrence>(){}[0]
     final val span // me.kozakov.orrery.core/CalendarEvent.span|{}span[0]
         final fun <get-span>(): me.kozakov.orrery.core/EventSpan // me.kozakov.orrery.core/CalendarEvent.span.<get-span>|<get-span>(){}[0]
     final val subtitle // me.kozakov.orrery.core/CalendarEvent.subtitle|{}subtitle[0]
@@ -331,9 +360,13 @@ final class <#A: out kotlin/Any?> me.kozakov.orrery.core/CalendarEvent { // me.k
     final fun component4(): kotlin/String? // me.kozakov.orrery.core/CalendarEvent.component4|component4(){}[0]
     final fun component5(): kotlin/Long? // me.kozakov.orrery.core/CalendarEvent.component5|component5(){}[0]
     final fun component6(): #A? // me.kozakov.orrery.core/CalendarEvent.component6|component6(){}[0]
+    final fun component7(): me.kozakov.orrery.core/RecurrenceRule? // me.kozakov.orrery.core/CalendarEvent.component7|component7(){}[0]
+    final fun component8(): me.kozakov.orrery.core/RecurrenceInstance? // me.kozakov.orrery.core/CalendarEvent.component8|component8(){}[0]
     final fun copy(kotlin/String = ..., kotlin/String = ..., me.kozakov.orrery.core/EventSpan = ..., kotlin/String? = ..., kotlin/Long? = ..., #A? = ...): me.kozakov.orrery.core/CalendarEvent<#A> // me.kozakov.orrery.core/CalendarEvent.copy|copy(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?){}[0]
+    final fun copy(kotlin/String = ..., kotlin/String = ..., me.kozakov.orrery.core/EventSpan = ..., kotlin/String? = ..., kotlin/Long? = ..., #A? = ..., me.kozakov.orrery.core/RecurrenceRule? = ..., me.kozakov.orrery.core/RecurrenceInstance? = ...): me.kozakov.orrery.core/CalendarEvent<#A> // me.kozakov.orrery.core/CalendarEvent.copy|copy(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?;me.kozakov.orrery.core.RecurrenceRule?;me.kozakov.orrery.core.RecurrenceInstance?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/CalendarEvent.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/CalendarEvent.hashCode|hashCode(){}[0]
+    final fun occurrencesIn(kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>, me.kozakov.orrery.core/InvalidDatePolicy = ...): kotlin.collections/List<me.kozakov.orrery.core/CalendarEvent<#A>> // me.kozakov.orrery.core/CalendarEvent.occurrencesIn|occurrencesIn(kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>;me.kozakov.orrery.core.InvalidDatePolicy){}[0]
     final fun occursOn(kotlinx.datetime/LocalDate): kotlin/Boolean // me.kozakov.orrery.core/CalendarEvent.occursOn|occursOn(kotlinx.datetime.LocalDate){}[0]
     final fun toString(): kotlin/String // me.kozakov.orrery.core/CalendarEvent.toString|toString(){}[0]
 }
@@ -441,6 +474,22 @@ final class <#A: out kotlin/Any?> me.kozakov.orrery.core/WeekEventBanner { // me
     final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/WeekEventBanner.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/WeekEventBanner.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // me.kozakov.orrery.core/WeekEventBanner.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.core/ByDay { // me.kozakov.orrery.core/ByDay|null[0]
+    constructor <init>(kotlinx.datetime/DayOfWeek, kotlin/Int? = ...) // me.kozakov.orrery.core/ByDay.<init>|<init>(kotlinx.datetime.DayOfWeek;kotlin.Int?){}[0]
+
+    final val dayOfWeek // me.kozakov.orrery.core/ByDay.dayOfWeek|{}dayOfWeek[0]
+        final fun <get-dayOfWeek>(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.core/ByDay.dayOfWeek.<get-dayOfWeek>|<get-dayOfWeek>(){}[0]
+    final val ordinal // me.kozakov.orrery.core/ByDay.ordinal|{}ordinal[0]
+        final fun <get-ordinal>(): kotlin/Int? // me.kozakov.orrery.core/ByDay.ordinal.<get-ordinal>|<get-ordinal>(){}[0]
+
+    final fun component1(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.core/ByDay.component1|component1(){}[0]
+    final fun component2(): kotlin/Int? // me.kozakov.orrery.core/ByDay.component2|component2(){}[0]
+    final fun copy(kotlinx.datetime/DayOfWeek = ..., kotlin/Int? = ...): me.kozakov.orrery.core/ByDay // me.kozakov.orrery.core/ByDay.copy|copy(kotlinx.datetime.DayOfWeek;kotlin.Int?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/ByDay.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/ByDay.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/ByDay.toString|toString(){}[0]
 }
 
 final class me.kozakov.orrery.core/CalendarDay { // me.kozakov.orrery.core/CalendarDay|null[0]
@@ -556,6 +605,88 @@ final class me.kozakov.orrery.core/HeatmapSummary { // me.kozakov.orrery.core/He
     final fun toString(): kotlin/String // me.kozakov.orrery.core/HeatmapSummary.toString|toString(){}[0]
 }
 
+final class me.kozakov.orrery.core/RecurrenceInstance { // me.kozakov.orrery.core/RecurrenceInstance|null[0]
+    constructor <init>(kotlin/String, kotlinx.datetime/LocalDate) // me.kozakov.orrery.core/RecurrenceInstance.<init>|<init>(kotlin.String;kotlinx.datetime.LocalDate){}[0]
+
+    final val recurrenceId // me.kozakov.orrery.core/RecurrenceInstance.recurrenceId|{}recurrenceId[0]
+        final fun <get-recurrenceId>(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/RecurrenceInstance.recurrenceId.<get-recurrenceId>|<get-recurrenceId>(){}[0]
+    final val seriesId // me.kozakov.orrery.core/RecurrenceInstance.seriesId|{}seriesId[0]
+        final fun <get-seriesId>(): kotlin/String // me.kozakov.orrery.core/RecurrenceInstance.seriesId.<get-seriesId>|<get-seriesId>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/RecurrenceInstance.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/RecurrenceInstance.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/RecurrenceInstance.toString|toString(){}[0]
+}
+
+final class me.kozakov.orrery.core/RecurrenceRule { // me.kozakov.orrery.core/RecurrenceRule|null[0]
+    constructor <init>(me.kozakov.orrery.core/Frequency, kotlin/Int = ..., kotlin.collections/Set<me.kozakov.orrery.core/ByDay> = ..., kotlin.collections/Set<kotlin/Int> = ..., kotlin.collections/Set<kotlin/Int> = ..., kotlin.collections/Set<kotlin/Int> = ..., kotlin/Int? = ..., kotlinx.datetime/LocalDate? = ..., kotlinx.datetime/DayOfWeek = ..., kotlin.collections/Set<kotlinx.datetime/LocalDate> = ...) // me.kozakov.orrery.core/RecurrenceRule.<init>|<init>(me.kozakov.orrery.core.Frequency;kotlin.Int;kotlin.collections.Set<me.kozakov.orrery.core.ByDay>;kotlin.collections.Set<kotlin.Int>;kotlin.collections.Set<kotlin.Int>;kotlin.collections.Set<kotlin.Int>;kotlin.Int?;kotlinx.datetime.LocalDate?;kotlinx.datetime.DayOfWeek;kotlin.collections.Set<kotlinx.datetime.LocalDate>){}[0]
+
+    final val byDay // me.kozakov.orrery.core/RecurrenceRule.byDay|{}byDay[0]
+        final fun <get-byDay>(): kotlin.collections/Set<me.kozakov.orrery.core/ByDay> // me.kozakov.orrery.core/RecurrenceRule.byDay.<get-byDay>|<get-byDay>(){}[0]
+    final val byMonth // me.kozakov.orrery.core/RecurrenceRule.byMonth|{}byMonth[0]
+        final fun <get-byMonth>(): kotlin.collections/Set<kotlin/Int> // me.kozakov.orrery.core/RecurrenceRule.byMonth.<get-byMonth>|<get-byMonth>(){}[0]
+    final val byMonthDay // me.kozakov.orrery.core/RecurrenceRule.byMonthDay|{}byMonthDay[0]
+        final fun <get-byMonthDay>(): kotlin.collections/Set<kotlin/Int> // me.kozakov.orrery.core/RecurrenceRule.byMonthDay.<get-byMonthDay>|<get-byMonthDay>(){}[0]
+    final val bySetPos // me.kozakov.orrery.core/RecurrenceRule.bySetPos|{}bySetPos[0]
+        final fun <get-bySetPos>(): kotlin.collections/Set<kotlin/Int> // me.kozakov.orrery.core/RecurrenceRule.bySetPos.<get-bySetPos>|<get-bySetPos>(){}[0]
+    final val count // me.kozakov.orrery.core/RecurrenceRule.count|{}count[0]
+        final fun <get-count>(): kotlin/Int? // me.kozakov.orrery.core/RecurrenceRule.count.<get-count>|<get-count>(){}[0]
+    final val exDates // me.kozakov.orrery.core/RecurrenceRule.exDates|{}exDates[0]
+        final fun <get-exDates>(): kotlin.collections/Set<kotlinx.datetime/LocalDate> // me.kozakov.orrery.core/RecurrenceRule.exDates.<get-exDates>|<get-exDates>(){}[0]
+    final val frequency // me.kozakov.orrery.core/RecurrenceRule.frequency|{}frequency[0]
+        final fun <get-frequency>(): me.kozakov.orrery.core/Frequency // me.kozakov.orrery.core/RecurrenceRule.frequency.<get-frequency>|<get-frequency>(){}[0]
+    final val interval // me.kozakov.orrery.core/RecurrenceRule.interval|{}interval[0]
+        final fun <get-interval>(): kotlin/Int // me.kozakov.orrery.core/RecurrenceRule.interval.<get-interval>|<get-interval>(){}[0]
+    final val until // me.kozakov.orrery.core/RecurrenceRule.until|{}until[0]
+        final fun <get-until>(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/RecurrenceRule.until.<get-until>|<get-until>(){}[0]
+    final val weekStart // me.kozakov.orrery.core/RecurrenceRule.weekStart|{}weekStart[0]
+        final fun <get-weekStart>(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.core/RecurrenceRule.weekStart.<get-weekStart>|<get-weekStart>(){}[0]
+
+    final fun asSequence(kotlinx.datetime/LocalDate, me.kozakov.orrery.core/InvalidDatePolicy = ...): kotlin.sequences/Sequence<kotlinx.datetime/LocalDate> // me.kozakov.orrery.core/RecurrenceRule.asSequence|asSequence(kotlinx.datetime.LocalDate;me.kozakov.orrery.core.InvalidDatePolicy){}[0]
+    final fun copy(me.kozakov.orrery.core/Frequency = ..., kotlin/Int = ..., kotlin.collections/Set<me.kozakov.orrery.core/ByDay> = ..., kotlin.collections/Set<kotlin/Int> = ..., kotlin.collections/Set<kotlin/Int> = ..., kotlin.collections/Set<kotlin/Int> = ..., kotlin/Int? = ..., kotlinx.datetime/LocalDate? = ..., kotlinx.datetime/DayOfWeek = ..., kotlin.collections/Set<kotlinx.datetime/LocalDate> = ...): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/RecurrenceRule.copy|copy(me.kozakov.orrery.core.Frequency;kotlin.Int;kotlin.collections.Set<me.kozakov.orrery.core.ByDay>;kotlin.collections.Set<kotlin.Int>;kotlin.collections.Set<kotlin.Int>;kotlin.collections.Set<kotlin.Int>;kotlin.Int?;kotlinx.datetime.LocalDate?;kotlinx.datetime.DayOfWeek;kotlin.collections.Set<kotlinx.datetime.LocalDate>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/RecurrenceRule.equals|equals(kotlin.Any?){}[0]
+    final fun exDatesToRfc5545String(): kotlin/String? // me.kozakov.orrery.core/RecurrenceRule.exDatesToRfc5545String|exDatesToRfc5545String(){}[0]
+    final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/RecurrenceRule.hashCode|hashCode(){}[0]
+    final fun occurrences(kotlinx.datetime/LocalDate, kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>, me.kozakov.orrery.core/InvalidDatePolicy = ...): kotlin.collections/List<kotlinx.datetime/LocalDate> // me.kozakov.orrery.core/RecurrenceRule.occurrences|occurrences(kotlinx.datetime.LocalDate;kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>;me.kozakov.orrery.core.InvalidDatePolicy){}[0]
+    final fun toRfc5545String(kotlin/Boolean = ...): kotlin/String // me.kozakov.orrery.core/RecurrenceRule.toRfc5545String|toRfc5545String(kotlin.Boolean){}[0]
+    final fun toString(): kotlin/String // me.kozakov.orrery.core/RecurrenceRule.toString|toString(){}[0]
+
+    final object Companion { // me.kozakov.orrery.core/RecurrenceRule.Companion|null[0]
+        final fun daily(kotlin/Int = ...): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/RecurrenceRule.Companion.daily|daily(kotlin.Int){}[0]
+        final fun monthlyOnDay(kotlin/Int): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/RecurrenceRule.Companion.monthlyOnDay|monthlyOnDay(kotlin.Int){}[0]
+        final fun monthlyOnLastDay(): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/RecurrenceRule.Companion.monthlyOnLastDay|monthlyOnLastDay(){}[0]
+        final fun monthlyOnNth(kotlin/Int, kotlinx.datetime/DayOfWeek): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/RecurrenceRule.Companion.monthlyOnNth|monthlyOnNth(kotlin.Int;kotlinx.datetime.DayOfWeek){}[0]
+        final fun parse(kotlin/String, kotlin.collections/Set<kotlinx.datetime/LocalDate> = ...): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/RecurrenceRule.Companion.parse|parse(kotlin.String;kotlin.collections.Set<kotlinx.datetime.LocalDate>){}[0]
+        final fun parseExDates(kotlin/String): kotlin.collections/Set<kotlinx.datetime/LocalDate> // me.kozakov.orrery.core/RecurrenceRule.Companion.parseExDates|parseExDates(kotlin.String){}[0]
+        final fun parseOrNull(kotlin/String, kotlin.collections/Set<kotlinx.datetime/LocalDate> = ...): me.kozakov.orrery.core/RecurrenceRule? // me.kozakov.orrery.core/RecurrenceRule.Companion.parseOrNull|parseOrNull(kotlin.String;kotlin.collections.Set<kotlinx.datetime.LocalDate>){}[0]
+        final fun weekly(kotlin/Array<out kotlinx.datetime/DayOfWeek>..., kotlin/Int = ...): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/RecurrenceRule.Companion.weekly|weekly(kotlin.Array<out|kotlinx.datetime.DayOfWeek>...;kotlin.Int){}[0]
+        final fun yearly(): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/RecurrenceRule.Companion.yearly|yearly(){}[0]
+    }
+}
+
+final class me.kozakov.orrery.core/RecurrenceRuleBuilder { // me.kozakov.orrery.core/RecurrenceRuleBuilder|null[0]
+    final var count // me.kozakov.orrery.core/RecurrenceRuleBuilder.count|{}count[0]
+        final fun <get-count>(): kotlin/Int? // me.kozakov.orrery.core/RecurrenceRuleBuilder.count.<get-count>|<get-count>(){}[0]
+        final fun <set-count>(kotlin/Int?) // me.kozakov.orrery.core/RecurrenceRuleBuilder.count.<set-count>|<set-count>(kotlin.Int?){}[0]
+    final var interval // me.kozakov.orrery.core/RecurrenceRuleBuilder.interval|{}interval[0]
+        final fun <get-interval>(): kotlin/Int // me.kozakov.orrery.core/RecurrenceRuleBuilder.interval.<get-interval>|<get-interval>(){}[0]
+        final fun <set-interval>(kotlin/Int) // me.kozakov.orrery.core/RecurrenceRuleBuilder.interval.<set-interval>|<set-interval>(kotlin.Int){}[0]
+    final var until // me.kozakov.orrery.core/RecurrenceRuleBuilder.until|{}until[0]
+        final fun <get-until>(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/RecurrenceRuleBuilder.until.<get-until>|<get-until>(){}[0]
+        final fun <set-until>(kotlinx.datetime/LocalDate?) // me.kozakov.orrery.core/RecurrenceRuleBuilder.until.<set-until>|<set-until>(kotlinx.datetime.LocalDate?){}[0]
+    final var weekStart // me.kozakov.orrery.core/RecurrenceRuleBuilder.weekStart|{}weekStart[0]
+        final fun <get-weekStart>(): kotlinx.datetime/DayOfWeek // me.kozakov.orrery.core/RecurrenceRuleBuilder.weekStart.<get-weekStart>|<get-weekStart>(){}[0]
+        final fun <set-weekStart>(kotlinx.datetime/DayOfWeek) // me.kozakov.orrery.core/RecurrenceRuleBuilder.weekStart.<set-weekStart>|<set-weekStart>(kotlinx.datetime.DayOfWeek){}[0]
+
+    final fun byDay(kotlin/Array<out kotlinx.datetime/DayOfWeek>...) // me.kozakov.orrery.core/RecurrenceRuleBuilder.byDay|byDay(kotlin.Array<out|kotlinx.datetime.DayOfWeek>...){}[0]
+    final fun byMonth(kotlin/IntArray...) // me.kozakov.orrery.core/RecurrenceRuleBuilder.byMonth|byMonth(kotlin.IntArray...){}[0]
+    final fun byMonthDay(kotlin/IntArray...) // me.kozakov.orrery.core/RecurrenceRuleBuilder.byMonthDay|byMonthDay(kotlin.IntArray...){}[0]
+    final fun bySetPos(kotlin/IntArray...) // me.kozakov.orrery.core/RecurrenceRuleBuilder.bySetPos|bySetPos(kotlin.IntArray...){}[0]
+    final fun exDate(kotlin/Array<out kotlinx.datetime/LocalDate>...) // me.kozakov.orrery.core/RecurrenceRuleBuilder.exDate|exDate(kotlin.Array<out|kotlinx.datetime.LocalDate>...){}[0]
+    final fun last(kotlinx.datetime/DayOfWeek) // me.kozakov.orrery.core/RecurrenceRuleBuilder.last|last(kotlinx.datetime.DayOfWeek){}[0]
+    final fun nth(kotlin/Int, kotlinx.datetime/DayOfWeek) // me.kozakov.orrery.core/RecurrenceRuleBuilder.nth|nth(kotlin.Int;kotlinx.datetime.DayOfWeek){}[0]
+}
+
 final class me.kozakov.orrery.core/Selection { // me.kozakov.orrery.core/Selection|null[0]
     constructor <init>(kotlinx.datetime/LocalDate? = ..., kotlinx.datetime/LocalDate? = ..., kotlinx.datetime/LocalDate? = ..., kotlin.collections/Set<kotlinx.datetime/LocalDate> = ...) // me.kozakov.orrery.core/Selection.<init>|<init>(kotlinx.datetime.LocalDate?;kotlinx.datetime.LocalDate?;kotlinx.datetime.LocalDate?;kotlin.collections.Set<kotlinx.datetime.LocalDate>){}[0]
 
@@ -646,6 +777,7 @@ final object me.kozakov.orrery.core/SelectionPresets { // me.kozakov.orrery.core
 
 final fun (kotlinx.datetime/LocalDate).me.kozakov.orrery.core/isoWeekNumber(): kotlin/Int // me.kozakov.orrery.core/isoWeekNumber|isoWeekNumber@kotlinx.datetime.LocalDate(){}[0]
 final fun <#A: kotlin/Any?> (kotlin.collections/Iterable<me.kozakov.orrery.core/CalendarEvent<#A>>).me.kozakov.orrery.core/eventsByDate(kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>): kotlin.collections/Map<kotlinx.datetime/LocalDate, kotlin.collections/List<me.kozakov.orrery.core/CalendarEvent<#A>>> // me.kozakov.orrery.core/eventsByDate|eventsByDate@kotlin.collections.Iterable<me.kozakov.orrery.core.CalendarEvent<0:0>>(kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlin.collections/Iterable<me.kozakov.orrery.core/CalendarEvent<#A>>).me.kozakov.orrery.core/expandRecurring(kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>, me.kozakov.orrery.core/InvalidDatePolicy = ...): kotlin.collections/List<me.kozakov.orrery.core/CalendarEvent<#A>> // me.kozakov.orrery.core/expandRecurring|expandRecurring@kotlin.collections.Iterable<me.kozakov.orrery.core.CalendarEvent<0:0>>(kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>;me.kozakov.orrery.core.InvalidDatePolicy){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> me.kozakov.orrery.core/layoutDaySchedule(kotlinx.datetime/LocalDate, kotlin.collections/Iterable<me.kozakov.orrery.core/CalendarEvent<#A>>, kotlin/Int = ...): me.kozakov.orrery.core/DayScheduleLayout<#A> // me.kozakov.orrery.core/layoutDaySchedule|layoutDaySchedule(kotlinx.datetime.LocalDate;kotlin.collections.Iterable<me.kozakov.orrery.core.CalendarEvent<0:0>>;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> me.kozakov.orrery.core/layoutDaySchedule(kotlinx.datetime/LocalDate, kotlin.collections/Iterable<me.kozakov.orrery.core/CalendarEvent<#A>>, kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., me.kozakov.orrery.core/EventOverlapMode = ...): me.kozakov.orrery.core/DayScheduleLayout<#A> // me.kozakov.orrery.core/layoutDaySchedule|layoutDaySchedule(kotlinx.datetime.LocalDate;kotlin.collections.Iterable<me.kozakov.orrery.core.CalendarEvent<0:0>>;kotlin.Int;kotlin.Int;kotlin.Int;me.kozakov.orrery.core.EventOverlapMode){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> me.kozakov.orrery.core/packAllDayBanners(kotlin.collections/List<kotlinx.datetime/LocalDate>, kotlin.collections/List<me.kozakov.orrery.core/CalendarEvent<#A>>): kotlin.collections/List<me.kozakov.orrery.core/AllDayBanner<#A>> // me.kozakov.orrery.core/packAllDayBanners|packAllDayBanners(kotlin.collections.List<kotlinx.datetime.LocalDate>;kotlin.collections.List<me.kozakov.orrery.core.CalendarEvent<0:0>>){0§<kotlin.Any?>}[0]
@@ -658,6 +790,7 @@ final fun me.kozakov.orrery.core/heatmapSummary(kotlin.ranges/ClosedRange<kotlin
 final fun me.kozakov.orrery.core/monthGrid(kotlinx.datetime/YearMonth, kotlinx.datetime/DayOfWeek = ..., me.kozakov.orrery.core/OutDateStyle = ...): me.kozakov.orrery.core/CalendarMonth // me.kozakov.orrery.core/monthGrid|monthGrid(kotlinx.datetime.YearMonth;kotlinx.datetime.DayOfWeek;me.kozakov.orrery.core.OutDateStyle){}[0]
 final fun me.kozakov.orrery.core/monthGrid(kotlinx.datetime/YearMonth, kotlinx.datetime/DayOfWeek = ..., me.kozakov.orrery.core/OutDateStyle = ..., kotlin.collections/Set<kotlinx.datetime/DayOfWeek>): me.kozakov.orrery.core/CalendarMonth // me.kozakov.orrery.core/monthGrid|monthGrid(kotlinx.datetime.YearMonth;kotlinx.datetime.DayOfWeek;me.kozakov.orrery.core.OutDateStyle;kotlin.collections.Set<kotlinx.datetime.DayOfWeek>){}[0]
 final fun me.kozakov.orrery.core/multiWeekGrid(kotlinx.datetime/LocalDate, kotlin/Int = ..., kotlinx.datetime/DayOfWeek = ..., kotlin.collections/Set<kotlinx.datetime/DayOfWeek> = ...): kotlin.collections/List<me.kozakov.orrery.core/CalendarWeek> // me.kozakov.orrery.core/multiWeekGrid|multiWeekGrid(kotlinx.datetime.LocalDate;kotlin.Int;kotlinx.datetime.DayOfWeek;kotlin.collections.Set<kotlinx.datetime.DayOfWeek>){}[0]
+final fun me.kozakov.orrery.core/recurrenceRule(me.kozakov.orrery.core/Frequency, kotlin/Function1<me.kozakov.orrery.core/RecurrenceRuleBuilder, kotlin/Unit> = ...): me.kozakov.orrery.core/RecurrenceRule // me.kozakov.orrery.core/recurrenceRule|recurrenceRule(me.kozakov.orrery.core.Frequency;kotlin.Function1<me.kozakov.orrery.core.RecurrenceRuleBuilder,kotlin.Unit>){}[0]
 final fun me.kozakov.orrery.core/weekGrid(kotlinx.datetime/LocalDate, kotlinx.datetime/DayOfWeek = ...): me.kozakov.orrery.core/CalendarWeek // me.kozakov.orrery.core/weekGrid|weekGrid(kotlinx.datetime.LocalDate;kotlinx.datetime.DayOfWeek){}[0]
 final fun me.kozakov.orrery.core/weekGrid(kotlinx.datetime/LocalDate, kotlinx.datetime/DayOfWeek = ..., kotlin.collections/Set<kotlinx.datetime/DayOfWeek>): me.kozakov.orrery.core/CalendarWeek // me.kozakov.orrery.core/weekGrid|weekGrid(kotlinx.datetime.LocalDate;kotlinx.datetime.DayOfWeek;kotlin.collections.Set<kotlinx.datetime.DayOfWeek>){}[0]
 final inline fun <#A: reified kotlin/Any?> (me.kozakov.orrery.core/DayInfo).me.kozakov.orrery.core/payloadAs(): #A? // me.kozakov.orrery.core/payloadAs|payloadAs@me.kozakov.orrery.core.DayInfo(){0§<kotlin.Any?>}[0]

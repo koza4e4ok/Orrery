@@ -80,8 +80,7 @@ class CompactHeightDialogSnapshotTest {
         rule.onNode(isDialog()).captureRoboImage()
     }
 
-    @Test
-    fun dateRangePickerCompactHeight() {
+    private fun dateRangePicker(layoutMode: DateRangeCalendarLayoutMode) {
         rule.setContent {
             MaterialTheme(colorScheme = lightColorScheme()) {
                 OrreryDateRangePickerDialog(
@@ -94,9 +93,22 @@ class CompactHeightDialogSnapshotTest {
                         ),
                     today = today,
                     presets = DatePickerDefaults.rangePresets(today),
+                    layoutMode = layoutMode,
                 )
             }
         }
+    }
+
+    // This window is wide enough for the two-month layout, so the column is asked for.
+    @Test
+    fun dateRangePickerCompactHeight() {
+        dateRangePicker(DateRangeCalendarLayoutMode.SingleMonth)
+        rule.onNode(isDialog()).captureRoboImage()
+    }
+
+    @Test
+    fun dateRangePickerDualMonthCompactHeight() {
+        dateRangePicker(DateRangeCalendarLayoutMode.Adaptive())
         rule.onNode(isDialog()).captureRoboImage()
     }
 }

@@ -69,6 +69,22 @@ public class CalendarState internal constructor(
     /** List items per month: 2 when sticky headers add a header item per month. */
     internal var itemsPerMonth: Int = 1
 
+    /**
+     * Switches [itemsPerMonth] to [count] while keeping [firstVisibleMonth] in
+     * place. Safe to call during composition, before the list of the new
+     * layout measures, so no frame shows the month the old index would map to.
+     */
+    internal fun useItemsPerMonth(count: Int) {
+        if (itemsPerMonth == count) return
+        val visible = firstVisibleMonth
+        val source = lastScrollSource
+        itemsPerMonth = count
+        val index = indexOf(visible)
+        anchorSource = source
+        anchorMonth = monthAtIndex(index)
+        listState.requestScrollToItem(index)
+    }
+
     internal val listState: LazyListState =
         LazyListState(
             firstVisibleItemIndex = indexOf(firstVisibleMonth),

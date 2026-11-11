@@ -21,11 +21,14 @@ import me.kozakov.orrery.core.DayPosition
 /**
  * Shared state for arrow-key/D-pad edge paging: [page] scrolls to the
  * target date's page, then [pendingFocus] tells that date's cell to
- * grab focus once composed.
+ * grab focus once composed. With [dualMonth] (two month panes side by
+ * side) every arrow move goes through [page], because focus search cannot
+ * be trusted across the two panes.
  */
 @Stable
 internal class CalendarKeyboardNavigation(
     private val scope: CoroutineScope,
+    val dualMonth: Boolean = false,
     private val pageToDate: suspend (LocalDate) -> Unit,
 ) {
     val pendingFocus: MutableState<LocalDate?> = mutableStateOf(null)

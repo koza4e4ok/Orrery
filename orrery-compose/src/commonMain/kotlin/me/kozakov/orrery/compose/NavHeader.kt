@@ -198,7 +198,7 @@ public fun CalendarNavHeader(
 
 private val LocalNavHeaderExpanded = compositionLocalOf { false }
 
-private val TodayButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+internal val TodayButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
 
 @Composable
 private fun NavHeaderTitle(
@@ -219,7 +219,7 @@ private fun NavHeaderTitle(
 
 /** Canvas chevron — material3 1.4 no longer bundles material-icons. */
 @Composable
-private fun NavChevron(
+internal fun NavChevron(
     forward: Boolean,
     contentDescription: String,
 ) {

@@ -20,6 +20,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,13 +43,16 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.compose.CalendarDefaults
 import me.kozakov.orrery.compose.CalendarStyle
+import me.kozakov.orrery.compose.DatePickerDefaults
 import me.kozakov.orrery.compose.DayDecorators
 import me.kozakov.orrery.compose.DefaultDay
+import me.kozakov.orrery.compose.OrreryDateRangePickerDialog
 import me.kozakov.orrery.compose.RangeEndpointStyle
 import me.kozakov.orrery.compose.VerticalCalendar
 import me.kozakov.orrery.compose.currentDate
 import me.kozakov.orrery.compose.rememberCalendarSelectionState
 import me.kozakov.orrery.compose.rememberCalendarState
+import me.kozakov.orrery.compose.rememberOrreryDateRangePickerState
 import me.kozakov.orrery.core.CalendarPages
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DisabledDates
@@ -92,7 +96,8 @@ private enum class EndpointOption(
  * Hotel-booking flow: drag-select a stay (or a week/month), nightly prices, blackout dates,
  * hospitality range endpoints (check-in PM half, check-out AM half, turnover days), and
  * "Stay rules" guardrails: 1–13 nights, and a stay never spans a booked night (tapping
- * past one starts a new stay there).
+ * past one starts a new stay there). "Wide preview" opens the same stay in the range picker
+ * dialog, which shows two months side by side on wide windows (or always, with "Dual").
  */
 @Composable
 internal fun TripsScreen() {
@@ -104,6 +109,8 @@ internal fun TripsScreen() {
     var stayMode by rememberSaveable { mutableStateOf(StayMode.Range) }
     var endpointOption by rememberSaveable { mutableStateOf(EndpointOption.Diagonal) }
     var stayRules by rememberSaveable { mutableStateOf(true) }
+    var pickerLayout by rememberSaveable { mutableStateOf(PickerLayoutOption.Auto) }
+    var showPicker by rememberSaveable { mutableStateOf(false) }
     val selection =
         rememberCalendarSelectionState(
             mode = stayMode.mode,
@@ -269,6 +276,25 @@ internal fun TripsScreen() {
                     )
                 }
             }
+            if (stayMode == StayMode.Range) {
+                Row(
+                    Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        "Picker layout",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    PickerLayoutChips(selected = pickerLayout, onSelect = { pickerLayout = it })
+                    AssistChip(
+                        onClick = { showPicker = true },
+                        label = { Text("Wide preview") },
+                        modifier = Modifier.testTag("trips_open_picker"),
+                    )
+                }
+            }
             HorizontalDivider(Modifier.padding(top = 4.dp))
             VerticalCalendar(
                 state = calendarState,
@@ -302,6 +328,63 @@ internal fun TripsScreen() {
             )
         }
     }
+    if (showPicker) {
+        StayPickerDialog(
+            stay = selection.selection,
+            today = today,
+            blackouts = blackouts,
+            stayRules = stayRules,
+            layout = pickerLayout,
+            onSave = { stay ->
+                selection.set(stay)
+                showPicker = false
+            },
+            onDismiss = { showPicker = false },
+        )
+    }
+}
+
+/**
+ * The stay in [OrreryDateRangePickerDialog] with the same blackout dates and stay rules as the
+ * screen's calendar, so the guardrails also show across the two side-by-side months.
+ */
+@Suppress("LongParameterList")
+@Composable
+private fun StayPickerDialog(
+    stay: Selection,
+    today: LocalDate,
+    blackouts: DisabledDates,
+    stayRules: Boolean,
+    layout: PickerLayoutOption,
+    onSave: (Selection) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val state =
+        rememberOrreryDateRangePickerState(
+            initialStartDate = stay.rangeStart,
+            initialEndDate = stay.rangeEnd,
+            initialDisplayedMonth = (stay.rangeStart ?: today).let { YearMonth(it.year, it.month) },
+            yearRange = today.year..today.year + 1,
+            disabledDates = blackouts,
+            disallowDisabledInRange = stayRules,
+            minRangeDays = if (stayRules) MIN_STAY_DAYS else 1,
+            maxRangeDays = if (stayRules) MAX_STAY_DAYS else null,
+        )
+    OrreryDateRangePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            val start = state.selectedStartDate
+            val end = state.selectedEndDate
+            TextButton(
+                onClick = { onSave(Selection(rangeStart = start, rangeEnd = end)) },
+                enabled = start != null && end != null,
+            ) { Text("Save") }
+        },
+        state = state,
+        today = today,
+        presets = DatePickerDefaults.rangePresets(today),
+        layoutMode = layout.mode,
+    )
 }
 
 @Composable

@@ -2,6 +2,7 @@ package me.kozakov.orrery.sample
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -107,6 +109,7 @@ private fun SingleDateCard() {
 private fun DateRangeCard() {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var result by rememberSaveable { mutableStateOf<String?>(null) }
+    var layout by rememberSaveable { mutableStateOf(PickerLayoutOption.Auto) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -122,6 +125,13 @@ private fun DateRangeCard() {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            // Auto shows two months side by side once the window is at least 640 dp wide.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                PickerLayoutChips(selected = layout, onSelect = { layout = it })
+            }
             Button(onClick = { showDialog = true }) { Text("Pick range") }
         }
     }
@@ -144,6 +154,7 @@ private fun DateRangeCard() {
             },
             state = state,
             presets = DatePickerDefaults.rangePresets(),
+            layoutMode = layout.mode,
         )
     }
 }

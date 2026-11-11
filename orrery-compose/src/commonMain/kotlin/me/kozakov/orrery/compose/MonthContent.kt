@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
@@ -60,6 +61,9 @@ internal val WeekNumberColumnWidth = 32.dp
  * (not the week-number column) in a [BoxScope] sized to the row, which grows
  * when the overlay is taller; [weekFooter] goes below each week row and
  * [monthFooter] below the whole grid.
+ *
+ * [selectionForKeys] is the selection Shift+Arrow extends when the caller
+ * handles drag selection itself and so passes no [dragSelection].
  */
 @Composable
 internal fun MonthContent(
@@ -77,6 +81,7 @@ internal fun MonthContent(
     weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
     weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
     monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    selectionForKeys: CalendarSelectionState? = null,
 ) {
     val haptics = LocalHapticFeedback.current
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -98,24 +103,8 @@ internal fun MonthContent(
                     Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, unevenRows, isRtl) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
 
-                        fun dayAt(offset: Offset): CalendarDay? {
-                            val rows = month.weeks.size
-                            if (rows == 0) return null
-                            val rowHeightPx = size.height.toFloat() / rows
-                            val row =
-                                if (unevenRows) {
-                                    rowTops.indexOfLast { it <= offset.y }.coerceAtLeast(0)
-                                } else {
-                                    (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
-                                }
-                            val weekDays = month.weeks[row].days
-                            val cols = weekDays.size
-                            if (cols == 0) return null
-                            val colWidth = (size.width - leading) / cols.toFloat()
-                            val rawX = if (isRtl) size.width - leading - offset.x else offset.x - leading
-                            val col = (rawX / colWidth).toInt().coerceIn(0, cols - 1)
-                            return weekDays[col]
-                        }
+                        fun dayAt(offset: Offset): CalendarDay? =
+                            monthDayAt(month, leading, size, offset, isRtl, rowTops.takeIf { unevenRows })
 
                         var lastDragDate: LocalDate? = null
                         detectDragGesturesAfterLongPress(
@@ -213,7 +202,7 @@ internal fun MonthContent(
                                 row = row,
                                 rowCount = rowCount,
                                 rowFocusRequesters = rowFocusRequesters,
-                                selectionState = dragSelection,
+                                selectionState = selectionForKeys ?: dragSelection,
                                 // Paging always scrolls to the page of the target's month, where the
                                 // target is an in-month date; out-dates of other pages never take it.
                                 acceptsPendingFocus = day.position == DayPosition.MonthDate,
@@ -227,6 +216,39 @@ internal fun MonthContent(
         }
         monthFooter?.invoke(this, month)
     }
+}
+
+/**
+ * The day of [month] under [offset] in a grid of [size] pixels whose rows
+ * are the month's weeks, or null for an empty grid. [weekNumberLeading] is
+ * the width of the week-number column at the start edge. Rows share the
+ * height evenly unless [rowTops] gives their measured tops; offsets outside
+ * the grid resolve to the nearest row and column.
+ */
+internal fun monthDayAt(
+    month: CalendarMonth,
+    weekNumberLeading: Float,
+    size: IntSize,
+    offset: Offset,
+    isRtl: Boolean,
+    rowTops: IntArray?,
+): CalendarDay? {
+    val rows = month.weeks.size
+    if (rows == 0) return null
+    val rowHeightPx = size.height.toFloat() / rows
+    val row =
+        if (rowTops != null) {
+            rowTops.indexOfLast { it <= offset.y }.coerceAtLeast(0)
+        } else {
+            (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
+        }
+    val weekDays = month.weeks[row].days
+    val cols = weekDays.size
+    if (cols == 0) return null
+    val colWidth = (size.width - weekNumberLeading) / cols.toFloat()
+    val rawX = if (isRtl) size.width - weekNumberLeading - offset.x else offset.x - weekNumberLeading
+    val col = (rawX / colWidth).toInt().coerceIn(0, cols - 1)
+    return weekDays[col]
 }
 
 /**
@@ -410,7 +432,8 @@ private fun DayKeyContext.focusRowEdge(start: Boolean): Boolean {
 
 /**
  * Arrows: page at the grid edges; with Shift in range mode, also extend
- * the range. Plain arrows inside the grid fall through to focus search.
+ * the range. Plain arrows inside the grid fall through to focus search,
+ * except in a dual-month layout, where every move resolves its date here.
  */
 private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     val days = position.arrowDays(event.key) ?: return false
@@ -424,7 +447,7 @@ private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     val rangeState = selectionState?.takeIf { event.isShiftPressed && it.mode is SelectionMode.Range }
     rangeState?.extendRange(anchor = rangeAnchor(rangeState, day.date), target = target)
     return when {
-        atEdge -> {
+        keyboard.dualMonth || atEdge -> {
             keyboard.page(target)
             true
         }

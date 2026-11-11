@@ -3,6 +3,8 @@ package me.kozakov.orrery.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -63,6 +65,13 @@ public class MonthPickerStrings(
 
 /** Defaults for the date picker dialogs. */
 public object DatePickerDefaults {
+    /**
+     * Narrowest dialog window in which [OrreryDateRangePickerDialog] shows two
+     * months side by side by default; the default of
+     * [DateRangeCalendarLayoutMode.Adaptive].
+     */
+    public val MinDualMonthWidth: Dp = 640.dp
+
     /**
      * Builds [DatePickerStrings]. Defaults are resolved from the current
      * locale's resources; override any parameter to replace a string.

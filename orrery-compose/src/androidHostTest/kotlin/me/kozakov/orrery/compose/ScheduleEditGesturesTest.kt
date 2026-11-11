@@ -61,7 +61,8 @@ class ScheduleEditGesturesTest {
         end: LocalDateTime,
     ): CalendarEvent<String> = CalendarEvent(id = id, title = title, span = EventSpan.Timed(start, end), payload = id)
 
-    private val standup = timed("standup", "Standup", LocalDateTime(2026, 7, 15, 9, 0), LocalDateTime(2026, 7, 15, 9, 30))
+    private val standup =
+        timed("standup", "Standup", LocalDateTime(2026, 7, 15, 9, 0), LocalDateTime(2026, 7, 15, 9, 30))
     private val review = timed("review", "Review", LocalDateTime(2026, 7, 15, 11, 0), LocalDateTime(2026, 7, 15, 12, 0))
     private val events = listOf(standup, review).eventsByDate(LocalDate(2026, 7, 1)..LocalDate(2026, 7, 31))
 

@@ -188,6 +188,7 @@ public class ScheduleStrings(
 }
 
 /** Defaults for [DaySchedule] and [WeekSchedule]. */
+@Suppress("TooManyFunctions")
 public object ScheduleDefaults {
     @Composable
     public fun colors(

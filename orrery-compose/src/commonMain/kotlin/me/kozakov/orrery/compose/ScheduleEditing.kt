@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package me.kozakov.orrery.compose
 
 import kotlinx.datetime.DateTimeUnit
@@ -160,8 +162,11 @@ internal fun moveRange(
     return MinuteRange(newStart, newStart + duration)
 }
 
-/** Resize from the top: the start snaps and stays in [min]..(end - [minDuration]). */
-@Suppress("LongParameterList")
+/**
+ * Resize from the top: the start snaps and stays in [min]..(end - [minDuration]).
+ * [start] is unused but kept so both resize helpers share one (start, end, pointer) shape.
+ */
+@Suppress("LongParameterList", "UnusedParameter")
 internal fun resizeStart(
     start: Int,
     end: Int,
@@ -175,8 +180,11 @@ internal fun resizeStart(
     return MinuteRange(newStart, end)
 }
 
-/** Resize from the bottom: the end snaps and stays in (start + [minDuration])..[max]. */
-@Suppress("LongParameterList")
+/**
+ * Resize from the bottom: the end snaps and stays in (start + [minDuration])..[max].
+ * [end] is unused but kept so both resize helpers share one (start, end, pointer) shape.
+ */
+@Suppress("LongParameterList", "UnusedParameter")
 internal fun resizeEnd(
     start: Int,
     end: Int,

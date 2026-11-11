@@ -4,6 +4,16 @@
 
 ### Added
 
+- Interactive `DaySchedule` / `WeekSchedule` editing (#88): `onEmptySlotLongPress`,
+  `onSlotCreate`, `onEventMove` and `onEventResize` (long press to create or move on
+  touch, press-and-drag with a mouse, resize handles), snapping to `snapMinutes`,
+  a themeable drag ghost (`ghostContent`, `ScheduleDefaults.DragGhost`,
+  `ScheduleDragPreview`, `ScheduleDragKind`), edge auto-scroll, keyboard editing
+  (`Alt`+arrows, a column caret with `Enter`) and TalkBack custom actions. All
+  callbacks default to `null`, so existing schedules are unchanged. An `endTime`
+  that is not after `startTime` means 00:00 of the following day. The previous
+  overloads, `ScheduleStrings`, `ScheduleDimensions` and `ScheduleDefaults.strings`
+  / `dimensions` signatures stay as hidden binary-compatible bridges.
 - RFC 5545 recurrence in `orrery-core` (#86): `RecurrenceRule` (`FREQ` DAILY to
   YEARLY, `INTERVAL`, `COUNT`, `UNTIL`, `BYDAY` with ordinals, `BYMONTHDAY`,
   `BYMONTH`, `BYSETPOS`, `WKST`, `EXDATE`) with an RRULE/EXDATE parser and

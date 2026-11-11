@@ -49,6 +49,15 @@ import kotlinx.datetime.YearMonth
  * (calendar mode only); tapping one selects its range and scrolls to it.
  * Pass [DatePickerDefaults.rangePresets] for the standard set; the default
  * empty list shows no row.
+ *
+ * [layoutMode] picks the calendar layout. The default
+ * [DateRangeCalendarLayoutMode.Adaptive] shows two consecutive months side
+ * by side in a centred card when the dialog window is at least
+ * [DatePickerDefaults.MinDualMonthWidth] wide, and the full-screen single
+ * column of months below that. In dual mode state.displayedMonth is the
+ * earlier (left in LTR) month; the last reachable earlier month is the one
+ * before the range's end month, so the right pane is never empty.
+ * [DateRangeCalendarLayoutMode.SingleMonth] restores the 0.9 layout.
  */
 @Composable
 public fun OrreryDateRangePickerDialog(
@@ -61,6 +70,7 @@ public fun OrreryDateRangePickerDialog(
     today: LocalDate = currentDate(),
     strings: DatePickerStrings = DatePickerDefaults.strings(),
     presets: List<DateRangePreset> = emptyList(),
+    layoutMode: DateRangeCalendarLayoutMode = DateRangeCalendarLayoutMode.Adaptive(),
 ) {
     val scope = rememberCoroutineScope()
     Dialog(
@@ -176,6 +186,33 @@ public fun OrreryDateRangePickerDialog(
             }
         }
     }
+}
+
+@Deprecated("Kept for binary compatibility; use the overload with layoutMode.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun OrreryDateRangePickerDialog(
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    state: OrreryDateRangePickerState = rememberOrreryDateRangePickerState(),
+    modifier: Modifier = Modifier,
+    colors: CalendarDayColors = CalendarDefaults.dayColors(),
+    shapes: CalendarDayShapes = CalendarDefaults.dayShapes(),
+    today: LocalDate = currentDate(),
+    strings: DatePickerStrings = DatePickerDefaults.strings(),
+    presets: List<DateRangePreset> = emptyList(),
+) {
+    OrreryDateRangePickerDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = confirmButton,
+        state = state,
+        modifier = modifier,
+        colors = colors,
+        shapes = shapes,
+        today = today,
+        strings = strings,
+        presets = presets,
+        layoutMode = DateRangeCalendarLayoutMode.Adaptive(),
+    )
 }
 
 @Deprecated("Kept for binary compatibility; use the overload with presets.", level = DeprecationLevel.HIDDEN)

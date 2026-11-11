@@ -25,8 +25,21 @@
   `CollapsibleCalendarState.visibleDateRangeFlow(calendarState, weekState, ...)`,
   which widen the range by whole months/weeks, clamp it to the configured bounds
   and only emit changes.
+- Dual-month range picker (#88): `OrreryDateRangePickerDialog(layoutMode = ...)`
+  with `DateRangeCalendarLayoutMode.SingleMonth`, `DualMonth` and
+  `Adaptive(minDualMonthWidth = DatePickerDefaults.MinDualMonthWidth)` (640.dp).
+  Dual mode shows two consecutive months side by side in a centered card, with
+  synchronised paging, cross-month tap, long-press drag (auto-pages at the edges)
+  and keyboard selection, a mouse/stylus hover preview and side-by-side input
+  fields. The previous signature stays as a hidden binary-compatible bridge.
 
 ### Changed
+
+- **Behaviour change:** `OrreryDateRangePickerDialog` now defaults to
+  `layoutMode = DateRangeCalendarLayoutMode.Adaptive()`, so on windows at least
+  640.dp wide (tablets, desktop, landscape foldables) it shows two months in a
+  centered card instead of the full-screen single column. Pass
+  `layoutMode = DateRangeCalendarLayoutMode.SingleMonth` to keep the 0.9.2 layout.
 
 - `CalendarDefaults.MiniMonth` draws the whole month on one canvas with shared,
   cached text layouts instead of composing about 40 nodes per month, so

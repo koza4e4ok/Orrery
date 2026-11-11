@@ -12,6 +12,7 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -323,7 +324,7 @@ class ScheduleEditGesturesTest {
     @Test
     fun altArrowsMoveAndResizeTheFocusedTile() {
         schedule(move = true, resize = true)
-        val tile = rule.onNode(hasCustomAction("Move later") and androidx.compose.ui.test.hasText("Standup"))
+        val tile = rule.onNode(hasCustomAction("Move later") and hasText("Standup"))
         tile.requestFocus()
         tile.performKeyInput { withKeyDown(Key.AltLeft) { pressKey(Key.DirectionDown) } }
         tile.performKeyInput {

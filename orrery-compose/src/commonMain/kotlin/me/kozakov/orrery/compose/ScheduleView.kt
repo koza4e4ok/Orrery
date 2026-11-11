@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -45,6 +46,8 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
@@ -65,7 +68,26 @@ import kotlin.math.roundToInt
 /**
  * Horizontally paged single-day time-grid schedule view with an optional
  * all-day banner. Swiping moves one day; [state] holds the visible date, the
- * shared vertical scroll and the zoomable hour height.
+ * shared vertical scroll and the zoomable hour height. The visible hours come
+ * from [ScheduleState.minHour]..[ScheduleState.maxHour].
+ *
+ * Editing is enabled per callback: with [onEmptySlotLongPress], [onSlotCreate],
+ * [onEventMove] and [onEventResize] all null (the default) the schedule is
+ * read-only and adds no gestures, handles or semantics. The schedule never
+ * changes events itself: each callback fires once, when the gesture ends, with
+ * the snapped result, and only when something changed; update your events in it.
+ * In every callback **an end time that is not after the start time means 00:00
+ * of the following day**. Only timed events within one day can be moved or
+ * resized, and only inside the visible page and hours.
+ *
+ * Touch starts creating or moving after a long press, mouse and stylus on
+ * press-and-drag; resize handles drag immediately. A second finger or Escape
+ * cancels. Keyboard: on a focused tile, Alt+Up/Down moves by [snapMinutes],
+ * Alt+Left/Right moves to the neighbouring day of the page, Alt+Shift+Up/Down
+ * moves the end edge and Alt+Ctrl+Up/Down the start edge, each key press firing
+ * the callback at once; a focused day column shows a slot caret that Up/Down
+ * move, Shift+Up/Down resize and Enter or Space commit. Assistive technologies
+ * get the same edits as custom actions.
  *
  * @param events Events for a date; called for each visible day, so index them
  *   up front (for example with `eventsByDate`).
@@ -73,8 +95,24 @@ import kotlin.math.roundToInt
  *   Pass it from your own clock so the view stays deterministic in tests.
  * @param userScrollEnabled Whether swiping between days is enabled. The time grid always scrolls vertically.
  * @param zoomGesturesEnabled Whether a two-finger pinch changes [ScheduleState.hourHeight].
+ * @param overlapMode [EventOverlapMode.SideBySide] (the default) splits the column
+ *   between overlapping events; [EventOverlapMode.Stacked] cascades them with an indent.
  * @param onEmptySlotClick Called with the column's date and the tapped time, floored to
  *   the hour (to the half hour when [showHalfHourLines] is true).
+ * @param onEmptySlotLongPress Called with the column's date and the pressed time floored
+ *   to [snapMinutes] when empty space is long-pressed. With [onSlotCreate] also set it
+ *   fires on release, and only when the pointer did not move.
+ * @param onSlotCreate Called with the date and the dragged-out time range when a long
+ *   press on empty space (press-and-drag with a mouse) is dragged and released. A long
+ *   press released without moving creates a one-hour range when [onEmptySlotLongPress] is null.
+ * @param onEventMove Called with the event, its new date and its new start and end time
+ *   after it was dragged or moved by keyboard. The duration is kept.
+ * @param onEventResize Called with the event and its new start and end time after a
+ *   resize handle was dragged or an edge was moved by keyboard. The date never changes
+ *   and the event keeps at least `max(snapMinutes, minEventDurationMinutes)` minutes.
+ * @param snapMinutes Step that edited times snap to; must divide 60 (5, 10, 15, 20, 30, 60...).
+ * @param hapticsEnabled Whether lifting an event and each snap step give haptic feedback.
+ * @param ghostContent The tile drawn at the snapped position while an edit is in flight.
  */
 @Composable
 public fun <T> DaySchedule(
@@ -87,11 +125,21 @@ public fun <T> DaySchedule(
     zoomGesturesEnabled: Boolean = true,
     showHalfHourLines: Boolean = false,
     minEventDurationMinutes: Int = 15,
+    overlapMode: EventOverlapMode = EventOverlapMode.SideBySide,
     colors: ScheduleColors = ScheduleDefaults.colors(),
     dimensions: ScheduleDimensions = ScheduleDefaults.dimensions(),
     strings: ScheduleStrings = ScheduleDefaults.strings(),
     onEventClick: ((CalendarEvent<T>) -> Unit)? = null,
     onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)? = null,
+    onEmptySlotLongPress: ((date: LocalDate, time: LocalTime) -> Unit)? = null,
+    onSlotCreate: ((date: LocalDate, startTime: LocalTime, endTime: LocalTime) -> Unit)? = null,
+    onEventMove: ((event: CalendarEvent<T>, date: LocalDate, newStart: LocalTime, newEnd: LocalTime) -> Unit)? = null,
+    onEventResize: ((event: CalendarEvent<T>, newStart: LocalTime, newEnd: LocalTime) -> Unit)? = null,
+    snapMinutes: Int = 15,
+    hapticsEnabled: Boolean = true,
+    ghostContent: @Composable BoxScope.(ScheduleDragPreview<T>) -> Unit = { preview ->
+        ScheduleDefaults.DragGhost(preview, colors, dimensions, strings = strings)
+    },
     dayHeader: (@Composable (LocalDate, Boolean) -> Unit)? = { date, isToday ->
         ScheduleDefaults.DayHeader(date, isToday, colors)
     },
@@ -113,6 +161,7 @@ public fun <T> DaySchedule(
         )
     },
 ) {
+    require(isValidSnapMinutes(snapMinutes)) { "snapMinutes ($snapMinutes) must divide 60" }
     PagedSchedule(
         daysPerPage = 1,
         events = events,
@@ -120,11 +169,23 @@ public fun <T> DaySchedule(
         state = state,
         options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
         minEventDurationMinutes = minEventDurationMinutes,
-        overlapMode = EventOverlapMode.SideBySide,
+        overlapMode = overlapMode,
         colors = colors,
         dimensions = dimensions,
         strings = strings,
         onEmptySlotClick = onEmptySlotClick,
+        editConfig =
+            ScheduleEditConfig(
+                onEmptySlotLongPress = onEmptySlotLongPress,
+                onSlotCreate = onSlotCreate,
+                onEventMove = onEventMove,
+                onEventResize = onEventResize,
+                snapMinutes = snapMinutes,
+                hapticsEnabled = hapticsEnabled,
+                minEventDurationMinutes = minEventDurationMinutes,
+                eventsClickable = onEventClick != null,
+            ),
+        ghostContent = ghostContent,
         slots = ScheduleSlots(dayHeader, allDayEventContent, hourLabel, nowIndicator, eventContent),
     )
 }
@@ -134,9 +195,157 @@ public fun <T> DaySchedule(
  * Swiping moves a whole page of [daysPerPage] days. Seven-day pages start on
  * [ScheduleState.firstDayOfWeek]; other sizes are counted from the range start.
  * All-day events show as banners spanning the days they cover on the page.
+ * A dragged event can be dropped on any day of the visible page.
  *
- * See [DaySchedule] for the shared parameters.
+ * See [DaySchedule] for the shared parameters and the editing callbacks.
  */
+@Composable
+public fun <T> WeekSchedule(
+    events: (LocalDate) -> List<CalendarEvent<T>>,
+    modifier: Modifier = Modifier,
+    state: ScheduleState = rememberScheduleState(),
+    daysPerPage: Int = 7,
+    today: LocalDate = currentDate(),
+    currentTime: LocalTime? = null,
+    userScrollEnabled: Boolean = true,
+    zoomGesturesEnabled: Boolean = true,
+    showHalfHourLines: Boolean = false,
+    minEventDurationMinutes: Int = 15,
+    overlapMode: EventOverlapMode = EventOverlapMode.SideBySide,
+    colors: ScheduleColors = ScheduleDefaults.colors(),
+    dimensions: ScheduleDimensions = ScheduleDefaults.dimensions(),
+    strings: ScheduleStrings = ScheduleDefaults.strings(),
+    onEventClick: ((CalendarEvent<T>) -> Unit)? = null,
+    onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)? = null,
+    onEmptySlotLongPress: ((date: LocalDate, time: LocalTime) -> Unit)? = null,
+    onSlotCreate: ((date: LocalDate, startTime: LocalTime, endTime: LocalTime) -> Unit)? = null,
+    onEventMove: ((event: CalendarEvent<T>, date: LocalDate, newStart: LocalTime, newEnd: LocalTime) -> Unit)? = null,
+    onEventResize: ((event: CalendarEvent<T>, newStart: LocalTime, newEnd: LocalTime) -> Unit)? = null,
+    snapMinutes: Int = 15,
+    hapticsEnabled: Boolean = true,
+    ghostContent: @Composable BoxScope.(ScheduleDragPreview<T>) -> Unit = { preview ->
+        ScheduleDefaults.DragGhost(preview, colors, dimensions, strings = strings)
+    },
+    dayHeader: (@Composable (LocalDate, Boolean) -> Unit)? = { date, isToday ->
+        ScheduleDefaults.DayHeader(date, isToday, colors)
+    },
+    allDayEventContent: @Composable (CalendarEvent<T>) -> Unit = { event ->
+        ScheduleDefaults.AllDayEventChip(event, colors, dimensions, onClick = onEventClick?.let { cb -> { cb(event) } })
+    },
+    hourLabel: @Composable (Int) -> Unit = { hour ->
+        ScheduleDefaults.HourLabel(hour, colors)
+    },
+    nowIndicator: @Composable () -> Unit = {
+        ScheduleDefaults.NowIndicator(colors, dimensions, contentDescription = strings.nowLabel)
+    },
+    eventContent: @Composable BoxScope.(PositionedEvent<T>) -> Unit = { positioned ->
+        ScheduleDefaults.EventTile(
+            positioned = positioned,
+            colors = colors,
+            dimensions = dimensions,
+            onClick = onEventClick?.let { cb -> { cb(positioned.event) } },
+        )
+    },
+) {
+    require(daysPerPage >= 1) { "daysPerPage ($daysPerPage) must be at least 1" }
+    require(isValidSnapMinutes(snapMinutes)) { "snapMinutes ($snapMinutes) must divide 60" }
+    PagedSchedule(
+        daysPerPage = daysPerPage,
+        events = events,
+        modifier = modifier,
+        state = state,
+        options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
+        minEventDurationMinutes = minEventDurationMinutes,
+        overlapMode = overlapMode,
+        colors = colors,
+        dimensions = dimensions,
+        strings = strings,
+        onEmptySlotClick = onEmptySlotClick,
+        editConfig =
+            ScheduleEditConfig(
+                onEmptySlotLongPress = onEmptySlotLongPress,
+                onSlotCreate = onSlotCreate,
+                onEventMove = onEventMove,
+                onEventResize = onEventResize,
+                snapMinutes = snapMinutes,
+                hapticsEnabled = hapticsEnabled,
+                minEventDurationMinutes = minEventDurationMinutes,
+                eventsClickable = onEventClick != null,
+            ),
+        ghostContent = ghostContent,
+        slots = ScheduleSlots(dayHeader, allDayEventContent, hourLabel, nowIndicator, eventContent),
+    )
+}
+
+@Deprecated(
+    "Kept for binary compatibility; use the overload with editing callbacks.",
+    level = DeprecationLevel.HIDDEN,
+)
+@Composable
+public fun <T> DaySchedule(
+    events: (LocalDate) -> List<CalendarEvent<T>>,
+    modifier: Modifier = Modifier,
+    state: ScheduleState = rememberScheduleState(),
+    today: LocalDate = currentDate(),
+    currentTime: LocalTime? = null,
+    userScrollEnabled: Boolean = true,
+    zoomGesturesEnabled: Boolean = true,
+    showHalfHourLines: Boolean = false,
+    minEventDurationMinutes: Int = 15,
+    colors: ScheduleColors = ScheduleDefaults.colors(),
+    dimensions: ScheduleDimensions = ScheduleDefaults.dimensions(),
+    strings: ScheduleStrings = ScheduleDefaults.strings(),
+    onEventClick: ((CalendarEvent<T>) -> Unit)? = null,
+    onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)? = null,
+    dayHeader: (@Composable (LocalDate, Boolean) -> Unit)? = { date, isToday ->
+        ScheduleDefaults.DayHeader(date, isToday, colors)
+    },
+    allDayEventContent: @Composable (CalendarEvent<T>) -> Unit = { event ->
+        ScheduleDefaults.AllDayEventChip(event, colors, dimensions, onClick = onEventClick?.let { cb -> { cb(event) } })
+    },
+    hourLabel: @Composable (Int) -> Unit = { hour ->
+        ScheduleDefaults.HourLabel(hour, colors)
+    },
+    nowIndicator: @Composable () -> Unit = {
+        ScheduleDefaults.NowIndicator(colors, dimensions, contentDescription = strings.nowLabel)
+    },
+    eventContent: @Composable BoxScope.(PositionedEvent<T>) -> Unit = { positioned ->
+        ScheduleDefaults.EventTile(
+            positioned = positioned,
+            colors = colors,
+            dimensions = dimensions,
+            onClick = onEventClick?.let { cb -> { cb(positioned.event) } },
+        )
+    },
+) {
+    DaySchedule(
+        events = events,
+        modifier = modifier,
+        state = state,
+        today = today,
+        currentTime = currentTime,
+        userScrollEnabled = userScrollEnabled,
+        zoomGesturesEnabled = zoomGesturesEnabled,
+        showHalfHourLines = showHalfHourLines,
+        minEventDurationMinutes = minEventDurationMinutes,
+        colors = colors,
+        dimensions = dimensions,
+        strings = strings,
+        onEventClick = onEventClick,
+        onEmptySlotClick = onEmptySlotClick,
+        snapMinutes = DEFAULT_SNAP_MINUTES,
+        dayHeader = dayHeader,
+        allDayEventContent = allDayEventContent,
+        hourLabel = hourLabel,
+        nowIndicator = nowIndicator,
+        eventContent = eventContent,
+    )
+}
+
+@Deprecated(
+    "Kept for binary compatibility; use the overload with editing callbacks.",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun <T> WeekSchedule(
     events: (LocalDate) -> List<CalendarEvent<T>>,
@@ -175,31 +384,35 @@ public fun <T> WeekSchedule(
         )
     },
 ) {
-    require(daysPerPage >= 1) { "daysPerPage ($daysPerPage) must be at least 1" }
-    PagedSchedule(
-        daysPerPage = daysPerPage,
+    WeekSchedule(
         events = events,
         modifier = modifier,
         state = state,
-        options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
+        daysPerPage = daysPerPage,
+        today = today,
+        currentTime = currentTime,
+        userScrollEnabled = userScrollEnabled,
+        zoomGesturesEnabled = zoomGesturesEnabled,
+        showHalfHourLines = showHalfHourLines,
         minEventDurationMinutes = minEventDurationMinutes,
-        overlapMode = EventOverlapMode.SideBySide,
         colors = colors,
         dimensions = dimensions,
         strings = strings,
+        onEventClick = onEventClick,
         onEmptySlotClick = onEmptySlotClick,
-        slots = ScheduleSlots(dayHeader, allDayEventContent, hourLabel, nowIndicator, eventContent),
+        snapMinutes = DEFAULT_SNAP_MINUTES,
+        dayHeader = dayHeader,
+        allDayEventContent = allDayEventContent,
+        hourLabel = hourLabel,
+        nowIndicator = nowIndicator,
+        eventContent = eventContent,
     )
 }
 
-/**
- * [DaySchedule] with a choice of [overlapMode] for overlapping timed events.
- * The visible hours come from [ScheduleState.minHour]..[ScheduleState.maxHour]
- * (see the `rememberScheduleState` overload taking `minHour` and `maxHour`).
- *
- * @param overlapMode [EventOverlapMode.SideBySide] (the default) splits the column
- *   between overlapping events; [EventOverlapMode.Stacked] cascades them with an indent.
- */
+@Deprecated(
+    "Kept for binary compatibility; use the overload with editing callbacks.",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun <T> DaySchedule(
     events: (LocalDate) -> List<CalendarEvent<T>>,
@@ -238,30 +451,35 @@ public fun <T> DaySchedule(
         )
     },
 ) {
-    PagedSchedule(
-        daysPerPage = 1,
+    DaySchedule(
         events = events,
         modifier = modifier,
         state = state,
-        options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
+        today = today,
+        currentTime = currentTime,
+        userScrollEnabled = userScrollEnabled,
+        zoomGesturesEnabled = zoomGesturesEnabled,
+        showHalfHourLines = showHalfHourLines,
         minEventDurationMinutes = minEventDurationMinutes,
         overlapMode = overlapMode,
         colors = colors,
         dimensions = dimensions,
         strings = strings,
+        onEventClick = onEventClick,
         onEmptySlotClick = onEmptySlotClick,
-        slots = ScheduleSlots(dayHeader, allDayEventContent, hourLabel, nowIndicator, eventContent),
+        snapMinutes = DEFAULT_SNAP_MINUTES,
+        dayHeader = dayHeader,
+        allDayEventContent = allDayEventContent,
+        hourLabel = hourLabel,
+        nowIndicator = nowIndicator,
+        eventContent = eventContent,
     )
 }
 
-/**
- * [WeekSchedule] with a choice of [overlapMode] for overlapping timed events.
- * The visible hours come from [ScheduleState.minHour]..[ScheduleState.maxHour]
- * (see the `rememberScheduleState` overload taking `minHour` and `maxHour`).
- *
- * @param overlapMode [EventOverlapMode.SideBySide] (the default) splits each column
- *   between overlapping events; [EventOverlapMode.Stacked] cascades them with an indent.
- */
+@Deprecated(
+    "Kept for binary compatibility; use the overload with editing callbacks.",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun <T> WeekSchedule(
     events: (LocalDate) -> List<CalendarEvent<T>>,
@@ -301,22 +519,33 @@ public fun <T> WeekSchedule(
         )
     },
 ) {
-    require(daysPerPage >= 1) { "daysPerPage ($daysPerPage) must be at least 1" }
-    PagedSchedule(
-        daysPerPage = daysPerPage,
+    WeekSchedule(
         events = events,
         modifier = modifier,
         state = state,
-        options = ScheduleOptions(today, currentTime, userScrollEnabled, zoomGesturesEnabled, showHalfHourLines),
+        daysPerPage = daysPerPage,
+        today = today,
+        currentTime = currentTime,
+        userScrollEnabled = userScrollEnabled,
+        zoomGesturesEnabled = zoomGesturesEnabled,
+        showHalfHourLines = showHalfHourLines,
         minEventDurationMinutes = minEventDurationMinutes,
         overlapMode = overlapMode,
         colors = colors,
         dimensions = dimensions,
         strings = strings,
+        onEventClick = onEventClick,
         onEmptySlotClick = onEmptySlotClick,
-        slots = ScheduleSlots(dayHeader, allDayEventContent, hourLabel, nowIndicator, eventContent),
+        snapMinutes = DEFAULT_SNAP_MINUTES,
+        dayHeader = dayHeader,
+        allDayEventContent = allDayEventContent,
+        hourLabel = hourLabel,
+        nowIndicator = nowIndicator,
+        eventContent = eventContent,
     )
 }
+
+private const val DEFAULT_SNAP_MINUTES = 15
 
 private class ScheduleOptions(
     val today: LocalDate,
@@ -347,6 +576,8 @@ private fun <T> PagedSchedule(
     dimensions: ScheduleDimensions,
     strings: ScheduleStrings,
     onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)?,
+    editConfig: ScheduleEditConfig<T>,
+    ghostContent: @Composable BoxScope.(ScheduleDragPreview<T>) -> Unit,
     slots: ScheduleSlots<T>,
 ) {
     val startDate = state.effectiveStartDate
@@ -368,10 +599,14 @@ private fun <T> PagedSchedule(
         snapshotFlow { pagerState.settledPage }.collect { page -> state.onPageSettled(paging, page) }
     }
 
+    val dragController = remember { ScheduleDragController<T>() }
+    if (editConfig.enabled) ScheduleAutoScroll(dragController, state.verticalScrollState)
+
     HorizontalPager(
         state = pagerState,
-        modifier = modifier,
-        userScrollEnabled = options.userScrollEnabled,
+        modifier = if (editConfig.enabled) modifier.cancelDragOnEscape(dragController) else modifier,
+        // Paging is frozen while a pointer drags an edit.
+        userScrollEnabled = options.userScrollEnabled && !dragController.pointerDrag,
         verticalAlignment = Alignment.Top,
     ) { page ->
         val dates = remember(paging, page) { paging.datesAt(page) }
@@ -397,6 +632,9 @@ private fun <T> PagedSchedule(
             dimensions = dimensions,
             strings = strings,
             onEmptySlotClick = onEmptySlotClick,
+            editConfig = editConfig,
+            dragController = dragController,
+            ghostContent = ghostContent,
             slots = slots,
         )
     }
@@ -411,10 +649,42 @@ private fun <T> SchedulePage(
     dimensions: ScheduleDimensions,
     strings: ScheduleStrings,
     onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)?,
+    editConfig: ScheduleEditConfig<T>,
+    dragController: ScheduleDragController<T>,
+    ghostContent: @Composable BoxScope.(ScheduleDragPreview<T>) -> Unit,
     slots: ScheduleSlots<T>,
 ) {
     val hourHeight = state.hourHeight
     val window = HourWindow(state.minHour, state.maxHour)
+    val editing =
+        if (editConfig.enabled) {
+            ColumnEditing(
+                config = editConfig,
+                controller = dragController,
+                pageDates = layouts.map { it.date },
+                colors = colors,
+                dimensions = dimensions,
+                strings = strings,
+                scrollState = state.verticalScrollState,
+            )
+        } else {
+            null
+        }
+    val editGrid =
+        rememberUpdatedState(
+            EditGrid(
+                layouts = layouts,
+                hourHeight = hourHeight,
+                window = window,
+                dimensions = dimensions,
+                config = editConfig,
+                isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl,
+                scrollState = state.verticalScrollState,
+            ),
+        )
+    val haptics = LocalHapticFeedback.current
+    val editGestures =
+        if (editConfig.enabled) Modifier.scheduleEditGestures(editGrid, dragController, haptics) else Modifier
     val dayHeader = slots.dayHeader
     val banners =
         remember(layouts) {
@@ -470,31 +740,50 @@ private fun <T> SchedulePage(
             ) {
                 Row(Modifier.fillMaxWidth().height(hourHeight * window.hourCount)) {
                     HourGutter(hourHeight, window, gutterWidth, state.verticalScrollState, slots.hourLabel)
-                    Row(
-                        Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .gridLines(layouts.size, hourHeight, window.hourCount, options.showHalfHourLines, colors),
-                    ) {
-                        for (layout in layouts) {
-                            key(layout.date) {
-                                DayColumn(
-                                    layout = layout,
-                                    nowMinute =
-                                        options.currentTime
-                                            ?.takeIf { layout.date == options.today }
-                                            ?.let { it.hour * 60 + it.minute }
-                                            ?.takeIf { it in window.startMinute..window.endMinute },
-                                    hourHeight = hourHeight,
-                                    window = window,
-                                    dimensions = dimensions,
-                                    slotMinutes = if (options.showHalfHourLines) 30 else 60,
-                                    onEmptySlotClick = onEmptySlotClick,
-                                    nowIndicator = slots.nowIndicator,
-                                    eventContent = slots.eventContent,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                                )
+                    // Edit gestures sit above the day columns so a drag can cross them.
+                    Box(Modifier.weight(1f).fillMaxHeight().then(editGestures)) {
+                        Row(
+                            Modifier
+                                .fillMaxSize()
+                                .gridLines(
+                                    layouts.size,
+                                    hourHeight,
+                                    window.hourCount,
+                                    options.showHalfHourLines,
+                                    colors,
+                                ),
+                        ) {
+                            for (layout in layouts) {
+                                key(layout.date) {
+                                    DayColumn(
+                                        layout = layout,
+                                        nowMinute =
+                                            options.currentTime
+                                                ?.takeIf { layout.date == options.today }
+                                                ?.let { it.hour * 60 + it.minute }
+                                                ?.takeIf { it in window.startMinute..window.endMinute },
+                                        hourHeight = hourHeight,
+                                        window = window,
+                                        dimensions = dimensions,
+                                        slotMinutes = if (options.showHalfHourLines) 30 else 60,
+                                        onEmptySlotClick = onEmptySlotClick,
+                                        editing = editing,
+                                        nowIndicator = slots.nowIndicator,
+                                        eventContent = slots.eventContent,
+                                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    )
+                                }
                             }
+                        }
+                        if (editing != null) {
+                            ScheduleGhostLayer(
+                                controller = dragController,
+                                dates = editing.pageDates,
+                                hourHeight = hourHeight,
+                                window = window,
+                                dimensions = dimensions,
+                                ghostContent = ghostContent,
+                            )
                         }
                     }
                 }
@@ -504,7 +793,7 @@ private fun <T> SchedulePage(
 }
 
 /** Visible `startHour:00..endHour:00` slice of the day drawn by the time grid. */
-private class HourWindow(
+internal class HourWindow(
     val startHour: Int,
     val endHour: Int,
 ) {
@@ -686,11 +975,13 @@ private fun <T> DayColumn(
     dimensions: ScheduleDimensions,
     slotMinutes: Int,
     onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)?,
+    editing: ColumnEditing<T>?,
     nowIndicator: @Composable () -> Unit,
     eventContent: @Composable BoxScope.(PositionedEvent<T>) -> Unit,
     modifier: Modifier,
 ) {
     val date = layout.date
+    val caretModifier = if (editing != null) columnCaretModifier(editing, date, hourHeight, window) else Modifier
     val tapModifier =
         if (onEmptySlotClick != null) {
             Modifier.pointerInput(date, hourHeight, window.startHour, window.endHour, slotMinutes, onEmptySlotClick) {
@@ -722,14 +1013,18 @@ private fun <T> DayColumn(
                             label = "EventTileWidthFraction",
                         )
                     placements[index] = TilePlacement(left, width)
-                    Box(propagateMinConstraints = true) { eventContent(positioned) }
+                    if (editing == null) {
+                        Box(propagateMinConstraints = true) { eventContent(positioned) }
+                    } else {
+                        EditableTile(positioned, editing, window) { eventContent(positioned) }
+                    }
                 }
             }
             if (nowMinute != null) {
                 Box { nowIndicator() }
             }
         },
-        modifier = modifier.then(tapModifier),
+        modifier = modifier.then(tapModifier).then(caretModifier),
     ) { measurables, constraints ->
         val hourPx = hourHeight.toPx()
         val gapX = dimensions.tileHorizontalGap.toPx()

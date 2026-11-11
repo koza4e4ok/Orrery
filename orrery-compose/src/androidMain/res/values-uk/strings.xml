@@ -33,6 +33,14 @@
     <string name="orrery_agenda_all_day">Весь день</string>
     <string name="orrery_agenda_no_events">Немає подій</string>
     <string name="orrery_schedule_now">Зараз</string>
+    <string name="orrery_schedule_move_earlier">Перемістити раніше</string>
+    <string name="orrery_schedule_move_later">Перемістити пізніше</string>
+    <string name="orrery_schedule_move_previous_day">Перемістити на попередній день</string>
+    <string name="orrery_schedule_move_next_day">Перемістити на наступний день</string>
+    <string name="orrery_schedule_extend_end">Подовжити кінець</string>
+    <string name="orrery_schedule_shorten_end">Скоротити кінець</string>
+    <string name="orrery_schedule_create_at">Створити подію о %1$s</string>
+    <string name="orrery_schedule_drag_time_range">%1$s – %2$s</string>
     <string name="orrery_date_picker_preset_last_7_days">Останні 7 днів</string>
     <string name="orrery_date_picker_preset_last_30_days">Останні 30 днів</string>
     <string name="orrery_date_picker_preset_this_week">Цей тиждень</string>

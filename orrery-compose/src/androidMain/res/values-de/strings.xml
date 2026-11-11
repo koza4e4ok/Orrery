@@ -33,6 +33,14 @@
     <string name="orrery_agenda_all_day">Ganztägig</string>
     <string name="orrery_agenda_no_events">Keine Termine</string>
     <string name="orrery_schedule_now">Jetzt</string>
+    <string name="orrery_schedule_move_earlier">Früher verschieben</string>
+    <string name="orrery_schedule_move_later">Später verschieben</string>
+    <string name="orrery_schedule_move_previous_day">Auf den vorherigen Tag verschieben</string>
+    <string name="orrery_schedule_move_next_day">Auf den nächsten Tag verschieben</string>
+    <string name="orrery_schedule_extend_end">Ende verlängern</string>
+    <string name="orrery_schedule_shorten_end">Ende verkürzen</string>
+    <string name="orrery_schedule_create_at">Termin um %1$s erstellen</string>
+    <string name="orrery_schedule_drag_time_range">%1$s – %2$s</string>
     <string name="orrery_date_picker_preset_last_7_days">Letzte 7 Tage</string>
     <string name="orrery_date_picker_preset_last_30_days">Letzte 30 Tage</string>
     <string name="orrery_date_picker_preset_this_week">Diese Woche</string>

@@ -33,6 +33,14 @@
     <string name="orrery_agenda_all_day">全天</string>
     <string name="orrery_agenda_no_events">无日程</string>
     <string name="orrery_schedule_now">现在</string>
+    <string name="orrery_schedule_move_earlier">提前</string>
+    <string name="orrery_schedule_move_later">推后</string>
+    <string name="orrery_schedule_move_previous_day">移到前一天</string>
+    <string name="orrery_schedule_move_next_day">移到后一天</string>
+    <string name="orrery_schedule_extend_end">延长结束时间</string>
+    <string name="orrery_schedule_shorten_end">缩短结束时间</string>
+    <string name="orrery_schedule_create_at">在 %1$s 创建日程</string>
+    <string name="orrery_schedule_drag_time_range">%1$s – %2$s</string>
     <string name="orrery_date_picker_preset_last_7_days">最近7天</string>
     <string name="orrery_date_picker_preset_last_30_days">最近30天</string>
     <string name="orrery_date_picker_preset_this_week">本周</string>

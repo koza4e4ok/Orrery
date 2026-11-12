@@ -6,11 +6,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -23,11 +26,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -72,116 +77,149 @@ public fun OrreryDateRangePickerDialog(
     presets: List<DateRangePreset> = emptyList(),
     layoutMode: DateRangeCalendarLayoutMode = DateRangeCalendarLayoutMode.Adaptive(),
 ) {
-    val scope = rememberCoroutineScope()
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        Surface(modifier = modifier.fillMaxSize()) {
-            Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                ) {
-                    IconButton(onClick = onDismissRequest) {
-                        CloseGlyph(contentDescription = strings.closeDescription)
-                    }
-                    Text(
-                        strings.rangeTitle,
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.weight(1f),
-                    )
-                    confirmButton()
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                ) {
-                    DirectionalHeadline(
-                        targetState = state.selectedStartDate to state.selectedEndDate,
-                        compare = { a, b ->
-                            compareNullableDates(a.first, b.first).takeIf { it != 0 }
-                                ?: compareNullableDates(a.second, b.second)
-                        },
-                        label = "rangePickerHeadline",
-                        modifier = Modifier.weight(1f),
-                    ) { (startDate, endDate) ->
-                        val start =
-                            startDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
-                                ?: strings.rangeStartPlaceholder
-                        val end =
-                            endDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
-                                ?: strings.rangeEndPlaceholder
-                        FittingHeadline(
-                            text = "$start – $end",
-                            style = MaterialTheme.typography.headlineSmall,
-                            compactStyle = MaterialTheme.typography.titleLarge,
-                        )
-                    }
-                    IconButton(onClick = {
-                        val next =
-                            if (state.displayMode == DatePickerDisplayMode.Picker) {
-                                DatePickerDisplayMode.Input
-                            } else {
-                                DatePickerDisplayMode.Picker
-                            }
-                        if (next == DatePickerDisplayMode.Picker) {
-                            state.selectedStartDate?.let { date ->
-                                scope.launch { state.calendar.scrollToMonth(YearMonth(date.year, date.month)) }
-                            }
-                        }
-                        state.displayMode = next
-                    }) {
-                        if (state.displayMode == DatePickerDisplayMode.Picker) {
-                            KeyboardGlyph(contentDescription = strings.switchToInputDescription)
-                        } else {
-                            CalendarGlyph(contentDescription = strings.switchToPickerDescription)
-                        }
-                    }
-                }
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                // The body takes only the height left under the top bar, so on short
-                // windows the calendar (or the scrolling input pane) shrinks instead of
-                // pushing anything out of the dialog.
-                AnimatedContent(
-                    targetState = state.displayMode,
-                    transitionSpec = { fadeIn().togetherWith(fadeOut()) },
-                    label = "rangePickerMode",
-                    modifier = Modifier.weight(1f),
-                ) { mode ->
-                    when (mode) {
-                        DatePickerDisplayMode.Picker -> {
-                            Column {
-                                if (presets.isNotEmpty()) {
-                                    RangePresetChips(presets, state) { start ->
-                                        val month = YearMonth(start.year, start.month)
-                                        scope.launch { state.calendar.scrollToMonth(month) }
-                                    }
-                                }
-                                val initialFocus = rememberInitialDayFocus(state.selectedStartDate ?: today)
-                                VerticalCalendar(
-                                    state = state.calendar,
-                                    stickyMonthHeaders = true,
-                                    dragSelection = state.selection,
-                                ) { day ->
-                                    DefaultDay(
-                                        day = day,
-                                        modifier = initialFocus(day),
-                                        selectionState = state.selection,
-                                        today = today,
-                                        colors = colors,
-                                        shapes = shapes,
-                                        // Each month is its own section, so its neighbors' days would repeat.
-                                        showOutDates = false,
-                                    )
-                                }
-                            }
-                        }
+        BoxWithConstraints {
+            val dual = layoutMode.isDualMonth(maxWidth)
+            Surface(
+                modifier =
+                    if (dual) {
+                        modifier.widthIn(max = DualMonthDialogMaxWidth).heightIn(max = DualMonthDialogMaxHeight)
+                    } else {
+                        modifier.fillMaxSize()
+                    },
+                shape = if (dual) MaterialTheme.shapes.extraLarge else RectangleShape,
+                tonalElevation = if (dual) 6.dp else 0.dp,
+            ) {
+                RangePickerContent(
+                    onDismissRequest = onDismissRequest,
+                    confirmButton = confirmButton,
+                    state = state,
+                    colors = colors,
+                    shapes = shapes,
+                    today = today,
+                    strings = strings,
+                    presets = presets,
+                    dual = dual,
+                )
+            }
+        }
+    }
+}
 
-                        DatePickerDisplayMode.Input -> {
-                            RangeInputPane(state, strings)
+@Suppress("LongParameterList")
+@Composable
+private fun RangePickerContent(
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    state: OrreryDateRangePickerState,
+    colors: CalendarDayColors,
+    shapes: CalendarDayShapes,
+    today: LocalDate,
+    strings: DatePickerStrings,
+    presets: List<DateRangePreset>,
+    dual: Boolean,
+) {
+    val scope = rememberCoroutineScope()
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        ) {
+            IconButton(onClick = onDismissRequest) {
+                CloseGlyph(contentDescription = strings.closeDescription)
+            }
+            Text(
+                strings.rangeTitle,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.weight(1f),
+            )
+            confirmButton()
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 24.dp),
+        ) {
+            DirectionalHeadline(
+                targetState = state.selectedStartDate to state.selectedEndDate,
+                compare = { a, b ->
+                    compareNullableDates(a.first, b.first).takeIf { it != 0 }
+                        ?: compareNullableDates(a.second, b.second)
+                },
+                label = "rangePickerHeadline",
+                modifier = Modifier.weight(1f),
+            ) { (startDate, endDate) ->
+                val start =
+                    startDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
+                        ?: strings.rangeStartPlaceholder
+                val end =
+                    endDate?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
+                        ?: strings.rangeEndPlaceholder
+                FittingHeadline(
+                    text = "$start – $end",
+                    style = MaterialTheme.typography.headlineSmall,
+                    compactStyle = MaterialTheme.typography.titleLarge,
+                )
+            }
+            IconButton(onClick = {
+                val next =
+                    if (state.displayMode == DatePickerDisplayMode.Picker) {
+                        DatePickerDisplayMode.Input
+                    } else {
+                        DatePickerDisplayMode.Picker
+                    }
+                if (next == DatePickerDisplayMode.Picker) {
+                    state.selectedStartDate?.let { date ->
+                        scope.launch { state.calendar.scrollToMonth(YearMonth(date.year, date.month)) }
+                    }
+                }
+                state.displayMode = next
+            }) {
+                if (state.displayMode == DatePickerDisplayMode.Picker) {
+                    KeyboardGlyph(contentDescription = strings.switchToInputDescription)
+                } else {
+                    CalendarGlyph(contentDescription = strings.switchToPickerDescription)
+                }
+            }
+        }
+        HorizontalDivider(Modifier.padding(vertical = 8.dp))
+        // The body takes only the height left under the top bar, so on short
+        // windows the calendar (or the scrolling input pane) shrinks instead of
+        // pushing anything out of the dialog. The dual card wraps its content.
+        AnimatedContent(
+            targetState = state.displayMode,
+            transitionSpec = { fadeIn().togetherWith(fadeOut()) },
+            label = "rangePickerMode",
+            modifier = Modifier.weight(1f, fill = !dual),
+        ) { mode ->
+            when (mode) {
+                DatePickerDisplayMode.Picker -> {
+                    Column {
+                        if (presets.isNotEmpty()) {
+                            RangePresetChips(presets, state) { start ->
+                                val month = YearMonth(start.year, start.month)
+                                scope.launch { state.calendar.scrollToMonth(month) }
+                            }
+                        }
+                        if (dual) {
+                            DualMonthRangeCalendar(
+                                state = state,
+                                today = today,
+                                colors = colors,
+                                shapes = shapes,
+                                strings = strings,
+                                modifier = Modifier.padding(horizontal = 12.dp).padding(bottom = 12.dp),
+                            )
+                        } else {
+                            SingleMonthRangeCalendar(state, today, colors, shapes)
                         }
                     }
+                }
+
+                DatePickerDisplayMode.Input -> {
+                    RangeInputPane(state, strings, sideBySide = dual)
                 }
             }
         }
@@ -240,6 +278,36 @@ public fun OrreryDateRangePickerDialog(
     )
 }
 
+/** The 0.9 calendar face: one vertically scrolling column of months with sticky titles. */
+@Composable
+private fun SingleMonthRangeCalendar(
+    state: OrreryDateRangePickerState,
+    today: LocalDate,
+    colors: CalendarDayColors,
+    shapes: CalendarDayShapes,
+) {
+    // Synchronously, before the column measures, so switching back from the
+    // dual pager (one list item per month) never shows a frame of another month.
+    remember(state.calendar) { state.calendar.useItemsPerMonth(2) }
+    val initialFocus = rememberInitialDayFocus(state.selectedStartDate ?: today)
+    VerticalCalendar(
+        state = state.calendar,
+        stickyMonthHeaders = true,
+        dragSelection = state.selection,
+    ) { day ->
+        DefaultDay(
+            day = day,
+            modifier = initialFocus(day),
+            selectionState = state.selection,
+            today = today,
+            colors = colors,
+            shapes = shapes,
+            // Each month is its own section, so its neighbors' days would repeat.
+            showOutDates = false,
+        )
+    }
+}
+
 /**
  * Preset chip row of the range dialog. A chip shows as selected while the
  * state's range equals its preset; [onApplied] receives the new start date
@@ -284,6 +352,7 @@ private fun RangePresetChips(
 private fun RangeInputPane(
     state: OrreryDateRangePickerState,
     strings: DatePickerStrings,
+    sideBySide: Boolean = false,
 ) {
     var startText by rememberSaveable { mutableStateOf(state.selectedStartDate?.toString() ?: "") }
     var endText by rememberSaveable { mutableStateOf(state.selectedEndDate?.toString() ?: "") }
@@ -302,7 +371,7 @@ private fun RangeInputPane(
     // proposed pair apply?" is a comparison, not a null check.
     val pairApplied = state.selectedStartDate == start && state.selectedEndDate == end
     val rangeError = if (start != null && end != null && !pairApplied) strings.invalidRangeError else null
-    Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
+    val startField: @Composable (Modifier) -> Unit = { fieldModifier ->
         DateInputField(
             value = start,
             onValueChange = {
@@ -314,9 +383,11 @@ private fun RangeInputPane(
             isDisabled = state.selection::isDisabled,
             strings = strings,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            modifier = fieldModifier.padding(vertical = 4.dp),
             requestInitialFocus = true,
         )
+    }
+    val endField: @Composable (Modifier) -> Unit = { fieldModifier ->
         DateInputField(
             value = end,
             onValueChange = {
@@ -328,8 +399,20 @@ private fun RangeInputPane(
             isDisabled = state.selection::isDisabled,
             strings = strings,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            modifier = fieldModifier.padding(vertical = 4.dp),
             externalError = rangeError,
         )
+    }
+    val paneModifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)
+    if (sideBySide) {
+        Row(paneModifier, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            startField(Modifier.weight(1f))
+            endField(Modifier.weight(1f))
+        }
+    } else {
+        Column(paneModifier) {
+            startField(Modifier.fillMaxWidth())
+            endField(Modifier.fillMaxWidth())
+        }
     }
 }

@@ -178,7 +178,7 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
-    fun longPressWithoutMovingOnlySetsTheStart() {
+    fun longPressDragWithinOneDayMakesAOneDayRange() {
         content()
         val at = centerOf(day(august, 1))
         dialog.performTouchInput {
@@ -188,7 +188,8 @@ class DualMonthRangeSelectionTest {
             up()
         }
         rule.waitForIdle()
-        assertRange(LocalDate(2026, 8, 1), null)
+        // Same as the single-month drag: any move updates the range, here to one day.
+        assertRange(LocalDate(2026, 8, 1), LocalDate(2026, 8, 1))
     }
 
     @Test

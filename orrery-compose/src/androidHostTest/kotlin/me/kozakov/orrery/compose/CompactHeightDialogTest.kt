@@ -110,10 +110,10 @@ class CompactHeightDialogTest {
         }
         // Both panes show six week rows, taller than the 420dp window: swipe the body up.
         rule.onNode(hasVerticalScroll).performTouchInput { swipeUp() }
-        // July (left pane) comes first; August 31 is the second match.
-        rule.onAllNodesWithText("31")[0].assertIsDisplayed().performClick()
-        rule.runOnIdle { assertEquals(LocalDate(2026, 7, 31), state.selectedStartDate) }
-        rule.onNodeWithText("OK").assertIsDisplayed()
+        // July (left pane) comes first; August 31 is the second match and sits in
+        // the sixth week row of the right pane, the lowest row of the dialog body.
+        rule.onAllNodesWithText("31")[1].assertIsDisplayed().performClick()
+        rule.runOnIdle { assertEquals(LocalDate(2026, 8, 31), state.selectedStartDate) }
     }
 
     @Test

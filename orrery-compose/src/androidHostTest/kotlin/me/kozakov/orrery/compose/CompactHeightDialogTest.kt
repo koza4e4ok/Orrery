@@ -8,6 +8,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -89,6 +90,29 @@ class CompactHeightDialogTest {
         rule.onNode(hasVerticalScroll).performTouchInput { swipeUp() }
         rule.onNodeWithText("31").assertIsDisplayed().performClick()
         rule.runOnIdle { assertEquals(LocalDate(2026, 7, 31), state.selectedDate) }
+        rule.onNodeWithText("OK").assertIsDisplayed()
+    }
+
+    @Test
+    fun dualMonthRangePickerScrollsToTheLastWeek() {
+        lateinit var state: OrreryDateRangePickerState
+        rule.setContent {
+            MaterialTheme {
+                state = rememberOrreryDateRangePickerState(initialDisplayedMonth = YearMonth(2026, 7))
+                OrreryDateRangePickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = { Confirm() },
+                    state = state,
+                    today = today,
+                    presets = DatePickerDefaults.rangePresets(today),
+                )
+            }
+        }
+        // Both panes show six week rows, taller than the 420dp window: swipe the body up.
+        rule.onNode(hasVerticalScroll).performTouchInput { swipeUp() }
+        // July (left pane) comes first; August 31 is the second match.
+        rule.onAllNodesWithText("31")[0].assertIsDisplayed().performClick()
+        rule.runOnIdle { assertEquals(LocalDate(2026, 7, 31), state.selectedStartDate) }
         rule.onNodeWithText("OK").assertIsDisplayed()
     }
 

@@ -196,7 +196,9 @@ private fun RangePickerContent(
         ) { mode ->
             when (mode) {
                 DatePickerDisplayMode.Picker -> {
-                    Column {
+                    // The dual card reserves six week rows per month; on
+                    // compact-height windows that overflows, so scroll it.
+                    Column(if (dual) Modifier.verticalScroll(rememberScrollState()) else Modifier) {
                         if (presets.isNotEmpty()) {
                             RangePresetChips(presets, state) { start ->
                                 val month = YearMonth(start.year, start.month)

@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
@@ -98,24 +99,8 @@ internal fun MonthContent(
                     Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, unevenRows, isRtl) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
 
-                        fun dayAt(offset: Offset): CalendarDay? {
-                            val rows = month.weeks.size
-                            if (rows == 0) return null
-                            val rowHeightPx = size.height.toFloat() / rows
-                            val row =
-                                if (unevenRows) {
-                                    rowTops.indexOfLast { it <= offset.y }.coerceAtLeast(0)
-                                } else {
-                                    (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
-                                }
-                            val weekDays = month.weeks[row].days
-                            val cols = weekDays.size
-                            if (cols == 0) return null
-                            val colWidth = (size.width - leading) / cols.toFloat()
-                            val rawX = if (isRtl) size.width - leading - offset.x else offset.x - leading
-                            val col = (rawX / colWidth).toInt().coerceIn(0, cols - 1)
-                            return weekDays[col]
-                        }
+                        fun dayAt(offset: Offset): CalendarDay? =
+                            monthDayAt(month, leading, size, offset, isRtl, rowTops.takeIf { unevenRows })
 
                         var lastDragDate: LocalDate? = null
                         detectDragGesturesAfterLongPress(
@@ -227,6 +212,41 @@ internal fun MonthContent(
         }
         monthFooter?.invoke(this, month)
     }
+}
+
+/**
+ * The day under [offset] in a month grid of [size] laid out by
+ * [MonthContent]: [weekNumberLeading] px of week-number column on the
+ * leading side, then equal-width day columns (mirrored when [isRtl]).
+ * Rows are equal-height unless [rowTops] gives each row's measured top.
+ * Positions outside the grid clamp to the nearest row and column; null
+ * only for a grid without rows or columns.
+ */
+@Suppress("LongParameterList")
+internal fun monthDayAt(
+    month: CalendarMonth,
+    weekNumberLeading: Float,
+    size: IntSize,
+    offset: Offset,
+    isRtl: Boolean,
+    rowTops: IntArray? = null,
+): CalendarDay? {
+    val rows = month.weeks.size
+    if (rows == 0) return null
+    val rowHeightPx = size.height.toFloat() / rows
+    val row =
+        if (rowTops != null) {
+            rowTops.indexOfLast { it <= offset.y }.coerceAtLeast(0)
+        } else {
+            (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
+        }
+    val weekDays = month.weeks[row].days
+    val cols = weekDays.size
+    if (cols == 0) return null
+    val colWidth = (size.width - weekNumberLeading) / cols.toFloat()
+    val rawX = if (isRtl) size.width - weekNumberLeading - offset.x else offset.x - weekNumberLeading
+    val col = (rawX / colWidth).toInt().coerceIn(0, cols - 1)
+    return weekDays[col]
 }
 
 /**

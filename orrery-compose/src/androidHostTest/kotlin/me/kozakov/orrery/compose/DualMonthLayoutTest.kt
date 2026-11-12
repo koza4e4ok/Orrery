@@ -131,12 +131,13 @@ class DualMonthLayoutTest {
             }
         }
         val augustPair = "August 2026 – September 2026"
+        // July (left pane) comes first; August 10 is the second match.
+        rule.onAllNodesWithText("10")[1].performClick()
+        rule.runOnIdle { assertEquals(LocalDate(2026, 8, 10), state.selectedStartDate) }
+        // Page once so the visible month is no longer the initial one.
         rule.onNodeWithContentDescription("Next month").performClick()
         rule.waitForIdle()
         assertDual(augustPair)
-        // August is the left pane, so its 10th is the first match.
-        rule.onAllNodesWithText("10")[0].performClick()
-        rule.runOnIdle { assertEquals(LocalDate(2026, 8, 10), state.selectedStartDate) }
 
         // Wider than the 900dp window: the same Adaptive mode now resolves to one column.
         minWidth = 1000.dp

@@ -13,7 +13,9 @@
   callbacks default to `null`, so existing schedules are unchanged. An `endTime`
   that is not after `startTime` means 00:00 of the following day. The previous
   overloads, `ScheduleStrings`, `ScheduleDimensions` and `ScheduleDefaults.strings`
-  / `dimensions` signatures stay as hidden binary-compatible bridges.
+  / `dimensions` signatures stay as hidden binary-compatible bridges, and the new
+  `ScheduleDimensions` / `ScheduleStrings` constructor parameters have defaults
+  (English for the strings), so existing constructor calls still compile.
 - RFC 5545 recurrence in `orrery-core` (#86): `RecurrenceRule` (`FREQ` DAILY to
   YEARLY, `INTERVAL`, `COUNT`, `UNTIL`, `BYDAY` with ordinals, `BYMONTHDAY`,
   `BYMONTH`, `BYSETPOS`, `WKST`, `EXDATE`) with an RRULE/EXDATE parser and

@@ -96,10 +96,10 @@ public class ScheduleDimensions(
     public val nowDotRadius: Dp,
     public val allDayChipHeight: Dp,
     public val maxVisibleAllDayRows: Int,
-    public val resizeHandleWidth: Dp,
-    public val resizeHandleThickness: Dp,
-    public val resizeHandleTouchSize: Dp,
-    public val ghostBorderWidth: Dp,
+    public val resizeHandleWidth: Dp = DefaultResizeHandleWidth,
+    public val resizeHandleThickness: Dp = DefaultResizeHandleThickness,
+    public val resizeHandleTouchSize: Dp = DefaultResizeHandleTouchSize,
+    public val ghostBorderWidth: Dp = DefaultGhostBorderWidth,
 ) {
     @Deprecated(
         "Kept for binary compatibility; use the constructor with the resize handle and ghost sizes.",
@@ -150,20 +150,23 @@ private val DefaultGhostBorderWidth = 2.dp
  * @property shortenEnd Accessibility action: make an event end one snap step earlier.
  * @property createAt Accessibility action template for creating an event; `%1$s` is the time.
  * @property dragTimeRange Template describing the dragged time range; `%1$s` is the start, `%2$s` the end.
+ *
+ * The editing strings default to English, so `ScheduleStrings(allDayLabel, nowLabel)`
+ * still compiles; prefer [ScheduleDefaults.strings], which localizes them.
  */
 @Immutable
 @Suppress("LongParameterList")
 public class ScheduleStrings(
     public val allDayLabel: String,
     public val nowLabel: String,
-    public val moveEarlier: String,
-    public val moveLater: String,
-    public val movePreviousDay: String,
-    public val moveNextDay: String,
-    public val extendEnd: String,
-    public val shortenEnd: String,
-    public val createAt: String,
-    public val dragTimeRange: String,
+    public val moveEarlier: String = "Move earlier",
+    public val moveLater: String = "Move later",
+    public val movePreviousDay: String = "Move to previous day",
+    public val moveNextDay: String = "Move to next day",
+    public val extendEnd: String = "Extend end",
+    public val shortenEnd: String = "Shorten end",
+    public val createAt: String = "Create event at %1\$s",
+    public val dragTimeRange: String = "%1\$s – %2\$s",
 ) {
     /** Fills the editing strings with their English text. */
     @Deprecated(

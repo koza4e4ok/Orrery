@@ -1,5 +1,6 @@
 package me.kozakov.orrery.compose
 
+import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -159,6 +160,19 @@ class ScheduleEditingTest {
         )
         assertNull(editableMinutes(timed(LocalDateTime(2026, 7, 15, 22, 0), LocalDateTime(2026, 7, 16, 1, 0))))
         assertNull(editableMinutes(CalendarEvent<Nothing>(id = "a", title = "A", span = EventSpan.AllDay(jul15))))
+    }
+
+    @Test
+    fun preEditingConstructorsStillCompileWithDefaults() {
+        val dimensions = ScheduleDimensions(56.dp, 6.dp, 3.dp, 2.dp, 1.dp, 2.dp, 4.dp, 20.dp, 3)
+        assertEquals(28.dp, dimensions.resizeHandleWidth)
+        assertEquals(4.dp, dimensions.resizeHandleThickness)
+        assertEquals(32.dp, dimensions.resizeHandleTouchSize)
+        assertEquals(2.dp, dimensions.ghostBorderWidth)
+        val strings = ScheduleStrings("All day", "Now")
+        assertEquals("Move earlier", strings.moveEarlier)
+        assertEquals("Create event at %1\$s", strings.createAt)
+        assertEquals("%1\$s – %2\$s", strings.dragTimeRange)
     }
 
     @Test

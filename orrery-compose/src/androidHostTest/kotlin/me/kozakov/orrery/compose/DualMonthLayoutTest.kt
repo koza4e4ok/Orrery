@@ -3,12 +3,16 @@ package me.kozakov.orrery.compose
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -16,6 +20,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,6 +99,61 @@ class DualMonthLayoutTest {
     fun adaptiveThresholdIsConfigurable() {
         content(layoutMode = DateRangeCalendarLayoutMode.Adaptive(minDualMonthWidth = 1000.dp))
         assertSingle()
+    }
+
+    @Test
+    fun adaptiveSwitchesAtExactlyTheMinimumWidth() {
+        val adaptive = DateRangeCalendarLayoutMode.Adaptive()
+        assertFalse(adaptive.isDualMonth(639.dp))
+        assertTrue(adaptive.isDualMonth(640.dp))
+        val custom = DateRangeCalendarLayoutMode.Adaptive(minDualMonthWidth = 700.dp)
+        assertFalse(custom.isDualMonth(699.dp))
+        assertTrue(custom.isDualMonth(700.dp))
+    }
+
+    @Test
+    fun liveAdaptiveFlipKeepsTheVisibleMonthAndTheSelection() {
+        var minWidth by mutableStateOf(DatePickerDefaults.MinDualMonthWidth)
+        rule.setContent {
+            MaterialTheme {
+                state =
+                    rememberOrreryDateRangePickerState(
+                        initialDisplayedMonth = YearMonth(2026, 7),
+                        yearRange = 2026..2027,
+                    )
+                OrreryDateRangePickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = { TextButton(onClick = {}) { Text("Save") } },
+                    state = state,
+                    today = LocalDate(2026, 7, 15),
+                    layoutMode = DateRangeCalendarLayoutMode.Adaptive(minDualMonthWidth = minWidth),
+                )
+            }
+        }
+        val augustPair = "August 2026 – September 2026"
+        rule.onNodeWithContentDescription("Next month").performClick()
+        rule.waitForIdle()
+        assertDual(augustPair)
+        // August is the left pane, so its 10th is the first match.
+        rule.onAllNodesWithText("10")[0].performClick()
+        rule.runOnIdle { assertEquals(LocalDate(2026, 8, 10), state.selectedStartDate) }
+
+        // Wider than the 900dp window: the same Adaptive mode now resolves to one column.
+        minWidth = 1000.dp
+        rule.waitForIdle()
+        assertSingle()
+        rule.runOnIdle {
+            assertEquals(YearMonth(2026, 8), state.displayedMonth)
+            assertEquals(LocalDate(2026, 8, 10), state.selectedStartDate)
+        }
+
+        minWidth = DatePickerDefaults.MinDualMonthWidth
+        rule.waitForIdle()
+        assertDual(augustPair)
+        rule.runOnIdle {
+            assertEquals(YearMonth(2026, 8), state.displayedMonth)
+            assertEquals(LocalDate(2026, 8, 10), state.selectedStartDate)
+        }
     }
 
     @Test

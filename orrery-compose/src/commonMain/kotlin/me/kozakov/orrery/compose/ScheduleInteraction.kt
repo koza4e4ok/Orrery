@@ -502,8 +502,7 @@ internal fun <T> Modifier.scheduleEditGestures(
     pointerInput(controller) {
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
-            // Only the primary mouse button edits; right and middle clicks stay free for the host.
-            if (down.type == PointerType.Mouse && !currentEvent.buttons.isPrimaryPressed) return@awaitEachGesture
+            if (isSecondaryMouseButton(down)) return@awaitEachGesture
             val current = grid.value
             val session =
                 sessionFor(current, hitTest(current, down.position, size.width), down.position.y)
@@ -514,16 +513,7 @@ internal fun <T> Modifier.scheduleEditGestures(
             val isResize =
                 session.kind == ScheduleDragKind.ResizeStart || session.kind == ScheduleDragKind.ResizeEnd
             val bySlop = isResize || (precise && !longPressOnly)
-            val start =
-                if (isResize) {
-                    // Vertical slop only, so a horizontal swipe that starts on a handle still pages days.
-                    awaitVerticalTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
-                } else if (bySlop) {
-                    awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
-                } else {
-                    awaitLongPressOrCancellation(down.id)
-                }
-            if (start == null) return@awaitEachGesture
+            val start = awaitDragStart(down, isResize, bySlop) ?: return@awaitEachGesture
             if (!bySlop && config.hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             if (longPressOnly) {
                 val preview = unmovedCreatePreview(current, session)
@@ -539,6 +529,23 @@ internal fun <T> Modifier.scheduleEditGestures(
                 }
             if (result != null) commit(config, session, result)
         }
+    }
+
+/** Only the primary mouse button edits; right and middle clicks stay free for the host. */
+private fun AwaitPointerEventScope.isSecondaryMouseButton(down: PointerInputChange): Boolean =
+    down.type == PointerType.Mouse && !currentEvent.buttons.isPrimaryPressed
+
+/** The change that starts the drag, or null when the gesture went to someone else. */
+private suspend fun AwaitPointerEventScope.awaitDragStart(
+    down: PointerInputChange,
+    isResize: Boolean,
+    bySlop: Boolean,
+): PointerInputChange? =
+    when {
+        // Vertical slop only, so a horizontal swipe that starts on a handle still pages days.
+        isResize -> awaitVerticalTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
+        bySlop -> awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
+        else -> awaitLongPressOrCancellation(down.id)
     }
 
 @Suppress("LongParameterList", "CyclomaticComplexMethod", "ReturnCount")

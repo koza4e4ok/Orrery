@@ -141,8 +141,13 @@ class ScheduleEditGesturesTest {
             node.config.getOrNull(SemanticsActions.CustomActions)?.any { it.label == label } == true
         }
 
-    private fun performCustomAction(label: String) {
-        val node = rule.onNode(hasCustomAction(label)).fetchSemanticsNode()
+    /** Runs the custom action [label]; [tileTitle] picks one tile when several tiles carry the same action. */
+    private fun performCustomAction(
+        label: String,
+        tileTitle: String? = null,
+    ) {
+        val matcher = if (tileTitle == null) hasCustomAction(label) else hasCustomAction(label) and hasText(tileTitle)
+        val node = rule.onNode(matcher).fetchSemanticsNode()
         val action = node.config[SemanticsActions.CustomActions].first { it.label == label }
         rule.runOnUiThread { action.action() }
         rule.waitForIdle()
@@ -339,8 +344,8 @@ class ScheduleEditGesturesTest {
     @Test
     fun customActionsRunTheSameEdits() {
         schedule(longPress = true, move = true, resize = true)
-        performCustomAction("Move earlier")
-        performCustomAction("Extend end")
+        performCustomAction("Move earlier", tileTitle = "Standup")
+        performCustomAction("Extend end", tileTitle = "Standup")
         performCustomAction("Create event at 08:00")
         rule.runOnIdle {
             assertEquals(listOf("standup 2026-07-15 08:45-09:15"), moves)

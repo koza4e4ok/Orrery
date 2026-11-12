@@ -110,7 +110,7 @@ import kotlin.math.roundToInt
  * @param onEventResize Called with the event and its new start and end time after a
  *   resize handle was dragged or an edge was moved by keyboard. The date never changes
  *   and the event keeps at least `max(snapMinutes, minEventDurationMinutes)` minutes.
- * @param snapMinutes Step that edited times snap to; must divide 60 (5, 10, 15, 20, 30, 60...).
+ * @param snapMinutes Step that edited times snap to; must divide 60 (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30 or 60).
  * @param hapticsEnabled Whether lifting an event and each snap step give haptic feedback.
  * @param ghostContent The tile drawn at the snapped position while an edit is in flight.
  */
@@ -133,8 +133,15 @@ public fun <T> DaySchedule(
     onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)? = null,
     onEmptySlotLongPress: ((date: LocalDate, time: LocalTime) -> Unit)? = null,
     onSlotCreate: ((date: LocalDate, startTime: LocalTime, endTime: LocalTime) -> Unit)? = null,
-    onEventMove: ((event: CalendarEvent<T>, date: LocalDate, newStart: LocalTime, newEnd: LocalTime) -> Unit)? = null,
-    onEventResize: ((event: CalendarEvent<T>, newStart: LocalTime, newEnd: LocalTime) -> Unit)? = null,
+    onEventMove: (
+        (
+            event: CalendarEvent<T>,
+            newDate: LocalDate,
+            newStartTime: LocalTime,
+            newEndTime: LocalTime,
+        ) -> Unit
+    )? = null,
+    onEventResize: ((event: CalendarEvent<T>, newStartTime: LocalTime, newEndTime: LocalTime) -> Unit)? = null,
     snapMinutes: Int = 15,
     hapticsEnabled: Boolean = true,
     ghostContent: @Composable BoxScope.(ScheduleDragPreview<T>) -> Unit = { preview ->
@@ -219,8 +226,15 @@ public fun <T> WeekSchedule(
     onEmptySlotClick: ((LocalDate, LocalTime) -> Unit)? = null,
     onEmptySlotLongPress: ((date: LocalDate, time: LocalTime) -> Unit)? = null,
     onSlotCreate: ((date: LocalDate, startTime: LocalTime, endTime: LocalTime) -> Unit)? = null,
-    onEventMove: ((event: CalendarEvent<T>, date: LocalDate, newStart: LocalTime, newEnd: LocalTime) -> Unit)? = null,
-    onEventResize: ((event: CalendarEvent<T>, newStart: LocalTime, newEnd: LocalTime) -> Unit)? = null,
+    onEventMove: (
+        (
+            event: CalendarEvent<T>,
+            newDate: LocalDate,
+            newStartTime: LocalTime,
+            newEndTime: LocalTime,
+        ) -> Unit
+    )? = null,
+    onEventResize: ((event: CalendarEvent<T>, newStartTime: LocalTime, newEndTime: LocalTime) -> Unit)? = null,
     snapMinutes: Int = 15,
     hapticsEnabled: Boolean = true,
     ghostContent: @Composable BoxScope.(ScheduleDragPreview<T>) -> Unit = { preview ->

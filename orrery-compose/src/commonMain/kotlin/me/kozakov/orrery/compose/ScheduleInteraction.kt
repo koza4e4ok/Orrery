@@ -62,6 +62,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -501,6 +502,8 @@ internal fun <T> Modifier.scheduleEditGestures(
     pointerInput(controller) {
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
+            // Only the primary mouse button edits; right and middle clicks stay free for the host.
+            if (down.type == PointerType.Mouse && !currentEvent.buttons.isPrimaryPressed) return@awaitEachGesture
             val current = grid.value
             val session =
                 sessionFor(current, hitTest(current, down.position, size.width), down.position.y)

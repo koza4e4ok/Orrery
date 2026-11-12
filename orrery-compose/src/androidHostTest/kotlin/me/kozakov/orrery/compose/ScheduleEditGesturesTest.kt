@@ -375,7 +375,6 @@ class ScheduleEditGesturesTest {
     fun dragNearTheBottomEdgeAutoScrollsUntilTheEnd() {
         schedule(create = true)
         val before = state.verticalScrollState.value
-        rule.mainClock.autoAdvance = false
         val node = rule.onNodeWithTag("schedule")
         node.performMouseInput {
             moveTo(dayPoint(140))
@@ -383,13 +382,12 @@ class ScheduleEditGesturesTest {
             // 5.dp above the bottom edge: inside the 32.dp auto-scroll band.
             moveTo(dayPoint(395))
         }
-        rule.mainClock.advanceTimeBy(500)
-        val scrolled = state.verticalScrollState.value
-        assertTrue("scrolled while held: $before -> $scrolled", scrolled > before)
-        rule.mainClock.advanceTimeBy(20_000)
-        assertEquals(state.verticalScrollState.maxValue, state.verticalScrollState.value)
+        // Idle only once the scroll reaches its end and the auto-scroll loop stops.
+        rule.waitForIdle()
+        val max = state.verticalScrollState.maxValue
+        assertTrue("max $max > $before", max > before)
+        assertEquals(max, state.verticalScrollState.value)
         node.performMouseInput { release() }
-        rule.mainClock.autoAdvance = true
         rule.runOnIdle {
             // The range follows the grid under the pointer, so it ends far past 14:35 (08:00 + 395 minutes).
             assertEquals(1, created.size)
@@ -402,17 +400,15 @@ class ScheduleEditGesturesTest {
     @Test
     fun dragNearTheTopEdgeStopsAutoScrollingAtZero() {
         schedule(create = true)
-        rule.mainClock.autoAdvance = false
         val node = rule.onNodeWithTag("schedule")
         node.performMouseInput {
             moveTo(dayPoint(140))
             press()
             moveTo(dayPoint(5))
         }
-        rule.mainClock.advanceTimeBy(20_000)
+        rule.waitForIdle()
         assertEquals(0, state.verticalScrollState.value)
         node.performMouseInput { release() }
-        rule.mainClock.autoAdvance = true
         rule.runOnIdle { assertEquals(1, created.size) }
     }
 

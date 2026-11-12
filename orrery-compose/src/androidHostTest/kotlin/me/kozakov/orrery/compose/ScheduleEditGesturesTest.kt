@@ -233,6 +233,41 @@ class ScheduleEditGesturesTest {
     }
 
     @Test
+    fun escapeCancelsAMouseDragWithoutACallback() {
+        schedule(create = true, move = true)
+        val node = rule.onNodeWithTag("schedule")
+        node.performMouseInput {
+            moveTo(dayPoint(140))
+            press()
+            moveBy(Offset(0f, dp(20)))
+            moveBy(Offset(0f, dp(20)))
+        }
+        rule.onNodeWithText("10:15 – 11:00").assertExists()
+        node.performKeyInput { pressKey(Key.Escape) }
+        rule.onNodeWithText("10:15 – 11:00").assertDoesNotExist()
+        node.performMouseInput {
+            moveBy(Offset(0f, dp(20)))
+            release()
+        }
+        rule.runOnIdle { assertTrue(created.isEmpty() && moves.isEmpty()) }
+    }
+
+    @Test
+    fun escapeCancelsAMouseMoveWithoutACallback() {
+        schedule(move = true)
+        val node = rule.onNodeWithTag("schedule")
+        node.performMouseInput {
+            moveTo(dayPoint(75))
+            press()
+            moveBy(Offset(0f, dp(45)))
+            moveBy(Offset(0f, dp(45)))
+        }
+        node.performKeyInput { pressKey(Key.Escape) }
+        node.performMouseInput { release() }
+        rule.runOnIdle { assertTrue(moves.isEmpty()) }
+    }
+
+    @Test
     fun swipeOnEmptySpaceStillScrolls() {
         schedule(longPress = true, create = true, move = true, resize = true)
         val before = state.verticalScrollState.value

@@ -34,6 +34,10 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -119,6 +123,21 @@ internal class ScheduleDragController<T> {
 
     /** Re-reads the pointer position after the grid scrolled under it. */
     var onAutoScrolled: (() -> Unit)? = null
+
+    /** Focus target of the whole schedule; focusable only while a pointer drags, so Escape reaches it. */
+    val escapeFocus: FocusRequester = FocusRequester()
+
+    /** True while focus is anywhere inside the schedule, so Escape already reaches [cancelDragOnEscape]. */
+    var focusInside: Boolean = false
+
+    /**
+     * A mouse press does not move focus, so Escape would go wherever focus was.
+     * A drag that starts while focus is outside the schedule takes it for the
+     * duration of the drag.
+     */
+    fun takeKeyFocus() {
+        if (!focusInside) escapeFocus.requestFocus()
+    }
 
     private var caretDate: LocalDate? = null
     private var caret: MinuteRange? = null
@@ -554,6 +573,7 @@ private suspend fun <T> AwaitPointerEventScope.drag(
 
     controller.cancelled = false
     controller.pointerDrag = true
+    controller.takeKeyFocus()
     controller.onAutoScrolled = { update() }
     update()
     while (true) {
@@ -619,9 +639,18 @@ private fun <T> commit(
     }
 }
 
-/** Escape drops a running pointer drag without a callback (needs focus inside the schedule). */
+/**
+ * Escape drops a running pointer drag without a callback. The schedule itself
+ * becomes focusable while a pointer drags (see [ScheduleDragController.takeKeyFocus]),
+ * so this works for mouse drags that start with focus outside the schedule; it
+ * is skipped by focus traversal otherwise.
+ */
 internal fun Modifier.cancelDragOnEscape(controller: ScheduleDragController<*>): Modifier =
-    onPreviewKeyEvent { it.type == KeyEventType.KeyDown && it.key == Key.Escape && controller.cancelPointerDrag() }
+    onFocusChanged { controller.focusInside = it.hasFocus }
+        .onPreviewKeyEvent { it.type == KeyEventType.KeyDown && it.key == Key.Escape && controller.cancelPointerDrag() }
+        .focusRequester(controller.escapeFocus)
+        .focusProperties { canFocus = controller.pointerDrag }
+        .focusTarget()
 
 /** Scrolls the time grid while a drag holds the pointer within 32.dp of the viewport's top or bottom edge. */
 @Composable

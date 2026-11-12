@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.awaitVerticalTouchSlopOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
@@ -468,7 +469,8 @@ private fun Density.edgeScrollSpeed(
  * Create, move and resize gestures of one schedule page, attached above the day
  * columns so a drag can cross them. Touch starts after a long press (a scroll or
  * page swipe that starts first wins); mouse and stylus start once the pointer
- * passes the touch slop; resize handles start on the slop for every pointer.
+ * passes the touch slop; resize handles start on the vertical touch slop for
+ * every pointer, so a horizontal swipe from a handle still pages days.
  * Once a drag runs, every change is consumed in the initial pass, so neither
  * the tiles nor the scroll containers react.
  */
@@ -491,7 +493,10 @@ internal fun <T> Modifier.scheduleEditGestures(
                 session.kind == ScheduleDragKind.ResizeStart || session.kind == ScheduleDragKind.ResizeEnd
             val bySlop = isResize || (precise && !longPressOnly)
             val start =
-                if (bySlop) {
+                if (isResize) {
+                    // Vertical slop only, so a horizontal swipe that starts on a handle still pages days.
+                    awaitVerticalTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
+                } else if (bySlop) {
                     awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
                 } else {
                     awaitLongPressOrCancellation(down.id)

@@ -315,6 +315,20 @@ class ScheduleEditGesturesTest {
     }
 
     @Test
+    fun horizontalSwipeFromAHandlePagesInsteadOfResizing() {
+        schedule(resize = true)
+        rule.onNodeWithTag("schedule").performTouchInput {
+            // Starts in Review's end handle zone, then moves only sideways.
+            val start = Offset((dp(56) + width) / 2f, dp(235))
+            swipe(start, Offset(dp(60), start.y), durationMillis = 200)
+        }
+        rule.runOnIdle {
+            assertTrue(resizes.isEmpty())
+            assertEquals(jul16, state.firstVisibleDate)
+        }
+    }
+
+    @Test
     fun draggingTheTopHandleResizesTheStart() {
         schedule(resize = true)
         rule.onNodeWithTag("schedule").performTouchInput {

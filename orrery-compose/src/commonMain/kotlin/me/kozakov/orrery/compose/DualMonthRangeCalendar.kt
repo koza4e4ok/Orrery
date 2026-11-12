@@ -1,6 +1,9 @@
 package me.kozakov.orrery.compose
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
@@ -15,12 +18,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -29,11 +48,16 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.CalendarMonth
 import me.kozakov.orrery.core.CalendarPages
+import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.daysOfWeek
 
 /** Widest and tallest the dual-month dialog card grows. */
@@ -45,6 +69,92 @@ private val DualMonthPanePadding = 12.dp
 
 /** Every pane reserves the height of the longest month, so paging never resizes the dialog. */
 private const val MAX_WEEKS_PER_MONTH = 6
+
+/** A range drag this close to the pager's left or right edge pages one month. */
+private val DualMonthAutoPageEdge = 24.dp
+
+/** Minimum time between two auto-pages of one range drag. */
+private const val DUAL_MONTH_AUTO_PAGE_INTERVAL_MS = 400L
+
+/** One pager item as laid out: [offset] and [size] along the row, from its start edge. */
+internal class DualMonthPaneSpan(
+    val index: Int,
+    val offset: Int,
+    val size: Int,
+)
+
+/**
+ * Index of the pane under [x] (pixels from the left of a pager [width]
+ * wide), or null over no pane. Pager offsets run from the start edge, so
+ * in RTL [x] is measured from the right first.
+ */
+internal fun dualMonthPaneAt(
+    x: Float,
+    width: Int,
+    isRtl: Boolean,
+    panes: List<DualMonthPaneSpan>,
+): Int? {
+    val fromStart = if (isRtl) width - x else x
+    return panes.firstOrNull { fromStart >= it.offset && fromStart < it.offset + it.size }?.index
+}
+
+/**
+ * Months a range drag at [x] should page: +1 (later) or -1 (earlier)
+ * within [edge] pixels of either side of a pager [width] wide, else 0. The
+ * later month is on the right in LTR and on the left in RTL.
+ */
+internal fun dualMonthEdgePageDirection(
+    x: Float,
+    width: Int,
+    edge: Float,
+    isRtl: Boolean,
+): Int {
+    val towardRight =
+        when {
+            x < edge -> false
+            x > width - edge -> true
+            else -> return 0
+        }
+    return if (towardRight != isRtl) 1 else -1
+}
+
+/** A pane's month grid and where it is laid out, for the container's hit test. */
+private class DualMonthPaneGrid(
+    val month: CalendarMonth,
+    val coordinates: LayoutCoordinates,
+)
+
+/**
+ * Maps a position in the pager container to the in-month day under it: the
+ * pane from the pager's visible items, then the day with [monthDayAt].
+ * Plain (non-snapshot) fields, refreshed on placement.
+ */
+private class DualMonthHitTest(
+    private val calendar: CalendarState,
+) {
+    var container: LayoutCoordinates? = null
+    val panes = mutableMapOf<Int, DualMonthPaneGrid>()
+
+    fun dayAt(
+        position: Offset,
+        isRtl: Boolean,
+    ): CalendarDay? {
+        val container = container?.takeIf { it.isAttached } ?: return null
+        val width = container.size.width
+        if (width <= 0) return null
+        // A drag past the sides keeps hitting the outermost column.
+        val x = position.x.coerceIn(0f, width - 1f)
+        val spans =
+            calendar.listState.layoutInfo.visibleItemsInfo
+                .map { DualMonthPaneSpan(it.index, it.offset, it.size) }
+        val index = dualMonthPaneAt(x, width, isRtl, spans) ?: return null
+        val pane = panes[index]?.takeIf { it.coordinates.isAttached } ?: return null
+        val local = pane.coordinates.localPositionOf(container, Offset(x, position.y))
+        return monthDayAt(pane.month, 0f, pane.coordinates.size, local, isRtl)
+            // Blank cells stand for the neighbor's dates, which that pane already shows.
+            ?.takeIf { it.position == DayPosition.MonthDate }
+    }
+}
 
 /**
  * The month keyboard paging must scroll to (as the left pane) so that
@@ -97,6 +207,10 @@ internal fun DualMonthRangeCalendar(
     val initialFocus = rememberInitialDayFocus(state.selectedStartDate ?: today)
     val paneFraction = if (calendar.monthCount > 1) 0.5f else 1f
     val dividerColor = MaterialTheme.colorScheme.outlineVariant
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val haptics = LocalHapticFeedback.current
+    val hitTest = remember(calendar) { DualMonthHitTest(calendar) }
+    val previewDate = remember { mutableStateOf<LocalDate?>(null) }
     Column(modifier) {
         DualMonthNavHeader(calendar, today, strings)
         LazyRow(
@@ -104,6 +218,10 @@ internal fun DualMonthRangeCalendar(
             modifier =
                 Modifier
                     .fillMaxWidth()
+                    .onPlaced { hitTest.container = it }
+                    // Both gestures sit above the panes so they can cross from one month to the other.
+                    .dualMonthRangeDrag(hitTest, state.selection, calendar, scope, haptics, isRtl)
+                    .dualMonthHoverPreview(hitTest, state.selection, previewDate, isRtl)
                     .drawBehind {
                         if (paneFraction < 1f) {
                             val inset = 16.dp.toPx()
@@ -119,6 +237,7 @@ internal fun DualMonthRangeCalendar(
         ) {
             items(count = calendar.monthCount, key = { it }) { index ->
                 val month = rememberMonth(calendar, index)
+                DisposableEffect(hitTest, index) { onDispose { hitTest.panes.remove(index) } }
                 val title = PlatformDateFormat.yearMonthTitle(month.yearMonth)
                 Column(
                     Modifier
@@ -135,6 +254,7 @@ internal fun DualMonthRangeCalendar(
                             month = month,
                             monthHeader = null,
                             dayContent = { day ->
+                                val target = previewDate.value
                                 DefaultDay(
                                     day = day,
                                     modifier = initialFocus(day),
@@ -144,10 +264,19 @@ internal fun DualMonthRangeCalendar(
                                     shapes = shapes,
                                     // A date belongs to exactly one pane; its neighbors' days would repeat.
                                     showOutDates = false,
+                                    decorators =
+                                        if (target != null) {
+                                            listOf(DayDecorators.rangePreview(state.selection, target))
+                                        } else {
+                                            emptyList()
+                                        },
                                 )
                             },
-                            dragSelection = state.selection,
+                            modifier = Modifier.onPlaced { hitTest.panes[index] = DualMonthPaneGrid(month, it) },
+                            // The container owns the drag, so it can cross panes.
+                            dragSelection = null,
                             keyboardNavigation = keyboard,
+                            selectionForKeys = state.selection,
                         )
                     }
                 }
@@ -155,6 +284,138 @@ internal fun DualMonthRangeCalendar(
         }
     }
 }
+
+/**
+ * Long-press drag range selection across both panes. Runs on the Initial
+ * pass once the long press fires, so the pager under it never starts a
+ * swipe and the day under the finger never sees a click. Within
+ * [DualMonthAutoPageEdge] of either side the pager moves one month at most
+ * every [DUAL_MONTH_AUTO_PAGE_INTERVAL_MS], and the range follows to the
+ * day now under the pointer.
+ */
+@Suppress("LongParameterList")
+private fun Modifier.dualMonthRangeDrag(
+    hitTest: DualMonthHitTest,
+    selection: CalendarSelectionState,
+    calendar: CalendarState,
+    scope: CoroutineScope,
+    haptics: HapticFeedback,
+    isRtl: Boolean,
+): Modifier =
+    pointerInput(hitTest, selection, calendar, isRtl) {
+        val edge = DualMonthAutoPageEdge.toPx()
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            val longPress = awaitLongPressOrCancellation(down.id)
+            val first = longPress?.let { hitTest.dayAt(it.position, isRtl) }
+            if (longPress != null && first != null && selection.supportsDrag) {
+                val drag = DualMonthRangeDrag(hitTest, selection, calendar, scope, haptics, isRtl, edge)
+                drag.start(first.date, longPress.position)
+                try {
+                    followRangeDrag(longPress.id, drag)
+                } finally {
+                    selection.dragEnd()
+                }
+            }
+        }
+    }
+
+/** Feeds [pointer]'s moves to [drag] until it lifts, consuming them before the pager sees them. */
+private suspend fun AwaitPointerEventScope.followRangeDrag(
+    pointer: PointerId,
+    drag: DualMonthRangeDrag,
+) {
+    while (true) {
+        val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == pointer }
+        if (change == null || !change.pressed) {
+            change?.consume()
+            return
+        }
+        if (change.positionChanged()) drag.moveTo(change.position, change.uptimeMillis, size.width)
+        change.consume()
+    }
+}
+
+/** One long-press range drag: follows the pointer across panes and auto-pages at the edges. */
+@Suppress("LongParameterList")
+private class DualMonthRangeDrag(
+    private val hitTest: DualMonthHitTest,
+    private val selection: CalendarSelectionState,
+    private val calendar: CalendarState,
+    private val scope: CoroutineScope,
+    private val haptics: HapticFeedback,
+    private val isRtl: Boolean,
+    private val edgePx: Float,
+) {
+    private var lastDate: LocalDate? = null
+    private var position = Offset.Zero
+    private var lastPageAt: Long? = null
+
+    fun start(
+        date: LocalDate,
+        at: Offset,
+    ) {
+        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+        selection.dragStart(date)
+        lastDate = date
+        position = at
+    }
+
+    fun moveTo(
+        at: Offset,
+        uptimeMillis: Long,
+        width: Int,
+    ) {
+        position = at
+        follow()
+        val direction = dualMonthEdgePageDirection(at.x, width, edgePx, isRtl)
+        val since = lastPageAt?.let { uptimeMillis - it }
+        if (direction == 0 || (since != null && since < DUAL_MONTH_AUTO_PAGE_INTERVAL_MS)) return
+        lastPageAt = uptimeMillis
+        scope.launch {
+            if (direction > 0) calendar.animateScrollToNextMonth() else calendar.animateScrollToPreviousMonth()
+            // The pointer now rests over another month's day; a no-op once the drag has ended.
+            follow()
+        }
+    }
+
+    private fun follow() {
+        val day = hitTest.dayAt(position, isRtl) ?: return
+        if (day.date != lastDate) haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+        lastDate = day.date
+        selection.dragUpdate(day.date)
+    }
+}
+
+/**
+ * Mouse and stylus hover over either pane sets [previewDate] while the
+ * range has a start but no end, so DayDecorators.rangePreview draws the
+ * range the next click would make; exit or a closed range clears it.
+ * Touch has no hover and never sets it.
+ */
+private fun Modifier.dualMonthHoverPreview(
+    hitTest: DualMonthHitTest,
+    selection: CalendarSelectionState,
+    previewDate: MutableState<LocalDate?>,
+    isRtl: Boolean,
+): Modifier =
+    pointerInput(hitTest, selection, isRtl) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent()
+                val change = event.changes.firstOrNull()
+                if (change != null && (change.type == PointerType.Mouse || change.type == PointerType.Stylus)) {
+                    val open = selection.selection.rangeStart != null && selection.selection.rangeEnd == null
+                    previewDate.value =
+                        if (event.type == PointerEventType.Exit || !open) {
+                            null
+                        } else {
+                            hitTest.dayAt(change.position, isRtl)?.date ?: previewDate.value
+                        }
+                }
+            }
+        }
+    }
 
 /**
  * `[<]  July 2026  |  August 2026  [>] [Today]`: each title is centered over

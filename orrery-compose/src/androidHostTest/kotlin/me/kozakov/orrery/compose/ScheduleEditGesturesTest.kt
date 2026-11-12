@@ -3,9 +3,11 @@ package me.kozakov.orrery.compose
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.getOrNull
@@ -23,6 +25,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.withKeyDown
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
@@ -80,6 +83,7 @@ class ScheduleEditGesturesTest {
         move: Boolean = false,
         resize: Boolean = false,
         snapMinutes: Int = 15,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
         val onLongPress: ((LocalDate, LocalTime) -> Unit)? =
             if (longPress) { date, time -> longPresses += date to time } else null
@@ -97,33 +101,35 @@ class ScheduleEditGesturesTest {
                     initialScrollTime = LocalTime(8, 0),
                 )
             MaterialTheme {
-                val modifier = Modifier.testTag("schedule").fillMaxWidth().height(400.dp)
-                if (week) {
-                    WeekSchedule(
-                        events = { date -> events[date].orEmpty() },
-                        modifier = modifier,
-                        state = state,
-                        today = jul15,
-                        onEmptySlotLongPress = onLongPress,
-                        onSlotCreate = onCreate,
-                        onEventMove = onMove,
-                        onEventResize = onResize,
-                        snapMinutes = snapMinutes,
-                        dayHeader = null,
-                    )
-                } else {
-                    DaySchedule(
-                        events = { date -> events[date].orEmpty() },
-                        modifier = modifier,
-                        state = state,
-                        today = jul15,
-                        onEmptySlotLongPress = onLongPress,
-                        onSlotCreate = onCreate,
-                        onEventMove = onMove,
-                        onEventResize = onResize,
-                        snapMinutes = snapMinutes,
-                        dayHeader = null,
-                    )
+                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                    val modifier = Modifier.testTag("schedule").fillMaxWidth().height(400.dp)
+                    if (week) {
+                        WeekSchedule(
+                            events = { date -> events[date].orEmpty() },
+                            modifier = modifier,
+                            state = state,
+                            today = jul15,
+                            onEmptySlotLongPress = onLongPress,
+                            onSlotCreate = onCreate,
+                            onEventMove = onMove,
+                            onEventResize = onResize,
+                            snapMinutes = snapMinutes,
+                            dayHeader = null,
+                        )
+                    } else {
+                        DaySchedule(
+                            events = { date -> events[date].orEmpty() },
+                            modifier = modifier,
+                            state = state,
+                            today = jul15,
+                            onEmptySlotLongPress = onLongPress,
+                            onSlotCreate = onCreate,
+                            onEventMove = onMove,
+                            onEventResize = onResize,
+                            snapMinutes = snapMinutes,
+                            dayHeader = null,
+                        )
+                    }
                 }
             }
         }
@@ -330,6 +336,83 @@ class ScheduleEditGesturesTest {
             up()
         }
         rule.runOnIdle { assertEquals(listOf("standup $jul16 09:00-09:30"), moves) }
+    }
+
+    @Test
+    fun weekDragToTheNextColumnInRtlMovesLeftward() {
+        schedule(week = true, move = true, layoutDirection = LayoutDirection.Rtl)
+        rule.onNodeWithTag("schedule").performTouchInput {
+            // RTL: the hour gutter is on the right and Monday is the right-most column,
+            // so 15 July (the third day) is the fifth column from the left.
+            val columnWidth = (width - dp(56)) / 7f
+            down(Offset(columnWidth * 4.5f, dp(75)))
+            advanceEventTime(1000)
+            moveBy(Offset(-columnWidth / 2f, 0f))
+            moveBy(Offset(-columnWidth / 2f, 0f))
+            up()
+        }
+        rule.runOnIdle { assertEquals(listOf("standup $jul16 09:00-09:30"), moves) }
+    }
+
+    @Test
+    fun secondPointerCancelsTheDragWithoutACallback() {
+        schedule(create = true, move = true)
+        rule.onNodeWithTag("schedule").performTouchInput {
+            down(0, dayPoint(140))
+            advanceEventTime(1000)
+            moveBy(0, Offset(0f, dp(25)))
+            moveBy(0, Offset(0f, dp(25)))
+            down(1, dayPoint(300))
+            up(1)
+            up(0)
+        }
+        rule.onNodeWithText("10:15 – 11:15").assertDoesNotExist()
+        rule.runOnIdle { assertTrue(created.isEmpty() && moves.isEmpty()) }
+    }
+
+    @Test
+    fun dragNearTheBottomEdgeAutoScrollsUntilTheEnd() {
+        schedule(create = true)
+        val before = state.verticalScrollState.value
+        rule.mainClock.autoAdvance = false
+        val node = rule.onNodeWithTag("schedule")
+        node.performMouseInput {
+            moveTo(dayPoint(140))
+            press()
+            // 5.dp above the bottom edge: inside the 32.dp auto-scroll band.
+            moveTo(dayPoint(395))
+        }
+        rule.mainClock.advanceTimeBy(500)
+        val scrolled = state.verticalScrollState.value
+        assertTrue("scrolled while held: $before -> $scrolled", scrolled > before)
+        rule.mainClock.advanceTimeBy(20_000)
+        assertEquals(state.verticalScrollState.maxValue, state.verticalScrollState.value)
+        node.performMouseInput { release() }
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle {
+            // The range follows the grid under the pointer, so it ends far past 14:35 (08:00 + 395 minutes).
+            assertEquals(1, created.size)
+            val (_, start, end) = created.single()
+            assertEquals(LocalTime(10, 15), start)
+            assertTrue("end $end", end == LocalTime(0, 0) || end > LocalTime(20, 0))
+        }
+    }
+
+    @Test
+    fun dragNearTheTopEdgeStopsAutoScrollingAtZero() {
+        schedule(create = true)
+        rule.mainClock.autoAdvance = false
+        val node = rule.onNodeWithTag("schedule")
+        node.performMouseInput {
+            moveTo(dayPoint(140))
+            press()
+            moveTo(dayPoint(5))
+        }
+        rule.mainClock.advanceTimeBy(20_000)
+        assertEquals(0, state.verticalScrollState.value)
+        node.performMouseInput { release() }
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle { assertEquals(1, created.size) }
     }
 
     @Test

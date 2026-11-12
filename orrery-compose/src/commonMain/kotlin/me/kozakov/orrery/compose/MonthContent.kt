@@ -60,7 +60,9 @@ internal val WeekNumberColumnWidth = 32.dp
  * One month grid. [weekOverlay] is drawn over each week row's day columns
  * (not the week-number column) in a [BoxScope] sized to the row, which grows
  * when the overlay is taller; [weekFooter] goes below each week row and
- * [monthFooter] below the whole grid.
+ * [monthFooter] below the whole grid. [selectionForKeys] is the selection
+ * Shift+Arrow extends when [dragSelection] is null because a parent owns
+ * the drag gesture (the dual-month picker); it defaults to [dragSelection].
  */
 @Composable
 internal fun MonthContent(
@@ -78,6 +80,7 @@ internal fun MonthContent(
     weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
     weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
     monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    selectionForKeys: CalendarSelectionState? = null,
 ) {
     val haptics = LocalHapticFeedback.current
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -198,7 +201,7 @@ internal fun MonthContent(
                                 row = row,
                                 rowCount = rowCount,
                                 rowFocusRequesters = rowFocusRequesters,
-                                selectionState = dragSelection,
+                                selectionState = selectionForKeys ?: dragSelection,
                                 // Paging always scrolls to the page of the target's month, where the
                                 // target is an in-month date; out-dates of other pages never take it.
                                 acceptsPendingFocus = day.position == DayPosition.MonthDate,
@@ -429,8 +432,9 @@ private fun DayKeyContext.focusRowEdge(start: Boolean): Boolean {
 }
 
 /**
- * Arrows: page at the grid edges; with Shift in range mode, also extend
- * the range. Plain arrows inside the grid fall through to focus search.
+ * Arrows: page at the grid edges (always in dual-month mode); with Shift
+ * in range mode, also extend the range. Plain arrows inside the grid fall
+ * through to focus search.
  */
 private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     val days = position.arrowDays(event.key) ?: return false
@@ -444,7 +448,8 @@ private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     val rangeState = selectionState?.takeIf { event.isShiftPressed && it.mode is SelectionMode.Range }
     rangeState?.extendRange(anchor = rangeAnchor(rangeState, day.date), target = target)
     return when {
-        atEdge -> {
+        // Focus search across the two month panes can land on a blank cell or the wrong pane.
+        keyboard.dualMonth || atEdge -> {
             keyboard.page(target)
             true
         }

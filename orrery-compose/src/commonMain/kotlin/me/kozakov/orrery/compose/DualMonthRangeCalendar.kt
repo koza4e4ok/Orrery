@@ -88,7 +88,7 @@ internal fun DualMonthRangeCalendar(
     val scope = rememberCoroutineScope()
     val keyboard =
         remember(calendar, scope) {
-            CalendarKeyboardNavigation(scope) { date ->
+            CalendarKeyboardNavigation(scope, dualMonth = true) { date ->
                 val target = YearMonth(date.year, date.month)
                 dualMonthPageTarget(calendar.firstVisibleMonth, target, calendar.effectiveStartMonth)
                     ?.let { calendar.animateScrollToMonth(it) }

@@ -187,7 +187,8 @@ internal fun dualMonthPageTarget(
  * Two consecutive months side by side on the picker's own calendar state:
  * a navigation header with both month titles, then a pager whose pages are
  * half its width, so the visible pair is always `displayedMonth` and the
- * month after it, and paging moves both by one month.
+ * month after it, and paging moves both by one month. [hapticsEnabled]
+ * applies to the cross-pane drag as well as to MonthContent and the days.
  */
 @Suppress("LongParameterList")
 @Composable
@@ -198,6 +199,7 @@ internal fun DualMonthRangeCalendar(
     shapes: CalendarDayShapes,
     strings: DatePickerStrings,
     modifier: Modifier = Modifier,
+    hapticsEnabled: Boolean = true,
 ) {
     val calendar = state.calendar
     // Synchronously, before the pager measures: the single-month column uses
@@ -222,7 +224,7 @@ internal fun DualMonthRangeCalendar(
     val paneFraction = if (calendar.monthCount > 1) 0.5f else 1f
     val dividerColor = MaterialTheme.colorScheme.outlineVariant
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val haptics = LocalHapticFeedback.current
+    val haptics = LocalHapticFeedback.current.takeIf { hapticsEnabled }
     val hitTest = remember(calendar) { DualMonthHitTest(calendar) }
     val previewDate = remember { mutableStateOf<LocalDate?>(null) }
     val previewColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
@@ -283,12 +285,14 @@ internal fun DualMonthRangeCalendar(
                                     shapes = shapes,
                                     // A date belongs to exactly one pane; its neighbors' days would repeat.
                                     showOutDates = false,
+                                    hapticsEnabled = hapticsEnabled,
                                     decorators = previewDecorators,
                                 )
                             },
                             modifier = Modifier.onPlaced { hitTest.panes[index] = DualMonthPaneGrid(month, it) },
                             // The container owns the drag, so it can cross panes.
                             dragSelection = null,
+                            hapticsEnabled = hapticsEnabled,
                             keyboardNavigation = keyboard,
                             selectionForKeys = state.selection,
                         )
@@ -314,7 +318,7 @@ private fun Modifier.dualMonthRangeDrag(
     selection: CalendarSelectionState,
     calendar: CalendarState,
     scope: CoroutineScope,
-    haptics: HapticFeedback,
+    haptics: HapticFeedback?,
     isRtl: Boolean,
 ): Modifier =
     pointerInput(hitTest, selection, calendar, isRtl) {
@@ -359,7 +363,8 @@ private class DualMonthRangeDrag(
     private val selection: CalendarSelectionState,
     private val calendar: CalendarState,
     private val scope: CoroutineScope,
-    private val haptics: HapticFeedback,
+    /** Null when haptics are off. */
+    private val haptics: HapticFeedback?,
     private val isRtl: Boolean,
     private val edgePx: Float,
 ) {
@@ -375,7 +380,7 @@ private class DualMonthRangeDrag(
         date: LocalDate,
         at: Offset,
     ) {
-        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+        haptics?.performHapticFeedback(HapticFeedbackType.LongPress)
         selection.dragStart(date)
         lastDate = date
         position = at
@@ -422,7 +427,7 @@ private class DualMonthRangeDrag(
     private fun follow() {
         if (ended) return
         val day = hitTest.dayAt(position, isRtl) ?: return
-        if (day.date != lastDate) haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+        if (day.date != lastDate) haptics?.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
         lastDate = day.date
         selection.dragUpdate(day.date)
     }

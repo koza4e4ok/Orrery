@@ -687,29 +687,62 @@ public final class me/kozakov/orrery/compose/ScheduleDefaults {
 	public static final field INSTANCE Lme/kozakov/orrery/compose/ScheduleDefaults;
 	public final fun AllDayEventChip (Lme/kozakov/orrery/core/CalendarEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
 	public final fun DayHeader (Lkotlinx/datetime/LocalDate;ZLme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public final fun DragGhost (Lme/kozakov/orrery/compose/ScheduleDragPreview;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleStrings;ZLandroidx/compose/runtime/Composer;II)V
 	public final synthetic fun EventTile (Lme/kozakov/orrery/core/PositionedEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
 	public final fun EventTile (Lme/kozakov/orrery/core/PositionedEvent;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;ZLandroidx/compose/runtime/Composer;II)V
 	public final synthetic fun HourLabel (ILme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
 	public final fun HourLabel (ILme/kozakov/orrery/compose/ScheduleColors;Landroidx/compose/ui/Modifier;ZLandroidx/compose/runtime/Composer;II)V
 	public final fun NowIndicator (Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Landroidx/compose/ui/Modifier;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)V
 	public final fun colors-J08w3-E (JJJJJJJJJLandroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/ScheduleColors;
-	public final fun dimensions-IzGr3o8 (FFFFFFFFI)Lme/kozakov/orrery/compose/ScheduleDimensions;
+	public final synthetic fun dimensions-IzGr3o8 (FFFFFFFFI)Lme/kozakov/orrery/compose/ScheduleDimensions;
 	public static synthetic fun dimensions-IzGr3o8$default (Lme/kozakov/orrery/compose/ScheduleDefaults;FFFFFFFFIILjava/lang/Object;)Lme/kozakov/orrery/compose/ScheduleDimensions;
-	public final fun strings (Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/ScheduleStrings;
+	public final fun dimensions-vC5mcg8 (FFFFFFFFIFFFF)Lme/kozakov/orrery/compose/ScheduleDimensions;
+	public static synthetic fun dimensions-vC5mcg8$default (Lme/kozakov/orrery/compose/ScheduleDefaults;FFFFFFFFIFFFFILjava/lang/Object;)Lme/kozakov/orrery/compose/ScheduleDimensions;
+	public final synthetic fun strings (Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/ScheduleStrings;
+	public final fun strings (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;III)Lme/kozakov/orrery/compose/ScheduleStrings;
 }
 
 public final class me/kozakov/orrery/compose/ScheduleDimensions {
 	public static final field $stable I
+	public synthetic fun <init> (FFFFFFFFIFFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (FFFFFFFFIFFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (FFFFFFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getAllDayChipHeight-D9Ej5fM ()F
+	public final fun getGhostBorderWidth-D9Ej5fM ()F
 	public final fun getMaxVisibleAllDayRows ()I
 	public final fun getNowDotRadius-D9Ej5fM ()F
 	public final fun getNowLineStrokeWidth-D9Ej5fM ()F
+	public final fun getResizeHandleThickness-D9Ej5fM ()F
+	public final fun getResizeHandleTouchSize-D9Ej5fM ()F
+	public final fun getResizeHandleWidth-D9Ej5fM ()F
 	public final fun getTileAccentBarWidth-D9Ej5fM ()F
 	public final fun getTileCornerRadius-D9Ej5fM ()F
 	public final fun getTileHorizontalGap-D9Ej5fM ()F
 	public final fun getTileVerticalGap-D9Ej5fM ()F
 	public final fun getTimeGutterWidth-D9Ej5fM ()F
+}
+
+public final class me/kozakov/orrery/compose/ScheduleDragKind : java/lang/Enum {
+	public static final field Create Lme/kozakov/orrery/compose/ScheduleDragKind;
+	public static final field Move Lme/kozakov/orrery/compose/ScheduleDragKind;
+	public static final field ResizeEnd Lme/kozakov/orrery/compose/ScheduleDragKind;
+	public static final field ResizeStart Lme/kozakov/orrery/compose/ScheduleDragKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lme/kozakov/orrery/compose/ScheduleDragKind;
+	public static fun values ()[Lme/kozakov/orrery/compose/ScheduleDragKind;
+}
+
+public final class me/kozakov/orrery/compose/ScheduleDragPreview {
+	public static final field $stable I
+	public fun <init> (Lme/kozakov/orrery/compose/ScheduleDragKind;Lme/kozakov/orrery/core/CalendarEvent;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;Lkotlinx/datetime/LocalTime;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDate ()Lkotlinx/datetime/LocalDate;
+	public final fun getEndTime ()Lkotlinx/datetime/LocalTime;
+	public final fun getEvent ()Lme/kozakov/orrery/core/CalendarEvent;
+	public final fun getKind ()Lme/kozakov/orrery/compose/ScheduleDragKind;
+	public final fun getStartTime ()Lkotlinx/datetime/LocalTime;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class me/kozakov/orrery/compose/ScheduleState {
@@ -759,16 +792,28 @@ public final class me/kozakov/orrery/compose/ScheduleStateKt {
 
 public final class me/kozakov/orrery/compose/ScheduleStrings {
 	public static final field $stable I
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getAllDayLabel ()Ljava/lang/String;
+	public final fun getCreateAt ()Ljava/lang/String;
+	public final fun getDragTimeRange ()Ljava/lang/String;
+	public final fun getExtendEnd ()Ljava/lang/String;
+	public final fun getMoveEarlier ()Ljava/lang/String;
+	public final fun getMoveLater ()Ljava/lang/String;
+	public final fun getMoveNextDay ()Ljava/lang/String;
+	public final fun getMovePreviousDay ()Ljava/lang/String;
 	public final fun getNowLabel ()Ljava/lang/String;
+	public final fun getShortenEnd ()Ljava/lang/String;
 }
 
 public final class me/kozakov/orrery/compose/ScheduleViewKt {
-	public static final fun DaySchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
-	public static final fun DaySchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/core/EventOverlapMode;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
-	public static final fun WeekSchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;ILkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
-	public static final fun WeekSchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;ILkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/core/EventOverlapMode;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;IIII)V
+	public static final synthetic fun DaySchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
+	public static final fun DaySchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/core/EventOverlapMode;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;IZLkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;IIII)V
+	public static final synthetic fun DaySchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/core/EventOverlapMode;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun WeekSchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;ILkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
+	public static final fun WeekSchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;ILkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/core/EventOverlapMode;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;IZLkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;IIII)V
+	public static final synthetic fun WeekSchedule (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lme/kozakov/orrery/compose/ScheduleState;ILkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalTime;ZZZILme/kozakov/orrery/core/EventOverlapMode;Lme/kozakov/orrery/compose/ScheduleColors;Lme/kozakov/orrery/compose/ScheduleDimensions;Lme/kozakov/orrery/compose/ScheduleStrings;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;IIII)V
 }
 
 public final class me/kozakov/orrery/compose/ScrollSource : java/lang/Enum {

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
@@ -35,8 +37,10 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -73,8 +77,15 @@ public class ScheduleColors(
  * @property maxVisibleAllDayRows Most all-day rows, including the "+N" row;
  *   fewer in short windows, where the all-day area takes at most about a
  *   quarter of the height.
+ * @property resizeHandleWidth Width of the resize handle pill drawn on a tile's
+ *   top and bottom edge when `onEventResize` is set.
+ * @property resizeHandleThickness Thickness of the resize handle pill.
+ * @property resizeHandleTouchSize Height of the touch zone around each resize
+ *   handle; it never covers more than a third of the tile.
+ * @property ghostBorderWidth Outline width of [ScheduleDefaults.DragGhost].
  */
 @Immutable
+@Suppress("LongParameterList")
 public class ScheduleDimensions(
     public val timeGutterWidth: Dp,
     public val tileCornerRadius: Dp,
@@ -85,19 +96,102 @@ public class ScheduleDimensions(
     public val nowDotRadius: Dp,
     public val allDayChipHeight: Dp,
     public val maxVisibleAllDayRows: Int,
-)
+    public val resizeHandleWidth: Dp = DefaultResizeHandleWidth,
+    public val resizeHandleThickness: Dp = DefaultResizeHandleThickness,
+    public val resizeHandleTouchSize: Dp = DefaultResizeHandleTouchSize,
+    public val ghostBorderWidth: Dp = DefaultGhostBorderWidth,
+) {
+    @Deprecated(
+        "Kept for binary compatibility; use the constructor with the resize handle and ghost sizes.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Suppress("LongParameterList")
+    public constructor(
+        timeGutterWidth: Dp,
+        tileCornerRadius: Dp,
+        tileAccentBarWidth: Dp,
+        tileHorizontalGap: Dp,
+        tileVerticalGap: Dp,
+        nowLineStrokeWidth: Dp,
+        nowDotRadius: Dp,
+        allDayChipHeight: Dp,
+        maxVisibleAllDayRows: Int,
+    ) : this(
+        timeGutterWidth = timeGutterWidth,
+        tileCornerRadius = tileCornerRadius,
+        tileAccentBarWidth = tileAccentBarWidth,
+        tileHorizontalGap = tileHorizontalGap,
+        tileVerticalGap = tileVerticalGap,
+        nowLineStrokeWidth = nowLineStrokeWidth,
+        nowDotRadius = nowDotRadius,
+        allDayChipHeight = allDayChipHeight,
+        maxVisibleAllDayRows = maxVisibleAllDayRows,
+        resizeHandleWidth = DefaultResizeHandleWidth,
+        resizeHandleThickness = DefaultResizeHandleThickness,
+        resizeHandleTouchSize = DefaultResizeHandleTouchSize,
+        ghostBorderWidth = DefaultGhostBorderWidth,
+    )
+}
+
+private val DefaultResizeHandleWidth = 28.dp
+private val DefaultResizeHandleThickness = 4.dp
+private val DefaultResizeHandleTouchSize = 32.dp
+private val DefaultGhostBorderWidth = 2.dp
 
 /**
  * Localized strings for [DaySchedule] and [WeekSchedule].
  * [ScheduleDefaults.strings] resolves them from the current locale's resources.
+ *
+ * @property moveEarlier Accessibility action: move an event one snap step earlier.
+ * @property moveLater Accessibility action: move an event one snap step later.
+ * @property movePreviousDay Accessibility action: move an event to the previous day of the page.
+ * @property moveNextDay Accessibility action: move an event to the next day of the page.
+ * @property extendEnd Accessibility action: make an event end one snap step later.
+ * @property shortenEnd Accessibility action: make an event end one snap step earlier.
+ * @property createAt Accessibility action template for creating an event; `%1$s` is the time.
+ * @property dragTimeRange Template describing the dragged time range; `%1$s` is the start, `%2$s` the end.
+ *
+ * The editing strings default to English, so `ScheduleStrings(allDayLabel, nowLabel)`
+ * still compiles; prefer [ScheduleDefaults.strings], which localizes them.
  */
 @Immutable
+@Suppress("LongParameterList")
 public class ScheduleStrings(
     public val allDayLabel: String,
     public val nowLabel: String,
-)
+    public val moveEarlier: String = "Move earlier",
+    public val moveLater: String = "Move later",
+    public val movePreviousDay: String = "Move to previous day",
+    public val moveNextDay: String = "Move to next day",
+    public val extendEnd: String = "Extend end",
+    public val shortenEnd: String = "Shorten end",
+    public val createAt: String = "Create event at %1\$s",
+    public val dragTimeRange: String = "%1\$s – %2\$s",
+) {
+    /** Fills the editing strings with their English text. */
+    @Deprecated(
+        "Kept for binary compatibility; use the constructor with the editing strings.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    public constructor(
+        allDayLabel: String,
+        nowLabel: String,
+    ) : this(
+        allDayLabel = allDayLabel,
+        nowLabel = nowLabel,
+        moveEarlier = "Move earlier",
+        moveLater = "Move later",
+        movePreviousDay = "Move to previous day",
+        moveNextDay = "Move to next day",
+        extendEnd = "Extend end",
+        shortenEnd = "Shorten end",
+        createAt = "Create event at %1\$s",
+        dragTimeRange = "%1\$s – %2\$s",
+    )
+}
 
 /** Defaults for [DaySchedule] and [WeekSchedule]. */
+@Suppress("TooManyFunctions")
 public object ScheduleDefaults {
     @Composable
     public fun colors(
@@ -123,6 +217,7 @@ public object ScheduleDefaults {
             defaultEventAccentColor = defaultEventAccentColor,
         )
 
+    @Suppress("LongParameterList")
     public fun dimensions(
         timeGutterWidth: Dp = 56.dp,
         tileCornerRadius: Dp = 6.dp,
@@ -133,6 +228,10 @@ public object ScheduleDefaults {
         nowDotRadius: Dp = 4.dp,
         allDayChipHeight: Dp = 20.dp,
         maxVisibleAllDayRows: Int = 3,
+        resizeHandleWidth: Dp = DefaultResizeHandleWidth,
+        resizeHandleThickness: Dp = DefaultResizeHandleThickness,
+        resizeHandleTouchSize: Dp = DefaultResizeHandleTouchSize,
+        ghostBorderWidth: Dp = DefaultGhostBorderWidth,
     ): ScheduleDimensions =
         ScheduleDimensions(
             timeGutterWidth = timeGutterWidth,
@@ -144,18 +243,165 @@ public object ScheduleDefaults {
             nowDotRadius = nowDotRadius,
             allDayChipHeight = allDayChipHeight,
             maxVisibleAllDayRows = maxVisibleAllDayRows,
+            resizeHandleWidth = resizeHandleWidth,
+            resizeHandleThickness = resizeHandleThickness,
+            resizeHandleTouchSize = resizeHandleTouchSize,
+            ghostBorderWidth = ghostBorderWidth,
+        )
+
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with the resize handle and ghost sizes.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Suppress("LongParameterList")
+    public fun dimensions(
+        timeGutterWidth: Dp = 56.dp,
+        tileCornerRadius: Dp = 6.dp,
+        tileAccentBarWidth: Dp = 3.dp,
+        tileHorizontalGap: Dp = 2.dp,
+        tileVerticalGap: Dp = 1.dp,
+        nowLineStrokeWidth: Dp = 2.dp,
+        nowDotRadius: Dp = 4.dp,
+        allDayChipHeight: Dp = 20.dp,
+        maxVisibleAllDayRows: Int = 3,
+    ): ScheduleDimensions =
+        dimensions(
+            timeGutterWidth = timeGutterWidth,
+            tileCornerRadius = tileCornerRadius,
+            tileAccentBarWidth = tileAccentBarWidth,
+            tileHorizontalGap = tileHorizontalGap,
+            tileVerticalGap = tileVerticalGap,
+            nowLineStrokeWidth = nowLineStrokeWidth,
+            nowDotRadius = nowDotRadius,
+            allDayChipHeight = allDayChipHeight,
+            maxVisibleAllDayRows = maxVisibleAllDayRows,
+            resizeHandleWidth = DefaultResizeHandleWidth,
         )
 
     /**
      * Builds [ScheduleStrings]. Defaults are resolved from the current
      * locale's resources; override any parameter to replace a string.
+     * [createAt] and [dragTimeRange] are raw templates with `%1$s` / `%2$s` placeholders.
      */
     @Composable
     @ReadOnlyComposable
     public fun strings(
         allDayLabel: String = orreryString(OrreryString.AgendaAllDay),
         nowLabel: String = orreryString(OrreryString.ScheduleNow),
-    ): ScheduleStrings = ScheduleStrings(allDayLabel = allDayLabel, nowLabel = nowLabel)
+        moveEarlier: String = orreryString(OrreryString.ScheduleMoveEarlier),
+        moveLater: String = orreryString(OrreryString.ScheduleMoveLater),
+        movePreviousDay: String = orreryString(OrreryString.ScheduleMovePreviousDay),
+        moveNextDay: String = orreryString(OrreryString.ScheduleMoveNextDay),
+        extendEnd: String = orreryString(OrreryString.ScheduleExtendEnd),
+        shortenEnd: String = orreryString(OrreryString.ScheduleShortenEnd),
+        createAt: String = orreryString(OrreryString.ScheduleCreateAt),
+        dragTimeRange: String = orreryString(OrreryString.ScheduleDragTimeRange),
+    ): ScheduleStrings =
+        ScheduleStrings(
+            allDayLabel = allDayLabel,
+            nowLabel = nowLabel,
+            moveEarlier = moveEarlier,
+            moveLater = moveLater,
+            movePreviousDay = movePreviousDay,
+            moveNextDay = moveNextDay,
+            extendEnd = extendEnd,
+            shortenEnd = shortenEnd,
+            createAt = createAt,
+            dragTimeRange = dragTimeRange,
+        )
+
+    @Deprecated(
+        "Kept for binary compatibility; use the overload with the editing strings.",
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Composable
+    @ReadOnlyComposable
+    public fun strings(
+        allDayLabel: String = orreryString(OrreryString.AgendaAllDay),
+        nowLabel: String = orreryString(OrreryString.ScheduleNow),
+    ): ScheduleStrings =
+        strings(
+            allDayLabel = allDayLabel,
+            nowLabel = nowLabel,
+            moveEarlier = orreryString(OrreryString.ScheduleMoveEarlier),
+        )
+
+    /**
+     * Default ghost tile of an edit in flight (see `ghostContent` on [DaySchedule]):
+     * a translucent tile with a [ScheduleDimensions.ghostBorderWidth] outline at the
+     * snapped position, the event title (none while creating) and a time chip
+     * floating above it, or below it near the top of the grid.
+     *
+     * @param is24Hour Clock for the time chip; defaults to the device setting.
+     */
+    @Composable
+    public fun DragGhost(
+        preview: ScheduleDragPreview<*>,
+        colors: ScheduleColors,
+        dimensions: ScheduleDimensions = dimensions(),
+        modifier: Modifier = Modifier,
+        strings: ScheduleStrings = strings(),
+        is24Hour: Boolean = systemUses24HourClock(),
+    ) {
+        val scheme = MaterialTheme.colorScheme
+        val event = preview.event
+        val palette = if (event != null) eventPalette(event, colors) else null
+        val accent = palette?.accent ?: scheme.primary
+        val container = (palette?.accent ?: scheme.primaryContainer).copy(alpha = 0.55f).compositeOver(scheme.surface)
+        val content = readableContentColor(container, scheme.onSurface, scheme.inverseOnSurface)
+        val shape = RoundedCornerShape(dimensions.tileCornerRadius)
+        val range = previewMinutes(preview)
+        val startLabel = clockLabel(range.start, is24Hour)
+        val endLabel = clockLabel(range.end, is24Hour)
+        val description = fillTemplate(strings.dragTimeRange, startLabel, endLabel)
+        val chipBelow = LocalGhostChipBelow.current
+        val elevation = if (preview.kind == ScheduleDragKind.Move) 4.dp else 0.dp
+        Box(
+            modifier
+                .fillMaxSize()
+                .shadow(elevation, shape, clip = false)
+                .background(container, shape)
+                .border(dimensions.ghostBorderWidth, accent, shape),
+        ) {
+            if (event != null) {
+                Text(
+                    text = event.title,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = content,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Layout(
+                content = {
+                    Text(
+                        text = "$startLabel – $endLabel",
+                        modifier =
+                            Modifier
+                                .background(scheme.inverseSurface, CircleShape)
+                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                .semantics {
+                                    liveRegion = LiveRegionMode.Polite
+                                    contentDescription = description
+                                },
+                        style = MaterialTheme.typography.labelMedium,
+                        color = scheme.inverseOnSurface,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                },
+                modifier = Modifier.matchParentSize(),
+            ) { measurables, constraints ->
+                val chip = measurables.first().measure(Constraints())
+                val gap = 6.dp.roundToPx()
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    val y = if (chipBelow) constraints.maxHeight + gap else -chip.height - gap
+                    chip.place((constraints.maxWidth - chip.width) / 2, y)
+                }
+            }
+        }
+    }
 
     /** Default day column header: short weekday name above the day number. */
     @Composable
@@ -519,7 +765,7 @@ private fun rememberTileTimeText(
     }
 }
 
-private class EventPalette(
+internal class EventPalette(
     val container: Color,
     val content: Color,
     val accent: Color,
@@ -527,7 +773,7 @@ private class EventPalette(
 
 @Composable
 @ReadOnlyComposable
-private fun eventPalette(
+internal fun eventPalette(
     event: CalendarEvent<*>,
     colors: ScheduleColors,
 ): EventPalette {

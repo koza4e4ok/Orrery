@@ -33,6 +33,14 @@
     <string name="orrery_agenda_all_day">終日</string>
     <string name="orrery_agenda_no_events">予定なし</string>
     <string name="orrery_schedule_now">現在</string>
+    <string name="orrery_schedule_move_earlier">前に移動</string>
+    <string name="orrery_schedule_move_later">後ろに移動</string>
+    <string name="orrery_schedule_move_previous_day">前の日に移動</string>
+    <string name="orrery_schedule_move_next_day">次の日に移動</string>
+    <string name="orrery_schedule_extend_end">終了を延長</string>
+    <string name="orrery_schedule_shorten_end">終了を短縮</string>
+    <string name="orrery_schedule_create_at">%1$s に予定を作成</string>
+    <string name="orrery_schedule_drag_time_range">%1$s – %2$s</string>
     <string name="orrery_date_picker_preset_last_7_days">過去7日間</string>
     <string name="orrery_date_picker_preset_last_30_days">過去30日間</string>
     <string name="orrery_date_picker_preset_this_week">今週</string>

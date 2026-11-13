@@ -218,6 +218,10 @@ internal fun DualMonthRangeCalendar(
                 scope = scope,
                 dualMonth = true,
                 isOnScreen = { pageFor(it) == null },
+                isInBounds = {
+                    val month = YearMonth(it.year, it.month)
+                    month >= calendar.effectiveStartMonth && month <= calendar.effectiveEndMonth
+                },
             ) { date -> pageFor(date)?.let { calendar.animateScrollToMonth(it) } }
         }
     val initialFocus = rememberInitialDayFocus(state.selectedStartDate ?: today)
@@ -310,7 +314,8 @@ internal fun DualMonthRangeCalendar(
  * has stayed within [DualMonthAutoPageEdge] of either side for
  * [DUAL_MONTH_AUTO_PAGE_DWELL_MS], the pager moves one month, then one more
  * every [DUAL_MONTH_AUTO_PAGE_INTERVAL_MS] while it stays there (moving or
- * not), and the range follows to the day now under the pointer.
+ * not, including a long press that starts in the zone and never moves),
+ * and the range follows to the day now under the pointer.
  */
 @Suppress("LongParameterList")
 private fun Modifier.dualMonthRangeDrag(
@@ -329,7 +334,7 @@ private fun Modifier.dualMonthRangeDrag(
             val first = longPress?.let { hitTest.dayAt(it.position, isRtl) }
             if (longPress != null && first != null && selection.supportsDrag) {
                 val drag = DualMonthRangeDrag(hitTest, selection, calendar, scope, haptics, isRtl, edge)
-                drag.start(first.date, longPress.position)
+                drag.start(first.date, longPress.position, size.width)
                 try {
                     followRangeDrag(longPress.id, drag)
                 } finally {
@@ -379,11 +384,14 @@ private class DualMonthRangeDrag(
     fun start(
         date: LocalDate,
         at: Offset,
+        width: Int,
     ) {
         haptics?.performHapticFeedback(HapticFeedbackType.LongPress)
         selection.dragStart(date)
         lastDate = date
         position = at
+        // A press that starts in the edge zone and is held still pages too.
+        trackEdge(at, width)
     }
 
     fun moveTo(
@@ -392,6 +400,14 @@ private class DualMonthRangeDrag(
     ) {
         position = at
         follow()
+        trackEdge(at, width)
+    }
+
+    /** Starts, restarts or stops the auto-page job for the edge zone [at] is in. */
+    private fun trackEdge(
+        at: Offset,
+        width: Int,
+    ) {
         val direction = dualMonthEdgePageDirection(at.x, width, edgePx, isRtl)
         if (direction == pageDirection) return
         pageJob?.cancel()

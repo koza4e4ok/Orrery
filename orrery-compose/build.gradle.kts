@@ -75,16 +75,13 @@ tasks.named("desktopTest") {
 // Gradle module metadata so the CI log shows the pin.
 tasks.named("publishToMavenLocal") {
     val repo = File(System.getProperty("user.home"), ".m2/repository/me/kozakov/orrery")
+    val isRoot = { file: File -> file.parentFile.parentFile.name == "orrery-compose" }
     doLast {
         repo
             .walkTopDown()
             .filter { it.isFile && it.name.startsWith("orrery-compose") }
             .filter { it.extension == "pom" || it.extension == "module" }
-            .filter {
-                it.name.contains("-android-") ||
-                    it.name.contains("-desktop-") ||
-                    it.parentFile.parentFile.name == "orrery-compose"
-            }
+            .filter { it.name.contains("-android-") || it.name.contains("-desktop-") || isRoot(it) }
             .sortedBy { it.name }
             .forEach { file ->
                 println("SPIKE-89 ===== ${file.name}")

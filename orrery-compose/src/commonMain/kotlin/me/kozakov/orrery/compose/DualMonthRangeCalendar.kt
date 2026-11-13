@@ -225,6 +225,12 @@ internal fun DualMonthRangeCalendar(
     val haptics = LocalHapticFeedback.current
     val hitTest = remember(calendar) { DualMonthHitTest(calendar) }
     val previewDate = remember { mutableStateOf<LocalDate?>(null) }
+    val previewColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+    // One decorator for every day; it reads previewDate while drawing, so hovering only redraws.
+    val previewDecorators =
+        remember(state.selection, previewColor) {
+            listOf(DayDecorators.rangePreviewDecorator(state.selection, { previewDate.value }, previewColor))
+        }
     Column(modifier) {
         DualMonthNavHeader(calendar, today, strings)
         LazyRow(
@@ -268,7 +274,6 @@ internal fun DualMonthRangeCalendar(
                             month = month,
                             monthHeader = null,
                             dayContent = { day ->
-                                val target = previewDate.value
                                 DefaultDay(
                                     day = day,
                                     modifier = initialFocus(day),
@@ -278,12 +283,7 @@ internal fun DualMonthRangeCalendar(
                                     shapes = shapes,
                                     // A date belongs to exactly one pane; its neighbors' days would repeat.
                                     showOutDates = false,
-                                    decorators =
-                                        if (target != null) {
-                                            listOf(DayDecorators.rangePreview(state.selection, target))
-                                        } else {
-                                            emptyList()
-                                        },
+                                    decorators = previewDecorators,
                                 )
                             },
                             modifier = Modifier.onPlaced { hitTest.panes[index] = DualMonthPaneGrid(month, it) },

@@ -3,6 +3,7 @@ package me.kozakov.orrery.compose
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -11,6 +12,7 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.captureToImage
@@ -27,6 +29,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.withKeyDown
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -62,28 +65,32 @@ class DualMonthRangeSelectionTest {
     private fun content(
         disabledDates: DisabledDates = DisabledDates.None,
         disallowDisabledInRange: Boolean = false,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
         rule.setContent {
-            MaterialTheme {
-                state =
-                    rememberOrreryDateRangePickerState(
-                        initialDisplayedMonth = YearMonth(2026, 7),
-                        yearRange = 2026..2027,
-                        firstDayOfWeek = DayOfWeek.SUNDAY,
-                        disabledDates = disabledDates,
-                        disallowDisabledInRange = disallowDisabledInRange,
+            // The dialog window takes its layout direction from the composition.
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                MaterialTheme {
+                    state =
+                        rememberOrreryDateRangePickerState(
+                            initialDisplayedMonth = YearMonth(2026, 7),
+                            yearRange = 2026..2027,
+                            firstDayOfWeek = DayOfWeek.SUNDAY,
+                            disabledDates = disabledDates,
+                            disallowDisabledInRange = disallowDisabledInRange,
+                        )
+                    OrreryDateRangePickerDialog(
+                        onDismissRequest = {},
+                        confirmButton = {
+                            // The dialog is its own window with its own input mode.
+                            inputModeManager = LocalInputModeManager.current
+                            TextButton(onClick = {}) { Text("Save") }
+                        },
+                        state = state,
+                        today = LocalDate(2026, 7, 15),
+                        layoutMode = DateRangeCalendarLayoutMode.DualMonth,
                     )
-                OrreryDateRangePickerDialog(
-                    onDismissRequest = {},
-                    confirmButton = {
-                        // The dialog is its own window with its own input mode.
-                        inputModeManager = LocalInputModeManager.current
-                        TextButton(onClick = {}) { Text("Save") }
-                    },
-                    state = state,
-                    today = LocalDate(2026, 7, 15),
-                    layoutMode = DateRangeCalendarLayoutMode.DualMonth,
-                )
+                }
             }
         }
     }
@@ -405,6 +412,62 @@ class DualMonthRangeSelectionTest {
         dialog.performMouseInput { exit() }
         rule.waitForIdle()
         assertEquals(0, differingPixels(before, rightPane.captureToImage()))
+    }
+
+    private fun rtl() {
+        content(layoutDirection = LayoutDirection.Rtl)
+        // A real RTL layout: the later month is the left pane.
+        val julyPane = rule.onNode(hasContentDescription(july)).fetchSemanticsNode().boundsInRoot
+        val augustPane = rule.onNode(hasContentDescription(august)).fetchSemanticsNode().boundsInRoot
+        assertTrue("RTL puts August left of July", augustPane.right <= julyPane.left)
+    }
+
+    @Test
+    fun rtlLongPressDragFromAugustIntoJuly() {
+        rtl()
+        longPressDrag(centerOf(day(august, 5)), centerOf(day(july, 30)))
+        assertRange(LocalDate(2026, 7, 30), LocalDate(2026, 8, 5))
+        assertDisplayed(YearMonth(2026, 7))
+    }
+
+    @Test
+    fun rtlDragAtTheLeftEdgePagesForward() {
+        rtl()
+        val start = centerOf(day(july, 14))
+        longPressAndHoldAt(start, edgeOf(august, right = false, level = start))
+        // RTL: the left edge is August's Saturday column.
+        assertRange(LocalDate(2026, 7, 14), LocalDate(2026, 8, 15))
+        holdFor(DUAL_MONTH_AUTO_PAGE_DWELL_MS + 50)
+        release()
+        assertDisplayed(YearMonth(2026, 8))
+        assertRange(LocalDate(2026, 7, 14), LocalDate(2026, 9, 19))
+    }
+
+    @Test
+    fun rtlDragAtTheRightEdgePagesBack() {
+        rtl()
+        val start = centerOf(day(august, 20))
+        longPressAndHoldAt(start, edgeOf(july, right = true, level = start))
+        // RTL: the right edge is July's Sunday column.
+        assertRange(LocalDate(2026, 7, 19), LocalDate(2026, 8, 20))
+        holdFor(DUAL_MONTH_AUTO_PAGE_DWELL_MS + 50)
+        release()
+        assertDisplayed(YearMonth(2026, 6))
+        assertRange(LocalDate(2026, 6, 21), LocalDate(2026, 8, 20))
+    }
+
+    @Test
+    fun rtlShiftArrowExtendsTheRangeAcrossThePanes() {
+        rtl()
+        day(july, 28).performClick()
+        // RTL: Left is the next day, from July's leftmost cell into August.
+        day(july, 31).keyboardFocus().performKeyInput {
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.DirectionLeft) }
+        }
+        rule.waitForIdle()
+        assertRange(LocalDate(2026, 7, 28), LocalDate(2026, 8, 1))
+        day(august, 1).assertIsFocused()
+        assertDisplayed(YearMonth(2026, 7))
     }
 
     private fun differingPixels(

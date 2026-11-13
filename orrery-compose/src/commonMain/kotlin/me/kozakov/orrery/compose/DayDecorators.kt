@@ -411,6 +411,17 @@ public object DayDecorators {
         selectionState: CalendarSelectionState,
         targetDate: LocalDate?,
         color: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+    ): DayDecorator = rangePreviewDecorator(selectionState, { targetDate }, color)
+
+    /**
+     * [rangePreview] reading its target through [targetDate] while drawing,
+     * so one remembered instance can follow a changing target without
+     * recomposing the days.
+     */
+    internal fun rangePreviewDecorator(
+        selectionState: CalendarSelectionState,
+        targetDate: () -> LocalDate?,
+        color: Color,
     ): DayDecorator =
         object : DayDecorator {
             override val layer: DecoratorLayer
@@ -420,7 +431,7 @@ public object DayDecorators {
                 val sel = selectionState.selection
                 val anchor = sel.rangeStart ?: return
                 if (sel.rangeEnd != null) return
-                val target = targetDate ?: return
+                val target = targetDate() ?: return
                 if (target == anchor) return
 
                 val start = minOf(anchor, target)

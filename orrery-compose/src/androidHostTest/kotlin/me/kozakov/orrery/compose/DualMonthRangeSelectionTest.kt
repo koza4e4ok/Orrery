@@ -282,6 +282,37 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
+    fun dragAtTheLeftEdgePagesBackAndFollowsIntoTheNewPane() {
+        content()
+        val start = centerOf(day(august, 20))
+        longPressAndHoldAt(start, edgeOf(july, right = false, level = start))
+        // Before the dwell, July's Sunday on August 20's row.
+        assertRange(LocalDate(2026, 7, 19), LocalDate(2026, 8, 20))
+        holdFor(DUAL_MONTH_AUTO_PAGE_DWELL_MS + 50)
+        release()
+        assertDisplayed(YearMonth(2026, 6))
+        assertRange(LocalDate(2026, 6, 21), LocalDate(2026, 8, 20))
+    }
+
+    @Test
+    fun dragOverABlankCellKeepsTheEnd() {
+        content()
+        // August 1 is a Saturday: the cells before it in its row are blank.
+        val blank = Offset(centerOf(day(august, 2)).x, centerOf(day(august, 1)).y)
+        val start = centerOf(day(july, 14))
+        val end = centerOf(day(august, 4))
+        dialog.performTouchInput {
+            down(start)
+            advanceEventTime(1000)
+            moveTo(end)
+            moveTo(blank)
+            up()
+        }
+        rule.waitForIdle()
+        assertRange(LocalDate(2026, 7, 14), LocalDate(2026, 8, 4))
+    }
+
+    @Test
     fun aBriefPassThroughTheEdgeZoneDoesNotPage() {
         content()
         val start = centerOf(day(july, 14))
@@ -468,6 +499,26 @@ class DualMonthRangeSelectionTest {
         assertRange(LocalDate(2026, 7, 28), LocalDate(2026, 8, 1))
         day(august, 1).assertIsFocused()
         assertDisplayed(YearMonth(2026, 7))
+    }
+
+    @Test
+    fun touchNeverPreviewsTheRange() {
+        content()
+        day(july, 28).performClick()
+        rule.waitForIdle()
+        val rightPane = rule.onNode(hasContentDescription(august))
+        val before = rightPane.captureToImage()
+        // A touch over August, short of a long press or a click: no hover, so no preview band.
+        val from = centerOf(day(august, 4))
+        val to = centerOf(day(august, 11))
+        dialog.performTouchInput {
+            down(from)
+            moveTo(to)
+            cancel()
+        }
+        rule.waitForIdle()
+        assertNull(state.selectedEndDate)
+        assertEquals(0, differingPixels(before, rightPane.captureToImage()))
     }
 
     private fun differingPixels(

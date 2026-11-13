@@ -70,6 +70,24 @@ dependencies {
     }
 }
 
+// Spike (#89 task 1, item c): Gradle writes the constraint's version as a plain soft
+// version into the POM, so rewrite every orrery-* dependency to an exact Maven range.
+val pinnedOrreryVersion = "[${providers.gradleProperty("VERSION_NAME").get()}]"
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        pom.withXml {
+            val dependencies = asElement().getElementsByTagName("dependency")
+            for (i in 0 until dependencies.length) {
+                val dependency = dependencies.item(i) as org.w3c.dom.Element
+                val group = dependency.getElementsByTagName("groupId").item(0)?.textContent
+                if (group == "me.kozakov.orrery") {
+                    dependency.getElementsByTagName("version").item(0)?.textContent = pinnedOrreryVersion
+                }
+            }
+        }
+    }
+}
+
 // Spike (#89 task 1, item c): the regular CI job publishes to mavenLocal after the desktop tests.
 tasks.named("desktopTest") {
     finalizedBy("publishToMavenLocal")

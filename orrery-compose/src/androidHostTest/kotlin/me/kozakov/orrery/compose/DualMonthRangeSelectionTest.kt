@@ -58,6 +58,11 @@ class DualMonthRangeSelectionTest {
     private lateinit var state: OrreryDateRangePickerState
     private lateinit var inputModeManager: InputModeManager
 
+    private companion object {
+        /** Two seconds of frames: far longer than one page animation. */
+        const val MAX_SETTLE_FRAMES = 120
+    }
+
     private val july = "July 2026"
     private val august = "August 2026"
     private val september = "September 2026"
@@ -146,7 +151,12 @@ class DualMonthRangeSelectionTest {
         return Offset(x, level.y)
     }
 
-    /** Long-presses at [from] and drags to [to], keeping the pointer down. */
+    /**
+     * Long-presses at [from] and drags to [to], keeping the pointer down.
+     * The edge pager keeps paging while the pointer is held in the zone and
+     * an auto-advancing clock would run its delays to the end of the
+     * calendar, so the clock is driven by hand ([holdFor]) until [release].
+     */
     private fun longPressAndHoldAt(
         from: Offset,
         to: Offset,
@@ -154,20 +164,26 @@ class DualMonthRangeSelectionTest {
         dialog.performTouchInput {
             down(from)
             advanceEventTime(1000)
-            moveTo(to)
+            moveBy(Offset(1f, 0f))
         }
         rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        dialog.performTouchInput { moveTo(to) }
     }
 
     private fun release() {
         dialog.performTouchInput { up() }
+        rule.mainClock.autoAdvance = true
         rule.waitForIdle()
     }
 
-    /** Advances past the edge dwell, or past one more interval, and lets the page animation finish. */
+    /** Advances the clock by [millis], then frame by frame until a page animation it started has settled. */
     private fun holdFor(millis: Long) {
         rule.mainClock.advanceTimeBy(millis)
-        rule.waitForIdle()
+        repeat(MAX_SETTLE_FRAMES) {
+            if (!rule.runOnUiThread { state.calendar.listState.isScrollInProgress }) return
+            rule.mainClock.advanceTimeByFrame()
+        }
     }
 
     private fun assertDisplayed(month: YearMonth) = rule.runOnIdle { assertEquals(month, state.displayedMonth) }
@@ -445,6 +461,7 @@ class DualMonthRangeSelectionTest {
         assertEquals(0, differingPixels(before, rightPane.captureToImage()))
     }
 
+    /** Call from tests configured with the `+ldrtl` qualifier, so the dialog window itself is RTL. */
     private fun rtl() {
         content(layoutDirection = LayoutDirection.Rtl)
         // A real RTL layout: the later month is the left pane.
@@ -454,6 +471,7 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
+    @Config(qualifiers = "+ldrtl")
     fun rtlLongPressDragFromAugustIntoJuly() {
         rtl()
         longPressDrag(centerOf(day(august, 5)), centerOf(day(july, 30)))
@@ -462,6 +480,7 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
+    @Config(qualifiers = "+ldrtl")
     fun rtlDragAtTheLeftEdgePagesForward() {
         rtl()
         val start = centerOf(day(july, 14))
@@ -475,6 +494,7 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
+    @Config(qualifiers = "+ldrtl")
     fun rtlDragAtTheRightEdgePagesBack() {
         rtl()
         val start = centerOf(day(august, 20))
@@ -488,6 +508,7 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
+    @Config(qualifiers = "+ldrtl")
     fun rtlShiftArrowExtendsTheRangeAcrossThePanes() {
         rtl()
         day(july, 28).performClick()

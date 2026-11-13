@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -344,6 +345,10 @@ internal fun DayCell(
             },
         propagateMinConstraints = true,
     ) { dayContent(day) }
+    DisposableEffect(keyboard, day.date, focusRequester, acceptsPendingFocus) {
+        if (acceptsPendingFocus) keyboard.register(day.date, focusRequester)
+        onDispose { keyboard.unregister(day.date, focusRequester) }
+    }
     LaunchedEffect(keyboard.pendingFocus.value) {
         if (acceptsPendingFocus && keyboard.pendingFocus.value == day.date) {
             focusRequester.requestFocus()

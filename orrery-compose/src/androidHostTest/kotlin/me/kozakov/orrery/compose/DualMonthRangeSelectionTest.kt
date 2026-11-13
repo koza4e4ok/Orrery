@@ -318,6 +318,26 @@ class DualMonthRangeSelectionTest {
         day(august, 1).assertIsFocused()
     }
 
+    @Test
+    fun rapidArrowPressesLandOnTheExactDate() {
+        content()
+        // No idle between presses: each one must start from the cell the previous one focused.
+        day(july, 1).keyboardFocus().performKeyInput {
+            repeat(10) { pressKey(Key.DirectionRight) }
+        }
+        rule.waitForIdle()
+        day(july, 11).assertIsFocused()
+        day(july, 11).performKeyInput {
+            // July 11 + 3 weeks = August 1, in the right pane.
+            repeat(3) { pressKey(Key.DirectionDown) }
+            pressKey(Key.DirectionLeft)
+            pressKey(Key.DirectionLeft)
+        }
+        rule.waitForIdle()
+        day(july, 30).assertIsFocused()
+        assertDisplayed(YearMonth(2026, 7))
+    }
+
     private fun booked(vararg dates: LocalDate) {
         content(disabledDates = DisabledDates { dates(*dates) }, disallowDisabledInRange = true)
     }

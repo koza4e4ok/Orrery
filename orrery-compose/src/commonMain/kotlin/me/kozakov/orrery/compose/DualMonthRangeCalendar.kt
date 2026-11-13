@@ -206,11 +206,17 @@ internal fun DualMonthRangeCalendar(
     val scope = rememberCoroutineScope()
     val keyboard =
         remember(calendar, scope) {
-            CalendarKeyboardNavigation(scope, dualMonth = true) { date ->
-                val target = YearMonth(date.year, date.month)
-                dualMonthPageTarget(calendar.firstVisibleMonth, target, calendar.effectiveStartMonth)
-                    ?.let { calendar.animateScrollToMonth(it) }
-            }
+            fun pageFor(date: LocalDate): YearMonth? =
+                dualMonthPageTarget(
+                    calendar.firstVisibleMonth,
+                    YearMonth(date.year, date.month),
+                    calendar.effectiveStartMonth,
+                )
+            CalendarKeyboardNavigation(
+                scope = scope,
+                dualMonth = true,
+                isOnScreen = { pageFor(it) == null },
+            ) { date -> pageFor(date)?.let { calendar.animateScrollToMonth(it) } }
         }
     val initialFocus = rememberInitialDayFocus(state.selectedStartDate ?: today)
     val paneFraction = if (calendar.monthCount > 1) 0.5f else 1f

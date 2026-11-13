@@ -22,18 +22,53 @@ import me.kozakov.orrery.core.DayPosition
  * Shared state for arrow-key/D-pad edge paging: [page] scrolls to the
  * target date's page, then [pendingFocus] tells that date's cell to
  * grab focus once composed.
+ *
+ * With [dualMonth], every arrow key resolves its target date and goes
+ * through [page] instead of native focus search, which cannot be trusted
+ * across the two side-by-side month panes (blank cells, RTL order). When
+ * [isOnScreen] says the target needs no paging and its cell is composed,
+ * [page] focuses it at once, so a held arrow key always repeats from the
+ * cell it just moved to.
  */
 @Stable
 internal class CalendarKeyboardNavigation(
     private val scope: CoroutineScope,
+    val dualMonth: Boolean = false,
+    private val isOnScreen: (LocalDate) -> Boolean = { false },
     private val pageToDate: suspend (LocalDate) -> Unit,
 ) {
     val pendingFocus: MutableState<LocalDate?> = mutableStateOf(null)
 
+    /** Focus requesters of the composed in-month cells, by date. Plain state: never read in composition. */
+    private val cells = mutableMapOf<LocalDate, FocusRequester>()
+
+    /** Bumped by every [page], so a slower earlier page never steals focus back. */
+    private var generation = 0
+
+    fun register(
+        date: LocalDate,
+        requester: FocusRequester,
+    ) {
+        cells[date] = requester
+    }
+
+    fun unregister(
+        date: LocalDate,
+        requester: FocusRequester,
+    ) {
+        if (cells[date] === requester) cells.remove(date)
+    }
+
     fun page(target: LocalDate) {
+        val current = ++generation
+        val cell = cells[target]
+        if (cell != null && isOnScreen(target) && runCatching { cell.requestFocus() }.isSuccess) {
+            pendingFocus.value = null
+            return
+        }
         scope.launch {
             pageToDate(target)
-            pendingFocus.value = target
+            if (current == generation) pendingFocus.value = target
         }
     }
 }

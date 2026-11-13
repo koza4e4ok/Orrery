@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
@@ -59,7 +61,9 @@ internal val WeekNumberColumnWidth = 32.dp
  * One month grid. [weekOverlay] is drawn over each week row's day columns
  * (not the week-number column) in a [BoxScope] sized to the row, which grows
  * when the overlay is taller; [weekFooter] goes below each week row and
- * [monthFooter] below the whole grid.
+ * [monthFooter] below the whole grid. [selectionForKeys] is the selection
+ * Shift+Arrow extends when [dragSelection] is null because a parent owns
+ * the drag gesture (the dual-month picker); it defaults to [dragSelection].
  */
 @Composable
 internal fun MonthContent(
@@ -77,6 +81,7 @@ internal fun MonthContent(
     weekOverlay: (@Composable BoxScope.(CalendarWeek) -> Unit)? = null,
     weekFooter: (@Composable ColumnScope.(CalendarWeek) -> Unit)? = null,
     monthFooter: (@Composable ColumnScope.(CalendarMonth) -> Unit)? = null,
+    selectionForKeys: CalendarSelectionState? = null,
 ) {
     val haptics = LocalHapticFeedback.current
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -98,24 +103,8 @@ internal fun MonthContent(
                     Modifier.pointerInput(month, weekNumber != null, hapticsEnabled, unevenRows, isRtl) {
                         val leading = if (weekNumber != null) WeekNumberColumnWidth.toPx() else 0f
 
-                        fun dayAt(offset: Offset): CalendarDay? {
-                            val rows = month.weeks.size
-                            if (rows == 0) return null
-                            val rowHeightPx = size.height.toFloat() / rows
-                            val row =
-                                if (unevenRows) {
-                                    rowTops.indexOfLast { it <= offset.y }.coerceAtLeast(0)
-                                } else {
-                                    (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
-                                }
-                            val weekDays = month.weeks[row].days
-                            val cols = weekDays.size
-                            if (cols == 0) return null
-                            val colWidth = (size.width - leading) / cols.toFloat()
-                            val rawX = if (isRtl) size.width - leading - offset.x else offset.x - leading
-                            val col = (rawX / colWidth).toInt().coerceIn(0, cols - 1)
-                            return weekDays[col]
-                        }
+                        fun dayAt(offset: Offset): CalendarDay? =
+                            monthDayAt(month, leading, size, offset, isRtl, rowTops.takeIf { unevenRows })
 
                         var lastDragDate: LocalDate? = null
                         detectDragGesturesAfterLongPress(
@@ -213,7 +202,7 @@ internal fun MonthContent(
                                 row = row,
                                 rowCount = rowCount,
                                 rowFocusRequesters = rowFocusRequesters,
-                                selectionState = dragSelection,
+                                selectionState = selectionForKeys ?: dragSelection,
                                 // Paging always scrolls to the page of the target's month, where the
                                 // target is an in-month date; out-dates of other pages never take it.
                                 acceptsPendingFocus = day.position == DayPosition.MonthDate,
@@ -227,6 +216,41 @@ internal fun MonthContent(
         }
         monthFooter?.invoke(this, month)
     }
+}
+
+/**
+ * The day under [offset] in a month grid of [size] laid out by
+ * [MonthContent]: [weekNumberLeading] px of week-number column on the
+ * leading side, then equal-width day columns (mirrored when [isRtl]).
+ * Rows are equal-height unless [rowTops] gives each row's measured top.
+ * Positions outside the grid clamp to the nearest row and column; null
+ * only for a grid without rows or columns.
+ */
+@Suppress("LongParameterList")
+internal fun monthDayAt(
+    month: CalendarMonth,
+    weekNumberLeading: Float,
+    size: IntSize,
+    offset: Offset,
+    isRtl: Boolean,
+    rowTops: IntArray? = null,
+): CalendarDay? {
+    val rows = month.weeks.size
+    if (rows == 0) return null
+    val rowHeightPx = size.height.toFloat() / rows
+    val row =
+        if (rowTops != null) {
+            rowTops.indexOfLast { it <= offset.y }.coerceAtLeast(0)
+        } else {
+            (offset.y / rowHeightPx).toInt().coerceIn(0, rows - 1)
+        }
+    val weekDays = month.weeks[row].days
+    val cols = weekDays.size
+    if (cols == 0) return null
+    val colWidth = (size.width - weekNumberLeading) / cols.toFloat()
+    val rawX = if (isRtl) size.width - weekNumberLeading - offset.x else offset.x - weekNumberLeading
+    val col = (rawX / colWidth).toInt().coerceIn(0, cols - 1)
+    return weekDays[col]
 }
 
 /**
@@ -321,6 +345,10 @@ internal fun DayCell(
             },
         propagateMinConstraints = true,
     ) { dayContent(day) }
+    DisposableEffect(keyboard, day.date, focusRequester, acceptsPendingFocus) {
+        if (acceptsPendingFocus) keyboard.register(day.date, focusRequester)
+        onDispose { keyboard.unregister(day.date, focusRequester) }
+    }
     LaunchedEffect(keyboard.pendingFocus.value) {
         if (acceptsPendingFocus && keyboard.pendingFocus.value == day.date) {
             focusRequester.requestFocus()
@@ -409,22 +437,26 @@ private fun DayKeyContext.focusRowEdge(start: Boolean): Boolean {
 }
 
 /**
- * Arrows: page at the grid edges; with Shift in range mode, also extend
- * the range. Plain arrows inside the grid fall through to focus search.
+ * Arrows: page at the grid edges (always in dual-month mode); with Shift
+ * in range mode, also extend the range. Plain arrows inside the grid fall
+ * through to focus search. A paged arrow skips unavailable dates, which
+ * have no focus target, by walking on in the same direction; with no
+ * available date ahead it falls through to focus search too.
  */
 private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     val days = position.arrowDays(event.key) ?: return false
-    val atEdge = position.isAtEdge(days)
+    // Focus search across the two month panes can land on a blank cell or the wrong pane.
+    val paged = keyboard.dualMonth || position.isAtEdge(days)
     val target =
-        if (days == 1 || days == -1) {
-            stepToVisibleDate(day.date, days, visibleDaysOfWeek)
+        if (paged) {
+            availableArrowTarget(day.date, days) ?: return false
         } else {
-            day.date.plus(days, DateTimeUnit.DAY)
+            arrowStep(day.date, days)
         }
     val rangeState = selectionState?.takeIf { event.isShiftPressed && it.mode is SelectionMode.Range }
     rangeState?.extendRange(anchor = rangeAnchor(rangeState, day.date), target = target)
     return when {
-        atEdge -> {
+        paged -> {
             keyboard.page(target)
             true
         }
@@ -440,6 +472,33 @@ private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
         }
     }
 }
+
+/** The date one arrow press of [days] (±1 visible day, or ±7) moves from [from]. */
+private fun DayKeyContext.arrowStep(
+    from: LocalDate,
+    days: Int,
+): LocalDate =
+    if (days == 1 || days == -1) {
+        stepToVisibleDate(from, days, visibleDaysOfWeek)
+    } else {
+        from.plus(days, DateTimeUnit.DAY)
+    }
+
+/**
+ * The first date from one arrow step of [days] after [from], stepping on in
+ * the same direction, that is not disabled (a disabled cell has no focus
+ * target), or null when none is within [MAX_ARROW_SKIP_STEPS] steps.
+ */
+private fun DayKeyContext.availableArrowTarget(
+    from: LocalDate,
+    days: Int,
+): LocalDate? =
+    generateSequence(arrowStep(from, days)) { arrowStep(it, days) }
+        .take(MAX_ARROW_SKIP_STEPS)
+        .firstOrNull { selectionState?.isDisabled(it) != true }
+
+/** How far an arrow key walks past unavailable dates: a year of single days. */
+private const val MAX_ARROW_SKIP_STEPS = 366
 
 private fun stepToVisibleDate(
     from: LocalDate,

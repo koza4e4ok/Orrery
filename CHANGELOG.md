@@ -37,6 +37,14 @@
   `CollapsibleCalendarState.visibleDateRangeFlow(calendarState, weekState, ...)`,
   which widen the range by whole months/weeks, clamp it to the configured bounds
   and only emit changes.
+- Range selection across the two months of the dual-month
+  `OrreryDateRangePickerDialog` (#88b): a long-press drag can start in one month
+  and end in the other (in either order), and holding a drag near the left or
+  right edge pages one month after a short pause, then one more every 400 ms
+  while it stays there; with a mouse or stylus, hovering previews the
+  range the next click would make in both months; arrow keys move between the
+  two months without scrolling (`Shift+Arrow` extends the range across them)
+  and page by exactly one month past either side.
 
 ### Changed
 

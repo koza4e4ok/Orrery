@@ -22,6 +22,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
@@ -57,6 +58,7 @@ class DualMonthRangeSelectionTest {
 
     private lateinit var state: OrreryDateRangePickerState
     private lateinit var inputModeManager: InputModeManager
+    private var inDialog = true
 
     private companion object {
         /** Two seconds of frames: far longer than one page animation. */
@@ -72,8 +74,10 @@ class DualMonthRangeSelectionTest {
         disallowDisabledInRange: Boolean = false,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
+        // Robolectric's test manifest lacks supportsRtl, so a dialog window is
+        // always LTR; RTL tests lay the dialog's dual-month calendar out bare.
+        inDialog = layoutDirection == LayoutDirection.Ltr
         rule.setContent {
-            // The dialog window takes its layout direction from the composition.
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 MaterialTheme {
                     state =
@@ -84,17 +88,28 @@ class DualMonthRangeSelectionTest {
                             disabledDates = disabledDates,
                             disallowDisabledInRange = disallowDisabledInRange,
                         )
-                    OrreryDateRangePickerDialog(
-                        onDismissRequest = {},
-                        confirmButton = {
-                            // The dialog is its own window with its own input mode.
-                            inputModeManager = LocalInputModeManager.current
-                            TextButton(onClick = {}) { Text("Save") }
-                        },
-                        state = state,
-                        today = LocalDate(2026, 7, 15),
-                        layoutMode = DateRangeCalendarLayoutMode.DualMonth,
-                    )
+                    if (inDialog) {
+                        OrreryDateRangePickerDialog(
+                            onDismissRequest = {},
+                            confirmButton = {
+                                // The dialog is its own window with its own input mode.
+                                inputModeManager = LocalInputModeManager.current
+                                TextButton(onClick = {}) { Text("Save") }
+                            },
+                            state = state,
+                            today = LocalDate(2026, 7, 15),
+                            layoutMode = DateRangeCalendarLayoutMode.DualMonth,
+                        )
+                    } else {
+                        inputModeManager = LocalInputModeManager.current
+                        DualMonthRangeCalendar(
+                            state = state,
+                            today = LocalDate(2026, 7, 15),
+                            colors = CalendarDefaults.dayColors(),
+                            shapes = CalendarDefaults.dayShapes(),
+                            strings = DatePickerDefaults.strings(),
+                        )
+                    }
                 }
             }
         }
@@ -106,7 +121,8 @@ class DualMonthRangeSelectionTest {
         dayOfMonth: Int,
     ): SemanticsNodeInteraction = rule.onNode(hasText("$dayOfMonth") and hasAnyAncestor(hasContentDescription(month)))
 
-    private val dialog get() = rule.onNode(isDialog())
+    /** The node gestures go to: the dialog, or the root when the calendar is laid out bare. */
+    private val dialog get() = if (inDialog) rule.onNode(isDialog()) else rule.onRoot()
 
     /** Center of [node] relative to the dialog's root node, for gestures on [dialog]. */
     private fun centerOf(node: SemanticsNodeInteraction): Offset {
@@ -461,7 +477,6 @@ class DualMonthRangeSelectionTest {
         assertEquals(0, differingPixels(before, rightPane.captureToImage()))
     }
 
-    /** Call from tests configured with the `+ldrtl` qualifier, so the dialog window itself is RTL. */
     private fun rtl() {
         content(layoutDirection = LayoutDirection.Rtl)
         // A real RTL layout: the later month is the left pane.
@@ -471,7 +486,6 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
-    @Config(qualifiers = "+ldrtl")
     fun rtlLongPressDragFromAugustIntoJuly() {
         rtl()
         longPressDrag(centerOf(day(august, 5)), centerOf(day(july, 30)))
@@ -480,7 +494,6 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
-    @Config(qualifiers = "+ldrtl")
     fun rtlDragAtTheLeftEdgePagesForward() {
         rtl()
         val start = centerOf(day(july, 14))
@@ -494,7 +507,6 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
-    @Config(qualifiers = "+ldrtl")
     fun rtlDragAtTheRightEdgePagesBack() {
         rtl()
         val start = centerOf(day(august, 20))
@@ -508,7 +520,6 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
-    @Config(qualifiers = "+ldrtl")
     fun rtlShiftArrowExtendsTheRangeAcrossThePanes() {
         rtl()
         day(july, 28).performClick()

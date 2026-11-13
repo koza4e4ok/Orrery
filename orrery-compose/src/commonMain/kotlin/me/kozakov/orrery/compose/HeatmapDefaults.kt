@@ -44,6 +44,7 @@ public object HeatmapDefaults {
      * services and show in the legend. Fixed regardless of a custom color
      * scale; [colorScale] uses it as its default `levels`.
      */
+    @Suppress("ktlint:standard:property-naming") // Public API name, in the style of Compose's *Defaults objects.
     public const val Levels: Int = 5
 
     /**

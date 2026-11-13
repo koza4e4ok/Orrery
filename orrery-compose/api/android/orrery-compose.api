@@ -534,14 +534,18 @@ public final class me/kozakov/orrery/compose/HeatmapCalendarState$Companion {
 public final class me/kozakov/orrery/compose/HeatmapDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Lme/kozakov/orrery/compose/HeatmapDefaults;
+	public static final field Levels I
 	public final fun Summary (Lme/kozakov/orrery/core/HeatmapSummary;Lme/kozakov/orrery/compose/HeatmapStrings;Landroidx/compose/runtime/Composer;II)V
-	public final fun colorScale (ILandroidx/compose/runtime/Composer;II)Lkotlin/jvm/functions/Function1;
+	public final synthetic fun colorScale (ILandroidx/compose/runtime/Composer;II)Lkotlin/jvm/functions/Function1;
+	public final fun colorScale-RIQooxk (IJJLandroidx/compose/runtime/Composer;II)Lkotlin/jvm/functions/Function1;
 	public final fun emptyCellColor-WaAFU9c (Landroidx/compose/runtime/Composer;I)J
+	public final fun levelOf (F)I
 	public final fun strings (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/HeatmapStrings;
 }
 
 public final class me/kozakov/orrery/compose/HeatmapMonthKt {
-	public static final fun HeatmapMonth-kWc7xho (Lkotlinx/datetime/YearMonth;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;JLandroidx/compose/ui/graphics/Shape;ZZLkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/compose/HeatmapStrings;Landroidx/compose/runtime/Composer;III)V
+	public static final fun HeatmapMonth-VkC8ne4 (Lkotlinx/datetime/YearMonth;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;JLandroidx/compose/ui/graphics/Shape;ZZLkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/compose/HeatmapStrings;ZLandroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun HeatmapMonth-kWc7xho (Lkotlinx/datetime/YearMonth;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;JLandroidx/compose/ui/graphics/Shape;ZZLkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/compose/HeatmapStrings;Landroidx/compose/runtime/Composer;III)V
 }
 
 public final class me/kozakov/orrery/compose/HeatmapStrings {

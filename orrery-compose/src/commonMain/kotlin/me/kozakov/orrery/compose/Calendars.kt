@@ -959,7 +959,7 @@ private fun WeekCalendarContent(
 }
 
 @Composable
-private fun rememberMonth(
+internal fun rememberMonth(
     state: CalendarState,
     index: Int,
     visibleDaysOfWeek: Set<DayOfWeek> = state.visibleDaysOfWeek,

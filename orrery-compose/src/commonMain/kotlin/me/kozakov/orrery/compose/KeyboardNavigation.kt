@@ -28,13 +28,16 @@ import me.kozakov.orrery.core.DayPosition
  * across the two side-by-side month panes (blank cells, RTL order). When
  * [isOnScreen] says the target needs no paging and its cell is composed,
  * [page] focuses it at once, so a held arrow key always repeats from the
- * cell it just moved to.
+ * cell it just moved to. A target outside the calendar ([isInBounds] is
+ * false) has no cell to focus: [page] neither scrolls nor leaves a
+ * [pendingFocus] behind for it.
  */
 @Stable
 internal class CalendarKeyboardNavigation(
     private val scope: CoroutineScope,
     val dualMonth: Boolean = false,
     private val isOnScreen: (LocalDate) -> Boolean = { false },
+    val isInBounds: (LocalDate) -> Boolean = { true },
     private val pageToDate: suspend (LocalDate) -> Unit,
 ) {
     val pendingFocus: MutableState<LocalDate?> = mutableStateOf(null)
@@ -61,6 +64,11 @@ internal class CalendarKeyboardNavigation(
 
     fun page(target: LocalDate) {
         val current = ++generation
+        if (!isInBounds(target)) {
+            // Past the first or last month: stay put, and let no earlier page focus a stale target.
+            pendingFocus.value = null
+            return
+        }
         val cell = cells[target]
         if (cell != null && isOnScreen(target) && runCatching { cell.requestFocus() }.isSuccess) {
             pendingFocus.value = null

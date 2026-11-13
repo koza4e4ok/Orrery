@@ -441,7 +441,9 @@ private fun DayKeyContext.focusRowEdge(start: Boolean): Boolean {
  * in range mode, also extend the range. Plain arrows inside the grid fall
  * through to focus search. A paged arrow skips unavailable dates, which
  * have no focus target, by walking on in the same direction; with no
- * available date ahead it falls through to focus search too.
+ * available date ahead it falls through to focus search too. A paged arrow
+ * whose target is past the calendar's first or last month is consumed and
+ * leaves focus (and, with Shift, the range) where it is.
  */
 private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     val days = position.arrowDays(event.key) ?: return false
@@ -453,6 +455,10 @@ private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
         } else {
             arrowStep(day.date, days)
         }
+    if (paged && !keyboard.isInBounds(target)) {
+        keyboard.page(target)
+        return true
+    }
     val rangeState = selectionState?.takeIf { event.isShiftPressed && it.mode is SelectionMode.Range }
     rangeState?.extendRange(anchor = rangeAnchor(rangeState, day.date), target = target)
     return when {
@@ -487,7 +493,9 @@ private fun DayKeyContext.arrowStep(
 /**
  * The first date from one arrow step of [days] after [from], stepping on in
  * the same direction, that is not disabled (a disabled cell has no focus
- * target), or null when none is within [MAX_ARROW_SKIP_STEPS] steps.
+ * target), or null when none is within [MAX_ARROW_SKIP_STEPS] steps. The
+ * walk stops at the first date outside the calendar and returns it, so the
+ * caller can keep focus where it is.
  */
 private fun DayKeyContext.availableArrowTarget(
     from: LocalDate,
@@ -495,7 +503,7 @@ private fun DayKeyContext.availableArrowTarget(
 ): LocalDate? =
     generateSequence(arrowStep(from, days)) { arrowStep(it, days) }
         .take(MAX_ARROW_SKIP_STEPS)
-        .firstOrNull { selectionState?.isDisabled(it) != true }
+        .firstOrNull { !keyboard.isInBounds(it) || selectionState?.isDisabled(it) != true }
 
 /** How far an arrow key walks past unavailable dates: a year of single days. */
 private const val MAX_ARROW_SKIP_STEPS = 366

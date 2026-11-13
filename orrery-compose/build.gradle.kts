@@ -19,6 +19,10 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        // Spike (#89 task 1, item a): Skiko's native library for drawing in desktop tests.
+        getByName("desktopTest").dependencies {
+            implementation(compose.desktop.currentOs)
+        }
         androidMain.dependencies {
             // Keeps the Android dependency graph on the androidx versions this library
             // shipped with before the multiplatform migration.
@@ -55,6 +59,72 @@ baselineProfile {
 
 dependencies {
     baselineProfile(project(":baselineprofile"))
+    // Spike (#89 task 1, item c): exact pin on the orrery-core version in the published metadata.
+    constraints {
+        add("commonMainApi", "me.kozakov.orrery:orrery-core") {
+            version {
+                strictly(providers.gradleProperty("VERSION_NAME").get())
+            }
+            because("all orrery-* artefacts must share one version")
+        }
+    }
+}
+
+// Spike (#89 task 1, item c): Gradle writes the constraint's version as a plain soft
+// version into the POM, so rewrite every orrery-* dependency to an exact Maven range.
+val pinnedOrreryVersion = "[${providers.gradleProperty("VERSION_NAME").get()}]"
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        pom.withXml {
+            val dependencies = asElement().getElementsByTagName("dependency")
+            for (i in 0 until dependencies.length) {
+                val dependency = dependencies.item(i) as org.w3c.dom.Element
+                val group = dependency.getElementsByTagName("groupId").item(0)?.textContent
+                if (group == "me.kozakov.orrery") {
+                    dependency.getElementsByTagName("version").item(0)?.textContent = pinnedOrreryVersion
+                }
+            }
+        }
+    }
+}
+
+// Spike (#89 task 1, item c): the regular CI job publishes to mavenLocal after the desktop tests.
+tasks.named("desktopTest") {
+    finalizedBy("publishToMavenLocal")
+}
+
+// Spike (#89 task 1, item c): print the published POMs and the orrery-core entries of the
+// Gradle module metadata so the CI log shows the pin.
+tasks.named("publishToMavenLocal") {
+    val repo = File(System.getProperty("user.home"), ".m2/repository/me/kozakov/orrery")
+    val isRoot = { file: File -> file.parentFile.parentFile.name == "orrery-compose" }
+    doLast {
+        repo
+            .walkTopDown()
+            .filter { it.isFile && it.name.startsWith("orrery-compose") }
+            .filter { it.extension == "pom" || it.extension == "module" }
+            .filter { it.name.contains("-android-") || it.name.contains("-desktop-") || isRoot(it) }
+            .sortedBy { it.name }
+            .forEach { file ->
+                println("SPIKE-89 ===== ${file.name}")
+                val lines = file.readLines()
+                if (file.extension == "pom") {
+                    val start =
+                        lines.indexOfFirst {
+                            it.contains("<dependencyManagement>") || it.contains("<dependencies>")
+                        }
+                    lines.drop(maxOf(start, 0)).forEach { println("SPIKE-89 | $it") }
+                } else {
+                    lines.forEachIndexed { index, line ->
+                        if (line.contains("\"orrery-core") || line.contains("dependencyConstraints")) {
+                            lines.subList(maxOf(index - 2, 0), minOf(index + 8, lines.size)).forEach {
+                                println("SPIKE-89 | ${file.name}:${index + 1} $it")
+                            }
+                        }
+                    }
+                }
+            }
+    }
 }
 
 // The Android-KMP plugin has a single variant, so the host-test tasks lost their

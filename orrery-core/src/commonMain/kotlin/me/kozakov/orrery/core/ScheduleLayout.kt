@@ -286,7 +286,11 @@ public data class AllDayBanner<out T>(
     public val laneIndex: Int,
     public val clippedStart: Boolean,
     public val clippedEnd: Boolean,
-)
+) {
+    /** Spike (#89 task 1, item b): internal member of a stable class, hidden from the dumps. */
+    @me.kozakov.orrery.spike.markers.SpikeInternalApi
+    public fun spikeInternalMember(): Int = laneIndex + 1
+}
 
 /**
  * Packs the [EventSpan.AllDay] events among [events] into banners spanning the

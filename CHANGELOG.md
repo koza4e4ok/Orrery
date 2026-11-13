@@ -37,7 +37,7 @@
   `CollapsibleCalendarState.visibleDateRangeFlow(calendarState, weekState, ...)`,
   which widen the range by whole months/weeks, clamp it to the configured bounds
   and only emit changes.
-- Dual-month `OrreryDateRangePickerDialog` (#88b; #121, #125, PR_NUMBER): a new
+- Dual-month `OrreryDateRangePickerDialog` (#88b; #121, #125, #127): a new
   `layoutMode` parameter takes a `DateRangeCalendarLayoutMode`.
   `Adaptive(minDualMonthWidth)`, the default, shows two consecutive months side
   by side when the dialog window is at least `DatePickerDefaults.MinDualMonthWidth`

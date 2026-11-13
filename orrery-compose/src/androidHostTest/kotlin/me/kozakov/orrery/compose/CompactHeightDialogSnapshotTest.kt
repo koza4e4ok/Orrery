@@ -99,4 +99,25 @@ class CompactHeightDialogSnapshotTest {
         }
         rule.onNode(isDialog()).captureRoboImage()
     }
+
+    @Test
+    fun dateRangePickerSingleMonthCompactHeight() {
+        rule.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                OrreryDateRangePickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = { TextButton(onClick = {}) { Text("Save") } },
+                    state =
+                        rememberOrreryDateRangePickerState(
+                            initialStartDate = LocalDate(2026, 7, 8),
+                            initialEndDate = LocalDate(2026, 7, 12),
+                        ),
+                    today = today,
+                    presets = DatePickerDefaults.rangePresets(today),
+                    layoutMode = DateRangeCalendarLayoutMode.SingleMonth,
+                )
+            }
+        }
+        rule.onNode(isDialog()).captureRoboImage()
+    }
 }

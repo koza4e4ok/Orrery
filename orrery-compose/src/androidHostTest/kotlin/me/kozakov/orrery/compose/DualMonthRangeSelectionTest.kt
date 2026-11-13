@@ -31,6 +31,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import me.kozakov.orrery.core.DisabledDates
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -58,7 +59,10 @@ class DualMonthRangeSelectionTest {
     private val august = "August 2026"
     private val september = "September 2026"
 
-    private fun content() {
+    private fun content(
+        disabledDates: DisabledDates = DisabledDates.None,
+        disallowDisabledInRange: Boolean = false,
+    ) {
         rule.setContent {
             MaterialTheme {
                 state =
@@ -66,6 +70,8 @@ class DualMonthRangeSelectionTest {
                         initialDisplayedMonth = YearMonth(2026, 7),
                         yearRange = 2026..2027,
                         firstDayOfWeek = DayOfWeek.SUNDAY,
+                        disabledDates = disabledDates,
+                        disallowDisabledInRange = disallowDisabledInRange,
                     )
                 OrreryDateRangePickerDialog(
                     onDismissRequest = {},
@@ -310,6 +316,50 @@ class DualMonthRangeSelectionTest {
         rule.waitForIdle()
         assertRange(LocalDate(2026, 7, 28), LocalDate(2026, 8, 1))
         day(august, 1).assertIsFocused()
+    }
+
+    private fun booked(vararg dates: LocalDate) {
+        content(disabledDates = DisabledDates { dates(*dates) }, disallowDisabledInRange = true)
+    }
+
+    @Test
+    fun rightArrowSkipsABookedDate() {
+        booked(LocalDate(2026, 7, 16))
+        day(july, 15).keyboardFocus().performKeyInput { pressKey(Key.DirectionRight) }
+        rule.waitForIdle()
+        day(july, 17).assertIsFocused()
+    }
+
+    @Test
+    fun rightArrowSkipsSeveralBookedDatesIntoTheOtherPane() {
+        booked(LocalDate(2026, 7, 31), LocalDate(2026, 8, 1), LocalDate(2026, 8, 2))
+        day(july, 30).keyboardFocus().performKeyInput { pressKey(Key.DirectionRight) }
+        rule.waitForIdle()
+        day(august, 3).assertIsFocused()
+        assertDisplayed(YearMonth(2026, 7))
+    }
+
+    @Test
+    fun downArrowSkipsABookedDateInTheSameColumn() {
+        // July 30 is a Thursday; August 6 is booked, so Down lands on August 13.
+        booked(LocalDate(2026, 8, 6))
+        day(july, 30).keyboardFocus().performKeyInput { pressKey(Key.DirectionDown) }
+        rule.waitForIdle()
+        day(august, 13).assertIsFocused()
+        assertDisplayed(YearMonth(2026, 7))
+    }
+
+    @Test
+    fun shiftRightAcrossABookedDateMovesFocusPastItAndKeepsTheStart() {
+        booked(LocalDate(2026, 7, 16))
+        day(july, 15).performClick()
+        day(july, 15).keyboardFocus().performKeyInput {
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.DirectionRight) }
+        }
+        rule.waitForIdle()
+        day(july, 17).assertIsFocused()
+        // July 15..17 would span the booked 16th, so only the start stays.
+        assertRange(LocalDate(2026, 7, 15), null)
     }
 
     @Test

@@ -434,22 +434,24 @@ private fun DayKeyContext.focusRowEdge(start: Boolean): Boolean {
 /**
  * Arrows: page at the grid edges (always in dual-month mode); with Shift
  * in range mode, also extend the range. Plain arrows inside the grid fall
- * through to focus search.
+ * through to focus search. A paged arrow skips unavailable dates, which
+ * have no focus target, by walking on in the same direction; with no
+ * available date ahead it falls through to focus search too.
  */
 private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
     val days = position.arrowDays(event.key) ?: return false
-    val atEdge = position.isAtEdge(days)
+    // Focus search across the two month panes can land on a blank cell or the wrong pane.
+    val paged = keyboard.dualMonth || position.isAtEdge(days)
     val target =
-        if (days == 1 || days == -1) {
-            stepToVisibleDate(day.date, days, visibleDaysOfWeek)
+        if (paged) {
+            availableArrowTarget(day.date, days) ?: return false
         } else {
-            day.date.plus(days, DateTimeUnit.DAY)
+            arrowStep(day.date, days)
         }
     val rangeState = selectionState?.takeIf { event.isShiftPressed && it.mode is SelectionMode.Range }
     rangeState?.extendRange(anchor = rangeAnchor(rangeState, day.date), target = target)
     return when {
-        // Focus search across the two month panes can land on a blank cell or the wrong pane.
-        keyboard.dualMonth || atEdge -> {
+        paged -> {
             keyboard.page(target)
             true
         }
@@ -465,6 +467,33 @@ private fun DayKeyContext.moveByArrow(event: KeyEvent): Boolean {
         }
     }
 }
+
+/** The date one arrow press of [days] (±1 visible day, or ±7) moves from [from]. */
+private fun DayKeyContext.arrowStep(
+    from: LocalDate,
+    days: Int,
+): LocalDate =
+    if (days == 1 || days == -1) {
+        stepToVisibleDate(from, days, visibleDaysOfWeek)
+    } else {
+        from.plus(days, DateTimeUnit.DAY)
+    }
+
+/**
+ * The first date from one arrow step of [days] after [from], stepping on in
+ * the same direction, that is not disabled (a disabled cell has no focus
+ * target), or null when none is within [MAX_ARROW_SKIP_STEPS] steps.
+ */
+private fun DayKeyContext.availableArrowTarget(
+    from: LocalDate,
+    days: Int,
+): LocalDate? =
+    generateSequence(arrowStep(from, days)) { arrowStep(it, days) }
+        .take(MAX_ARROW_SKIP_STEPS)
+        .firstOrNull { selectionState?.isDisabled(it) != true }
+
+/** How far an arrow key walks past unavailable dates: a year of single days. */
+private const val MAX_ARROW_SKIP_STEPS = 366
 
 private fun stepToVisibleDate(
     from: LocalDate,

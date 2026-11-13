@@ -11,11 +11,14 @@ import androidx.compose.ui.graphics.lerp
 import me.kozakov.orrery.core.HeatmapSummary
 import kotlin.math.min
 
-/** Number of a11y/legend buckets; fixed regardless of a custom color scale. */
-internal const val HEATMAP_LEVELS: Int = 5
+/** 1-based bucket of a clamped 0..1 intensity among [levels]: 0f -> 1, 1f -> [levels]. */
+internal fun heatLevel(
+    value: Float,
+    levels: Int,
+): Int = min(levels, (value.coerceIn(0f, 1f) * levels).toInt() + 1)
 
-/** 1-based bucket of a clamped 0..1 intensity: 0f -> 1, 1f -> [HEATMAP_LEVELS]. */
-internal fun heatLevel(value: Float): Int = min(HEATMAP_LEVELS, (value.coerceIn(0f, 1f) * HEATMAP_LEVELS).toInt() + 1)
+/** Share of the way from `from` to `to` at level 1, so the lowest level stands apart from an empty cell. */
+private const val LOWEST_LEVEL_FRACTION: Float = 0.35f
 
 /**
  * Strings for the heatmap composables. [HeatmapDefaults.strings]
@@ -37,18 +40,60 @@ public class HeatmapStrings(
 /** Defaults for [HeatmapCalendar] and [HeatmapMonth]. */
 public object HeatmapDefaults {
     /**
+     * Number of intensity levels the heatmaps announce to accessibility
+     * services and show in the legend. Fixed regardless of a custom color
+     * scale; [colorScale] uses it as its default `levels`.
+     */
+    public const val Levels: Int = 5
+
+    /**
+     * The 1-based level of a 0..1 intensity [value], from 1 to [Levels]:
+     * `0f` is level 1 and `1f` is level [Levels]. Values outside 0..1 are
+     * clamped. This is the level the cell description announces, and the
+     * default [colorScale] picks its color from the same level, so the two
+     * always agree.
+     */
+    public fun levelOf(value: Float): Int = heatLevel(value, Levels)
+
+    /**
      * Quantized color scale: 0..1 split into [levels] buckets, each lerped
      * from `surfaceVariant` toward `primary`. Values are clamped.
      */
+    @Deprecated("Kept for binary compatibility; use the overload with from and to.", level = DeprecationLevel.HIDDEN)
     @Composable
-    public fun colorScale(levels: Int = HEATMAP_LEVELS): (Float) -> Color {
-        val from = MaterialTheme.colorScheme.surfaceVariant
-        val to = MaterialTheme.colorScheme.primary
+    public fun colorScale(levels: Int = Levels): (Float) -> Color =
+        colorScale(levels = levels, from = MaterialTheme.colorScheme.surfaceVariant)
+
+    /**
+     * Quantized color scale: 0..1 split into [levels] buckets (see [levelOf]
+     * for the default five), lerped from [from] toward [to]. Level 1 starts
+     * 35% of the way to [to], so it stays distinguishable from
+     * [emptyCellColor], and the top level is [to] itself. Values are clamped.
+     *
+     * Pass another [to], for example `tertiary` or `error`, for data where
+     * more is worse or for a second heatmap on the same screen.
+     *
+     * @param levels number of buckets, at least 1.
+     * @param from color the ramp starts from; level 1 is 35% of the way from it.
+     * @param to color of the top level.
+     */
+    @Composable
+    public fun colorScale(
+        levels: Int = Levels,
+        from: Color = MaterialTheme.colorScheme.surfaceVariant,
+        to: Color = MaterialTheme.colorScheme.primary,
+    ): (Float) -> Color {
+        require(levels >= 1) { "levels must be at least 1, was $levels" }
         return remember(levels, from, to) {
             { value ->
-                val clamped = value.coerceIn(0f, 1f)
-                val bucket = min(levels - 1, (clamped * levels).toInt())
-                lerp(from, to, (bucket + 1).toFloat() / levels)
+                val bucket = heatLevel(value, levels) - 1
+                val fraction =
+                    if (levels == 1) {
+                        1f
+                    } else {
+                        LOWEST_LEVEL_FRACTION + (1f - LOWEST_LEVEL_FRACTION) * bucket / (levels - 1)
+                    }
+                lerp(from, to, fraction)
             }
         }
     }

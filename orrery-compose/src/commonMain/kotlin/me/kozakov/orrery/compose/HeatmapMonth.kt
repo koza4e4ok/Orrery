@@ -5,8 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -34,8 +36,14 @@ import me.kozakov.orrery.core.monthGrid
 /**
  * Static month grid of heat tiles over [monthGrid]. Cells divide the
  * available width equally; leading/trailing out-dates render blank.
- * Accessibility descriptions bucket intensity into five levels
- * regardless of [colorScale].
+ * Accessibility descriptions bucket intensity into
+ * [HeatmapDefaults.Levels] levels ([HeatmapDefaults.levelOf]) regardless
+ * of [colorScale].
+ *
+ * @param showLegend draws the same "less … more" legend row as
+ * [HeatmapCalendar] under the grid, using [strings]' `legendLess` /
+ * `legendMore`, [colorScale], [emptyCellColor] and [cellShape]. Off by
+ * default.
  */
 @Composable
 public fun HeatmapMonth(
@@ -50,6 +58,7 @@ public fun HeatmapMonth(
     showWeekdayHeader: Boolean = true,
     firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
     strings: HeatmapStrings = HeatmapDefaults.strings(),
+    showLegend: Boolean = false,
 ) {
     val month =
         remember(yearMonth, firstDayOfWeek) {
@@ -87,8 +96,56 @@ public fun HeatmapMonth(
                 }
             }
         }
+        if (showLegend) {
+            Row(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                Spacer(Modifier.weight(1f))
+                HeatmapLegend(
+                    colorScale = colorScale,
+                    emptyCellColor = emptyCellColor,
+                    cellSize = LegendCellSize,
+                    cellSpacing = LegendCellSpacing,
+                    cellShape = cellShape,
+                    strings = strings,
+                )
+            }
+        }
     }
 }
+
+@Deprecated("Kept for binary compatibility; use the overload with showLegend.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun HeatmapMonth(
+    yearMonth: YearMonth,
+    intensity: (LocalDate) -> Float?,
+    modifier: Modifier = Modifier,
+    onDayClick: ((LocalDate) -> Unit)? = null,
+    colorScale: (Float) -> Color = HeatmapDefaults.colorScale(),
+    emptyCellColor: Color = HeatmapDefaults.emptyCellColor(),
+    cellShape: Shape = RoundedCornerShape(4.dp),
+    showDayNumbers: Boolean = false,
+    showWeekdayHeader: Boolean = true,
+    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
+    strings: HeatmapStrings = HeatmapDefaults.strings(),
+) {
+    HeatmapMonth(
+        yearMonth = yearMonth,
+        intensity = intensity,
+        modifier = modifier,
+        onDayClick = onDayClick,
+        colorScale = colorScale,
+        emptyCellColor = emptyCellColor,
+        cellShape = cellShape,
+        showDayNumbers = showDayNumbers,
+        showWeekdayHeader = showWeekdayHeader,
+        firstDayOfWeek = firstDayOfWeek,
+        strings = strings,
+        showLegend = false,
+    )
+}
+
+// Same swatch size and spacing as HeatmapCalendar's default legend.
+private val LegendCellSize = 12.dp
+private val LegendCellSpacing = 2.dp
 
 @Composable
 private fun MonthHeatCell(
@@ -110,8 +167,8 @@ private fun MonthHeatCell(
         } else {
             strings.dayDescription.formatTemplate(
                 dateFormatter(date),
-                heatLevel(value),
-                HEATMAP_LEVELS,
+                HeatmapDefaults.levelOf(value),
+                HeatmapDefaults.Levels,
             )
         }
     Box(

@@ -197,7 +197,7 @@ public fun HeatmapCalendar(
                 }
                 Spacer(Modifier.weight(1f))
                 if (showLegend) {
-                    Legend(colorScale, emptyCellColor, cellSize, cellSpacing, cellShape, strings)
+                    HeatmapLegend(colorScale, emptyCellColor, cellSize, cellSpacing, cellShape, strings)
                 }
             }
         }
@@ -340,8 +340,8 @@ private fun HeatCell(
         } else {
             strings.dayDescription.formatTemplate(
                 dateFormatter(date),
-                heatLevel(value),
-                HEATMAP_LEVELS,
+                HeatmapDefaults.levelOf(value),
+                HeatmapDefaults.Levels,
             )
         }
     val interactionSource = remember { MutableInteractionSource() }
@@ -373,8 +373,9 @@ private fun HeatCell(
 
 private val HeatmapFocusRingWidth = 2.dp
 
+/** Legend row shared by [HeatmapCalendar] and [HeatmapMonth]: less, the empty cell, one swatch per level, more. */
 @Composable
-private fun Legend(
+internal fun HeatmapLegend(
     colorScale: (Float) -> Color,
     emptyCellColor: Color,
     cellSize: Dp,

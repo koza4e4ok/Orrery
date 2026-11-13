@@ -19,6 +19,10 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        // Spike (#89 task 1, item a): Skiko's native library for drawing in desktop tests.
+        getByName("desktopTest").dependencies {
+            implementation(compose.desktop.currentOs)
+        }
         androidMain.dependencies {
             // Keeps the Android dependency graph on the androidx versions this library
             // shipped with before the multiplatform migration.

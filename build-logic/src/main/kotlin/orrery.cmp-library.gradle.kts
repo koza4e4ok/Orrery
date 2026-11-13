@@ -94,6 +94,7 @@ kotlin {
                     "me.kozakov.orrery.spike.markers.SpikeInternalApi",
                 )
                 byNames.add("me.kozakov.orrery.spike.markers.**")
+                byNames.add("me.kozakov.orrery.compose.spike.internal.**")
             }
         }
     }

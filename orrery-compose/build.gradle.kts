@@ -66,6 +66,11 @@ dependencies {
     }
 }
 
+// Spike (#89 task 1, item c): the regular CI job publishes to mavenLocal after the desktop tests.
+tasks.named("desktopTest") {
+    finalizedBy("publishToMavenLocal")
+}
+
 // Spike (#89 task 1, item c): print the published POMs and the orrery-core entries of the
 // Gradle module metadata so the CI log shows the pin.
 tasks.named("publishToMavenLocal") {
@@ -75,6 +80,11 @@ tasks.named("publishToMavenLocal") {
             .walkTopDown()
             .filter { it.isFile && it.name.startsWith("orrery-compose") }
             .filter { it.extension == "pom" || it.extension == "module" }
+            .filter {
+                it.name.contains("-android-") ||
+                    it.name.contains("-desktop-") ||
+                    it.parentFile.parentFile.name == "orrery-compose"
+            }
             .sortedBy { it.name }
             .forEach { file ->
                 println("SPIKE-89 ===== ${file.name}")

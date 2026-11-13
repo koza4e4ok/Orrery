@@ -37,17 +37,33 @@
   `CollapsibleCalendarState.visibleDateRangeFlow(calendarState, weekState, ...)`,
   which widen the range by whole months/weeks, clamp it to the configured bounds
   and only emit changes.
-- Range selection across the two months of the dual-month
-  `OrreryDateRangePickerDialog` (#88b): a long-press drag can start in one month
-  and end in the other (in either order), and holding a drag near the left or
-  right edge pages one month after a short pause, then one more every 400 ms
-  while it stays there; with a mouse or stylus, hovering previews the
-  range the next click would make in both months; arrow keys move between the
-  two months without scrolling (`Shift+Arrow` extends the range across them)
-  and page by exactly one month past either side.
+- Dual-month `OrreryDateRangePickerDialog` (#88b; #121, #125, #127): a new
+  `layoutMode` parameter takes a `DateRangeCalendarLayoutMode`.
+  `Adaptive(minDualMonthWidth)`, the default, shows two consecutive months side
+  by side when the dialog window is at least `DatePickerDefaults.MinDualMonthWidth`
+  (640dp) wide and the single column below that, and switches live on resize or
+  rotation while keeping the visible month and the selection. `DualMonth` and
+  `SingleMonth` fix the layout; `SingleMonth` is the 0.9 column. The dual layout
+  is a centred card (up to 840 x 720dp) with both month titles in one header,
+  chevrons that move both months by one, a Today button while today's month is
+  in neither pane, side-by-side input fields in input mode, and a body that
+  scrolls on compact-height windows.
+- Range selection across the two months of the dual-month picker (#88b): a
+  long-press drag can start in one month and end in the other (in either
+  order), and holding a drag near the left or right edge (also a long press
+  that starts there and never moves) pages one month after a short pause, then
+  one more every 400 ms while it stays there; with a mouse or stylus, hovering
+  previews the range the next click would make in both months; arrow keys move
+  between the two months without scrolling (`Shift+Arrow` extends the range
+  across them), skip unavailable dates, page by exactly one month past either
+  side, and stop at the first and last day of the calendar.
 
 ### Changed
 
+- `OrreryDateRangePickerDialog` defaults to `DateRangeCalendarLayoutMode.Adaptive()`
+  (#88b), so a window 640dp or wider now shows the two-month card instead of the
+  full-screen column. Pass `layoutMode = DateRangeCalendarLayoutMode.SingleMonth`
+  to keep the 0.9 layout.
 - `CalendarDefaults.MiniMonth` draws the whole month on one canvas with shared,
   cached text layouts instead of composing about 40 nodes per month, so
   `YearCalendar` pages compose and scroll faster. The month is now one

@@ -1,5 +1,6 @@
 package me.kozakov.orrery.compose
 
+import android.view.ViewConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -73,6 +74,7 @@ class DualMonthRangeSelectionTest {
         disabledDates: DisabledDates = DisabledDates.None,
         disallowDisabledInRange: Boolean = false,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        displayedMonth: YearMonth = YearMonth(2026, 7),
     ) {
         // Robolectric's test manifest lacks supportsRtl, so a dialog window is
         // always LTR; RTL tests lay the dialog's dual-month calendar out bare.
@@ -82,7 +84,7 @@ class DualMonthRangeSelectionTest {
                 MaterialTheme {
                     state =
                         rememberOrreryDateRangePickerState(
-                            initialDisplayedMonth = YearMonth(2026, 7),
+                            initialDisplayedMonth = displayedMonth,
                             yearRange = 2026..2027,
                             firstDayOfWeek = DayOfWeek.SUNDAY,
                             disabledDates = disabledDates,
@@ -327,6 +329,25 @@ class DualMonthRangeSelectionTest {
     }
 
     @Test
+    fun aLongPressHeldStillInsideTheEdgeZonePages() {
+        content()
+        // August 15 is the Saturday in the third row: the right edge zone on that row is over it.
+        val edge = edgeOf(august, right = true, level = centerOf(day(august, 15)))
+        // The clock is driven by hand from the start: the long press fires on time
+        // alone, and no move event follows it.
+        rule.mainClock.autoAdvance = false
+        dialog.performTouchInput { down(edge) }
+        holdFor(ViewConfiguration.getLongPressTimeout() + 50L)
+        assertDisplayed(YearMonth(2026, 7))
+        assertRange(LocalDate(2026, 8, 15), null)
+        holdFor(DUAL_MONTH_AUTO_PAGE_DWELL_MS + 50)
+        assertDisplayed(YearMonth(2026, 8))
+        release()
+        // Same row and column, now in September.
+        assertRange(LocalDate(2026, 8, 15), LocalDate(2026, 9, 19))
+    }
+
+    @Test
     fun dragOverABlankCellKeepsTheEnd() {
         content()
         // August 1 is a Saturday: the cells before it in its row are blank.
@@ -406,6 +427,55 @@ class DualMonthRangeSelectionTest {
         rule.waitForIdle()
         day(july, 30).assertIsFocused()
         assertDisplayed(YearMonth(2026, 7))
+    }
+
+    @Test
+    fun anArrowBeforeAPageLandsKeepsFocusOnItsOwnTarget() {
+        content()
+        // Right off August 31 pages to September; Left, pressed before that page
+        // lands, is on screen and moves focus at once. The page that finishes
+        // afterwards must not pull focus to September 1.
+        day(august, 31).keyboardFocus().performKeyInput {
+            pressKey(Key.DirectionRight)
+            pressKey(Key.DirectionLeft)
+        }
+        rule.waitForIdle()
+        day(august, 30).assertIsFocused()
+        assertDisplayed(YearMonth(2026, 8))
+    }
+
+    @Test
+    fun arrowsPastTheLastDayOfTheCalendarKeepFocusAndTheRange() {
+        // yearRange is 2026..2027: November and December 2027 are the last pair.
+        content(displayedMonth = YearMonth(2027, 11))
+        val december = "December 2027"
+        day(december, 30).performClick()
+        day(december, 31).keyboardFocus().performKeyInput {
+            pressKey(Key.DirectionRight)
+            pressKey(Key.DirectionDown)
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.DirectionRight) }
+        }
+        rule.waitForIdle()
+        day(december, 31).assertIsFocused()
+        assertDisplayed(YearMonth(2027, 11))
+        assertRange(LocalDate(2027, 12, 30), null)
+        // Focus still moves inside the calendar afterwards.
+        day(december, 31).performKeyInput { pressKey(Key.DirectionLeft) }
+        rule.waitForIdle()
+        day(december, 30).assertIsFocused()
+    }
+
+    @Test
+    fun arrowsBeforeTheFirstDayOfTheCalendarKeepFocus() {
+        content(displayedMonth = YearMonth(2026, 1))
+        val january = "January 2026"
+        day(january, 1).keyboardFocus().performKeyInput {
+            pressKey(Key.DirectionLeft)
+            pressKey(Key.DirectionUp)
+        }
+        rule.waitForIdle()
+        day(january, 1).assertIsFocused()
+        assertDisplayed(YearMonth(2026, 1))
     }
 
     private fun booked(vararg dates: LocalDate) {

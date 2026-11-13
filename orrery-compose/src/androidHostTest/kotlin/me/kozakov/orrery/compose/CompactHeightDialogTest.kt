@@ -11,8 +11,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -139,7 +139,12 @@ class CompactHeightDialogTest {
         rule.onAllNodes(hasContentDescription(" – ", substring = true)).assertCountEquals(0)
         rule.onNodeWithText("OK").assertIsDisplayed()
         // July is the first month in the column, so its 31 is the first match.
-        rule.onAllNodesWithText("31").onFirst().performScrollTo().assertIsDisplayed().performClick()
+        rule
+            .onAllNodesWithText("31")
+            .onFirst()
+            .performScrollTo()
+            .assertIsDisplayed()
+            .performClick()
         rule.runOnIdle { assertEquals(LocalDate(2026, 7, 31), state.selectedStartDate) }
         rule.onNodeWithText("OK").assertIsDisplayed()
     }

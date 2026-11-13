@@ -55,6 +55,47 @@ baselineProfile {
 
 dependencies {
     baselineProfile(project(":baselineprofile"))
+    // Spike (#89 task 1, item c): exact pin on the orrery-core version in the published metadata.
+    constraints {
+        add("commonMainApi", "me.kozakov.orrery:orrery-core") {
+            version {
+                strictly(providers.gradleProperty("VERSION_NAME").get())
+            }
+            because("all orrery-* artefacts must share one version")
+        }
+    }
+}
+
+// Spike (#89 task 1, item c): print the published POMs and the orrery-core entries of the
+// Gradle module metadata so the CI log shows the pin.
+tasks.named("publishToMavenLocal") {
+    val repo = File(System.getProperty("user.home"), ".m2/repository/me/kozakov/orrery")
+    doLast {
+        repo
+            .walkTopDown()
+            .filter { it.isFile && it.name.startsWith("orrery-compose") }
+            .filter { it.extension == "pom" || it.extension == "module" }
+            .sortedBy { it.name }
+            .forEach { file ->
+                println("SPIKE-89 ===== ${file.name}")
+                val lines = file.readLines()
+                if (file.extension == "pom") {
+                    val start =
+                        lines.indexOfFirst {
+                            it.contains("<dependencyManagement>") || it.contains("<dependencies>")
+                        }
+                    lines.drop(maxOf(start, 0)).forEach { println("SPIKE-89 | $it") }
+                } else {
+                    lines.forEachIndexed { index, line ->
+                        if (line.contains("\"orrery-core") || line.contains("dependencyConstraints")) {
+                            lines.subList(maxOf(index - 2, 0), minOf(index + 8, lines.size)).forEach {
+                                println("SPIKE-89 | ${file.name}:${index + 1} $it")
+                            }
+                        }
+                    }
+                }
+            }
+    }
 }
 
 // The Android-KMP plugin has a single variant, so the host-test tasks lost their

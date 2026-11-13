@@ -27,6 +27,16 @@ kotlin {
     // for the native and wasm targets.
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
+        // Spike (#89 task 1, item b): hide opt-in API by annotation; markers by package.
+        filters {
+            exclude {
+                annotatedWith.addAll(
+                    "me.kozakov.orrery.spike.markers.SpikeExperimentalApi",
+                    "me.kozakov.orrery.spike.markers.SpikeInternalApi",
+                )
+                byNames.add("me.kozakov.orrery.spike.markers.**")
+            }
+        }
     }
 
     sourceSets {

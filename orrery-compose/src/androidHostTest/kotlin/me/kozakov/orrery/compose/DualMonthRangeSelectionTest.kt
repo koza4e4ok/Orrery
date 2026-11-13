@@ -28,8 +28,8 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.withKeyDown
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -43,6 +43,7 @@ import org.robolectric.annotation.GraphicsMode
 /**
  * Range selection across the two panes of the dual-month picker (#88b,
  * step 2): July 2026 on the left, August on the right, on a 900dp window.
+ * Weeks start on Sunday, so the outermost columns are Sunday and Saturday.
  */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w900dp-h800dp")
@@ -64,6 +65,7 @@ class DualMonthRangeSelectionTest {
                     rememberOrreryDateRangePickerState(
                         initialDisplayedMonth = YearMonth(2026, 7),
                         yearRange = 2026..2027,
+                        firstDayOfWeek = DayOfWeek.SUNDAY,
                     )
                 OrreryDateRangePickerDialog(
                     onDismissRequest = {},
@@ -114,6 +116,48 @@ class DualMonthRangeSelectionTest {
         }
         rule.waitForIdle()
     }
+
+    /**
+     * A point inside the auto-page zone at the right (or left) side of the
+     * pager, level with [level]: the pane described as [paneMonth] is inset
+     * 12dp from the pager edge, so 2px past its bounds is inside the 24dp zone.
+     */
+    private fun edgeOf(
+        paneMonth: String,
+        right: Boolean,
+        level: Offset,
+    ): Offset {
+        val origin = dialog.fetchSemanticsNode().boundsInRoot.topLeft
+        val pane = rule.onNode(hasContentDescription(paneMonth)).fetchSemanticsNode().boundsInRoot
+        val x = if (right) pane.right - origin.x - 2f else pane.left - origin.x + 2f
+        return Offset(x, level.y)
+    }
+
+    /** Long-presses at [from] and drags to [to], keeping the pointer down. */
+    private fun longPressAndHoldAt(
+        from: Offset,
+        to: Offset,
+    ) {
+        dialog.performTouchInput {
+            down(from)
+            advanceEventTime(1000)
+            moveTo(to)
+        }
+        rule.waitForIdle()
+    }
+
+    private fun release() {
+        dialog.performTouchInput { up() }
+        rule.waitForIdle()
+    }
+
+    /** Advances past the edge dwell, or past one more interval, and lets the page animation finish. */
+    private fun holdFor(millis: Long) {
+        rule.mainClock.advanceTimeBy(millis)
+        rule.waitForIdle()
+    }
+
+    private fun assertDisplayed(month: YearMonth) = rule.runOnIdle { assertEquals(month, state.displayedMonth) }
 
     @OptIn(ExperimentalComposeUiApi::class)
     private fun SemanticsNodeInteraction.keyboardFocus(): SemanticsNodeInteraction {
@@ -196,23 +240,52 @@ class DualMonthRangeSelectionTest {
     fun dragAtTheRightEdgePagesOneMonthAndFollowsIntoTheNewPane() {
         content()
         val start = centerOf(day(july, 14))
-        val origin = dialog.fetchSemanticsNode().boundsInRoot.topLeft
-        val rightPane = rule.onNode(hasContentDescription(august)).fetchSemanticsNode().boundsInRoot
-        // Inside the 24dp edge zone (the pane itself is inset 12dp from the pager edge).
-        val edge = Offset(rightPane.right - origin.x - 2f, start.y)
+        longPressAndHoldAt(start, edgeOf(august, right = true, level = start))
+        // Before the dwell, the range follows to August's Saturday on July 14's row.
+        assertDisplayed(YearMonth(2026, 7))
+        assertRange(LocalDate(2026, 7, 14), LocalDate(2026, 8, 15))
+        holdFor(DUAL_MONTH_AUTO_PAGE_DWELL_MS + 50)
+        release()
+        assertDisplayed(YearMonth(2026, 8))
+        // Same row and column, now in September.
+        assertRange(LocalDate(2026, 7, 14), LocalDate(2026, 9, 19))
+    }
+
+    @Test
+    fun dragHeldStillAtTheEdgeKeepsPagingEveryInterval() {
+        content()
+        val start = centerOf(day(july, 14))
+        longPressAndHoldAt(start, edgeOf(august, right = true, level = start))
+        holdFor(DUAL_MONTH_AUTO_PAGE_DWELL_MS + 50)
+        assertDisplayed(YearMonth(2026, 8))
+        // No pointer events at all from here on: the pointer is held still.
+        holdFor(DUAL_MONTH_AUTO_PAGE_INTERVAL_MS + 50)
+        assertDisplayed(YearMonth(2026, 9))
+        release()
+        // Releasing stops the paging.
+        holdFor(DUAL_MONTH_AUTO_PAGE_INTERVAL_MS * 3)
+        assertDisplayed(YearMonth(2026, 9))
+        assertRange(LocalDate(2026, 7, 14), LocalDate(2026, 10, 17))
+    }
+
+    @Test
+    fun aBriefPassThroughTheEdgeZoneDoesNotPage() {
+        content()
+        val start = centerOf(day(july, 14))
+        val edge = edgeOf(august, right = true, level = start)
+        val back = centerOf(day(august, 5))
         dialog.performTouchInput {
             down(start)
             advanceEventTime(1000)
             moveTo(edge)
+            advanceEventTime(DUAL_MONTH_AUTO_PAGE_DWELL_MS / 2)
+            moveTo(back)
         }
         rule.waitForIdle()
-        dialog.performTouchInput { up() }
-        rule.waitForIdle()
-        rule.runOnIdle {
-            assertEquals(YearMonth(2026, 8), state.displayedMonth)
-            assertEquals(LocalDate(2026, 7, 14), state.selectedStartDate)
-            assertEquals(Month.SEPTEMBER, state.selectedEndDate?.month)
-        }
+        holdFor(DUAL_MONTH_AUTO_PAGE_DWELL_MS + DUAL_MONTH_AUTO_PAGE_INTERVAL_MS)
+        release()
+        assertDisplayed(YearMonth(2026, 7))
+        assertRange(LocalDate(2026, 7, 14), LocalDate(2026, 8, 5))
     }
 
     @Test

@@ -51,6 +51,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -71,10 +73,16 @@ private val DualMonthPanePadding = 12.dp
 private const val MAX_WEEKS_PER_MONTH = 6
 
 /** A range drag this close to the pager's left or right edge pages one month. */
-private val DualMonthAutoPageEdge = 24.dp
+internal val DualMonthAutoPageEdge = 24.dp
 
-/** Minimum time between two auto-pages of one range drag. */
-private const val DUAL_MONTH_AUTO_PAGE_INTERVAL_MS = 400L
+/**
+ * How long a range drag must stay in the edge zone before the first
+ * auto-page, so a pass through the outermost column doesn't flip the month.
+ */
+internal const val DUAL_MONTH_AUTO_PAGE_DWELL_MS = 250L
+
+/** Time between two auto-pages while a range drag stays in the edge zone. */
+internal const val DUAL_MONTH_AUTO_PAGE_INTERVAL_MS = 400L
 
 /** One pager item as laid out: [offset] and [size] along the row, from its start edge. */
 internal class DualMonthPaneSpan(
@@ -288,10 +296,11 @@ internal fun DualMonthRangeCalendar(
 /**
  * Long-press drag range selection across both panes. Runs on the Initial
  * pass once the long press fires, so the pager under it never starts a
- * swipe and the day under the finger never sees a click. Within
- * [DualMonthAutoPageEdge] of either side the pager moves one month at most
- * every [DUAL_MONTH_AUTO_PAGE_INTERVAL_MS], and the range follows to the
- * day now under the pointer.
+ * swipe and the day under the finger never sees a click. Once the pointer
+ * has stayed within [DualMonthAutoPageEdge] of either side for
+ * [DUAL_MONTH_AUTO_PAGE_DWELL_MS], the pager moves one month, then one more
+ * every [DUAL_MONTH_AUTO_PAGE_INTERVAL_MS] while it stays there (moving or
+ * not), and the range follows to the day now under the pointer.
  */
 @Suppress("LongParameterList")
 private fun Modifier.dualMonthRangeDrag(
@@ -314,6 +323,7 @@ private fun Modifier.dualMonthRangeDrag(
                 try {
                     followRangeDrag(longPress.id, drag)
                 } finally {
+                    drag.stop()
                     selection.dragEnd()
                 }
             }
@@ -331,7 +341,7 @@ private suspend fun AwaitPointerEventScope.followRangeDrag(
             change?.consume()
             return
         }
-        if (change.positionChanged()) drag.moveTo(change.position, change.uptimeMillis, size.width)
+        if (change.positionChanged()) drag.moveTo(change.position, size.width)
         change.consume()
     }
 }
@@ -349,7 +359,11 @@ private class DualMonthRangeDrag(
 ) {
     private var lastDate: LocalDate? = null
     private var position = Offset.Zero
-    private var lastPageAt: Long? = null
+    private var ended = false
+
+    /** Edge the pointer is in (+1 later, -1 earlier, 0 none) and the job paging toward it. */
+    private var pageDirection = 0
+    private var pageJob: Job? = null
 
     fun start(
         date: LocalDate,
@@ -363,23 +377,44 @@ private class DualMonthRangeDrag(
 
     fun moveTo(
         at: Offset,
-        uptimeMillis: Long,
         width: Int,
     ) {
         position = at
         follow()
         val direction = dualMonthEdgePageDirection(at.x, width, edgePx, isRtl)
-        val since = lastPageAt?.let { uptimeMillis - it }
-        if (direction == 0 || (since != null && since < DUAL_MONTH_AUTO_PAGE_INTERVAL_MS)) return
-        lastPageAt = uptimeMillis
-        scope.launch {
-            if (direction > 0) calendar.animateScrollToNextMonth() else calendar.animateScrollToPreviousMonth()
-            // The pointer now rests over another month's day; a no-op once the drag has ended.
-            follow()
+        if (direction == pageDirection) return
+        pageJob?.cancel()
+        pageDirection = direction
+        pageJob = if (direction == 0) null else scope.launch { autoPage(direction) }
+    }
+
+    /** Ends the drag: no more pages, and a page still animating no longer moves the range. */
+    fun stop() {
+        ended = true
+        pageJob?.cancel()
+        pageJob = null
+    }
+
+    /**
+     * Runs while the pointer stays in one edge zone, held still or not:
+     * waits out the dwell, then pages toward [direction] every interval.
+     */
+    private suspend fun autoPage(direction: Int) {
+        delay(DUAL_MONTH_AUTO_PAGE_DWELL_MS)
+        while (true) {
+            // Its own job, so leaving the zone mid-animation still lands on a whole month.
+            scope
+                .launch {
+                    if (direction > 0) calendar.animateScrollToNextMonth() else calendar.animateScrollToPreviousMonth()
+                    // The pointer now rests over another month's day.
+                    follow()
+                }.join()
+            delay(DUAL_MONTH_AUTO_PAGE_INTERVAL_MS)
         }
     }
 
     private fun follow() {
+        if (ended) return
         val day = hitTest.dayAt(position, isRtl) ?: return
         if (day.date != lastDate) haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
         lastDate = day.date

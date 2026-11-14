@@ -14,7 +14,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
-import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -52,7 +51,7 @@ class CalendarFormatsSnapshotTest {
                 }
             }
         }
-        rule.onRoot().captureRoboImage(roborazziOptions = strictOptions)
+        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
     }
 
     @Suppress("TestFunctionName")
@@ -193,6 +192,3 @@ class CalendarFormatsSnapshotTest {
             )
         }
 }
-
-private val strictOptions =
-    RoborazziOptions(compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0f))

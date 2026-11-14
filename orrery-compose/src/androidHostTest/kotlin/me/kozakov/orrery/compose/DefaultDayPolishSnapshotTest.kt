@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
-import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -111,13 +110,13 @@ class DefaultDayPolishSnapshotTest {
     @Test
     fun longHolidayLabels() {
         content()
-        rule.onRoot().captureRoboImage(roborazziOptions = strictOptions)
+        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
     }
 
     @Test
     fun longHolidayLabelsNarrow() {
         content(width = 280.dp)
-        rule.onRoot().captureRoboImage(roborazziOptions = strictOptions)
+        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
     }
 
     @Test
@@ -126,7 +125,7 @@ class DefaultDayPolishSnapshotTest {
             selection = Selection(rangeStart = LocalDate(2026, 10, 12), rangeEnd = LocalDate(2026, 10, 15)),
             decorated = true,
         )
-        rule.onRoot().captureRoboImage(roborazziOptions = strictOptions)
+        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
     }
 
     @Test
@@ -136,9 +135,6 @@ class DefaultDayPolishSnapshotTest {
             selection = Selection(rangeStart = LocalDate(2026, 10, 12), rangeEnd = LocalDate(2026, 10, 15)),
             decorated = true,
         )
-        rule.onRoot().captureRoboImage(roborazziOptions = strictOptions)
+        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
     }
 }
-
-private val strictOptions =
-    RoborazziOptions(compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0f))

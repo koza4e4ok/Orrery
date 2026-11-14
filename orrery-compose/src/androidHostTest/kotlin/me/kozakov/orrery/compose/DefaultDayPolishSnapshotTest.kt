@@ -110,13 +110,13 @@ class DefaultDayPolishSnapshotTest {
     @Test
     fun longHolidayLabels() {
         content()
-        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
+        rule.onRoot().captureRoboImage()
     }
 
     @Test
     fun longHolidayLabelsNarrow() {
         content(width = 280.dp)
-        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
+        rule.onRoot().captureRoboImage()
     }
 
     @Test
@@ -125,7 +125,7 @@ class DefaultDayPolishSnapshotTest {
             selection = Selection(rangeStart = LocalDate(2026, 10, 12), rangeEnd = LocalDate(2026, 10, 15)),
             decorated = true,
         )
-        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
+        rule.onRoot().captureRoboImage()
     }
 
     @Test
@@ -135,6 +135,6 @@ class DefaultDayPolishSnapshotTest {
             selection = Selection(rangeStart = LocalDate(2026, 10, 12), rangeEnd = LocalDate(2026, 10, 15)),
             decorated = true,
         )
-        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
+        rule.onRoot().captureRoboImage()
     }
 }

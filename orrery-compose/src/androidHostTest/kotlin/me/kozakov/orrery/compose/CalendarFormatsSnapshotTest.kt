@@ -51,7 +51,7 @@ class CalendarFormatsSnapshotTest {
                 }
             }
         }
-        rule.onRoot().captureRoboImage(roborazziOptions = com.github.takahirom.roborazzi.RoborazziOptions(compareOptions = com.github.takahirom.roborazzi.RoborazziOptions.CompareOptions(changeThreshold = 0f)))
+        rule.onRoot().captureRoboImage()
     }
 
     @Suppress("TestFunctionName")

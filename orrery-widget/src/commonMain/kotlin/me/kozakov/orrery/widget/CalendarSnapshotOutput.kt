@@ -60,8 +60,7 @@ public class CalendarSnapshotOutput(
         density: Density = this.density,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
         layoutDirection: LayoutDirection = this.layoutDirection,
-    ): CalendarSnapshotOutput =
-        CalendarSnapshotOutput(widthPx, heightPx, density, fontFamilyResolver, layoutDirection)
+    ): CalendarSnapshotOutput = CalendarSnapshotOutput(widthPx, heightPx, density, fontFamilyResolver, layoutDirection)
 
     override fun equals(other: Any?): Boolean =
         other is CalendarSnapshotOutput &&

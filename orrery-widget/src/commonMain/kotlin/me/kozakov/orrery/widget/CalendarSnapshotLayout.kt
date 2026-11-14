@@ -215,9 +215,13 @@ internal class GridTextRequest(
     val dayFloorPx: Float
         get() = floor(dayTextPx)
 
-    /** Smallest weekday label size in px: [minTextScale] of the unscaled request. */
+    /** Smallest weekday label (and agenda day heading) size in px: [minTextScale] of the unscaled request. */
     val weekdayFloorPx: Float
         get() = floor(weekdayTextPx)
+
+    /** Smallest agenda title size in px: [minTextScale] of the unscaled request. */
+    val titleFloorPx: Float
+        get() = floor(titleTextPx)
 
     private fun floor(requestedPx: Float): Float = minOf(requestedPx, minTextScale * requestedPx / fontScale)
 }
@@ -279,4 +283,63 @@ internal fun planGridText(
         weekdayTextPx = weekdayPx,
         dayTextPx = 0f,
     )
+}
+
+/** Shrunk text is scaled a little below the exact fit, so float rounding never drops the row it was sized for. */
+private const val FIT_SLACK = 0.999f
+
+/**
+ * Which rows of an agenda strip are drawn, and at which text sizes (px): the title in
+ * the title size, day headings in the weekday size and event rows in the day size.
+ */
+internal class AgendaTextPlan(
+    val showTitle: Boolean,
+    val titleTextPx: Float,
+    val headingTextPx: Float,
+    val rowTextPx: Float,
+) {
+    val titleBand: Float
+        get() = if (showTitle) titleTextPx * LINE_HEIGHT_FACTOR else 0f
+    val headingHeight: Float
+        get() = headingTextPx * LINE_HEIGHT_FACTOR
+    val rowHeight: Float
+        get() = rowTextPx * AGENDA_ROW_FACTOR
+}
+
+/**
+ * Sizes the text of an agenda strip in a content box [height] px tall, with the same
+ * floors as [planGridText]: `minTextScale` times the size at font scale 1 (see
+ * [GridTextRequest]), so a large font scale never raises them.
+ *
+ * When the title, the first day heading and its first event row do not fit at the
+ * requested sizes, all three shrink by one factor. When that would take one of them below
+ * its floor, the title is dropped and the heading and row shrink alone. When even those
+ * do not fit at their floors, the requested sizes are kept and [fitAgenda] drops the
+ * rows; the title alone is still drawn if it fits at or above its floor. With no event
+ * rows ([hasRows] false) only the title is sized.
+ */
+internal fun planAgendaText(
+    height: Float,
+    hasRows: Boolean,
+    request: GridTextRequest,
+): AgendaTextPlan {
+    val title = request.titleTextPx
+    val heading = request.weekdayTextPx
+    val row = request.dayTextPx
+    if (hasRows) {
+        val titleOptions = if (request.showTitle) listOf(true, false) else listOf(false)
+        for (showTitle in titleOptions) {
+            val titleBand = if (showTitle) title * LINE_HEIGHT_FACTOR else 0f
+            val needed = titleBand + heading * LINE_HEIGHT_FACTOR + row * AGENDA_ROW_FACTOR
+            val scale = if (needed <= height) 1f else height / needed * FIT_SLACK
+            val titleAboveFloor = !showTitle || title * scale >= request.titleFloorPx
+            val aboveFloors =
+                titleAboveFloor && heading * scale >= request.weekdayFloorPx && row * scale >= request.dayFloorPx
+            if (aboveFloors) return AgendaTextPlan(showTitle, title * scale, heading * scale, row * scale)
+        }
+    }
+    val titleBand = title * LINE_HEIGHT_FACTOR
+    val titleScale = if (titleBand <= height) 1f else height / titleBand * FIT_SLACK
+    val showTitle = request.showTitle && title > 0f && title * titleScale >= request.titleFloorPx
+    return AgendaTextPlan(showTitle, if (showTitle) title * titleScale else title, heading, row)
 }

@@ -104,8 +104,13 @@ class CalendarSnapshotPainterDrawTest {
                 val index = day - 1 + 5
                 val left = (24 + index % 7 * cellWidth).toInt()
                 val top = 24 + index / 7 * 47
-                val ink = pixels.inkIn(left + 2 until left + cellWidth.toInt() - 2, top + 2 until top + 45)
+                val xs = left + 2 until left + cellWidth.toInt() - 2
+                val ys = top + 2 until top + 45
+                val ink = pixels.inkIn(xs, ys)
                 assertTrue(ink > 20, "font scale $fontScale: day $day has $ink ink pixels")
+                // A glyph, not a speck: the digits are at least half the 21.6 px floor tall.
+                val inkRows = ys.count { y -> xs.any { x -> pixels[x, y] != colors.container } }
+                assertTrue(inkRows >= 11, "font scale $fontScale: day $day ink is $inkRows px tall")
             }
         }
     }

@@ -1,6 +1,7 @@
 plugins {
     id("orrery.cmp-library")
     id("orrery.publish")
+    alias(libs.plugins.roborazzi)
 }
 
 // Experimental snapshot/widget renderer (#89). Every public declaration is
@@ -21,6 +22,8 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            // runTest for the suspend renderer on every target, wasmJs included (test only).
+            implementation(libs.kotlinx.coroutines.test)
         }
         // Skiko's native library, needed to draw into a bitmap in desktop tests.
         getByName("desktopTest").dependencies {
@@ -32,7 +35,54 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
         }
+        // Same Robolectric and Roborazzi setup as orrery-compose.
+        getByName("androidHostTest").dependencies {
+            implementation(libs.junit4)
+            implementation(libs.robolectric)
+            implementation(libs.androidx.test.ext.junit)
+            implementation(project.dependencies.platform(libs.compose.bom))
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.compose.ui.test.manifest)
+            implementation(libs.roborazzi)
+            implementation(libs.roborazzi.compose)
+        }
     }
+}
+
+roborazzi {
+    outputDir.set(file("src/androidHostTest/snapshots"))
+}
+
+// CI runs :orrery-widget:testAndroidHostTest, so that run also verifies the goldens: with the
+// verify task in the graph, Roborazzi runs the host tests in verify mode and a missing or
+// changed golden fails them (the *_actual.png files land in build/outputs/roborazzi).
+// Record and compare runs keep their own mode.
+val roborazziModeRequested =
+    gradle.startParameter.taskNames.any { name ->
+        listOf("recordRoborazzi", "compareRoborazzi", "verifyAndRecordRoborazzi").any { it in name }
+    }
+if (!roborazziModeRequested) {
+    tasks.named { it == "testAndroidHostTest" }.configureEach {
+        finalizedBy("verifyRoborazziAndroidHostTest")
+    }
+}
+
+// The Android-KMP plugin has a single variant, so the host-test tasks lost their
+// "Debug" suffix. Same aliases as orrery-compose.
+tasks.register("testDebugUnitTest") {
+    group = "verification"
+    description = "Alias for testAndroidHostTest."
+    dependsOn("testAndroidHostTest")
+}
+tasks.register("verifyRoborazziDebug") {
+    group = "verification"
+    description = "Alias for verifyRoborazziAndroidHostTest."
+    dependsOn("verifyRoborazziAndroidHostTest")
+}
+tasks.register("recordRoborazziDebug") {
+    group = "verification"
+    description = "Alias for recordRoborazziAndroidHostTest."
+    dependsOn("recordRoborazziAndroidHostTest")
 }
 
 // orrery-widget calls @InternalOrreryApi declarations of orrery-compose, which have no

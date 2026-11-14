@@ -14,6 +14,11 @@ internal object FixedSnapshotFormatter : SnapshotFormatter {
         end: LocalDate,
     ): String = "$start - $end"
 
+    override fun accessibleDateRange(
+        start: LocalDate,
+        end: LocalDate,
+    ): String = "$start to $end"
+
     override fun weekdayLabel(dayOfWeek: DayOfWeek): String = dayOfWeek.name.take(2)
 
     override fun dayHeading(date: LocalDate): String = date.toString()

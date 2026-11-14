@@ -58,8 +58,9 @@ private val AgendaGap = 6.dp
 private val TodayRingWidth = 1.dp
 
 /**
- * Date text of a snapshot. The renderer (#89 task 4) backs it with the platform date
- * formatting of `orrery-compose`; tests use a fixed, locale-free one.
+ * Date text of a snapshot. The renderer backs it with the platform date formatting of
+ * `orrery-compose` (or, on Android, the locale of the given `Context`); tests use a
+ * fixed, locale-free one.
  */
 internal interface SnapshotFormatter {
     /** Title of a month grid, for example "November 2026". */
@@ -67,6 +68,12 @@ internal interface SnapshotFormatter {
 
     /** Title of a week grid or an agenda strip covering [start]..[end]. */
     fun dateRange(
+        start: LocalDate,
+        end: LocalDate,
+    ): String
+
+    /** Spoken form of [start]..[end] for the content description, with long dates. */
+    fun accessibleDateRange(
         start: LocalDate,
         end: LocalDate,
     ): String
@@ -236,30 +243,28 @@ internal class CalendarSnapshotPainter(
         content: Rect,
         range: CalendarSnapshotRange.Agenda,
     ) {
-        val titlePx = style.titleTextSize.toPx()
-        val headingPx = style.weekdayTextSize.toPx()
-        val rowPx = style.dayTextSize.toPx()
-        val titleBand = titlePx * LINE_HEIGHT_FACTOR
+        val packed = packAgenda(spec.agendaEvents, range.start, range.days, range.maxRows)
+        val request = gridTextRequest(style, spec, Density(density, fontScale))
+        val plan = planAgendaText(content.height, packed.isNotEmpty(), request)
         var top = content.top
-        if (spec.showTitle && titleBand <= content.height) {
+        if (plan.showTitle) {
             val end = range.start.plus(range.days - 1, DateTimeUnit.DAY)
             val title = formatter.dateRange(range.start, end)
-            val layout = measureLabel(measurer, title, titlePx, FontWeight.Medium, content.width)
-            drawLabel(layout, colors.title, Rect(content.left, top, content.right, top + titleBand), centered = false)
-            top += titleBand
+            val layout = measureLabel(measurer, title, plan.titleTextPx, FontWeight.Medium, content.width)
+            val box = Rect(content.left, top, content.right, top + plan.titleBand)
+            drawLabel(layout, colors.title, box, centered = false)
+            top += plan.titleBand
         }
-        val headingHeight = headingPx * LINE_HEIGHT_FACTOR
-        val rowHeight = rowPx * AGENDA_ROW_FACTOR
-        val packed = packAgenda(spec.agendaEvents, range.start, range.days, range.maxRows)
-        for (day in fitAgenda(packed, content.bottom - top, headingHeight, rowHeight)) {
+        val rowHeight = plan.rowHeight
+        for (day in fitAgenda(packed, content.bottom - top, plan.headingHeight, rowHeight)) {
             val text = formatter.dayHeading(day.date)
-            val heading = measureLabel(measurer, text, headingPx, FontWeight.Medium, content.width)
+            val heading = measureLabel(measurer, text, plan.headingTextPx, FontWeight.Medium, content.width)
             val headingColor = if (day.date == spec.today) colors.today else colors.weekday
-            val box = Rect(content.left, top, content.right, top + headingHeight)
+            val box = Rect(content.left, top, content.right, top + plan.headingHeight)
             drawLabel(heading, headingColor, box, centered = false)
-            top += headingHeight
+            top += plan.headingHeight
             for (row in day.rows) {
-                drawAgendaRow(measurer, row, Rect(content.left, top, content.right, top + rowHeight), rowPx)
+                drawAgendaRow(measurer, row, Rect(content.left, top, content.right, top + rowHeight), plan.rowTextPx)
                 top += rowHeight
             }
         }

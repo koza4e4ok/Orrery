@@ -74,6 +74,15 @@
   `Agenda`). Every public declaration is `@ExperimentalOrreryApi` and has no
   compatibility promise in 1.0.x. It requires exactly the same `orrery-compose`
   version (`strictly` in the Gradle metadata, `[x.y.z]` in the POM).
+- `orrery-widget` snapshot model (#89, in progress): `CalendarSnapshotSpec` (range, today,
+  selection, day info tint, event dot counts, agenda events, first day of week, title,
+  weekday and outside-day switches), `CalendarSnapshotColors` and
+  `CalendarSnapshotDefaults.colors(colorScheme)` / `colors()` (the `MiniMonth` colour
+  mapping), `CalendarSnapshotStyle` (text sizes, padding, corner radius, `minTextScale`)
+  and `CalendarSnapshotOutput` (pixel size up to 4096 px a side and 4 194 304 px in total,
+  density, font resolver, layout direction). All are plain classes with `copy`, all
+  `@ExperimentalOrreryApi`. The internal painter draws month, week and agenda strips;
+  the render functions follow in a later change.
 
 ## [0.9.2] - 2026-11-05
 

@@ -9,6 +9,10 @@
   `HeatmapDefaults.Levels` and `HeatmapDefaults.levelOf(value)` give the level a
   cell announces, which the default scale also uses. `HeatmapMonth` takes
   `showLegend` (default `false`) for the same legend row as `HeatmapCalendar`.
+- Opt-in markers in `orrery-core` (#89): `@ExperimentalOrreryApi` (warning) for API
+  without a compatibility promise and `@InternalOrreryApi` (error) for declarations
+  that are public only for sibling `orrery-*` modules. Declarations marked with them are
+  left out of the ABI dumps, and `@InternalOrreryApi` packages are left out of the API docs.
 - Interactive `DaySchedule` / `WeekSchedule` editing (#88): `onEmptySlotLongPress`,
   `onSlotCreate`, `onEventMove` and `onEventResize` (long press to create or move on
   touch, press-and-drag with a mouse, resize handles), snapping to `snapMinutes`,
@@ -62,6 +66,14 @@
   `YearCalendar` pages compose and scroll faster. The month is now one
   accessibility node described by its month and year (with "today" and selected
   state) instead of reading every day number. Signatures are unchanged.
+
+### Experimental
+
+- New module `me.kozakov.orrery:orrery-widget` (#89, in progress): the scaffold for the
+  headless calendar snapshot renderer, with `CalendarSnapshotRange` (`Month`, `Week`,
+  `Agenda`). Every public declaration is `@ExperimentalOrreryApi` and has no
+  compatibility promise in 1.0.x. It requires exactly the same `orrery-compose`
+  version (`strictly` in the Gradle metadata, `[x.y.z]` in the POM).
 
 ## [0.9.2] - 2026-11-05
 

@@ -1,3 +1,9 @@
+public abstract interface annotation class me/kozakov/orrery/ExperimentalOrreryApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class me/kozakov/orrery/InternalOrreryApi : java/lang/annotation/Annotation {
+}
+
 public final class me/kozakov/orrery/core/AllDayBanner {
 	public fun <init> (Lme/kozakov/orrery/core/CalendarEvent;IIIZZ)V
 	public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent;

@@ -6,6 +6,14 @@
 // - Show declarations: true
 
 // Library unique name: <Orrery:orrery-core>
+open annotation class me.kozakov.orrery/ExperimentalOrreryApi : kotlin/Annotation { // me.kozakov.orrery/ExperimentalOrreryApi|null[0]
+    constructor <init>() // me.kozakov.orrery/ExperimentalOrreryApi.<init>|<init>(){}[0]
+}
+
+open annotation class me.kozakov.orrery/InternalOrreryApi : kotlin/Annotation { // me.kozakov.orrery/InternalOrreryApi|null[0]
+    constructor <init>() // me.kozakov.orrery/InternalOrreryApi.<init>|<init>(){}[0]
+}
+
 final enum class me.kozakov.orrery.core/AutoSelectDay : kotlin/Enum<me.kozakov.orrery.core/AutoSelectDay> { // me.kozakov.orrery.core/AutoSelectDay|null[0]
     enum entry FirstDayOfMonth // me.kozakov.orrery.core/AutoSelectDay.FirstDayOfMonth|null[0]
     enum entry LastSelectedDay // me.kozakov.orrery.core/AutoSelectDay.LastSelectedDay|null[0]

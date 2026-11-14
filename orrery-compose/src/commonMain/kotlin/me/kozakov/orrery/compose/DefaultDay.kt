@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -425,6 +426,8 @@ private fun DefaultDayContent(
             decorators.any { it.layer == DecoratorLayer.Over } ||
             showFocusRing ||
             showCellBorder
+    // Negative insets are treated as zero; drawing clamps oversized ones to half the cell height.
+    val dayInset = shapes.verticalInset.coerceAtLeast(0.dp)
     val surface = MaterialTheme.colorScheme.surface
     val turnoverDividerColor = if (colors.containerColor.alpha > 0f) colors.containerColor else surface
     Box(
@@ -432,8 +435,8 @@ private fun DefaultDayContent(
             modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = minCellHeight)
-                // The full cell is the touch target; everything drawn (and the
-                // content) is inset so the shapes of adjacent weeks never touch.
+                // The full cell is the touch target and keeps its measured height; only what is
+                // drawn is inset by dayInset, so the shapes of adjacent weeks never touch.
                 .selectable(
                     selected = isSelected,
                     enabled = available,
@@ -457,26 +460,29 @@ private fun DefaultDayContent(
                 ).semantics {
                     contentDescription = description
                     if (dayState.isNotEmpty()) stateDescription = dayState
-                }.padding(vertical = shapes.verticalInset)
-                .drawBehind {
-                    if (shapes.inRangeShape == RectangleShape) {
-                        drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor, isRtl)
-                    }
-                    if (split) {
-                        drawSplitEndpoint(
-                            style = endpointStyle,
-                            amAlpha = amHalfAlpha,
-                            pmAlpha = pmHalfAlpha,
-                            gap = if (isTurnover) TurnoverGap.toPx() else 0f,
-                            color = colors.inRangeContainerColor,
-                            isRtl = isRtl,
-                        )
-                    } else if (isTurnover) {
-                        // Full-cell turnover: filled like the range, with a thin divider where a split cell would part.
-                        drawRect(colors.inRangeContainerColor)
-                        val start = if (isRtl) Offset(size.width, size.height) else Offset(0f, size.height)
-                        val end = if (isRtl) Offset(0f, 0f) else Offset(size.width, 0f)
-                        drawLine(turnoverDividerColor, start, end, TurnoverGap.toPx())
+                }.drawBehind {
+                    val insetPx = minOf(dayInset.toPx(), size.height / 2f)
+                    inset(left = 0f, top = insetPx, right = 0f, bottom = insetPx) {
+                        if (shapes.inRangeShape == RectangleShape) {
+                            drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor, isRtl)
+                        }
+                        if (split) {
+                            drawSplitEndpoint(
+                                style = endpointStyle,
+                                amAlpha = amHalfAlpha,
+                                pmAlpha = pmHalfAlpha,
+                                gap = if (isTurnover) TurnoverGap.toPx() else 0f,
+                                color = colors.inRangeContainerColor,
+                                isRtl = isRtl,
+                            )
+                        } else if (isTurnover) {
+                            // Full-cell turnover: filled like the range, with a thin divider
+                            // where a split cell would part.
+                            drawRect(colors.inRangeContainerColor)
+                            val start = if (isRtl) Offset(size.width, size.height) else Offset(0f, size.height)
+                            val end = if (isRtl) Offset(0f, 0f) else Offset(size.width, 0f)
+                            drawLine(turnoverDividerColor, start, end, TurnoverGap.toPx())
+                        }
                     }
                 },
         contentAlignment = Alignment.Center,
@@ -484,7 +490,7 @@ private fun DefaultDayContent(
         // Shadow layer: same centered-square geometry as the ripple layer,
         // drawn first so the selection fill covers the shape's interior.
         if (elevation > 0.dp) {
-            Box(Modifier.matchParentSize(), contentAlignment = Alignment.Center) {
+            Box(Modifier.matchParentSize().padding(vertical = dayInset), contentAlignment = Alignment.Center) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -497,6 +503,7 @@ private fun DefaultDayContent(
         Box(
             Modifier
                 .matchParentSize()
+                .padding(vertical = dayInset)
                 .background(colors.containerColor, RectangleShape)
                 .clip(shapes.dayShape)
                 .then(
@@ -531,7 +538,7 @@ private fun DefaultDayContent(
         )
         // Ripple layer: a centered square clipped to dayShape so touch feedback
         // matches the drawn selection (circle by default, or any custom shape).
-        Box(Modifier.matchParentSize(), contentAlignment = Alignment.Center) {
+        Box(Modifier.matchParentSize().padding(vertical = dayInset), contentAlignment = Alignment.Center) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -542,6 +549,7 @@ private fun DefaultDayContent(
         }
         val reserveDecoratorBand = label != null && decorators.isNotEmpty()
         val decoratorBandPx = with(LocalDensity.current) { DecoratorBand.toPx() }
+        val dayInsetPx = with(LocalDensity.current) { dayInset.toPx() }
         Column(
             // Built-in stacked decorators read contentBottom to stay below the number and label.
             modifier =
@@ -550,7 +558,8 @@ private fun DefaultDayContent(
                     // onPlaced sees the padded bounds; contentBottom must stay at the label's real bottom.
                     .onPlaced {
                         val band = if (reserveDecoratorBand) decoratorBandPx else 0f
-                        contentBottomPx = it.boundsInParent().bottom - band
+                        // Decorators draw in the inset area, so measure from its top.
+                        contentBottomPx = it.boundsInParent().bottom - band - dayInsetPx
                     },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -585,7 +594,7 @@ private fun DefaultDayContent(
         // focus ring are never cropped by the cell shape.
         if (hasOverlay) {
             Box(
-                Modifier.matchParentSize().drawBehind {
+                Modifier.matchParentSize().padding(vertical = dayInset).drawBehind {
                     if (showCellBorder) {
                         drawDayShape(shapes.dayShape, cellBorderColor, Stroke(width = cellBorderWidth.toPx()))
                     }

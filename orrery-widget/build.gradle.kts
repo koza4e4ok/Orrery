@@ -67,3 +67,37 @@ publishing {
         }
     }
 }
+
+// TEMPORARY (#89 task 2 evidence; removed again before review). ci.yml is not changed in
+// this PR, so the widget tests and publication ride on checkKotlinAbi, which CI runs for
+// every project, and the published POMs and Gradle module metadata are printed to the log.
+tasks.named("checkKotlinAbi") {
+    finalizedBy("desktopTest", "testAndroidHostTest", "wasmJsTest", "publishToMavenLocal", "printPublishedPin")
+}
+tasks.register("printPublishedPin") {
+    mustRunAfter("publishToMavenLocal")
+    val repo = File(System.getProperty("user.home"), ".m2/repository/me/kozakov/orrery")
+    val pin = "[${providers.gradleProperty("VERSION_NAME").get()}]"
+    doLast {
+        val files =
+            repo
+                .walkTopDown()
+                .filter { it.isFile && it.name.startsWith("orrery-widget") }
+                .filter { it.extension == "pom" || it.extension == "module" }
+                .sortedBy { it.path }
+                .toList()
+        check(files.isNotEmpty()) { "no orrery-widget publication in $repo" }
+        files.forEach { file ->
+            println("PIN-89 ===== ${file.relativeTo(repo)}")
+            file.readLines().forEach { println("PIN-89 | $it") }
+            val text = file.readText()
+            check(!text.contains("glance", ignoreCase = true)) { "${file.name} mentions Glance" }
+            if (file.extension == "pom") {
+                val unpinned = Regex("<groupId>me.kozakov.orrery</groupId>\\s*<artifactId>[^<]+</artifactId>\\s*<version>[^\\[]")
+                check(text.contains("<version>$pin</version>")) { "${file.name} has no $pin pin" }
+                check(!unpinned.containsMatchIn(text)) { "${file.name} has an unpinned orrery-* dependency" }
+            }
+        }
+        println("PIN-89 checked ${files.size} files")
+    }
+}

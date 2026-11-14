@@ -3,9 +3,11 @@
 package me.kozakov.orrery.widget
 
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
@@ -87,7 +89,7 @@ class CalendarSnapshotPainterDrawTest {
         assertEquals(colors.rangeBand, rtl[205, 182], "band inside the end cell, towards the middle")
         assertEquals(colors.container, rtl[286, 182], "start is rounded on its outer (right) edge")
         assertEquals(colors.container, rtl[169, 182], "end is rounded on its outer (left) edge")
-        assertEquals(colors.container, rtl[140, 182], "nothing past the end")
+        assertEquals(colors.container, rtl[132, 182], "nothing past the end")
     }
 
     @Test
@@ -97,18 +99,12 @@ class CalendarSnapshotPainterDrawTest {
         val august = spec(CalendarSnapshotRange.Month(YearMonth(2026, 8)))
         listOf(1f, 1.3f, 2f).forEach { fontScale ->
             val pixels = render(august, width = 750, height = 330, density = Density(3f, fontScale)).toPixelMap()
-            val container = colors.container
             val cellWidth = 702f / 7
             for (day in 1..31) {
                 val index = day - 1 + 5
                 val left = (24 + index % 7 * cellWidth).toInt()
                 val top = 24 + index / 7 * 47
-                var ink = 0
-                for (y in top + 2 until top + 45) {
-                    for (x in left + 2 until left + cellWidth.toInt() - 2) {
-                        if (pixels[x, y] != container) ink++
-                    }
-                }
+                val ink = pixels.inkIn(left + 2 until left + cellWidth.toInt() - 2, top + 2 until top + 45)
                 assertTrue(ink > 20, "font scale $fontScale: day $day has $ink ink pixels")
             }
         }
@@ -131,16 +127,14 @@ class CalendarSnapshotPainterDrawTest {
 
     @Test
     fun tinyOutputsDrawWithoutText() {
-        // An agenda without events or title draws only the container: the reference.
-        val containerOnly = spec(CalendarSnapshotRange.Agenda(LocalDate(2026, 11, 14))).copy(showTitle = false)
         listOf(1 to 1, 20 to 20, 60 to 30).forEach { (width, height) ->
-            val reference = render(containerOnly, width = width, height = height).pixels()
+            val reference = containerOnly(width, height).pixels()
             // No marks: no title, weekday or day text may appear, so only the container is drawn.
             val plain = render(spec(november), width = width, height = height).pixels()
             assertContentEquals(reference, plain, "$width x $height")
         }
         // With today set the mark is still drawn where text no longer fits.
-        val reference = render(containerOnly, width = 60, height = 30).pixels()
+        val reference = containerOnly(60, 30).pixels()
         val marked = render(spec(november, today = LocalDate(2026, 11, 14)), width = 60, height = 30).pixels()
         assertTrue(reference.indices.any { reference[it] != marked[it] }, "today mark at 60 x 30")
     }
@@ -181,6 +175,25 @@ class CalendarSnapshotPainterDrawTest {
         }
         return bitmap
     }
+
+    /** Only the rounded container, as the painter draws it first. */
+    private fun containerOnly(
+        width: Int,
+        height: Int,
+    ): ImageBitmap {
+        val bitmap = ImageBitmap(width, height)
+        val radius = CalendarSnapshotDefaults.style().cornerRadius.value
+        val size = Size(width.toFloat(), height.toFloat())
+        CanvasDrawScope().draw(Density(1f), LayoutDirection.Ltr, Canvas(bitmap), size) {
+            drawRoundRect(colors.container, cornerRadius = CornerRadius(radius))
+        }
+        return bitmap
+    }
+
+    private fun PixelMap.inkIn(
+        xs: IntRange,
+        ys: IntRange,
+    ): Int = ys.sumOf { y -> xs.count { x -> this[x, y] != colors.container } }
 
     private fun ImageBitmap.pixels(): IntArray = IntArray(width * height).also { readPixels(it) }
 

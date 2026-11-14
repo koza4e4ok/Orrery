@@ -1,3 +1,5 @@
+@file:OptIn(InternalOrreryApi::class)
+
 package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.shape.CircleShape
@@ -26,6 +28,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import me.kozakov.orrery.InternalOrreryApi
+import me.kozakov.orrery.compose.internal.drawEventDots
 import me.kozakov.orrery.core.CalendarDay
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.packWeekEventBanners
@@ -147,15 +151,14 @@ public object DayDecorators {
                 } else {
                     null
                 }
-            val diameter = dotSize.toPx()
-            val gap = spacing.toPx()
-            val total = dots.size * diameter + (dots.size - 1) * gap
             val y = size.height - (if (cell.hasLabel) 3.dp else 6.dp).toPx()
-            var x = (size.width - total) / 2f + diameter / 2f
-            dots.forEach { color ->
-                drawCircle(color = selectedDotColor ?: color, radius = diameter / 2f, center = Offset(x, y))
-                x += diameter + gap
-            }
+            drawEventDots(
+                colors = dots,
+                centerY = y,
+                diameter = dotSize.toPx(),
+                spacing = spacing.toPx(),
+                color = selectedDotColor,
+            )
         }
     }
 

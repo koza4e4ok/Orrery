@@ -1,3 +1,5 @@
+@file:OptIn(InternalOrreryApi::class)
+
 package me.kozakov.orrery.compose
 
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import me.kozakov.orrery.InternalOrreryApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

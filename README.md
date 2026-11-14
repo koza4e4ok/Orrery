@@ -129,12 +129,14 @@ The library ships these artifacts on **Maven Central** under the group
 | `me.kozakov.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
 | `me.kozakov.orrery:orrery-calendars` | Hijri (Umm al-Qura, tabular) and Persian calendars as DayInfoProviders |
 | `me.kozakov.orrery:orrery-holidays` | Rule-based public holidays for US, GB, DE and UA as a DayInfoProvider |
+| `me.kozakov.orrery:orrery-widget` | **Experimental, not released yet (#89).** Headless calendar snapshots for app widgets and share images |
 
 > **Multiplatform:** `orrery-compose` also publishes Desktop (JVM), iOS
 > and Web (`wasmJs`) variants. In a Kotlin Multiplatform project, add it to
 > `commonMain` dependencies and Gradle picks the variant for each target.
 
-`orrery-compose` already depends on `orrery-core`:
+`orrery-compose` already depends on `orrery-core`. Use the same version for every
+`orrery-*` artifact.
 
 ```kotlin
 // app/build.gradle.kts

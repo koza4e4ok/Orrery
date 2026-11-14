@@ -26,6 +26,7 @@ jobs:
           :orrery-core:allTests :orrery-lunar:allTests :orrery-calendars:allTests :orrery-holidays:allTests
           :orrery-compose:testDebugUnitTest :orrery-compose:verifyRoborazziDebug
           :orrery-compose:desktopTest :orrery-compose:wasmJsTest
+          :orrery-widget:testAndroidHostTest :orrery-widget:desktopTest :orrery-widget:wasmJsTest
           :sample:assembleDebug
       - name: Check the Kotlin/Wasm yarn.lock is committed
         run: |
@@ -37,8 +38,25 @@ jobs:
       - name: Publish KMP modules to Maven Local (publication smoke test)
         run: |
           ./gradlew :orrery-core:publishToMavenLocal :orrery-lunar:publishToMavenLocal :orrery-calendars:publishToMavenLocal \
-            :orrery-holidays:publishToMavenLocal :orrery-compose:publishToMavenLocal
+            :orrery-holidays:publishToMavenLocal :orrery-compose:publishToMavenLocal :orrery-widget:publishToMavenLocal
           ls ~/.m2/repository/me/kozakov/orrery/
+      - name: Check orrery-widget pins the exact orrery-* version and has no Glance
+        run: |
+          v=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          repo=~/.m2/repository/me/kozakov/orrery
+          modules=$(ls $repo/orrery-widget*/"$v"/*.module)
+          poms=$(ls $repo/orrery-widget*/"$v"/*.pom)
+          for f in $modules; do
+            grep -q "\"strictly\": \"$v\"" "$f" || { echo "no strictly $v in $f"; exit 1; }
+          done
+          for f in $poms; do
+            grep -qF "<version>[$v]</version>" "$f" || { echo "no [$v] pin in $f"; exit 1; }
+            # Every me.kozakov.orrery <dependency> must use the [x.y.z] range.
+            if tr -d '\n ' < "$f" | grep -oE '<dependency><groupId>me\.kozakov\.orrery</groupId><artifactId>[^<]+</artifactId><version>[^<]+' | grep -vF "<version>[$v]"; then
+              echo "unpinned orrery-* dependency in $f"; exit 1
+            fi
+          done
+          if grep -il glance $modules $poms; then echo "orrery-widget mentions Glance"; exit 1; fi
       - name: Check the Android AAR ships the baseline profile and string resources
         run: |
           aar=$(ls ~/.m2/repository/me/kozakov/orrery/orrery-compose-android/*/orrery-compose-android-*.aar)
@@ -69,7 +87,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: roborazzi-diffs
-          path: orrery-compose/build/outputs/roborazzi/
+          path: |
+            orrery-compose/build/outputs/roborazzi/
+            orrery-widget/build/outputs/roborazzi/
           if-no-files-found: ignore
 
   ios:
@@ -82,11 +102,11 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      - name: iOS simulator tests (orrery-core, orrery-lunar, orrery-calendars, orrery-holidays, orrery-compose)
+      - name: iOS simulator tests (orrery-core, orrery-lunar, orrery-calendars, orrery-holidays, orrery-compose, orrery-widget)
         run: >
           ./gradlew :orrery-core:iosSimulatorArm64Test :orrery-lunar:iosSimulatorArm64Test
           :orrery-calendars:iosSimulatorArm64Test :orrery-holidays:iosSimulatorArm64Test
-          :orrery-compose:iosSimulatorArm64Test
+          :orrery-compose:iosSimulatorArm64Test :orrery-widget:iosSimulatorArm64Test
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4

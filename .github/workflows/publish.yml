@@ -15,7 +15,8 @@ jobs:
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
       - name: Publish to Maven Central
-        run: ./gradlew publishToMavenCentral
+        # orrery-widget ships with the 1.0.0 rc (#89); drop this exclusion in that release PR.
+        run: ./gradlew publishToMavenCentral -x :orrery-widget:publishToMavenCentral
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

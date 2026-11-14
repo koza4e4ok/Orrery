@@ -12,3 +12,13 @@ mavenPublishing {
         signAllPublications()
     }
 }
+
+// @InternalOrreryApi declarations live in *.internal packages and are not documented (#89).
+dokka {
+    dokkaSourceSets.configureEach {
+        perPackageOption {
+            matchingRegex.set("""me\.kozakov\.orrery(\.\w+)*\.internal(\..*)?""")
+            suppress.set(true)
+        }
+    }
+}

@@ -4,6 +4,9 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.ExperimentalOrreryApi
 
+/** Largest [CalendarSnapshotRange.Agenda.days]: one leap year. */
+internal const val MAX_AGENDA_DAYS = 366
+
 /**
  * What a calendar snapshot draws: one month, one week or an agenda strip.
  *
@@ -40,20 +43,21 @@ public sealed interface CalendarSnapshotRange {
 
     /**
      * Events grouped by day from [start] for [days] days, at most [maxRows] event rows.
+     * [days] is at most 366, which bounds the work of one widget update.
      *
-     * @throws IllegalArgumentException if [days] is not positive or [maxRows] is negative.
+     * @throws IllegalArgumentException if [days] is not in `1..366` or [maxRows] is negative.
      */
     @ExperimentalOrreryApi
     public class Agenda(
         /** First day of the strip. */
         public val start: LocalDate,
-        /** Number of days from [start]. */
+        /** Number of days from [start], 1 to 366. */
         public val days: Int = 7,
         /** Maximum number of event rows; rows that do not fit are dropped. */
         public val maxRows: Int = 4,
     ) : CalendarSnapshotRange {
         init {
-            require(days > 0) { "days must be positive, was $days" }
+            require(days in 1..MAX_AGENDA_DAYS) { "days must be in 1..$MAX_AGENDA_DAYS, was $days" }
             require(maxRows >= 0) { "maxRows must not be negative, was $maxRows" }
         }
 

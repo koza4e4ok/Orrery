@@ -160,7 +160,12 @@ class DayVerticalInsetTest {
         for (value in listOf(0.dp, DefaultDayVerticalInset, 6.dp)) {
             inset = value
             rule.waitForIdle()
-            heights[value] = rule.onNodeWithTag(CELL).fetchSemanticsNode().size.height
+            heights[value] =
+                rule
+                    .onNodeWithTag(CELL)
+                    .fetchSemanticsNode()
+                    .size
+                    .height
         }
         assertEquals("heights by inset: $heights", 1, heights.values.toSet().size)
     }

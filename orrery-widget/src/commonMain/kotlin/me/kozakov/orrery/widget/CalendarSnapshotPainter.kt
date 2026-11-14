@@ -44,8 +44,11 @@ private const val DOT_DIAMETER_FACTOR = 0.08f
 /** Space between event dots as a share of their diameter. */
 private const val DOT_SPACING_FACTOR = 0.6f
 
-/** Dot row centre below the cell centre, as a share of the pill radius. */
-private const val DOT_OFFSET_FACTOR = 0.75f
+/**
+ * Dot row centre below the cell centre, as a share of the pill radius. 0.85 keeps a gap
+ * under the 0.6-cell day numbers while the dots stay inside the pill (0.357 + 0.04 < 0.42).
+ */
+private const val DOT_OFFSET_FACTOR = 0.85f
 
 /** Height of an agenda event row as a multiple of its font size. */
 internal const val AGENDA_ROW_FACTOR = 1.5f

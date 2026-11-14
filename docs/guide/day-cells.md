@@ -138,7 +138,7 @@ HeatmapCalendar(
     intensity = { date -> errorRate[date] },
     colorScale = HeatmapDefaults.colorScale(to = MaterialTheme.colorScheme.tertiary),
     strings = HeatmapDefaults.strings(
-        dayDescription = "%1$s, level %2$d of %3$d, higher means more errors",
+        dayDescription = "%1\$s, level %2\$d of %3\$d, higher means more errors",
     ),
 )
 ```

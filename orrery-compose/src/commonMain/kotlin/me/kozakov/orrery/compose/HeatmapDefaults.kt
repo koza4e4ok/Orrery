@@ -50,20 +50,12 @@ public object HeatmapDefaults {
     /**
      * The 1-based level of a 0..1 intensity [value], from 1 to [Levels]:
      * `0f` is level 1 and `1f` is level [Levels]. Values outside 0..1 are
-     * clamped. This is the level the cell description announces, and the
-     * default [colorScale] picks its color from the same level, so the two
-     * always agree.
+     * clamped. `Float.NaN` counts as 0 (level 1, not "no data"; pass `null`
+     * intensity for that), `+Infinity` as 1 and `-Infinity` as 0. This is
+     * the level the cell description announces, and the default [colorScale]
+     * picks its color from the same level, so the two always agree.
      */
     public fun levelOf(value: Float): Int = heatLevel(value, Levels)
-
-    /**
-     * Quantized color scale: 0..1 split into [levels] buckets, each lerped
-     * from `surfaceVariant` toward `primary`. Values are clamped.
-     */
-    @Deprecated("Kept for binary compatibility; use the overload with from and to.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun colorScale(levels: Int = Levels): (Float) -> Color =
-        colorScale(levels = levels, from = MaterialTheme.colorScheme.surfaceVariant)
 
     /**
      * Quantized color scale: 0..1 split into [levels] buckets (see [levelOf]

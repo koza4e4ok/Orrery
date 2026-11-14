@@ -45,6 +45,10 @@ class HeatmapDefaultsTest {
         assertEquals(5, HeatmapDefaults.levelOf(1f))
         assertEquals(5, HeatmapDefaults.levelOf(9f))
         assertEquals(1, HeatmapDefaults.levelOf(-1f))
+        // Pinned current behaviour: NaN counts as 0, infinities clamp to the ends.
+        assertEquals(1, HeatmapDefaults.levelOf(Float.NaN))
+        assertEquals(5, HeatmapDefaults.levelOf(Float.POSITIVE_INFINITY))
+        assertEquals(1, HeatmapDefaults.levelOf(Float.NEGATIVE_INFINITY))
     }
 
     @Test
@@ -99,6 +103,7 @@ class HeatmapDefaultsTest {
     @Test
     fun lowestLevelStandsApartFromEmptyCell() {
         val schemes = listOf("light" to lightColorScheme(), "dark" to darkColorScheme())
+        val minContrast = mapOf("light" to MIN_LOWEST_LEVEL_CONTRAST_LIGHT, "dark" to MIN_LOWEST_LEVEL_CONTRAST_DARK)
         val captured = mutableMapOf<String, Pair<(Float) -> Color, Color>>()
         rule.setContent {
             schemes.forEach { (name, scheme) ->
@@ -114,10 +119,8 @@ class HeatmapDefaultsTest {
                 val lowest = contrast(levels.first(), empty.compositeOver(scheme.surface))
                 val adjacent = levels.zipWithNext(::contrast)
                 println("Heatmap contrast ($name): level 1 vs empty $lowest, adjacent levels $adjacent")
-                assertTrue(
-                    "$name: level 1 vs empty cell is $lowest:1, below $MIN_LOWEST_LEVEL_CONTRAST:1",
-                    lowest >= MIN_LOWEST_LEVEL_CONTRAST,
-                )
+                val min = minContrast.getValue(name)
+                assertTrue("$name: level 1 vs empty cell is $lowest:1, below $min:1", lowest >= min)
             }
         }
     }
@@ -143,8 +146,11 @@ class HeatmapDefaultsTest {
     }
 
     private companion object {
+        // Regression floors, not an accessibility target: both are below the WCAG 1.4.11 3:1 for
+        // non-text contrast. The accessible signal is the spoken level in dayDescription, not the color.
         // Baseline Material 3 schemes, level 1 vs the empty cell over surface: 1.49 (light) and 2.29 (dark)
-        // with the old 20% start, about 1.86 and 3.02 with the 35% start. 1.8 fails the old light ramp.
-        const val MIN_LOWEST_LEVEL_CONTRAST = 1.8f
+        // with the old 20% start, about 1.86 and 3.02 with the 35% start. Both floors fail the old ramp.
+        const val MIN_LOWEST_LEVEL_CONTRAST_LIGHT = 1.8f
+        const val MIN_LOWEST_LEVEL_CONTRAST_DARK = 2.8f
     }
 }

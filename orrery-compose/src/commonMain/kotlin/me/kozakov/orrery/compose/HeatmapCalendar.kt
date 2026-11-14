@@ -392,7 +392,9 @@ internal fun HeatmapLegend(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        (listOf(emptyCellColor) + listOf(0f, 0.25f, 0.5f, 0.75f, 1f).map(colorScale)).forEach { color ->
+        // One swatch per level, from 0f to 1f: the bucket edges of the default scale and the ends of a continuous one.
+        val samples = (0 until HeatmapDefaults.Levels).map { it.toFloat() / (HeatmapDefaults.Levels - 1) }
+        (listOf(emptyCellColor) + samples.map(colorScale)).forEach { color ->
             Box(Modifier.size(cellSize).clip(cellShape).background(color))
         }
         Text(

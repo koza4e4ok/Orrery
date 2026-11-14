@@ -112,37 +112,6 @@ public fun HeatmapMonth(
     }
 }
 
-@Deprecated("Kept for binary compatibility; use the overload with showLegend.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun HeatmapMonth(
-    yearMonth: YearMonth,
-    intensity: (LocalDate) -> Float?,
-    modifier: Modifier = Modifier,
-    onDayClick: ((LocalDate) -> Unit)? = null,
-    colorScale: (Float) -> Color = HeatmapDefaults.colorScale(),
-    emptyCellColor: Color = HeatmapDefaults.emptyCellColor(),
-    cellShape: Shape = RoundedCornerShape(4.dp),
-    showDayNumbers: Boolean = false,
-    showWeekdayHeader: Boolean = true,
-    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
-    strings: HeatmapStrings = HeatmapDefaults.strings(),
-) {
-    HeatmapMonth(
-        yearMonth = yearMonth,
-        intensity = intensity,
-        modifier = modifier,
-        onDayClick = onDayClick,
-        colorScale = colorScale,
-        emptyCellColor = emptyCellColor,
-        cellShape = cellShape,
-        showDayNumbers = showDayNumbers,
-        showWeekdayHeader = showWeekdayHeader,
-        firstDayOfWeek = firstDayOfWeek,
-        strings = strings,
-        showLegend = false,
-    )
-}
-
 // Same swatch size and spacing as HeatmapCalendar's default legend.
 private val LegendCellSize = 12.dp
 private val LegendCellSpacing = 2.dp

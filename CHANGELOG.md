@@ -8,9 +8,7 @@
   any target color (existing calls are unchanged), and the public
   `HeatmapDefaults.Levels` and `HeatmapDefaults.levelOf(value)` give the level a
   cell announces, which the default scale also uses. `HeatmapMonth` takes
-  `showLegend` (default `false`) for the same legend row as `HeatmapCalendar`. The
-  previous `colorScale(levels)` and `HeatmapMonth` signatures stay as hidden
-  binary-compatible bridges.
+  `showLegend` (default `false`) for the same legend row as `HeatmapCalendar`.
 - Interactive `DaySchedule` / `WeekSchedule` editing (#88): `onEmptySlotLongPress`,
   `onSlotCreate`, `onEventMove` and `onEventResize` (long press to create or move on
   touch, press-and-drag with a mouse, resize handles), snapping to `snapMinutes`,

@@ -40,7 +40,7 @@ jobs:
             test -d "build/dokka/html/$module"
           done
           # Internal primitives must not leak into the public reference (#89).
-          if grep -rlE 'MonthGridModel|MonthTextCache|MonthTextKey|drawSelectionPill|drawTodayMark|drawEventDots' build/dokka/html; then
+          if grep -rlE 'me\.kozakov\.orrery\.compose\.internal|MonthGridModel|MonthTextCache|MonthTextKey|drawSelectionPill|drawTodayMark|drawEventDots' build/dokka/html; then
             echo "internal orrery-compose primitives leaked into the API reference"; exit 1
           fi
       - name: Build the web demo

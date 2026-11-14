@@ -130,7 +130,8 @@ class DefaultDayPolishTest {
                 )
             }
         }
-        assertColorNear(Color.White, pixel(24.dp, 42.dp))
+        // Shifted up by the default 2.dp CalendarDayShapes.verticalInset.
+        assertColorNear(Color.White, pixel(24.dp, 40.dp))
     }
 
     @Test
@@ -146,7 +147,8 @@ class DefaultDayPolishTest {
                 )
             }
         }
-        assertColorNear(Color.Red, pixel(24.dp, 42.dp))
+        // Shifted up by the default 2.dp CalendarDayShapes.verticalInset.
+        assertColorNear(Color.Red, pixel(24.dp, 40.dp))
     }
 
     @Test
@@ -174,7 +176,8 @@ class DefaultDayPolishTest {
                 )
             }
         }
-        assertColorNear(Color.Yellow, pixel(24.dp, 42.dp))
+        // Shifted up by the default 2.dp CalendarDayShapes.verticalInset.
+        assertColorNear(Color.Yellow, pixel(24.dp, 40.dp))
     }
 
     @Test
@@ -191,7 +194,8 @@ class DefaultDayPolishTest {
                 )
             }
         }
-        assertColorNear(Color.Red, pixel(24.dp, 45.dp))
+        // Shifted up by the default 2.dp CalendarDayShapes.verticalInset.
+        assertColorNear(Color.Red, pixel(24.dp, 43.dp))
     }
 
     @Test

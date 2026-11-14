@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- `DefaultDay` keeps a gap between the day shapes of adjacent weeks: everything it draws
+  is inset by the new `CalendarDayShapes.verticalInset` (default `2.dp` above and below,
+  also a `CalendarDefaults.dayShapes` parameter), so circles, badges and today rings no
+  longer touch in short rows. The cell keeps its height and the whole cell stays
+  clickable; pass `verticalInset = 0.dp` for the previous look. Screenshot goldens changed.
+
 ### Added
 
 - Heatmaps (#123, #124): `HeatmapDefaults.colorScale(levels, from, to)` ramps toward

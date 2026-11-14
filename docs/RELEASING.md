@@ -56,6 +56,10 @@ cat ~/.m2/repository/me/kozakov/orrery/orrery-widget/X.Y.Z/orrery-widget-X.Y.Z.m
 grep -A3 '<artifactId>orrery-compose' ~/.m2/repository/me/kozakov/orrery/orrery-widget-android/X.Y.Z/*.pom
 ```
 
+Gradle consumers fail fast on a mismatched `orrery-compose` version; for Maven the
+`[X.Y.Z]` pin is best effort, because nearest-wins mediation lets a version the app
+declares itself override it.
+
 `@ExperimentalOrreryApi` and `@InternalOrreryApi` declarations are left out of the ABI
 dumps (`abiValidation` filters in the build-logic conventions), so `orrery-widget`'s
 committed dumps stay empty until it graduates; list its changes under an

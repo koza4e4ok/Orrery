@@ -33,9 +33,26 @@ class SharedPrimitivesDrawTest {
         }
         val pixels = bitmap.toPixelMap()
         assertEquals(Color.Blue, pixels[15, 10])
+        // LTR: the rounded start is inset to the circle, the square end runs to the cell edge.
+        assertEquals(Color.White, pixels[0, 10])
+        assertEquals(Color.Blue, pixels[19, 10])
         assertEquals(Color.Red, pixels[30, 10])
         assertTrue((0 until WIDTH).any { pixels[it, 30] == Color.Green })
         assertEquals(Color.White, pixels[WIDTH - 1, HEIGHT - 1])
+    }
+
+    @Test
+    fun selectionPillMirrorsInRtl() {
+        val bitmap = ImageBitmap(WIDTH, HEIGHT)
+        val size = Size(WIDTH.toFloat(), HEIGHT.toFloat())
+        CanvasDrawScope().draw(Density(1f), LayoutDirection.Rtl, Canvas(bitmap), size) {
+            drawRect(Color.White)
+            drawSelectionPill(Color.Blue, Rect(0f, 0f, 20f, 20f), radius = 8f, roundStart = true, roundEnd = false)
+        }
+        val pixels = bitmap.toPixelMap()
+        // RTL: the start is on the right, so the right end is rounded and the left end is square.
+        assertEquals(Color.Blue, pixels[0, 10])
+        assertEquals(Color.White, pixels[19, 10])
     }
 
     private companion object {

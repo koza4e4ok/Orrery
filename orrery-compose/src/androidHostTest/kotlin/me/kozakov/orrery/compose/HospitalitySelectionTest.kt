@@ -280,8 +280,9 @@ class HospitalitySelectionTest {
         setCell(TURNOVER, RangeEndpointStyle.SplitDiagonal, setOf(TURNOVER))
         assertColorNear(Color.Red, pixel(4.dp, 4.dp))
         assertColorNear(Color.Red, pixel(44.dp, 44.dp))
-        // A point on the diagonal, away from the centered day number.
-        assertColorNear(Color.White, pixel(8.dp, 40.dp))
+        // A point on the diagonal, away from the centered day number. The diagonal spans the
+        // cell inset by the default 2.dp verticalInset, i.e. (0, 46) to (48, 2).
+        assertColorNear(Color.White, pixel(8.dp, 39.dp))
     }
 
     @Test

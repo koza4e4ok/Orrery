@@ -81,7 +81,7 @@ class OutDateDimmingTest {
             }
         }
         val map = rule.onNodeWithTag("cell").captureToImage().toPixelMap()
-        val (x, y) = with(rule.density) { 24.dp.roundToPx() to (48.dp - 6.dp).roundToPx() }
+        val (x, y) = with(rule.density) { 24.dp.roundToPx() to (48.dp - 6.dp - DefaultDayVerticalInset).roundToPx() }
         return map[x, y].green
     }
 

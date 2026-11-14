@@ -159,19 +159,20 @@ class DayDecoratorsTest {
 
         // Bar sits at y = 41..45dp (48 - 3 - 4 = 41, center y = 43dp).
         // Day 1: starts inset (x=1dp is white), center and right edge (x=47dp) are red.
-        assertColorNear(Color.White, pixel("d1", 1.dp, 43.dp))
-        assertColorNear(Color.Red, pixel("d1", 24.dp, 43.dp))
-        assertColorNear(Color.Red, pixel("d1", 47.dp, 43.dp))
+        // Shifted up by the default 2.dp CalendarDayShapes.verticalInset.
+        assertColorNear(Color.White, pixel("d1", 1.dp, 41.dp))
+        assertColorNear(Color.Red, pixel("d1", 24.dp, 41.dp))
+        assertColorNear(Color.Red, pixel("d1", 47.dp, 41.dp))
 
         // Day 2: continues from d1 and to d3 -> both left (x=1dp) and right (x=47dp) edges are red.
-        assertColorNear(Color.Red, pixel("d2", 1.dp, 43.dp))
-        assertColorNear(Color.Red, pixel("d2", 24.dp, 43.dp))
-        assertColorNear(Color.Red, pixel("d2", 47.dp, 43.dp))
+        assertColorNear(Color.Red, pixel("d2", 1.dp, 41.dp))
+        assertColorNear(Color.Red, pixel("d2", 24.dp, 41.dp))
+        assertColorNear(Color.Red, pixel("d2", 47.dp, 41.dp))
 
         // Day 3: continues from d2 (x=1dp is red), ends inset (x=47dp is white).
-        assertColorNear(Color.Red, pixel("d3", 1.dp, 43.dp))
-        assertColorNear(Color.Red, pixel("d3", 24.dp, 43.dp))
-        assertColorNear(Color.White, pixel("d3", 47.dp, 43.dp))
+        assertColorNear(Color.Red, pixel("d3", 1.dp, 41.dp))
+        assertColorNear(Color.Red, pixel("d3", 24.dp, 41.dp))
+        assertColorNear(Color.White, pixel("d3", 47.dp, 41.dp))
     }
 
     @Test
@@ -214,8 +215,9 @@ class DayDecoratorsTest {
             }
         }
         // Total height = 2*4 + 2 = 10dp, bottomMargin = 3dp -> topY = 35dp..39dp (Red), second = 41dp..45dp (Blue).
-        assertColorNear(Color.Red, pixel("cell", 24.dp, 37.dp))
-        assertColorNear(Color.Blue, pixel("cell", 24.dp, 43.dp))
+        // Shifted up by the default 2.dp CalendarDayShapes.verticalInset.
+        assertColorNear(Color.Red, pixel("cell", 24.dp, 35.dp))
+        assertColorNear(Color.Blue, pixel("cell", 24.dp, 41.dp))
     }
 
     @Test
@@ -265,13 +267,14 @@ class DayDecoratorsTest {
             }
         }
         // Total height = 2*4 + 2 = 10dp, bottomMargin = 4dp -> topY = 34..38dp (Red), 40..44dp (Green).
-        assertColorNear(Color.Red, pixel("unselected", 24.dp, 36.dp))
-        assertColorNear(Color.Green, pixel("unselected", 24.dp, 42.dp))
+        // Shifted up by the default 2.dp CalendarDayShapes.verticalInset.
+        assertColorNear(Color.Red, pixel("unselected", 24.dp, 34.dp))
+        assertColorNear(Color.Green, pixel("unselected", 24.dp, 40.dp))
         // Outside barWidth (x = 8dp) is background White.
-        assertColorNear(Color.White, pixel("unselected", 8.dp, 36.dp))
+        assertColorNear(Color.White, pixel("unselected", 8.dp, 34.dp))
         // On selected day, bars switch to selectedContentColor (White).
-        assertColorNear(Color.White, pixel("selected", 24.dp, 36.dp))
-        assertColorNear(Color.White, pixel("selected", 24.dp, 42.dp))
+        assertColorNear(Color.White, pixel("selected", 24.dp, 34.dp))
+        assertColorNear(Color.White, pixel("selected", 24.dp, 40.dp))
     }
 
     @Test

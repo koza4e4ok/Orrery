@@ -93,7 +93,8 @@ tasks.register("printPublishedPin") {
             val text = file.readText()
             check(!text.contains("glance", ignoreCase = true)) { "${file.name} mentions Glance" }
             if (file.extension == "pom") {
-                val unpinned = Regex("<groupId>me.kozakov.orrery</groupId>\\s*<artifactId>[^<]+</artifactId>\\s*<version>[^\\[]")
+                val unpinned =
+                    Regex("<groupId>me.kozakov.orrery</groupId>\\s*<artifactId>[^<]+</artifactId>\\s*<version>[^\\[]")
                 check(text.contains("<version>$pin</version>")) { "${file.name} has no $pin pin" }
                 check(!unpinned.containsMatchIn(text)) { "${file.name} has an unpinned orrery-* dependency" }
             }

@@ -32,10 +32,11 @@ class CalendarSnapshotLayoutTest {
             val grid = weekGrid(date, first)
             assertEquals(1, grid.rowCount)
             assertEquals(7, grid.cells.size)
-            assertEquals(first, grid.cells.first().date.dayOfWeek)
+            val start = grid.cells.first().date
+            assertEquals(first, start.dayOfWeek)
             assertTrue(grid.cells.any { it.date == date }, "$first")
             grid.cells.forEachIndexed { index, cell ->
-                assertEquals(grid.cells.first().date.plus(index, DateTimeUnit.DAY), cell.date)
+                assertEquals(start.plus(index, DateTimeUnit.DAY), cell.date)
                 assertEquals(index, cell.column)
                 assertFalse(cell.isOutside)
             }

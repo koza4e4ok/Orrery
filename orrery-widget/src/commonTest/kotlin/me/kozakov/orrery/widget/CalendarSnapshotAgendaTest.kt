@@ -93,6 +93,7 @@ class CalendarSnapshotAgendaTest {
                 AgendaDay(day(14), (1..3).map { AgendaRow(allDay("a$it", 14), null) }),
                 AgendaDay(day(15), (1..2).map { AgendaRow(allDay("b$it", 15), null) }),
             )
+
         fun fit(height: Float) = fitAgenda(days, height, headingHeight = 10f, rowHeight = 20f).map { it.rows.size }
         assertEquals(listOf(3, 2), fit(1000f))
         assertEquals(listOf(3, 1), fit(105f))

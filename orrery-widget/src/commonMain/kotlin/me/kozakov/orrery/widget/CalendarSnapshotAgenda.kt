@@ -88,14 +88,15 @@ internal fun fitAgenda(
     rowHeight: Float,
 ): List<AgendaDay> {
     var used = 0f
+    var full = false
     val result = mutableListOf<AgendaDay>()
     for (day in days) {
-        if (used + headingHeight + rowHeight > height) break
+        if (full || used + headingHeight + rowHeight > height) break
         used += headingHeight
         val fitting = minOf(day.rows.size, ((height - used) / rowHeight).toInt())
         used += fitting * rowHeight
         result += AgendaDay(day.date, day.rows.take(fitting))
-        if (fitting < day.rows.size) break
+        full = fitting < day.rows.size
     }
     return result
 }

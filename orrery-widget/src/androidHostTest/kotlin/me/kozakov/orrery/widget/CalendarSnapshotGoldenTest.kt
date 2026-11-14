@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -25,7 +26,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.util.Locale
 import kotlin.math.roundToInt
+import kotlin.test.assertEquals
 
 /**
  * Golden images of the Android renderer (renderCalendarSnapshot with a Context). The matrix
@@ -123,13 +126,13 @@ class CalendarSnapshotGoldenTest {
     @Test
     fun agendaWidget4x2() = capture(agendaStrip, 250, 110)
 
+    // The ldrtl qualifier does not survive Robolectric setting the en-US locale (setLocale resets the
+    // layout direction), so RTL keeps the English text and sets the direction on a configuration context.
     @Test
-    @Config(qualifiers = "+ldrtl")
-    fun monthRtl() = capture(marks, 250, 250)
+    fun monthRtl() = capture(marks, 250, 250, rtl = true)
 
     @Test
-    @Config(qualifiers = "+ldrtl")
-    fun agendaRtl() = capture(agendaStrip, 250, 180)
+    fun agendaRtl() = capture(agendaStrip, 250, 180, rtl = true)
 
     @Test
     @Config(fontScale = 1.3f)
@@ -167,8 +170,19 @@ class CalendarSnapshotGoldenTest {
         widthDp: Int,
         heightDp: Int,
         staticColors: Boolean = true,
+        rtl: Boolean = false,
     ) {
-        val context: Context = RuntimeEnvironment.getApplication()
+        val app: Context = RuntimeEnvironment.getApplication()
+        val context =
+            if (rtl) {
+                val configuration = Configuration(app.resources.configuration)
+                configuration.setLayoutDirection(Locale.forLanguageTag("ar"))
+                app.createConfigurationContext(configuration).also {
+                    assertEquals(LayoutDirection.Rtl, AndroidSnapshotEnvironment.of(it).layoutDirection)
+                }
+            } else {
+                app
+            }
         val density = context.resources.displayMetrics.density
         val width = (widthDp * density).roundToInt()
         val height = (heightDp * density).roundToInt()

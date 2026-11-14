@@ -86,17 +86,20 @@ class CalendarSnapshotAndroidTest {
 
         val hebrew = configured { setLocale(Locale.forLanguageTag("he-IL")) }
         assertEquals(LayoutDirection.Rtl, AndroidSnapshotEnvironment.of(hebrew).layoutDirection)
+        val englishRtl = configured { setLayoutDirection(Locale.forLanguageTag("ar")) }
+        assertEquals(LayoutDirection.Rtl, AndroidSnapshotEnvironment.of(englishRtl).layoutDirection)
 
-        // The font scale reaches the pixels, and the same context draws the same pixels twice.
+        // The font scale reaches the pixels (at a size where the text is not fit-limited), and the
+        // same context draws the same pixels twice.
         val normal =
             configured {
                 densityDpi = 480
                 fontScale = 1f
                 setLocale(Locale.forLanguageTag("uk-UA"))
             }
-        val big = render(large).pixels()
-        assertFalse(big.contentEquals(render(normal).pixels()))
-        assertTrue(big.contentEquals(render(large).pixels()))
+        val big = render(large, 1200, 1050).pixels()
+        assertFalse(big.contentEquals(render(normal, 1200, 1050).pixels()))
+        assertTrue(big.contentEquals(render(large, 1200, 1050).pixels()))
     }
 
     @Test
@@ -130,7 +133,11 @@ class CalendarSnapshotAndroidTest {
         return WeakReference(context)
     }
 
-    private fun render(context: Context): ImageBitmap = runBlocking { renderCalendarSnapshot(context, spec, 300, 240) }
+    private fun render(
+        context: Context,
+        widthPx: Int = 300,
+        heightPx: Int = 240,
+    ): ImageBitmap = runBlocking { renderCalendarSnapshot(context, spec, widthPx, heightPx) }
 
     private fun nightMode(night: Boolean): Context =
         configured {

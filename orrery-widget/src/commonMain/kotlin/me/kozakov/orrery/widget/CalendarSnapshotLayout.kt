@@ -3,6 +3,7 @@
 package me.kozakov.orrery.widget
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Density
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -190,7 +191,13 @@ internal class GridTextPlan(
         get() = dayTextPx > 0f
 }
 
-/** The requested text sizes of a snapshot in px (font scale applied), and its wishes. */
+/**
+ * The requested text sizes of a snapshot in px (with [fontScale] applied), and its wishes.
+ *
+ * The shrink floor is `minTextScale` times the size at font scale 1, never more than the
+ * requested size: a larger font makes text bigger while the cells allow it, but never
+ * raises the floor, so it cannot make the day numbers disappear.
+ */
 internal class GridTextRequest(
     val titleTextPx: Float,
     val weekdayTextPx: Float,
@@ -198,17 +205,51 @@ internal class GridTextRequest(
     val minTextScale: Float,
     val showTitle: Boolean,
     val showWeekdays: Boolean,
-)
+    val fontScale: Float = 1f,
+) {
+    init {
+        require(fontScale > 0f) { "fontScale must be positive, was $fontScale" }
+    }
+
+    /** Smallest day number size in px: [minTextScale] of the unscaled request. */
+    val dayFloorPx: Float
+        get() = floor(dayTextPx)
+
+    /** Smallest weekday label size in px: [minTextScale] of the unscaled request. */
+    val weekdayFloorPx: Float
+        get() = floor(weekdayTextPx)
+
+    private fun floor(requestedPx: Float): Float = minOf(requestedPx, minTextScale * requestedPx / fontScale)
+}
+
+/** The text request of a grid drawn with [style] and [spec] at [density] (font scale included). */
+internal fun gridTextRequest(
+    style: CalendarSnapshotStyle,
+    spec: CalendarSnapshotSpec,
+    density: Density,
+): GridTextRequest =
+    with(density) {
+        GridTextRequest(
+            titleTextPx = style.titleTextSize.toPx(),
+            weekdayTextPx = style.weekdayTextSize.toPx(),
+            dayTextPx = style.dayTextSize.toPx(),
+            minTextScale = style.minTextScale,
+            showTitle = spec.showTitle,
+            showWeekdays = spec.showWeekdayLabels,
+            fontScale = fontScale,
+        )
+    }
 
 /**
  * Sizes the text of a [rows]-row grid in a [width] × [height] px content box.
  *
  * Day numbers are `min(requested, cell × DAY_TEXT_CELL_FACTOR)` and weekday labels
- * `min(requested, cell width × WEEKDAY_TEXT_CELL_FACTOR)`; neither goes below
- * `minTextScale × requested`. Cells shrink first; when the day numbers would go below
- * that floor, the title row is dropped, then the weekday row (a weekday row too narrow
- * for its floor is dropped at once). If the bare grid is still too small, the day
- * numbers are dropped too and only the marks are drawn.
+ * `min(requested, cell width × WEEKDAY_TEXT_CELL_FACTOR)`; neither goes below its floor,
+ * `minTextScale` times the size at font scale 1 (see [GridTextRequest]). Cells shrink
+ * first; when the day numbers would go below that floor, the title row is dropped, then
+ * the weekday row (a weekday row too narrow for its floor is dropped at once). Only if the
+ * bare grid is too small for the floor are the day numbers dropped too and only the marks
+ * drawn; since the floor ignores font scale, that never depends on the font scale.
  */
 internal fun planGridText(
     width: Float,
@@ -218,7 +259,7 @@ internal fun planGridText(
 ): GridTextPlan {
     val cellWidth = width / DAYS_PER_WEEK
     val weekdayPx = minOf(request.weekdayTextPx, cellWidth * WEEKDAY_TEXT_CELL_FACTOR)
-    val weekdaysFit = request.showWeekdays && weekdayPx >= request.minTextScale * request.weekdayTextPx
+    val weekdaysFit = request.showWeekdays && weekdayPx >= request.weekdayFloorPx
     val candidates = listOf(request.showTitle to weekdaysFit, false to weekdaysFit, false to false).distinct()
     for ((title, weekdays) in candidates) {
         val plan = GridTextPlan(title, weekdays, request.titleTextPx, weekdayPx, dayTextPx = 0f)
@@ -226,7 +267,7 @@ internal fun planGridText(
         if (gridHeight > 0f && width > 0f) {
             val cell = minOf(cellWidth, gridHeight / rows)
             val dayPx = minOf(request.dayTextPx, cell * DAY_TEXT_CELL_FACTOR)
-            if (dayPx >= request.minTextScale * request.dayTextPx) {
+            if (dayPx >= request.dayFloorPx) {
                 return GridTextPlan(title, weekdays, request.titleTextPx, weekdayPx, dayPx)
             }
         }

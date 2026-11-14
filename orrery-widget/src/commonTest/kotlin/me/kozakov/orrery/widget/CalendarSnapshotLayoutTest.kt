@@ -215,14 +215,50 @@ class CalendarSnapshotLayoutTest {
     fun fontScaleIsHonouredAndTextNeverGoesBelowTheFloor() {
         val scaled = with(Density(1f, fontScale = 2f)) { 12.sp.toPx() }
         assertEquals(24f, scaled)
+        // The floor is 0.6 x the unscaled 12 px, so a bigger font does not raise it.
+        assertEquals(7.2f, request(dayPx = scaled, fontScale = 2f).dayFloorPx, 0.001f)
         assertTrue(planGridText(280f, 130f, 6, request()).showDayNumbers)
-        assertFalse(planGridText(280f, 130f, 6, request(dayPx = scaled)).showDayNumbers)
+        assertTrue(planGridText(280f, 130f, 6, request(dayPx = scaled, fontScale = 2f)).showDayNumbers)
         for (height in 1..400) {
-            val plan = planGridText(280f, height.toFloat(), 6, request(dayPx = scaled))
+            val plan = planGridText(280f, height.toFloat(), 6, request(dayPx = scaled, fontScale = 2f))
             val day = plan.dayTextPx
-            assertTrue(day == 0f || (day >= 0.6f * scaled && day <= scaled), "height $height: $day")
+            val gridHeight = height - plan.titleBand - plan.weekdayBand
+            val cell = minOf(40f, gridHeight / 6)
+            assertTrue(day == 0f || (day >= 7.2f - 0.001f && day <= scaled), "height $height: $day")
+            assertTrue(day <= cell * DAY_TEXT_CELL_FACTOR + 0.001f, "height $height: $day in $cell px cells")
             assertTrue(plan.titleBand + plan.weekdayBand <= height || !plan.showDayNumbers, "height $height")
+            // Whether numbers show depends only on the box, never on the font scale.
+            val unscaled = planGridText(280f, height.toFloat(), 6, request())
+            assertEquals(unscaled.showDayNumbers, plan.showDayNumbers, "height $height")
         }
+    }
+
+    @Test
+    fun largeFontKeepsTheDayNumbersOnAFourByTwoWidget() {
+        // 250 x 110 dp at density 3, minus 8 dp padding on each side: a 702 x 282 px content box.
+        val august = monthGrid(YearMonth(2026, 8), DayOfWeek.MONDAY, showOutsideDays = false)
+        assertEquals(6, august.rowCount)
+        val style = CalendarSnapshotDefaults.style()
+        val spec = spec()
+        val cell = 282f / 6
+        listOf(1f, 1.3f, 2f).forEach { fontScale ->
+            val density = Density(3f, fontScale)
+            val request = gridTextRequest(style, spec, density)
+            val plan = planGridText(702f, 282f, august.rowCount, request)
+            assertTrue(plan.showDayNumbers, "font scale $fontScale")
+            assertTrue(plan.dayTextPx >= 0.6f * 36f - 0.001f, "font scale $fontScale: ${plan.dayTextPx}")
+            assertTrue(plan.dayTextPx <= request.dayTextPx, "font scale $fontScale: ${plan.dayTextPx}")
+            assertTrue(plan.dayTextPx <= cell * DAY_TEXT_CELL_FACTOR + 0.001f, "font scale $fontScale")
+        }
+        // The weekday floor ignores font scale too: 0.6 x 30 px whatever the font scale.
+        assertEquals(18f, gridTextRequest(style, spec, Density(3f, 2f)).weekdayFloorPx, 0.001f)
+    }
+
+    @Test
+    fun smallFontScaleKeepsTheFloorAtTheRequestedSize() {
+        // At font scale 0.5 the unscaled floor (7.2 px) is above the 6 px request: the request wins.
+        assertEquals(6f, request(dayPx = 6f, fontScale = 0.5f).dayFloorPx)
+        assertTrue(planGridText(700f, 700f, 6, request(dayPx = 6f, fontScale = 0.5f)).showDayNumbers)
     }
 
     private fun request(
@@ -230,7 +266,8 @@ class CalendarSnapshotLayoutTest {
         weekdayPx: Float = 10f,
         showTitle: Boolean = true,
         showWeekdays: Boolean = true,
-    ): GridTextRequest = GridTextRequest(14f, weekdayPx, dayPx, 0.6f, showTitle, showWeekdays)
+        fontScale: Float = 1f,
+    ): GridTextRequest = GridTextRequest(14f, weekdayPx, dayPx, 0.6f, showTitle, showWeekdays, fontScale)
 
     private fun spec(
         today: LocalDate? = null,

@@ -75,6 +75,46 @@ class CalendarSnapshotPainterDrawTest {
     }
 
     @Test
+    fun rtlRangeBandRunsBetweenItsEndsAndRoundsOnlyTheOuterEdges() {
+        // Mirrored row 3: 16 Nov (start) is the rightmost cell (248..288), 17 Nov 208..248, 18 Nov (end) 168..208.
+        val range = Selection(rangeStart = LocalDate(2026, 11, 16), rangeEnd = LocalDate(2026, 11, 18))
+        val rtl = render(spec(november, selection = range), LayoutDirection.Rtl).toPixelMap()
+        assertEquals(colors.selection, rtl[280, 182], "start pill")
+        assertEquals(colors.selection, rtl[176, 182], "end pill")
+        assertEquals(colors.rangeBand, rtl[250, 182], "band inside the start cell, towards the middle")
+        assertEquals(colors.rangeBand, rtl[212, 182], "middle day")
+        assertEquals(colors.rangeBand, rtl[244, 182], "middle day")
+        assertEquals(colors.rangeBand, rtl[205, 182], "band inside the end cell, towards the middle")
+        assertEquals(colors.container, rtl[286, 182], "start is rounded on its outer (right) edge")
+        assertEquals(colors.container, rtl[169, 182], "end is rounded on its outer (left) edge")
+        assertEquals(colors.container, rtl[140, 182], "nothing past the end")
+    }
+
+    @Test
+    fun largeFontScaleKeepsEveryDayNumberOnAFourByTwoWidget() {
+        // 250 x 110 dp at density 3: content 24..726 x 24..306 px. August 2026 needs six rows,
+        // which leave a bare grid of 100.3 x 47 px cells (1 Aug is a Saturday, column 5).
+        val august = spec(CalendarSnapshotRange.Month(YearMonth(2026, 8)))
+        listOf(1f, 1.3f, 2f).forEach { fontScale ->
+            val pixels = render(august, width = 750, height = 330, density = Density(3f, fontScale)).toPixelMap()
+            val container = colors.container
+            val cellWidth = 702f / 7
+            for (day in 1..31) {
+                val index = day - 1 + 5
+                val left = (24 + index % 7 * cellWidth).toInt()
+                val top = 24 + index / 7 * 47
+                var ink = 0
+                for (y in top + 2 until top + 45) {
+                    for (x in left + 2 until left + cellWidth.toInt() - 2) {
+                        if (pixels[x, y] != container) ink++
+                    }
+                }
+                assertTrue(ink > 20, "font scale $fontScale: day $day has $ink ink pixels")
+            }
+        }
+    }
+
+    @Test
     fun longRtlAgendaTitlesStayInsideTheContentBox() {
         val title = "פגישת צוות שבועית ארוכה מאוד ".repeat(20)
         val events = (9..12).map { CalendarEvent<Nothing>("e$it", title, EventSpan.Timed(at(14, it), at(14, it + 1))) }
@@ -91,9 +131,18 @@ class CalendarSnapshotPainterDrawTest {
 
     @Test
     fun tinyOutputsDrawWithoutText() {
+        // An agenda without events or title draws only the container: the reference.
+        val containerOnly = spec(CalendarSnapshotRange.Agenda(LocalDate(2026, 11, 14))).copy(showTitle = false)
         listOf(1 to 1, 20 to 20, 60 to 30).forEach { (width, height) ->
-            render(spec(november, today = LocalDate(2026, 11, 14)), width = width, height = height)
+            val reference = render(containerOnly, width = width, height = height).pixels()
+            // No marks: no title, weekday or day text may appear, so only the container is drawn.
+            val plain = render(spec(november), width = width, height = height).pixels()
+            assertContentEquals(reference, plain, "$width x $height")
         }
+        // With today set the mark is still drawn where text no longer fits.
+        val reference = render(containerOnly, width = 60, height = 30).pixels()
+        val marked = render(spec(november, today = LocalDate(2026, 11, 14)), width = 60, height = 30).pixels()
+        assertTrue(reference.indices.any { reference[it] != marked[it] }, "today mark at 60 x 30")
     }
 
     @Test
@@ -122,11 +171,12 @@ class CalendarSnapshotPainterDrawTest {
         direction: LayoutDirection = LayoutDirection.Ltr,
         width: Int = 296,
         height: Int = 290,
+        density: Density = Density(1f),
     ): ImageBitmap {
         val bitmap = ImageBitmap(width, height)
         val style = CalendarSnapshotDefaults.style()
         val painter = CalendarSnapshotPainter(spec, colors, style, resolver, FixedSnapshotFormatter)
-        CanvasDrawScope().draw(Density(1f), direction, Canvas(bitmap), Size(width.toFloat(), height.toFloat())) {
+        CanvasDrawScope().draw(density, direction, Canvas(bitmap), Size(width.toFloat(), height.toFloat())) {
             painter.draw(this)
         }
         return bitmap

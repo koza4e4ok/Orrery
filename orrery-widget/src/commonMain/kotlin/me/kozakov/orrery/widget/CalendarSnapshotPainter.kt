@@ -130,15 +130,7 @@ internal class CalendarSnapshotPainter(
         grid: SnapshotGrid,
         title: String,
     ) {
-        val request =
-            GridTextRequest(
-                titleTextPx = style.titleTextSize.toPx(),
-                weekdayTextPx = style.weekdayTextSize.toPx(),
-                dayTextPx = style.dayTextSize.toPx(),
-                minTextScale = style.minTextScale,
-                showTitle = spec.showTitle,
-                showWeekdays = spec.showWeekdayLabels,
-            )
+        val request = gridTextRequest(style, spec, Density(density, fontScale))
         val plan = planGridText(content.width, content.height, grid.rowCount, request)
         var top = content.top
         if (plan.showTitle) {

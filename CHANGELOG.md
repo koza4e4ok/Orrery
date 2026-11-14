@@ -81,8 +81,10 @@
   mapping), `CalendarSnapshotStyle` (text sizes, padding, corner radius, `minTextScale`)
   and `CalendarSnapshotOutput` (pixel size up to 4096 px a side and 4 194 304 px in total,
   density, font resolver, layout direction). All are plain classes with `copy`, all
-  `@ExperimentalOrreryApi`. The internal painter draws month, week and agenda strips;
-  the render functions follow in a later change.
+  `@ExperimentalOrreryApi`. `CalendarSnapshotRange.Agenda.days` is limited to 1..366.
+  The internal painter draws month, week and agenda strips; text shrinks with the cells
+  down to `minTextScale` of its size at font scale 1, so a large system font never hides
+  the day numbers. The render functions follow in a later change.
 
 ## [0.9.2] - 2026-11-05
 

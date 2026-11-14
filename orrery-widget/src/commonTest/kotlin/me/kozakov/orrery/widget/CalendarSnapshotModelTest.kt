@@ -125,6 +125,17 @@ class CalendarSnapshotModelTest {
     }
 
     @Test
+    fun agendaDaysAreBoundedToOneYear() {
+        assertEquals(366, CalendarSnapshotRange.Agenda(day14, days = 366).days)
+        CalendarSnapshotRange.Agenda(day14, days = 1)
+        listOf(0, -1, 367, Int.MAX_VALUE).forEach { days ->
+            val error = assertFailsWith<IllegalArgumentException> { CalendarSnapshotRange.Agenda(day14, days = days) }
+            assertTrue("1..366, was $days" in error.message.orEmpty(), error.message)
+        }
+        assertFailsWith<IllegalArgumentException> { CalendarSnapshotRange.Agenda(day14, maxRows = -1) }
+    }
+
+    @Test
     fun sizeLimitsAcceptTheEdges() {
         checkSnapshotSize(1, 1)
         checkSnapshotSize(4096, 1024)

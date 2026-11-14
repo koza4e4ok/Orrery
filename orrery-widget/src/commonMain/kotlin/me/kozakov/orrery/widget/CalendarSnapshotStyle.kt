@@ -9,9 +9,11 @@ import me.kozakov.orrery.ExperimentalOrreryApi
 /**
  * Sizes of a calendar snapshot. Text sizes are scaled by the output's font scale.
  *
- * Day numbers shrink with the grid cells, down to [minTextScale] times [dayTextSize].
- * When even that does not fit, the title row is dropped first, then the weekday row, so
- * text never overlaps; on the smallest outputs only the day marks remain.
+ * Day numbers shrink with the grid cells, down to [minTextScale] times [dayTextSize] at
+ * font scale 1 (the floor does not grow with the font scale, so a large system font never
+ * hides the day numbers). When even that does not fit, the title row is dropped first,
+ * then the weekday row, so text never overlaps; only a grid too small for the floor at
+ * any font scale keeps just the day marks.
  *
  * @throws IllegalArgumentException if a text size is not in sp, or [minTextScale] is not in `(0, 1]`.
  */

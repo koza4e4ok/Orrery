@@ -113,6 +113,32 @@ HeatmapCalendar(
 HeatmapMonth(yearMonth = YearMonth(2026, 7), intensity = { activity[it] }, showDayNumbers = true)
 ```
 
-The default color scale quantizes into five buckets from `surfaceVariant` to
-`primary`; pass any `colorScale: (Float) -> Color` (a continuous lerp works
-too). Cell accessibility descriptions bucket intensity into five spoken levels.
+`HeatmapMonth` has no legend by default; pass `showLegend = true` for the same
+"Less … More" row that `HeatmapCalendar` draws, built from `strings.legendLess` /
+`legendMore`, the `colorScale` and the `emptyCellColor`.
+
+The default color scale quantizes into `HeatmapDefaults.Levels` (five) buckets
+from `surfaceVariant` to `primary`. Level 1 starts 35% of the way to `primary`,
+so a day with a little activity stands apart from an empty one, and the top level
+is `primary` itself. Pass any `colorScale: (Float) -> Color` (a continuous lerp
+works too). Cell accessibility descriptions bucket intensity into the same five
+spoken levels; `HeatmapDefaults.levelOf(value)` returns that level, so a custom
+scale or a tooltip can use the exact boundaries the cells announce.
+
+Neighbouring levels are close in color: with the baseline Material 3 schemes,
+adjacent levels differ by less than 3:1, and level 1 against an empty cell is
+about 1.9:1 (light) and 3:1 (dark). Color alone does not make the heatmap
+accessible; the spoken level in `dayDescription` does, so keep it meaningful.
+
+For data where more is worse (errors, pain, load), or for a second heatmap on the
+same screen, ramp toward another color and say what the level means:
+
+```kotlin
+HeatmapCalendar(
+    intensity = { date -> errorRate[date] },
+    colorScale = HeatmapDefaults.colorScale(to = MaterialTheme.colorScheme.tertiary),
+    strings = HeatmapDefaults.strings(
+        dayDescription = "%1\$s, level %2\$d of %3\$d, higher means more errors",
+    ),
+)
+```

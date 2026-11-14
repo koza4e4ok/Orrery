@@ -197,7 +197,7 @@ public fun HeatmapCalendar(
                 }
                 Spacer(Modifier.weight(1f))
                 if (showLegend) {
-                    Legend(colorScale, emptyCellColor, cellSize, cellSpacing, cellShape, strings)
+                    HeatmapLegend(colorScale, emptyCellColor, cellSize, cellSpacing, cellShape, strings)
                 }
             }
         }
@@ -340,8 +340,8 @@ private fun HeatCell(
         } else {
             strings.dayDescription.formatTemplate(
                 dateFormatter(date),
-                heatLevel(value),
-                HEATMAP_LEVELS,
+                HeatmapDefaults.levelOf(value),
+                HeatmapDefaults.Levels,
             )
         }
     val interactionSource = remember { MutableInteractionSource() }
@@ -373,8 +373,9 @@ private fun HeatCell(
 
 private val HeatmapFocusRingWidth = 2.dp
 
+/** Legend row shared by [HeatmapCalendar] and [HeatmapMonth]: less, the empty cell, one swatch per level, more. */
 @Composable
-private fun Legend(
+internal fun HeatmapLegend(
     colorScale: (Float) -> Color,
     emptyCellColor: Color,
     cellSize: Dp,
@@ -391,7 +392,9 @@ private fun Legend(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        (listOf(emptyCellColor) + listOf(0f, 0.25f, 0.5f, 0.75f, 1f).map(colorScale)).forEach { color ->
+        // One swatch per level, from 0f to 1f: the bucket edges of the default scale and the ends of a continuous one.
+        val samples = (0 until HeatmapDefaults.Levels).map { it.toFloat() / (HeatmapDefaults.Levels - 1) }
+        (listOf(emptyCellColor) + samples.map(colorScale)).forEach { color ->
             Box(Modifier.size(cellSize).clip(cellShape).background(color))
         }
         Text(

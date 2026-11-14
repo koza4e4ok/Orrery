@@ -27,7 +27,7 @@ class HeatmapMonthSnapshotTest {
 
     private fun intensity(date: LocalDate): Float? = if (date.day % 5 == 0) null else (date.day % 5) / 4f
 
-    private fun content() {
+    private fun content(showLegend: Boolean = false) {
         rule.setContent {
             MaterialTheme(
                 colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme(),
@@ -39,6 +39,7 @@ class HeatmapMonthSnapshotTest {
                         onDayClick = {},
                         showDayNumbers = true,
                         firstDayOfWeek = DayOfWeek.MONDAY,
+                        showLegend = showLegend,
                     )
                 }
             }
@@ -55,6 +56,12 @@ class HeatmapMonthSnapshotTest {
     @Config(qualifiers = "+night")
     fun monthDark() {
         content()
+        rule.onRoot().captureRoboImage()
+    }
+
+    @Test
+    fun monthWithLegend() {
+        content(showLegend = true)
         rule.onRoot().captureRoboImage()
     }
 }

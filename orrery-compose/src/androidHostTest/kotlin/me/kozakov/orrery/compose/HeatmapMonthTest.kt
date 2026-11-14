@@ -25,6 +25,7 @@ class HeatmapMonthTest {
     private fun content(
         onDayClick: ((LocalDate) -> Unit)? = null,
         showDayNumbers: Boolean = false,
+        showLegend: Boolean = false,
     ) {
         rule.setContent {
             MaterialTheme {
@@ -34,6 +35,7 @@ class HeatmapMonthTest {
                     onDayClick = onDayClick,
                     showDayNumbers = showDayNumbers,
                     firstDayOfWeek = DayOfWeek.MONDAY,
+                    showLegend = showLegend,
                 )
             }
         }
@@ -64,5 +66,19 @@ class HeatmapMonthTest {
     fun cellsNotClickableWithoutCallback() {
         content(onDayClick = null)
         rule.onNodeWithContentDescription("Jul 8, 2026, level 4 of 5").assertHasNoClickAction()
+    }
+
+    @Test
+    fun legendIsOffByDefault() {
+        content()
+        rule.onAllNodesWithText("Less").assertCountEquals(0)
+        rule.onAllNodesWithText("More").assertCountEquals(0)
+    }
+
+    @Test
+    fun legendShowsLessAndMore() {
+        content(showLegend = true)
+        rule.onAllNodesWithText("Less").assertCountEquals(1)
+        rule.onAllNodesWithText("More").assertCountEquals(1)
     }
 }

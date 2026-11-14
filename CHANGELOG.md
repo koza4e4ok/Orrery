@@ -4,6 +4,11 @@
 
 ### Added
 
+- Heatmaps (#123, #124): `HeatmapDefaults.colorScale(levels, from, to)` ramps toward
+  any target color (existing calls are unchanged), and the public
+  `HeatmapDefaults.Levels` and `HeatmapDefaults.levelOf(value)` give the level a
+  cell announces, which the default scale also uses. `HeatmapMonth` takes
+  `showLegend` (default `false`) for the same legend row as `HeatmapCalendar`.
 - Opt-in markers in `orrery-core` (#89): `@ExperimentalOrreryApi` (warning) for API
   without a compatibility promise and `@InternalOrreryApi` (error) for declarations
   that are public only for sibling `orrery-*` modules. Declarations marked with them are
@@ -52,6 +57,10 @@
 
 ### Changed
 
+- Heatmaps (#122): the default color scale starts level 1 at 35% of the way from
+  `surfaceVariant` to `primary` (was 20%) and rises linearly to `primary`, so the
+  lowest level is easier to tell apart from an empty day. Heatmap colors change
+  for levels 1-4.
 - `CalendarDefaults.MiniMonth` draws the whole month on one canvas with shared,
   cached text layouts instead of composing about 40 nodes per month, so
   `YearCalendar` pages compose and scroll faster. The month is now one

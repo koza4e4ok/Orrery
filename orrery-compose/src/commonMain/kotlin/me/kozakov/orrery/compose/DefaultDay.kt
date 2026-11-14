@@ -432,27 +432,9 @@ private fun DefaultDayContent(
             modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = minCellHeight)
-                .drawBehind {
-                    if (shapes.inRangeShape == RectangleShape) {
-                        drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor, isRtl)
-                    }
-                    if (split) {
-                        drawSplitEndpoint(
-                            style = endpointStyle,
-                            amAlpha = amHalfAlpha,
-                            pmAlpha = pmHalfAlpha,
-                            gap = if (isTurnover) TurnoverGap.toPx() else 0f,
-                            color = colors.inRangeContainerColor,
-                            isRtl = isRtl,
-                        )
-                    } else if (isTurnover) {
-                        // Full-cell turnover: filled like the range, with a thin divider where a split cell would part.
-                        drawRect(colors.inRangeContainerColor)
-                        val start = if (isRtl) Offset(size.width, size.height) else Offset(0f, size.height)
-                        val end = if (isRtl) Offset(0f, 0f) else Offset(size.width, 0f)
-                        drawLine(turnoverDividerColor, start, end, TurnoverGap.toPx())
-                    }
-                }.selectable(
+                // The full cell is the touch target; everything drawn (and the
+                // content) is inset so the shapes of adjacent weeks never touch.
+                .selectable(
                     selected = isSelected,
                     enabled = available,
                     interactionSource = interactionSource,
@@ -475,6 +457,27 @@ private fun DefaultDayContent(
                 ).semantics {
                     contentDescription = description
                     if (dayState.isNotEmpty()) stateDescription = dayState
+                }.padding(vertical = shapes.verticalInset)
+                .drawBehind {
+                    if (shapes.inRangeShape == RectangleShape) {
+                        drawRangeBand(bandStartAlpha, bandEndAlpha, colors.inRangeContainerColor, isRtl)
+                    }
+                    if (split) {
+                        drawSplitEndpoint(
+                            style = endpointStyle,
+                            amAlpha = amHalfAlpha,
+                            pmAlpha = pmHalfAlpha,
+                            gap = if (isTurnover) TurnoverGap.toPx() else 0f,
+                            color = colors.inRangeContainerColor,
+                            isRtl = isRtl,
+                        )
+                    } else if (isTurnover) {
+                        // Full-cell turnover: filled like the range, with a thin divider where a split cell would part.
+                        drawRect(colors.inRangeContainerColor)
+                        val start = if (isRtl) Offset(size.width, size.height) else Offset(0f, size.height)
+                        val end = if (isRtl) Offset(0f, 0f) else Offset(size.width, 0f)
+                        drawLine(turnoverDividerColor, start, end, TurnoverGap.toPx())
+                    }
                 },
         contentAlignment = Alignment.Center,
     ) {

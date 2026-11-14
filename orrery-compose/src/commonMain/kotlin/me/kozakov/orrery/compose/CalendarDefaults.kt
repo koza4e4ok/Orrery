@@ -129,6 +129,9 @@ public class CalendarDayColors(
     )
 }
 
+/** Default [CalendarDayShapes.verticalInset]: a 4.dp gap between the shapes of adjacent weeks. */
+internal val DefaultDayVerticalInset: Dp = 2.dp
+
 /** Saturday and Sunday: the default weekend of [CalendarDayColors] and [CalendarDefaults.WeekHeader]. */
 internal val DefaultWeekendDays: Set<DayOfWeek> = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
 
@@ -147,6 +150,11 @@ internal val DefaultWeekendDays: Set<DayOfWeek> = setOf(DayOfWeek.SATURDAY, DayO
  * drawn: [RangeEndpointStyle.FullCell] (the default) fills them with
  * [selectedShape]; the split styles fill only the check-in (PM) or
  * check-out (AM) half of the cell for hospitality calendars.
+ *
+ * [verticalInset] is the space kept free above and below everything
+ * [DefaultDay] draws (shapes, range band, decorators, focus ring), so the
+ * shapes of days in adjacent weeks never touch. The cell keeps its height
+ * and the whole cell stays clickable.
  */
 @Immutable
 public class CalendarDayShapes(
@@ -156,7 +164,26 @@ public class CalendarDayShapes(
     public val todayIndicator: TodayIndicator,
     public val focusedBorderWidth: Dp = 2.dp,
     public val rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
+    public val verticalInset: Dp = DefaultDayVerticalInset,
 ) {
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dayShape: Shape,
+        selectedShape: Shape,
+        inRangeShape: Shape,
+        todayIndicator: TodayIndicator,
+        focusedBorderWidth: Dp = 2.dp,
+        rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
+    ) : this(
+        dayShape,
+        selectedShape,
+        inRangeShape,
+        todayIndicator,
+        focusedBorderWidth,
+        rangeEndpointStyle,
+        DefaultDayVerticalInset,
+    )
+
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
     public constructor(
         dayShape: Shape,
@@ -336,8 +363,36 @@ public object CalendarDefaults {
         todayIndicator: TodayIndicator = TodayIndicator.Ring(),
         focusedBorderWidth: Dp = 2.dp,
         rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
+        verticalInset: Dp = DefaultDayVerticalInset,
     ): CalendarDayShapes =
-        CalendarDayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, focusedBorderWidth, rangeEndpointStyle)
+        CalendarDayShapes(
+            dayShape,
+            selectedShape,
+            inRangeShape,
+            todayIndicator,
+            focusedBorderWidth,
+            rangeEndpointStyle,
+            verticalInset,
+        )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun dayShapes(
+        dayShape: Shape = CircleShape,
+        selectedShape: Shape = CircleShape,
+        inRangeShape: Shape = RectangleShape,
+        todayIndicator: TodayIndicator = TodayIndicator.Ring(),
+        focusedBorderWidth: Dp = 2.dp,
+        rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
+    ): CalendarDayShapes =
+        dayShapes(
+            dayShape,
+            selectedShape,
+            inRangeShape,
+            todayIndicator,
+            focusedBorderWidth,
+            rangeEndpointStyle,
+            DefaultDayVerticalInset,
+        )
 
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
     public fun dayShapes(

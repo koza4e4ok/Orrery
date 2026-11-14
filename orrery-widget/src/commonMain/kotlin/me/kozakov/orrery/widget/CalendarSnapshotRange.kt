@@ -38,7 +38,11 @@ public sealed interface CalendarSnapshotRange {
         override fun toString(): String = "Week(date=$date)"
     }
 
-    /** Events grouped by day from [start] for [days] days, at most [maxRows] event rows. */
+    /**
+     * Events grouped by day from [start] for [days] days, at most [maxRows] event rows.
+     *
+     * @throws IllegalArgumentException if [days] is not positive or [maxRows] is negative.
+     */
     @ExperimentalOrreryApi
     public class Agenda(
         /** First day of the strip. */
@@ -48,6 +52,11 @@ public sealed interface CalendarSnapshotRange {
         /** Maximum number of event rows; rows that do not fit are dropped. */
         public val maxRows: Int = 4,
     ) : CalendarSnapshotRange {
+        init {
+            require(days > 0) { "days must be positive, was $days" }
+            require(maxRows >= 0) { "maxRows must not be negative, was $maxRows" }
+        }
+
         override fun equals(other: Any?): Boolean =
             other is Agenda && other.start == start && other.days == days && other.maxRows == maxRows
 

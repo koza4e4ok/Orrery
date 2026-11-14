@@ -10,6 +10,7 @@ import me.kozakov.orrery.InternalOrreryApi
 import me.kozakov.orrery.compose.internal.MonthGridModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 
 class SharedPrimitivesTest {
@@ -33,5 +34,13 @@ class SharedPrimitivesTest {
         assertEquals(CalendarSnapshotRange.Agenda(LocalDate(2026, 11, 14), days = 7, maxRows = 4), agenda)
         assertEquals(agenda.hashCode(), CalendarSnapshotRange.Agenda(LocalDate(2026, 11, 14)).hashCode())
         assertNotEquals<CalendarSnapshotRange>(agenda, CalendarSnapshotRange.Agenda(LocalDate(2026, 11, 14), days = 3))
+    }
+
+    @Test
+    fun agendaRejectsInvalidSizes() {
+        val start = LocalDate(2026, 11, 14)
+        assertFailsWith<IllegalArgumentException> { CalendarSnapshotRange.Agenda(start, days = 0) }
+        assertFailsWith<IllegalArgumentException> { CalendarSnapshotRange.Agenda(start, maxRows = -1) }
+        assertEquals(0, CalendarSnapshotRange.Agenda(start, days = 1, maxRows = 0).maxRows)
     }
 }

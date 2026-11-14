@@ -6,7 +6,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.LayoutDirection
 import me.kozakov.orrery.InternalOrreryApi
 
@@ -39,8 +38,7 @@ public fun DrawScope.drawSelectionPill(
 }
 
 /**
- * Draws the today mark: a filled circle of [radius] at [center], or a ring of
- * [ringWidth] px whose outer edge is at [radius] when [ringWidth] is positive.
+ * Draws the today mark: a filled circle of [radius] at [center].
  *
  * Internal Orrery API: public only for sibling `orrery-*` modules.
  */
@@ -49,13 +47,8 @@ public fun DrawScope.drawTodayMark(
     color: Color,
     radius: Float,
     center: Offset,
-    ringWidth: Float = 0f,
 ) {
-    if (ringWidth > 0f) {
-        drawCircle(color, radius - ringWidth / 2f, center, style = Stroke(width = ringWidth))
-    } else {
-        drawCircle(color, radius, center)
-    }
+    drawCircle(color, radius, center)
 }
 
 /**

@@ -24,8 +24,12 @@ internal const val MAX_EVENT_DOTS = 3
 /** Height of one text line as a multiple of its font size, with some room above and below. */
 internal const val LINE_HEIGHT_FACTOR = 1.4f
 
-/** A day number may take up to this share of the smaller cell side. */
-internal const val DAY_TEXT_CELL_FACTOR = 0.5f
+/**
+ * A day number may take up to this share of the smaller cell side. At 0.6 the default
+ * 12 sp numbers still fit (at 8 sp) in the 13.4 dp cells of a 2x2 (110 x 110 dp) widget,
+ * above the 7.2 sp floor; a two-digit number stays inside the selection pill.
+ */
+internal const val DAY_TEXT_CELL_FACTOR = 0.6f
 
 /** A weekday label may take up to this share of the cell width. */
 internal const val WEEKDAY_TEXT_CELL_FACTOR = 0.5f

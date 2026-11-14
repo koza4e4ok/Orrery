@@ -180,17 +180,17 @@ class CalendarSnapshotLayoutTest {
 
     @Test
     fun cellsShrinkFirstThenTitleThenWeekdaysThenNumbersAreDropped() {
-        // 40 px cells wide; a 12 px day number needs 14.4 px cells at the 0.6 floor.
+        // 40 px cells wide; the 7.2 px floor needs 12 px cells (0.6 x 12 px).
         val shrunk = planGridText(280f, 130f, 6, request())
         assertTrue(shrunk.showTitle && shrunk.showWeekdays)
         assertTrue(shrunk.dayTextPx < 12f && shrunk.dayTextPx >= 7.2f, "${shrunk.dayTextPx}")
-        val noTitle = planGridText(280f, 110f, 6, request())
+        val noTitle = planGridText(280f, 100f, 6, request())
         assertFalse(noTitle.showTitle)
         assertTrue(noTitle.showWeekdays)
-        val bare = planGridText(280f, 90f, 6, request())
+        val bare = planGridText(280f, 80f, 6, request())
         assertFalse(bare.showTitle || bare.showWeekdays)
         assertTrue(bare.showDayNumbers)
-        val marksOnly = planGridText(280f, 80f, 6, request())
+        val marksOnly = planGridText(280f, 70f, 6, request())
         assertFalse(marksOnly.showTitle || marksOnly.showWeekdays || marksOnly.showDayNumbers)
     }
 
@@ -200,7 +200,7 @@ class CalendarSnapshotLayoutTest {
         val plan = planGridText(112f, 700f, 6, request(weekdayPx = 16f))
         assertTrue(plan.showTitle)
         assertFalse(plan.showWeekdays)
-        assertEquals(8f, plan.dayTextPx)
+        assertEquals(16f * DAY_TEXT_CELL_FACTOR, plan.dayTextPx, 0.001f)
     }
 
     @Test
@@ -252,6 +252,26 @@ class CalendarSnapshotLayoutTest {
         }
         // The weekday floor ignores font scale too: 0.6 x 30 px whatever the font scale.
         assertEquals(18f, gridTextRequest(style, spec, Density(3f, 2f)).weekdayFloorPx, 0.001f)
+    }
+
+    @Test
+    fun twoByTwoWidgetShowsTheDayNumbers() {
+        // 110 x 110 dp minus 8 dp padding on each side: a 94 x 94 dp content box, 13.4 dp cells.
+        val style = CalendarSnapshotDefaults.style()
+        val spec = spec()
+        val fiveRows = monthGrid(november, DayOfWeek.SUNDAY, showOutsideDays = false)
+        val sixRows = monthGrid(YearMonth(2026, 8), DayOfWeek.MONDAY, showOutsideDays = false)
+        assertEquals(5, fiveRows.rowCount)
+        assertEquals(6, sixRows.rowCount)
+        listOf(1f, 2.625f).forEach { density ->
+            val request = gridTextRequest(style, spec, Density(density, fontScale = 1f))
+            val side = (110f - 2 * 8f) * density
+            listOf(fiveRows, sixRows).forEach { grid ->
+                val plan = planGridText(side, side, grid.rowCount, request)
+                assertTrue(plan.dayTextPx > 0f, "density $density, ${grid.rowCount} rows")
+                assertTrue(plan.dayTextPx >= request.dayFloorPx, "density $density, ${grid.rowCount} rows")
+            }
+        }
     }
 
     @Test

@@ -32,6 +32,7 @@ dependencies {
     dokka(project(":orrery-calendars"))
     dokka(project(":orrery-holidays"))
     dokka(project(":orrery-compose"))
+    dokka(project(":orrery-widget"))
 }
 
 // Node.js, Yarn and Binaryen for the wasmJs target resolve from the repositories in

@@ -1,8 +1,12 @@
+@file:OptIn(InternalOrreryApi::class)
+
 package me.kozakov.orrery.compose
 
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import me.kozakov.orrery.InternalOrreryApi
+import me.kozakov.orrery.compose.internal.MonthGridModel
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.OutDateStyle
 import me.kozakov.orrery.core.Selection
@@ -16,7 +20,7 @@ class MiniMonthModelTest {
     @Test
     fun modelDescribesTheGridWithoutOutDates() {
         // 1 Feb 2026 is a Sunday.
-        val monday = MiniMonthGridModel(YearMonth(2026, 2), DayOfWeek.MONDAY)
+        val monday = MonthGridModel(YearMonth(2026, 2), DayOfWeek.MONDAY)
         assertEquals(6, monday.leadingBlanks)
         assertEquals(28, monday.dayCount)
         assertEquals(5, monday.rowCount)
@@ -24,10 +28,10 @@ class MiniMonthModelTest {
         assertEquals(0, monday.row(1))
         assertEquals(0, monday.column(2))
         assertEquals(1, monday.row(2))
-        val sunday = MiniMonthGridModel(YearMonth(2026, 2), DayOfWeek.SUNDAY)
+        val sunday = MonthGridModel(YearMonth(2026, 2), DayOfWeek.SUNDAY)
         assertEquals(0, sunday.leadingBlanks)
         assertEquals(4, sunday.rowCount)
-        assertEquals(6, MiniMonthGridModel(YearMonth(2026, 8), DayOfWeek.MONDAY).rowCount)
+        assertEquals(6, MonthGridModel(YearMonth(2026, 8), DayOfWeek.MONDAY).rowCount)
     }
 
     @Test
@@ -58,7 +62,7 @@ class MiniMonthModelTest {
 
     @Test
     fun dayStateFoldsTodaySelectionAndHolidaysIntoMasks() {
-        val model = MiniMonthGridModel(YearMonth(2026, 3), DayOfWeek.MONDAY)
+        val model = MonthGridModel(YearMonth(2026, 3), DayOfWeek.MONDAY)
         val queried = mutableListOf<LocalDate>()
         val selection =
             Selection(

@@ -42,3 +42,21 @@ ls ~/.m2/repository/me/kozakov/orrery/
 
 Signing is skipped locally: the publish convention only calls `signAllPublications()`
 when the `signingInMemoryKey` Gradle property is present.
+
+## One version for all modules
+
+Every `orrery-*` artifact is released from the same `VERSION_NAME`. `orrery-widget`
+(experimental) uses `@InternalOrreryApi` declarations of `orrery-compose`, so it pins
+that exact version: `strictly` in its Gradle module metadata and `[X.Y.Z]` for the
+`me.kozakov.orrery` dependencies in its POM. Check both after a dry run:
+
+```bash
+./gradlew :orrery-widget:publishToMavenLocal
+cat ~/.m2/repository/me/kozakov/orrery/orrery-widget/X.Y.Z/orrery-widget-X.Y.Z.module | grep -B2 -A6 strictly
+grep -A3 '<artifactId>orrery-compose' ~/.m2/repository/me/kozakov/orrery/orrery-widget-android/X.Y.Z/*.pom
+```
+
+`@ExperimentalOrreryApi` and `@InternalOrreryApi` declarations are left out of the ABI
+dumps (`abiValidation` filters in the build-logic conventions), so `orrery-widget`'s
+committed dumps stay empty until it graduates; list its changes under an
+"Experimental" heading in `CHANGELOG.md`.

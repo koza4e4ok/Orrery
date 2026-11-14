@@ -86,6 +86,21 @@ kotlin {
     // merged klib dump for the iOS and wasmJs targets.
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
+        // Opt-in API carries no compatibility promise, so it stays out of the dumps (#89).
+        // The Compose compiler adds unannotated synthetic $stableprop declarations for
+        // annotated classes to the klib dump, so whole packages are excluded as well: the
+        // @InternalOrreryApi primitives live in compose.internal, and every declaration of
+        // the experimental orrery-widget module is in the widget package.
+        filters {
+            exclude {
+                annotatedWith.addAll(
+                    "me.kozakov.orrery.ExperimentalOrreryApi",
+                    "me.kozakov.orrery.InternalOrreryApi",
+                )
+                byNames.add("me.kozakov.orrery.compose.internal.**")
+                byNames.add("me.kozakov.orrery.widget.**")
+            }
+        }
     }
 }
 

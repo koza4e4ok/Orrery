@@ -27,6 +27,15 @@ kotlin {
     // for the native and wasm targets.
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
+        // Opt-in API carries no compatibility promise, so it stays out of the dumps (#89).
+        filters {
+            exclude {
+                annotatedWith.addAll(
+                    "me.kozakov.orrery.ExperimentalOrreryApi",
+                    "me.kozakov.orrery.InternalOrreryApi",
+                )
+            }
+        }
     }
 
     sourceSets {

@@ -1,3 +1,5 @@
+@file:OptIn(InternalOrreryApi::class)
+
 package me.kozakov.orrery.compose
 
 import androidx.compose.foundation.LocalIndication
@@ -50,6 +52,8 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import me.kozakov.orrery.InternalOrreryApi
+import me.kozakov.orrery.compose.internal.MonthTextKey
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.Selection
 
@@ -230,7 +234,7 @@ public fun CalendarDefaults.MiniMonth(
     val dayStyle = remember(baseStyle) { baseStyle.merge(MiniDayTextStyle) }
     val texts =
         caches.texts.texts(
-            MiniMonthTextKey(
+            MonthTextKey(
                 dayStyle = dayStyle,
                 titleStyle = MaterialTheme.typography.titleSmall,
                 density = LocalDensity.current,

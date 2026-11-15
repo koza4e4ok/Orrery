@@ -164,6 +164,18 @@ class CalendarSnapshotAndroidTest {
         assertTrue(heading.indexOf("14") < heading.indexOf("лист"), heading)
     }
 
+    @Test
+    fun theDescriptionFollowsTheContextLocale() {
+        val english = configured { setLocale(Locale.US) }
+        assertEquals("November 2026", calendarSnapshotDescription(english, spec))
+        val week = spec.copy(range = CalendarSnapshotRange.Week(LocalDate(2026, 11, 14)))
+        assertEquals("November 9, 2026 \u2013 November 15, 2026", calendarSnapshotDescription(english, week))
+        val agenda = spec.copy(range = CalendarSnapshotRange.Agenda(LocalDate(2026, 11, 14), days = 1))
+        assertEquals("November 14, 2026", calendarSnapshotDescription(english, agenda))
+        val ukrainian = calendarSnapshotDescription(configured { setLocale(Locale.forLanguageTag("uk-UA")) }, spec)
+        assertTrue("листопад" in ukrainian && "2026" in ukrainian, ukrainian)
+    }
+
     private fun render(
         context: Context,
         widthPx: Int = 300,

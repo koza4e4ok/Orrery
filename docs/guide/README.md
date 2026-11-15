@@ -12,6 +12,7 @@ Everything in these guides ships in `orrery-compose` unless marked otherwise. Al
 | [Schedules and agenda](schedules.md) | `DaySchedule`, `WeekSchedule`, overlapping events, `Agenda` |
 | [Date picker dialogs](pickers.md) | Date, date range (with presets), date-time and month pickers |
 | [Calendar systems and holidays](calendar-systems.md) | `DayInfoProvider`, Chinese lunar calendar, Hijri, Persian, public holidays |
+| [Widgets and snapshots](widgets-and-snapshots.md) | Experimental `orrery-widget`: calendar bitmaps for home-screen widgets (Glance), share images and in-app previews; sizing, dark mode, update cadence, content descriptions |
 | [Using orrery-core without Compose](core-without-compose.md) | Grid math and the selection engine for View-based UIs or servers |
 
 Not covered here yet: the 0.8.0 and 0.9.0 additions (two-week and work-week modes,

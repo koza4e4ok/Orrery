@@ -11,5 +11,39 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Home-screen widgets: an orrery-widget snapshot shown by Glance. -->
+        <receiver
+            android:name=".widget.OrreryMonthWidgetReceiver"
+            android:exported="true"
+            android:label="Orrery month">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/orrery_month_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widget.OrreryAgendaWidgetReceiver"
+            android:exported="true"
+            android:label="Orrery agenda">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/orrery_agenda_widget_info" />
+        </receiver>
+        <!-- Midnight alarm and the clock, time zone and locale broadcasts (all allowed for
+             manifest receivers). Not exported: only the system and this app send these. -->
+        <receiver
+            android:name=".widget.OrreryWidgetRefreshReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

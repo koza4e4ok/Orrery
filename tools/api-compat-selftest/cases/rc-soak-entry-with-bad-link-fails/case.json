@@ -1,0 +1,9 @@
+{
+  "baseline_version": "v1.0.0-rc.1",
+  "exit": 1,
+  "contains": [
+    "allow.txt:2:",
+    "allow.txt:3:",
+    "only 'rc-soak' entries"
+  ]
+}

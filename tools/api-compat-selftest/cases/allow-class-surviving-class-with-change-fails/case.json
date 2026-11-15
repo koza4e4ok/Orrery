@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-a: removed 0, changed 2, lost targets 0, allowed 0",
+    "class entry com.example.a.Foo is invalid: the class still exists in head"
+  ]
+}

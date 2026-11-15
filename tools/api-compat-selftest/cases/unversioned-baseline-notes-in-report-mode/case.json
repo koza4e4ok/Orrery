@@ -1,0 +1,11 @@
+{
+  "args": [
+    "--report"
+  ],
+  "baseline_version": null,
+  "exit": 0,
+  "contains": [
+    "note: baseline",
+    "has no v* release version"
+  ]
+}

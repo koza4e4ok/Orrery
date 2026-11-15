@@ -1,0 +1,21 @@
+public final class com/example/a/Foo {
+	public fun <init> (I)V
+	public final fun bar ()I
+}
+
+public final class com/example/a/Gone {
+	public fun <init> ()V
+	public final fun ping ()V
+}
+
+public final class com/example/a/Point {
+	public fun <init> (II)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun getX ()I
+	public final fun getY ()I
+}
+
+public final class com/example/a/UtilKt {
+	public static final fun helper (I)I
+}

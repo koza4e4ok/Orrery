@@ -1,0 +1,12 @@
+{
+  "args": [
+    "--report"
+  ],
+  "env": {
+    "GITHUB_ACTIONS": "true"
+  },
+  "exit": 0,
+  "contains": [
+    "::warning::api-compat: 2 incompatible change(s) against"
+  ]
+}

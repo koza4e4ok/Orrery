@@ -1,0 +1,3 @@
+# planned break
+lib-a | com/example/a/Foo :: public final fun baz (Ljava/lang/String;)V | rc-soak | https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-6900999001
+lib-a | com.example.a/Foo :: final fun baz(kotlin/String) // com.example.a/Foo.baz|baz(kotlin.String){}[0] | rc-soak | https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-6900999001

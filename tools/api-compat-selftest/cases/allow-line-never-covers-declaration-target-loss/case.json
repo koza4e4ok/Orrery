@@ -1,0 +1,11 @@
+{
+  "args": [
+    "--report"
+  ],
+  "exit": 0,
+  "contains": [
+    "lost targets 1, allowed 0",
+    "LOST-TARGET lib-a.klib.api: <top-level> :: final fun com.example.a/iosOnly()",
+    "matches nothing (stale)"
+  ]
+}

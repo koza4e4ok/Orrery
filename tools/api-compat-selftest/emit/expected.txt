@@ -1,0 +1,9 @@
+# lib-a: com.example.a.Foo
+lib-a | com.example.a.Foo :: final fun baz(kotlin/String) // com.example.a/Foo.baz|baz(kotlin.String){}[0] | 1.0-dataclass | ledger 2.4
+lib-a | com.example.a.Foo :: public final fun bar ()I | 1.0-dataclass | ledger 2.4
+lib-a | com.example.a.Foo :: public final fun baz (Ljava/lang/String;)V | 1.0-dataclass | ledger 2.4
+# lib-a: com.example.a.Gone
+lib-a | class com.example.a.Gone | 1.0-dataclass | ledger 2.4
+# lib-a: com.example.a.Point
+lib-a | com.example.a.Point :: public final fun component1 ()I | 1.0-dataclass | ledger 2.4
+lib-a | com.example.a.Point :: public final fun component2 ()I | 1.0-dataclass | ledger 2.4

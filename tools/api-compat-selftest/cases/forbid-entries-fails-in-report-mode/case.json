@@ -1,0 +1,11 @@
+{
+  "args": [
+    "--forbid-entries",
+    "--report"
+  ],
+  "baseline_version": "v0.9.2",
+  "exit": 1,
+  "contains": [
+    "FAILED: --forbid-entries"
+  ]
+}

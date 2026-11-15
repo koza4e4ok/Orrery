@@ -1,0 +1,1 @@
+lib-a | com.example.a.Foo :: final fun bar(): kotlin/Int // com.example.a/Foo.bar|bar(){}[0] | 1.0-signature | row 2

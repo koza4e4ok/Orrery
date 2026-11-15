@@ -1,0 +1,8 @@
+{
+  "exit": 1,
+  "contains": [
+    "lost targets 1",
+    "LOST-TARGET lib-a.klib.api: <top-level> :: final fun com.example.a/iosOnly(): kotlin/Int",
+    "no longer on iosSimulatorArm64"
+  ]
+}

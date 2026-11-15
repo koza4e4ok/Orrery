@@ -1,0 +1,10 @@
+{
+  "args": [
+    "--report"
+  ],
+  "exit": 1,
+  "contains": [
+    "mode report",
+    "class entry com.example.a.Foo is invalid"
+  ]
+}

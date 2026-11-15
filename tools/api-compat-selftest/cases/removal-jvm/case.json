@@ -1,0 +1,8 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-a: removed 1, changed 0",
+    "REMOVED lib-a.api: com.example.a.Foo :: public final fun baz (Ljava/lang/String;)V",
+    "INCOMPATIBLE: 1 incompatible"
+  ]
+}

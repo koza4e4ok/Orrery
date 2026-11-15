@@ -1,0 +1,11 @@
+{
+  "args": [
+    "--enforce",
+    "false"
+  ],
+  "exit": 0,
+  "contains": [
+    "mode report",
+    "REPORT: 2 incompatible"
+  ]
+}

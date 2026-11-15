@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-b: removed 0, changed 0, lost targets 1",
+    "LOST-TARGET desktop/lib-b.api: dump file is gone"
+  ]
+}

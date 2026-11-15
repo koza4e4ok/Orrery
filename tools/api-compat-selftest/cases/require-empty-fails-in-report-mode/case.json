@@ -1,0 +1,11 @@
+{
+  "args": [
+    "--report",
+    "--require-empty",
+    "widget"
+  ],
+  "exit": 1,
+  "contains": [
+    "FAILED: --require-empty widget"
+  ]
+}

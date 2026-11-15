@@ -28,10 +28,46 @@
    version-catalog `orrery = "X.Y.Z"`).
 2. Commit: `git commit -am "release: X.Y.Z"`.
 3. Tag and push: `git tag vX.Y.Z && git push origin main vX.Y.Z`.
-4. The `Publish` workflow builds, signs, uploads to the Central Portal, and releases
-   automatically (`publishToMavenCentral(automaticRelease = true)`).
+4. The `Publish` workflow first runs the release gate: `checkKotlinAbi`,
+   `tools/api-compat.py --previous-of <tag>` (the dumps against the previous `v*` tag,
+   enforcing, with `tools/api-compat-allow.txt`) and the Linux test tasks of `ci.yml`.
+   A final tag (no `-` suffix) also gets `--forbid-entries`: it takes no allow-list
+   entries at all. A tag that fails the gate never publishes: fix it on `main` and tag a
+   new version.
+
+   > **Until task 8 generates the allow-list**, any tag pushed from `main` fails this gate,
+   > a `0.9.x` patch included: `main` has 26 findings against `v0.9.2` (bridges turned
+   > `synthetic` and the #129 heatmap signature changes) and `tools/api-compat-allow.txt`
+   > is empty. That is intended; do not tag before task 8 lands.
+   Then it builds, signs, uploads to the Central Portal, and releases automatically
+   (`publishToMavenCentral(automaticRelease = true)`).
 5. Bump `VERSION_NAME` to the next `X.Y.(Z+1)-SNAPSHOT`, update the snapshot version in the
    README's **Snapshots** note to match, and commit.
+
+## ABI gate across the 1.0 release candidates
+
+The gate (`tools/api-compat.py`, spec 2.3) compares the dumps with `API_BASELINE_REF` in
+`ci.yml` and lets planned breaks through `tools/api-compat-allow.txt`. Its lifecycle is
+part of the release:
+
+1. **Freeze (task 14), before `v1.0.0-rc.1`:** set `API_COMPAT_ENFORCE: "true"` in
+   `ci.yml` (exactly `true` or `false`; anything else fails the step). The PR gate is now
+   required. The rc.1 tag's publish gate runs against `v0.9.2` with the generated list.
+2. **First PR after `v1.0.0-rc.1` is tagged:** move `API_BASELINE_REF` to `v1.0.0-rc.1`
+   and empty the allow-list. From an rc baseline on, the script fails on any entry that is
+   not `rc-soak`, in report mode too. The same PR drops
+   `-x :orrery-widget:publishToMavenCentral` from `publish.yml` if the widget ships.
+3. **A break found during the soak:** Andrii approves it in a comment on #89. A PR makes
+   the change and adds temporary entries with reason `rc-soak` and that comment's URL as the
+   ledger field (`https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-<id>`); the
+   script checks the URL's shape, Ritsuko checks it is Andrii's at review. Tag `rc.2`: its
+   publish gate runs against `rc.1` and passes on those entries. The first PR after `rc.2`
+   moves the baseline to `rc.2` and empties the list again.
+4. **`v1.0.0`:** the list must be empty. `publish.yml` passes `--forbid-entries` for any
+   final tag, and a `1.0.0`+ baseline takes no entries either. After the release, move
+   `API_BASELINE_REF` to `v1.0.0`.
+5. **1.1, `orrery-widget` graduates:** drop `--require-empty orrery-widget` from `ci.yml`
+   and `publish.yml`; from then on its dumps are compared like any stable module.
 
 ## Local dry-run (no credentials needed)
 

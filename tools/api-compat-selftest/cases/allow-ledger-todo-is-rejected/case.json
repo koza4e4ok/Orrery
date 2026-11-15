@@ -1,0 +1,6 @@
+{
+  "exit": 2,
+  "stderr": [
+    "ledger field 'TODO-ledger-row' is a placeholder"
+  ]
+}

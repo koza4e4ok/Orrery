@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-a: removed 2",
+    "allow-list entry matches nothing (stale)"
+  ]
+}

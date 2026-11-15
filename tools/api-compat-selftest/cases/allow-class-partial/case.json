@@ -1,0 +1,6 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-a: removed 1, changed 0, lost targets 0, allowed 6"
+  ]
+}

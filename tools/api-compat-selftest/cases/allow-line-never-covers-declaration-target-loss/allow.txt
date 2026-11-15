@@ -1,0 +1,1 @@
+lib-a | <top-level> :: final fun com.example.a/iosOnly(): kotlin/Int // com.example.a/iosOnly|iosOnly(){}[0] | 1.0-signature | row 4

@@ -1,0 +1,10 @@
+{
+  "args": [
+    "--require-empty",
+    "widget"
+  ],
+  "exit": 1,
+  "contains": [
+    "FAILED: --require-empty widget: api/android/widget.api declares 2 line(s)"
+  ]
+}

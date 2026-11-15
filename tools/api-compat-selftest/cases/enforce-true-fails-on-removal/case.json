@@ -1,0 +1,11 @@
+{
+  "args": [
+    "--enforce",
+    "true"
+  ],
+  "exit": 1,
+  "contains": [
+    "mode enforce",
+    "INCOMPATIBLE: 2 incompatible"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "args": [
+    "--require-empty",
+    "nope"
+  ],
+  "exit": 1,
+  "contains": [
+    "FAILED: --require-empty nope: the module has no committed dumps"
+  ]
+}

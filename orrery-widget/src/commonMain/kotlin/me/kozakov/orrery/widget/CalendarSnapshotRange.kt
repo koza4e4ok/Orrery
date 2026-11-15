@@ -53,7 +53,11 @@ public sealed interface CalendarSnapshotRange {
         public val start: LocalDate,
         /** Number of days from [start], 1 to 366. */
         public val days: Int = 7,
-        /** Maximum number of event rows; rows that do not fit are dropped. */
+        /**
+         * Maximum number of event rows. Rows over this cap or below the bottom edge are
+         * dropped without an overflow marker, as the #89 design spec asks (dropped, never
+         * clipped, no new resources); size the output or [maxRows] for the events you pass.
+         */
         public val maxRows: Int = 4,
     ) : CalendarSnapshotRange {
         init {

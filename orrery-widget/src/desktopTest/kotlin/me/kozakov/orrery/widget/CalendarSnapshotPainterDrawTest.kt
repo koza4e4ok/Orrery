@@ -94,18 +94,27 @@ class CalendarSnapshotPainterDrawTest {
 
     @Test
     fun largeFontScaleKeepsEveryDayNumberOnAFourByTwoWidget() {
-        // 250 x 110 dp at density 3: content 24..726 x 24..306 px. August 2026 needs six rows,
-        // which leave a bare grid of 100.3 x 47 px cells (1 Aug is a Saturday, column 5).
+        // 250 x 110 dp at density 3: content 24..726 x 24..306 px. August 2026 needs six rows
+        // (1 Aug is a Saturday, column 5); the plan decides which text rows sit above them.
         val august = spec(CalendarSnapshotRange.Month(YearMonth(2026, 8)))
         listOf(1f, 1.3f, 2f).forEach { fontScale ->
-            val pixels = render(august, width = 750, height = 330, density = Density(3f, fontScale)).toPixelMap()
+            val density = Density(3f, fontScale)
+            val pixels = render(august, width = 750, height = 330, density = density).toPixelMap()
+            val plan = planGridText(702f, 282f, 6, gridTextRequest(CalendarSnapshotDefaults.style(), august, density))
+            val gridTop = 24f + plan.titleBand + plan.weekdayBand
+            val rowHeight = (306f - gridTop) / 6
             val cellWidth = 702f / 7
             for (day in 1..31) {
                 val index = day - 1 + 5
                 val left = (24 + index % 7 * cellWidth).toInt()
-                val top = 24 + index / 7 * 47
-                val ink = pixels.inkIn(left + 2 until left + cellWidth.toInt() - 2, top + 2 until top + 45)
+                val top = (gridTop + index / 7 * rowHeight).toInt()
+                val xs = left + 2 until left + cellWidth.toInt() - 2
+                val ys = top + 2 until (top + rowHeight).toInt() - 2
+                val ink = pixels.inkIn(xs, ys)
                 assertTrue(ink > 20, "font scale $fontScale: day $day has $ink ink pixels")
+                // A glyph, not a speck: the digits are at least half the 21.6 px floor tall.
+                val inkRows = ys.count { y -> xs.any { x -> pixels[x, y] != colors.container } }
+                assertTrue(inkRows >= 11, "font scale $fontScale: day $day ink is $inkRows px tall")
             }
         }
     }

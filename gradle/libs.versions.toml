@@ -1,6 +1,8 @@
 [versions]
 kotlin = "2.4.21"
 kotlinx-datetime = "0.8.0"
+# Test only (orrery-widget runTest); the published modules get coroutines through Compose.
+kotlinx-coroutines = "1.10.2"
 agp = "9.4.1"
 compose-bom = "2026.09.00"
 # Compose Multiplatform for orrery-compose (#20). On Android these resolve to the
@@ -34,6 +36,7 @@ profileinstaller = "1.4.1"
 
 [libraries]
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }
 compose-material3 = { module = "androidx.compose.material3:material3" }

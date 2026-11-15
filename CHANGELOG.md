@@ -93,6 +93,17 @@
   The internal painter draws month, week and agenda strips; text shrinks with the cells
   down to `minTextScale` of its size at font scale 1, so a large system font never hides
   the day numbers. The render functions follow in a later change.
+- `orrery-widget` renderer (#89, in progress): `renderCalendarSnapshot(spec, output, colors, style)`
+  draws a snapshot into an `ImageBitmap` on `Dispatchers.Default` with software drawing
+  only, on every target. On Android, `renderCalendarSnapshot(context, spec, widthPx, heightPx)`
+  takes density, font scale, locale, layout direction and the 24-hour setting from the
+  `Context` without keeping it, and `CalendarSnapshotDefaults.colors(context)` gives the
+  dynamic colours on Android 12+ or the Material 3 light or dark scheme by night mode.
+  The `CalendarSnapshot` composable shows the same pixels in the app as one accessibility
+  node, and `rememberCalendarSnapshotBitmap` renders a bitmap from composition. Sizes
+  outside 1..4096 px a side or above 4 194 304 px throw `IllegalArgumentException` naming
+  the values. Agenda text now shrinks down to `minTextScale` of its size at font scale 1
+  before rows are dropped, like the day numbers. All `@ExperimentalOrreryApi`.
 
 ## [0.9.2] - 2026-11-05
 

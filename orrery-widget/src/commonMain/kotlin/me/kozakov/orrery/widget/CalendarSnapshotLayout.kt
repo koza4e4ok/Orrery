@@ -276,6 +276,7 @@ internal fun planGridText(
         if (gridHeight <= 0f || width <= 0f) return null
         return minOf(request.dayTextPx, minOf(cellWidth, gridHeight / rows) * DAY_TEXT_CELL_FACTOR)
     }
+
     for ((title, weekdays) in candidates) {
         val dayPx = dayPxBelow(GridTextPlan(title, weekdays, request.titleTextPx, weekdayPx, dayTextPx = 0f))
         if (dayPx != null && dayPx >= request.dayFloorPx) {

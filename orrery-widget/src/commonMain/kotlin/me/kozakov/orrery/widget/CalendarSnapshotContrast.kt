@@ -56,6 +56,7 @@ internal fun readableOn(
         val onTargetSide = if (toWhite) luminance > backgroundLuminance else luminance < backgroundLuminance
         return onTargetSide && contrastRatio(candidate, background) >= minContrast
     }
+
     var low = 0f
     var high = 1f
     repeat(CONTRAST_SEARCH_STEPS) {

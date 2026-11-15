@@ -123,6 +123,8 @@ class CalendarSnapshotAndroidTest {
         assertNotSame(first, AndroidSnapshotEnvironment.of(bold).fontFamilyResolver)
     }
 
+    // A leak check has to ask for collection; the loop stops as soon as the context is collected.
+    @Suppress("ExplicitGarbageCollectionCall")
     @Test
     fun theContextIsNotRetained() {
         // A fresh cache, so the shared resolver is created from the throwaway context and is still

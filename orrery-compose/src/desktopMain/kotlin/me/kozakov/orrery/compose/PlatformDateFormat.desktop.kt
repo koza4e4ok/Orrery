@@ -28,9 +28,8 @@ internal actual fun localizedDatePattern(locale: Locale): String {
  * "d MMMM y 'р'." (uk) becomes "EEE, d MMM" and "d MMMM G y" (th) becomes "EEE, d MMM".
  * The day and month order follow the locale; the weekday position and punctuation can
  * differ from Android/ICU (ja gets "EEE, M月d日" where ICU gives "M月d日(EEE)").
- *
- * TODO: use DateTimeFormatterBuilder.getLocalizedDateTimePattern("MMMEd", …) (JDK 19+)
- *  once the JVM baseline moves past 17.
+ * JDK 19+ could use DateTimeFormatterBuilder.getLocalizedDateTimePattern("MMMEd", …)
+ * instead, once the JVM baseline moves past 17.
  */
 internal actual fun localeDayHeaderPattern(locale: Locale): String {
     val long =

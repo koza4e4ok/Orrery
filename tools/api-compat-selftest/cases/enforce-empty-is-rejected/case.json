@@ -1,0 +1,10 @@
+{
+  "args": [
+    "--enforce",
+    ""
+  ],
+  "exit": 2,
+  "stderr": [
+    "invalid choice: ''"
+  ]
+}

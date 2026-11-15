@@ -5,6 +5,7 @@
   "baseline_version": "v1.0.0-rc.2",
   "exit": 1,
   "contains": [
-    "allow-list must be empty"
+    "mode report",
+    "only 'rc-soak' entries"
   ]
 }

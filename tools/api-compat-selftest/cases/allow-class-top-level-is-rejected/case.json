@@ -1,0 +1,6 @@
+{
+  "exit": 2,
+  "stderr": [
+    "'class <top-level>' is not allowed"
+  ]
+}

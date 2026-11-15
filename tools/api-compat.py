@@ -15,8 +15,11 @@ current one:
 
 Additions and new modules pass and are counted (`--verbose` lists them). Comment lines and
 whitespace are ignored. The planned 1.0 breaks pass through an allow-list
-(`tools/api-compat-allow.txt`), which must be empty once the baseline is `1.0.0-rc.1` or
-later. `--require-empty <module>` fails if that module's dumps declare anything (used for
+(`tools/api-compat-allow.txt`, spec 2.3): reasons `1.0-bridge`, `1.0-dataclass`, `1.0-signature`
+or `rc-soak`; a `class` entry is valid only for a class with no declaration left in head;
+target loss is never allow-listed; stale entries fail in enforce mode. Against a baseline of
+`1.0.0-rc.1` or later only `rc-soak` entries linking an approval comment on #89 pass, and a
+`1.0.0`+ baseline or `--forbid-entries` (final release tags) takes no entries at all. `--require-empty <module>` fails if that module's dumps declare anything (used for
 the experimental `orrery-widget`, whose API the dump filters must hide) and leaves the
 module out of the comparison.
 
@@ -48,6 +51,11 @@ JVM_MEMBER = re.compile(r"\b(?:fun|field) (\S+)")
 KLIB_SIGNATURE = re.compile(r" // ([^|\s]+)\|")
 TOP_LEVEL = "<top-level>"
 RC_FLOOR = "1.0.0-rc.1"
+FINAL_FLOOR = "1.0.0"
+REASONS = ("1.0-bridge", "1.0-dataclass", "1.0-signature", "rc-soak")
+PLACEHOLDERS = ("TODO-reason", "TODO-ledger-row")
+# rc-soak entries must point at Andrii's approval comment on #89 (spec 2.3, soak rule).
+SOAK_LINK = re.compile(r"^https://github\.com/koza4e4ok/Orrery/(issues|pull)/89#issuecomment-[0-9]+$")
 DEFAULT_ALLOW_LIST = "tools/api-compat-allow.txt"
 KINDS = ("removed", "changed", "lost-target")
 
@@ -224,15 +232,38 @@ def baseline_version(root, ref):
 # ---------------------------------------------------------------- allow-list
 
 
-class AllowEntry:
-    def __init__(self, module, cls, line, where):
-        self.module, self.cls, self.line, self.where = module, cls, line, where
-        self.used = False
+def head_classes(head_dumps):
+    """{module: set of class keys that still have a declaration in any head dump of the module}."""
+    result = {}
+    for module, files in head_dumps.items():
+        names = result.setdefault(module, set())
+        for rel, text in files.items():
+            names.update(class_key(c) for c, _ in Dump(text, rel.endswith(".klib.api")).decls)
+    return result
 
-    def matches(self, module, container, line):
-        if module != self.module or class_key(container) != self.cls:
+
+def class_gone(classes, module, cls):
+    """True if `cls` has no declaration left in any head dump (JVM and klib) of `module`.
+
+    The one predicate for both `--emit-removed` (when to write a `class` entry) and the check
+    (when a `class` entry is valid), so generating and checking cannot diverge.
+    """
+    return cls != TOP_LEVEL and class_key(cls) not in classes.get(module, set())
+
+
+class AllowEntry:
+    def __init__(self, module, cls, line, reason, ledger, where):
+        self.module, self.cls, self.line, self.where = module, cls, line, where
+        self.reason, self.ledger = reason, ledger
+        self.used = False
+        self.invalid = False
+
+    def matches(self, finding):
+        if self.invalid or finding.kind == "lost-target":
+            return False  # target loss is never allow-listable (spec 2.3)
+        if finding.module != self.module or class_key(finding.container) != self.cls:
             return False
-        return self.line is None or self.line == line
+        return self.line is None or self.line == finding.line
 
 
 def parse_allow_list(path):
@@ -250,12 +281,19 @@ def parse_allow_list(path):
         fields = [head[0].strip()] + [t.strip() for t in tail]
         if len(fields) != 4 or not all(fields):
             raise SetupError(f"{where}: expected '<module> | <class Name or Name :: dump line> | <reason> | <ledger row>'")
-        module, target = fields[0], fields[1]
+        module, target, reason, ledger = fields
+        if reason not in REASONS:
+            raise SetupError(f"{where}: reason {reason!r} is not one of {', '.join(REASONS)}")
+        if ledger in PLACEHOLDERS:
+            raise SetupError(f"{where}: ledger field {ledger!r} is a placeholder; fill in the ledger row")
         if target.startswith("class "):
-            entries.append(AllowEntry(module, class_key(target[6:]), None, where))
+            cls = class_key(target[6:])
+            if cls == TOP_LEVEL:
+                raise SetupError(f"{where}: 'class {TOP_LEVEL}' is not allowed; list top-level lines one by one")
+            entries.append(AllowEntry(module, cls, None, reason, ledger, where))
         elif " :: " in target:
             cls, line = target.split(" :: ", 1)
-            entries.append(AllowEntry(module, class_key(cls), normalise(line), where))
+            entries.append(AllowEntry(module, class_key(cls), normalise(line), reason, ledger, where))
         else:
             raise SetupError(f"{where}: the second field must be 'class <Name>' or '<Name> :: <dump line>'")
     return entries
@@ -310,7 +348,7 @@ def compare_module(module, base_files, head_files):
     return findings, added
 
 
-def emit_removed(findings, base_dumps, reason, ledger):
+def emit_removed(findings, classes, reason, ledger):
     """Allow-list lines for every missing baseline line; one class entry per vanished class."""
     out = []
     missing = {}
@@ -318,14 +356,10 @@ def emit_removed(findings, base_dumps, reason, ledger):
         if f.kind in ("removed", "changed"):
             missing.setdefault(f.module, {}).setdefault(class_key(f.container), set()).add(f.line)
     for module in sorted(missing):
-        baseline_lines = {}
-        for rel, text in base_dumps.get(module, {}).items():
-            for container, line in Dump(text, rel.endswith(".klib.api")).decls:
-                baseline_lines.setdefault(class_key(container), set()).add(line)
         for cls in sorted(missing[module]):
             gone = missing[module][cls]
             out.append(f"# {module}: {cls}")
-            if cls != TOP_LEVEL and gone >= baseline_lines.get(cls, set()):
+            if class_gone(classes, module, cls):
                 out.append(f"{module} | class {cls} | {reason} | {ledger}")
             else:
                 out += [f"{module} | {cls} :: {line} | {reason} | {ledger}" for line in sorted(gone)]
@@ -352,16 +386,29 @@ def run(args):
         allow_path = os.path.relpath(Path(root) / DEFAULT_ALLOW_LIST)
     entries = parse_allow_list(allow_path)
 
+    report = args.report or args.enforce == "false"
+    label = ref if not version or version == ref else f"{ref} ({version})"
     failures = []  # policy checks: they fail in report mode too
     version_key = parse_version(version) if version else None
-    if version_key and version_key >= parse_version(RC_FLOOR) and entries:
-        failures.append(
-            f"baseline {ref} is {RC_FLOOR} or later, so the allow-list must be empty "
-            f"({len(entries)} entries in {allow_path}); a break after the RC needs a new RC"
-        )
-    elif not version_key:
-        out.append(f"note: baseline {ref} has no v* release version; the empty-allow-list rule "
-                   f"for {RC_FLOOR}+ baselines was not applied")
+    if args.forbid_entries and entries:
+        failures.append(f"--forbid-entries: a final release takes no allow-list entries "
+                        f"({len(entries)} in {allow_path})")
+    elif version_key and version_key >= parse_version(FINAL_FLOOR) and entries:
+        failures.append(f"baseline {label} is {FINAL_FLOOR} or later, so the allow-list must be empty "
+                        f"({len(entries)} entries in {allow_path})")
+    elif version_key and version_key >= parse_version(RC_FLOOR):
+        for e in entries:
+            if e.reason != "rc-soak" or not SOAK_LINK.match(e.ledger):
+                failures.append(f"{e.where}: baseline {label} is {RC_FLOOR} or later, so only 'rc-soak' "
+                                f"entries whose ledger field links Andrii's approval comment on #89 "
+                                f"(https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-<id>) are allowed")
+    if not version_key:
+        message = (f"baseline {ref} has no v* release version, so the allow-list rules for "
+                   f"{RC_FLOOR}+ baselines cannot be applied")
+        if report:
+            out.append(f"note: {message}")
+        else:
+            failures.append(f"{message}; use a v* tag or a commit that contains one")
 
     for module in args.require_empty:
         files = head_dumps.get(module)
@@ -388,21 +435,25 @@ def run(args):
         findings += module_findings
         additions[module] = added
 
+    classes = head_classes(head_dumps)
+    if args.emit_removed:
+        print("\n".join(emit_removed(findings, classes, args.reason, args.ledger)))
+        return 0
+
+    for e in entries:
+        if e.line is None and not class_gone(classes, e.module, e.cls):
+            e.invalid = True
+            failures.append(f"{e.where}: class entry {e.cls} is invalid: the class still exists in head; "
+                            f"list the lines instead (--emit-removed)")
     for f in findings:
-        if f.line is None:
-            continue  # lost dump files, klib headers and modules are never allow-listed
         for entry in entries:
-            if entry.matches(f.module, f.container, f.line):
+            if entry.matches(f):
                 entry.used = True
                 f.allowed_by = entry
                 break
     blocking = [f for f in findings if f.allowed_by is None]
 
-    if args.emit_removed:
-        print("\n".join(emit_removed(findings, base_dumps, args.reason, args.ledger)))
-        return 0
-
-    mode = "report" if args.report else "enforce"
+    mode = "report" if report else "enforce"
     shown_ref = ref + (f" ({version})" if version and version != ref else "")
     out.insert(0, f"api-compat: baseline {shown_ref}, allow-list {allow_path or '-'} "
                   f"({len(entries)} entries), mode {mode}")
@@ -423,11 +474,20 @@ def run(args):
         if args.verbose:
             out += [f"  ALLOWED {f.render()} [{f.allowed_by.where}]" for f in mine if f.allowed_by]
             out += [f"  ADDED {rel}: {c} :: {l}" for rel, c, l in additions.get(module, [])]
-    out += [f"warning: {e.where}: allow-list entry matches nothing (stale)" for e in entries if not e.used]
+    for e in entries:
+        if not e.used and not e.invalid:
+            stale = f"{e.where}: allow-list entry matches nothing (stale)"
+            if report:
+                out.append(f"warning: {stale}")
+            else:
+                failures.append(stale)
     out += [f"FAILED: {msg}" for msg in failures]
     if blocking:
         verdict = f"{len(blocking)} incompatible change(s) against {ref}"
-        verdict = ("REPORT: " + verdict + " (report mode: not enforced)") if args.report else ("INCOMPATIBLE: " + verdict)
+        verdict = ("REPORT: " + verdict + " (report mode: not enforced)") if report else ("INCOMPATIBLE: " + verdict)
+        if report and os.environ.get("GITHUB_ACTIONS") == "true":
+            out.append(f"::warning::api-compat: {len(blocking)} incompatible change(s) against {ref} "
+                       f"(report mode, see the job summary)")
     else:
         verdict = f"OK: compatible with {ref}"
     out.append(verdict)
@@ -436,7 +496,7 @@ def run(args):
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary and not args.no_summary:
         write_summary(summary, shown_ref, mode, rows, findings, additions, failures, verdict)
-    return 1 if failures or (blocking and not args.report) else 0
+    return 1 if failures or (blocking and not report) else 0
 
 
 def write_summary(path, ref, mode, rows, findings, additions, failures, verdict):
@@ -467,6 +527,10 @@ def main(argv=None):
                    help="fail if MODULE's dumps declare anything; MODULE is not compared")
     p.add_argument("--report", action="store_true",
                    help="print incompatibilities but exit 0 (policy checks still fail)")
+    p.add_argument("--enforce", choices=("true", "false"),
+                   help="CI switch (API_COMPAT_ENFORCE): 'false' is --report; any other value is an error")
+    p.add_argument("--forbid-entries", action="store_true",
+                   help="fail if the allow-list has any entry (publish gate of a final release tag)")
     p.add_argument("--emit-removed", action="store_true",
                    help="print the missing baseline lines as allow-list entries and exit 0")
     p.add_argument("--reason", default="TODO-reason", help="reason field for --emit-removed")

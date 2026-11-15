@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-a: removed 3, changed 0, lost targets 0, allowed 0",
+    "class entry com.example.a.Gone is invalid"
+  ]
+}

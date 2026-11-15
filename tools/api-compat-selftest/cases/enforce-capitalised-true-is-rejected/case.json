@@ -1,0 +1,10 @@
+{
+  "args": [
+    "--enforce",
+    "True"
+  ],
+  "exit": 2,
+  "stderr": [
+    "argument --enforce: invalid choice: 'True'"
+  ]
+}

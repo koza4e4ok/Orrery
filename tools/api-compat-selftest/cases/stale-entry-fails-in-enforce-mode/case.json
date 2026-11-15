@@ -1,0 +1,8 @@
+{
+  "exit": 1,
+  "contains": [
+    "FAILED: ",
+    "allow.txt:1: allow-list entry matches nothing (stale)",
+    "OK: compatible"
+  ]
+}

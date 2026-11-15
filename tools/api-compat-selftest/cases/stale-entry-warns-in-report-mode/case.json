@@ -1,0 +1,13 @@
+{
+  "args": [
+    "--report"
+  ],
+  "exit": 0,
+  "contains": [
+    "warning: ",
+    "allow.txt:1: allow-list entry matches nothing (stale)"
+  ],
+  "absent": [
+    "FAILED"
+  ]
+}

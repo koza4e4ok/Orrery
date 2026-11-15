@@ -1,0 +1,12 @@
+{
+  "args": [
+    "--report"
+  ],
+  "env": {
+    "GITHUB_ACTIONS": "true"
+  },
+  "exit": 0,
+  "absent": [
+    "::warning::"
+  ]
+}

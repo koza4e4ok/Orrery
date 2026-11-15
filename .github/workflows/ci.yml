@@ -12,7 +12,8 @@ jobs:
       # Baseline of the ABI compatibility gate (tools/api-compat.py, spec 2.3): v0.9.2 while
       # the 1.0 breaks are built, v1.0.0-rc.1 from the first commit after that tag, then v1.0.0.
       API_BASELINE_REF: v0.9.2
-      # "false" = report mode: the gate prints its findings but does not fail the job.
+      # Exactly "true" or "false" (anything else fails the step). "false" = report mode: the
+      # gate prints its findings and a warning annotation but does not fail the job on them.
       # Set to "true" at the 1.0 freeze (#89 task 14) to make the gate required.
       API_COMPAT_ENFORCE: "false"
     steps:
@@ -42,9 +43,7 @@ jobs:
       - name: ABI compatibility against ${{ env.API_BASELINE_REF }} (enforce=${{ env.API_COMPAT_ENFORCE }})
         run: |
           git fetch --no-tags --depth=1 origin "refs/tags/$API_BASELINE_REF:refs/tags/$API_BASELINE_REF"
-          mode=--report
-          if [ "$API_COMPAT_ENFORCE" = "true" ]; then mode=; fi
-          python3 tools/api-compat.py $mode --require-empty orrery-widget
+          python3 tools/api-compat.py --enforce "$API_COMPAT_ENFORCE" --require-empty orrery-widget
       - name: Check the guide snippets marked as sample code match the sample
         run: python3 tools/check-guide-snippets.py docs/guide/*.md
       - name: Check the Kotlin/Wasm yarn.lock is committed

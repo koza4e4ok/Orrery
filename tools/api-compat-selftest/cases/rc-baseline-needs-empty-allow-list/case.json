@@ -1,8 +1,0 @@
-{
-  "baseline_version": "v1.0.0-rc.1",
-  "exit": 1,
-  "contains": [
-    "FAILED: baseline",
-    "1.0.0-rc.1 or later, so the allow-list must be empty (2 entries"
-  ]
-}

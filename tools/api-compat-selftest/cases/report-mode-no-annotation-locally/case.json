@@ -1,0 +1,9 @@
+{
+  "args": [
+    "--report"
+  ],
+  "exit": 0,
+  "absent": [
+    "::warning::"
+  ]
+}

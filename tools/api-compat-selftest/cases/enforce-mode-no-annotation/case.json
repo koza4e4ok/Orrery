@@ -1,0 +1,9 @@
+{
+  "env": {
+    "GITHUB_ACTIONS": "true"
+  },
+  "exit": 1,
+  "absent": [
+    "::warning::"
+  ]
+}

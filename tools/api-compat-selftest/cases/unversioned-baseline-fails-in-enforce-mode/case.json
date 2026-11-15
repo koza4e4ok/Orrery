@@ -1,0 +1,8 @@
+{
+  "baseline_version": null,
+  "exit": 1,
+  "contains": [
+    "FAILED: baseline",
+    "has no v* release version"
+  ]
+}

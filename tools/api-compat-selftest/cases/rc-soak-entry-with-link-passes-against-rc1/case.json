@@ -1,0 +1,12 @@
+{
+  "baseline_version": "v1.0.0-rc.1",
+  "exit": 0,
+  "contains": [
+    "allowed 2",
+    "OK: compatible"
+  ],
+  "absent": [
+    "FAILED",
+    "stale"
+  ]
+}

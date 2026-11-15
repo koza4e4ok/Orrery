@@ -19,8 +19,12 @@ jobs:
       # Release gate: a tag that fails any of the next three steps never reaches Maven Central.
       - name: ABI gate selftest
         run: python3 tools/api-compat-selftest.py
+      # A final tag (no "-" suffix) takes no allow-list entries at all (spec 2.3, soak rule).
       - name: ABI compatibility against the previous v* tag (enforcing)
-        run: python3 tools/api-compat.py --previous-of "$GITHUB_REF_NAME" --require-empty orrery-widget
+        run: |
+          forbid=--forbid-entries
+          case "$GITHUB_REF_NAME" in *-*) forbid= ;; esac
+          python3 tools/api-compat.py --previous-of "$GITHUB_REF_NAME" --require-empty orrery-widget $forbid
       # The Linux test tasks of ci.yml; screenshots, lint and the sample build stay in PR CI.
       - name: ABI dump check and tests
         run: >

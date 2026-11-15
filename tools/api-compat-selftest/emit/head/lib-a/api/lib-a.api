@@ -1,6 +1,6 @@
 public final class com/example/a/Foo {
 	public fun <init> (I)V
-	public final fun bar ()I
+	public final fun bar ()J
 }
 
 public final class com/example/a/Point {

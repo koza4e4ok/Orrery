@@ -74,8 +74,7 @@ internal actual fun is24HourClock(languageTag: String): Boolean = jsIs24HourCloc
 internal actual fun dayHeader(
     date: LocalDate,
     languageTag: String,
-): String =
-    intlFormatIn(date.year, date.month.number, date.day, DAY_HEADER_OPTIONS, languageTag)
+): String = intlFormatIn(date.year, date.month.number, date.day, DAY_HEADER_OPTIONS, languageTag)
 
 private const val DAY_HEADER_OPTIONS = """{"weekday":"short","month":"short","day":"numeric"}"""
 

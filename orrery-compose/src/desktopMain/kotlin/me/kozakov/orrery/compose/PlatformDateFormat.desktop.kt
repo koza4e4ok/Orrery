@@ -44,7 +44,7 @@ internal actual fun localeDayHeaderPattern(locale: Locale): String {
  * "y年M月d日" becomes "M月d日". Quoted literals are kept whole.
  */
 internal fun abbreviatedMonthDayPattern(pattern: String): String {
-    val tokens = patternTokens(pattern)
+    val tokens = datePatternParts(pattern)
     val year = tokens.indexOfFirst { it.isField && it.text[0] in YEAR_FIELDS }
     val kept =
         if (year < 0) {
@@ -67,14 +67,14 @@ internal fun abbreviatedMonthDayPattern(pattern: String): String {
 private const val YEAR_FIELDS = "yYu"
 private val FULL_MONTH_FIELDS = setOf("MMMM", "LLLL")
 
-private class PatternToken(
+private class DatePatternPart(
     val text: String,
     val isField: Boolean,
 )
 
 /** Splits a date pattern into runs of one ASCII pattern letter, quoted literals and other literal text. */
-private fun patternTokens(pattern: String): List<PatternToken> {
-    val tokens = ArrayList<PatternToken>()
+private fun datePatternParts(pattern: String): List<DatePatternPart> {
+    val tokens = ArrayList<DatePatternPart>()
     var index = 0
     while (index < pattern.length) {
         val char = pattern[index]
@@ -103,7 +103,7 @@ private fun patternTokens(pattern: String): List<PatternToken> {
                     next
                 }
             }
-        tokens += PatternToken(pattern.substring(index, end), isField = char.isAsciiLetter())
+        tokens += DatePatternPart(pattern.substring(index, end), isField = char.isAsciiLetter())
         index = end
     }
     return tokens

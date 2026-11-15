@@ -17,6 +17,7 @@ public final class me/kozakov/orrery/calendars/hijri/HijriDate {
 }
 
 public final class me/kozakov/orrery/calendars/hijri/HijriDateKt {
+	public static final fun monthLength (Lme/kozakov/orrery/calendars/hijri/HijriDate;)I
 	public static final fun toHijriDate (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/calendars/hijri/HijriVariant;)Lme/kozakov/orrery/calendars/hijri/HijriDate;
 	public static synthetic fun toHijriDate$default (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/calendars/hijri/HijriVariant;ILjava/lang/Object;)Lme/kozakov/orrery/calendars/hijri/HijriDate;
 	public static final fun toLocalDate (Lme/kozakov/orrery/calendars/hijri/HijriDate;)Lkotlinx/datetime/LocalDate;

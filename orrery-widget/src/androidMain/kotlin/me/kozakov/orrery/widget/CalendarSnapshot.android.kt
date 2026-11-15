@@ -102,8 +102,8 @@ public fun calendarSnapshotDescription(
     context: Context,
     spec: CalendarSnapshotSpec,
 ): String {
-    val formatter =
-        LocaleSnapshotFormatter(context.resources.configuration.primaryLocale(), DateFormat.is24HourFormat(context))
+    // A description never prints a time, so the clock setting does not matter.
+    val formatter = LocaleSnapshotFormatter(context.resources.configuration.primaryLocale(), is24Hour = false)
     return snapshotDescription(spec, formatter)
 }
 

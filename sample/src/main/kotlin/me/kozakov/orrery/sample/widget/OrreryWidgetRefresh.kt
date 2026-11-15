@@ -5,12 +5,17 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import java.util.Calendar
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Re-renders the calendar widgets when "today" changes: at local midnight (an alarm set by
@@ -18,6 +23,10 @@ import java.util.Calendar
  * Theme and wallpaper colour changes are picked up by the hourly update in the widget info.
  */
 class OrreryWidgetRefreshReceiver : BroadcastReceiver() {
+    // An exception that escapes this scope would kill the app process on a background
+    // broadcast, so log it instead. The timeout and finally make sure finish() runs before
+    // the system's goAsync() limit (about 10 s), even when an update hangs.
+    @Suppress("TooGenericExceptionCaught")
     override fun onReceive(
         context: Context,
         intent: Intent,
@@ -26,7 +35,13 @@ class OrreryWidgetRefreshReceiver : BroadcastReceiver() {
         val pending = goAsync()
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                refreshOrreryWidgets(app)
+                withTimeout(REFRESH_TIMEOUT) { refreshOrreryWidgets(app) }
+            } catch (e: TimeoutCancellationException) {
+                Log.w(TAG, "Widget refresh timed out", e)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Widget refresh failed", e)
             } finally {
                 pending.finish()
             }
@@ -48,7 +63,8 @@ internal suspend fun refreshOrreryWidgets(context: Context) {
 /**
  * Sets an inexact, non-waking alarm for the next local midnight. It fires when the device is
  * next awake after midnight, which is soon enough for a calendar and needs no exact-alarm
- * permission. Setting it again replaces the previous one.
+ * permission; in Doze it can wait for the next maintenance window. Setting it again replaces
+ * the previous one.
  */
 internal fun scheduleMidnightRefresh(context: Context) {
     val alarms = context.getSystemService(AlarmManager::class.java) ?: return
@@ -72,3 +88,7 @@ internal fun scheduleMidnightRefresh(context: Context) {
 }
 
 private const val ACTION_MIDNIGHT = "me.kozakov.orrery.sample.widget.MIDNIGHT"
+
+private const val TAG = "OrreryWidgets"
+
+private val REFRESH_TIMEOUT = 8.seconds

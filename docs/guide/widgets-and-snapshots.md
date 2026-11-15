@@ -88,19 +88,29 @@ and does not keep the context, so the `Context` of a widget update is safe to pa
 
 ## A Glance widget
 
-This is the sample's widget, shortened. Glance has no custom drawing, so the snapshot goes
-into a Glance `Image`:
+This is the sample's widget base class with its two helpers, copied from the sample (CI
+checks that they match). Glance has no custom drawing, so the snapshot goes into a Glance
+`Image`:
 
+<!-- snippet: sample/src/main/kotlin/me/kozakov/orrery/sample/widget/OrreryCalendarWidgets.kt -->
 ```kotlin
 abstract class OrreryCalendarWidget : GlanceAppWidget() {
-    // Exact: LocalSize is the size the launcher really gives the widget.
+    // Exact: LocalSize is the size the launcher really gives the widget, so the bitmap is
+    // rendered at the widget's pixel size and not larger (RemoteViews caps bitmap memory).
     override val sizeMode: SizeMode = SizeMode.Exact
 
+    /** What the widget shows on [today]. */
     abstract fun spec(today: LocalDate): CalendarSnapshotSpec
 
-    override suspend fun provideGlance(context: Context, id: GlanceId) {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) {
         val spec = spec(currentDate())
+        // The bitmap has no semantics: TalkBack reads the Image's content description.
         val description = calendarSnapshotDescription(context, spec)
+        // Render the sizes the launcher reports (usually portrait and landscape) before
+        // composing, so the first RemoteViews already carry the picture.
         val sizes = GlanceAppWidgetManager(context).getAppWidgetSizes(id).distinct()
         val rendered = sizes.mapNotNull { size -> render(context, spec, size)?.let { size to it } }.toMap()
         provideContent {
@@ -109,18 +119,48 @@ abstract class OrreryCalendarWidget : GlanceAppWidget() {
             val bitmap by produceState(rendered[size] ?: rendered.values.firstOrNull(), size) {
                 value = rendered[size] ?: render(context, spec, size) ?: value
             }
-            SnapshotImage(bitmap, description) // Image(ImageProvider(bitmap), description, ...)
+            SnapshotImage(bitmap, description)
         }
     }
 }
+```
 
-private suspend fun render(context: Context, spec: CalendarSnapshotSpec, size: DpSize): Bitmap? {
+<!-- snippet: sample/src/main/kotlin/me/kozakov/orrery/sample/widget/OrreryCalendarWidgets.kt -->
+```kotlin
+@Composable
+private fun SnapshotImage(
+    bitmap: Bitmap?,
+    description: String,
+) {
+    val modifier = GlanceModifier.fillMaxSize().clickable(actionStartActivity<MainActivity>())
+    if (bitmap == null) {
+        Box(modifier) {}
+    } else {
+        Image(
+            provider = ImageProvider(bitmap),
+            contentDescription = description,
+            modifier = modifier,
+            // The bitmap already has the widget's aspect ratio; this only absorbs rounding.
+            contentScale = ContentScale.FillBounds,
+        )
+    }
+}
+
+/** [spec] at [size] in [context]'s pixels, or null for an empty size. */
+private suspend fun render(
+    context: Context,
+    spec: CalendarSnapshotSpec,
+    size: DpSize,
+): Bitmap? {
     val density = context.resources.displayMetrics.density
     val width = (size.width.value * density).roundToInt().coerceAtMost(MAX_SIDE_PX)
     val height = (size.height.value * density).roundToInt().coerceAtMost(MAX_SIDE_PX)
     if (width <= 0 || height <= 0) return null
     return renderCalendarSnapshot(context, spec, width, height).asAndroidBitmap()
 }
+
+// Far above any widget; 2048 × 2048 also stays inside the renderer's 4 194 304 px area limit.
+private const val MAX_SIDE_PX = 2048
 ```
 
 The sample adds two widgets on top of it, `OrreryMonthWidget` (2×2 and larger) and
@@ -179,9 +219,11 @@ in both themes, so choose ones that read on light and dark surfaces.
 A calendar widget only has to change when "today", the data or the theme changes. The sample:
 
 - Re-renders at **local midnight** with an inexact, non-waking `AlarmManager.set(RTC, ...)`
-  alarm (no exact-alarm permission; it fires when the device is next awake). The alarm is set
-  again on every update, so a reboot or app update (which drop alarms) is covered by the next
-  system update.
+  alarm (no exact-alarm permission; it fires when the device is next awake). In Doze an
+  inexact alarm, like the hourly update, can be deferred to the next maintenance window, so
+  the widget can show the previous day for a while after midnight. The alarm is set again on
+  every update, so a reboot or app update (which drop alarms) is covered by the next system
+  update.
 - Re-renders on `TIME_SET`, `TIMEZONE_CHANGED` and `LOCALE_CHANGED`, which manifest
   receivers may still receive.
 - Uses `android:updatePeriodMillis="3600000"` (hourly) as a safety net that also picks up
@@ -191,6 +233,86 @@ A calendar widget only has to change when "today", the data or the theme changes
   it shows; the sample's data is generated, so it has nothing to call this for.
 
 Each update renders one bitmap per reported size on `Dispatchers.Default`.
+
+The refresh code, copied from
+[`sample/.../widget/OrreryWidgetRefresh.kt`](../../sample/src/main/kotlin/me/kozakov/orrery/sample/widget/OrreryWidgetRefresh.kt)
+without its package and imports. The receiver runs the update in `goAsync()`, catches and
+logs failures, because an exception that escapes would kill the app process on a background
+broadcast, and times out so that `finish()` always runs within the broadcast's limit:
+
+<!-- snippet: sample/src/main/kotlin/me/kozakov/orrery/sample/widget/OrreryWidgetRefresh.kt -->
+```kotlin
+class OrreryWidgetRefreshReceiver : BroadcastReceiver() {
+    // An exception that escapes this scope would kill the app process on a background
+    // broadcast, so log it instead. The timeout and finally make sure finish() runs before
+    // the system's goAsync() limit (about 10 s), even when an update hangs.
+    @Suppress("TooGenericExceptionCaught")
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
+        val app = context.applicationContext
+        val pending = goAsync()
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                withTimeout(REFRESH_TIMEOUT) { refreshOrreryWidgets(app) }
+            } catch (e: TimeoutCancellationException) {
+                Log.w(TAG, "Widget refresh timed out", e)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Widget refresh failed", e)
+            } finally {
+                pending.finish()
+            }
+        }
+    }
+}
+
+/** Re-renders every placed calendar widget and keeps the midnight alarm while any is placed. */
+internal suspend fun refreshOrreryWidgets(context: Context) {
+    OrreryMonthWidget().updateAll(context)
+    OrreryAgendaWidget().updateAll(context)
+    val manager = GlanceAppWidgetManager(context)
+    val placed =
+        manager.getGlanceIds(OrreryMonthWidget::class.java).isNotEmpty() ||
+            manager.getGlanceIds(OrreryAgendaWidget::class.java).isNotEmpty()
+    if (placed) scheduleMidnightRefresh(context)
+}
+
+/**
+ * Sets an inexact, non-waking alarm for the next local midnight. It fires when the device is
+ * next awake after midnight, which is soon enough for a calendar and needs no exact-alarm
+ * permission; in Doze it can wait for the next maintenance window. Setting it again replaces
+ * the previous one.
+ */
+internal fun scheduleMidnightRefresh(context: Context) {
+    val alarms = context.getSystemService(AlarmManager::class.java) ?: return
+    val intent = Intent(context, OrreryWidgetRefreshReceiver::class.java).setAction(ACTION_MIDNIGHT)
+    val operation =
+        PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+    val midnight =
+        Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+    alarms.set(AlarmManager.RTC, midnight.timeInMillis, operation)
+}
+
+private const val ACTION_MIDNIGHT = "me.kozakov.orrery.sample.widget.MIDNIGHT"
+
+private const val TAG = "OrreryWidgets"
+
+private val REFRESH_TIMEOUT = 8.seconds
+```
 
 ## Accessibility: content description
 
@@ -202,7 +324,7 @@ composable announces, in the context's locale: the month and year for a month ("
 
 ```kotlin
 Image(
-    provider = ImageProvider(bitmap),
+    provider = ImageProvider(bitmap.asAndroidBitmap()), // bitmap: ImageBitmap from renderCalendarSnapshot
     contentDescription = calendarSnapshotDescription(context, spec),
     modifier = GlanceModifier.fillMaxSize(),
 )

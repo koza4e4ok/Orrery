@@ -123,10 +123,12 @@ class CalendarSnapshotParityTest {
         val node = rule.onNodeWithContentDescription(description).fetchSemanticsNode()
         assertEquals(listOf(description), node.config.getOrNull(SemanticsProperties.ContentDescription))
         assertEquals(1, rule.onAllNodes(hasContentDescription(description)).fetchSemanticsNodes().size)
-        val composed = rule.onNodeWithContentDescription(description).captureToImage()
         val (density, resolver) = checkNotNull(environment)
         val expected = render(spec, CalendarSnapshotOutput(width, height, density, resolver, direction))
-        assertSamePixels(expected, composed)
+        // The composable renders on Dispatchers.Default, which the compose idling does not track.
+        val capture = { rule.onNodeWithContentDescription(description).captureToImage() }
+        runCatching { rule.waitUntil(timeoutMillis = 10_000) { differentPixels(expected, capture()) == 0 } }
+        assertSamePixels(expected, capture())
     }
 
     private fun render(
@@ -139,10 +141,18 @@ class CalendarSnapshotParityTest {
         actual: ImageBitmap,
     ) {
         assertEquals(expected.width to expected.height, actual.width to actual.height, "size")
+        val different = differentPixels(expected, actual)
+        assertTrue(different == 0, "$different of ${expected.width * expected.height} pixels differ")
+    }
+
+    private fun differentPixels(
+        expected: ImageBitmap,
+        actual: ImageBitmap,
+    ): Int {
+        if (expected.width != actual.width || expected.height != actual.height) return -1
         val want = IntArray(expected.width * expected.height).also { expected.readPixels(it) }
         val got = IntArray(actual.width * actual.height).also { actual.readPixels(it) }
-        val different = want.indices.count { want[it] != got[it] }
-        assertTrue(different == 0, "$different of ${want.size} pixels differ")
+        return want.indices.count { want[it] != got[it] }
     }
 
     private fun Modifier.exactSize(

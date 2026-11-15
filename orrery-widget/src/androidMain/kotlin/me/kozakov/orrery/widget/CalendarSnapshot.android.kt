@@ -105,12 +105,12 @@ internal class AndroidSnapshotEnvironment(
     fun formatter(): SnapshotFormatter = LocaleSnapshotFormatter(locale, is24Hour)
 
     companion object {
-        /** Reads [context]'s resources now. The font loader keeps only the application context. */
+        /** Reads [context]'s resources now; the font resolver is shared, see [fontFamilyResolver]. */
         fun of(context: Context): AndroidSnapshotEnvironment {
             val configuration = context.resources.configuration
             return AndroidSnapshotEnvironment(
                 density = Density(context),
-                fontFamilyResolver = createFontFamilyResolver(context),
+                fontFamilyResolver = fontFamilyResolver(context),
                 layoutDirection =
                     if (configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL) {
                         LayoutDirection.Rtl
@@ -121,8 +121,52 @@ internal class AndroidSnapshotEnvironment(
                 is24Hour = DateFormat.is24HourFormat(context),
             )
         }
+
+        private val lock = Any()
+        private var cachedKey: ResolverKey? = null
+        private var cachedResolver: FontFamily.Resolver? = null
+
+        /**
+         * One resolver (with its font cache and loading scope) for every render with the same
+         * application context and font weight adjustment, instead of a new one per call. The
+         * resolver keeps only the application context ([createFontFamilyResolver] hands the
+         * font loader `context.applicationContext`) and the weight adjustment as a number, so
+         * caching it does not retain an `Activity`. One entry: a new application or a changed
+         * bold-text setting replaces it.
+         */
+        fun fontFamilyResolver(context: Context): FontFamily.Resolver {
+            val weightAdjustment = context.resources.configuration.fontWeightAdjustmentOrZero()
+            val key = ResolverKey(context.applicationContext, weightAdjustment)
+            synchronized(lock) {
+                val cached = cachedResolver
+                if (cached != null && cachedKey == key) return cached
+                return createFontFamilyResolver(context).also {
+                    cachedKey = key
+                    cachedResolver = it
+                }
+            }
+        }
+
+        /** Drops the cached resolver, for tests that need a fresh one. */
+        fun clearFontFamilyResolverCache() {
+            synchronized(lock) {
+                cachedKey = null
+                cachedResolver = null
+            }
+        }
     }
+
+    private data class ResolverKey(
+        val application: Context,
+        val fontWeightAdjustment: Int,
+    )
 }
+
+/** Weekday, abbreviated month and day, in the locale's order. */
+private const val DAY_HEADING_SKELETON = "EEEMMMd"
+
+private fun Configuration.fontWeightAdjustmentOrZero(): Int =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) fontWeightAdjustment else 0
 
 private fun Configuration.primaryLocale(): Locale =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -132,14 +176,20 @@ private fun Configuration.primaryLocale(): Locale =
         locale
     }
 
-/** Date text in an explicit [locale], with the same patterns as the platform formatting of `orrery-compose`. */
+/**
+ * Date text in an explicit [locale], with the same patterns as the platform formatting of
+ * `orrery-compose`, except the day heading: that uses the locale's own order for the
+ * `EEEMMMd` skeleton (`DateFormat.getBestDateTimePattern`), so Ukrainian reads
+ * "сб, 14 лист." like its titles, and English still reads "Sat, Nov 14".
+ */
 internal class LocaleSnapshotFormatter(
     private val locale: Locale,
     private val is24Hour: Boolean,
 ) : SnapshotFormatter {
     private val medium = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
     private val long = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale)
-    private val heading = DateTimeFormatter.ofPattern("EEE, MMM d", locale)
+    private val heading =
+        DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, DAY_HEADING_SKELETON), locale)
 
     override fun monthTitle(month: YearMonth): String = month.displayName(locale)
 

@@ -53,6 +53,9 @@ public suspend fun renderCalendarSnapshot(
  * (the previous bitmap stays until the new one is ready). For a share-card preview or a
  * notification builder; to show a snapshot in the UI use [CalendarSnapshot].
  *
+ * Unlike [CalendarSnapshot], an oversized request throws during composition, so do not
+ * pass a size that comes from layout without clamping it to the limits below.
+ *
  * @throws IllegalArgumentException if [widthPx] or [heightPx] is outside `1..4096`, or
  *   `widthPx × heightPx` is above 4 194 304 pixels.
  */

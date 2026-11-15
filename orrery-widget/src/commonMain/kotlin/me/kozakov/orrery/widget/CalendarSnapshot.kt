@@ -2,17 +2,27 @@ package me.kozakov.orrery.widget
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.ExperimentalOrreryApi
@@ -127,6 +137,14 @@ public class CalendarSnapshotSpec(
  * The snapshot fills the size given by [modifier] (it has no size of its own) and is
  * drawn into an offscreen bitmap first, with software drawing only.
  *
+ * Rendering costs a full-size bitmap allocation plus text measuring, so it runs on
+ * [Dispatchers.Default], not in the draw phase: nothing is drawn until the first bitmap
+ * is ready, and after an input change the previous bitmap stays until the new one is.
+ * When the size changes, the previous bitmap is stretched to the new size and the new
+ * one is rendered once the size has been stable for 100 ms, so an animated resize does
+ * not render every frame. Prefer a fixed size; for a bitmap you place yourself use
+ * [rememberCalendarSnapshotBitmap].
+ *
  * Not interactive. For accessibility the whole snapshot is one node whose content
  * description is the month title, or the date range of a week or agenda strip.
  *
@@ -141,44 +159,62 @@ public fun CalendarSnapshot(
     colors: CalendarSnapshotColors = CalendarSnapshotDefaults.colors(),
     style: CalendarSnapshotStyle = CalendarSnapshotDefaults.style(),
 ) {
-    val localDensity = LocalDensity.current
+    val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
-    val formatter = PlatformSnapshotFormatter()
+    val layoutDirection = LocalLayoutDirection.current
+    val formatter = remember { PlatformSnapshotFormatter() }
     val description = snapshotDescription(spec, formatter)
+    var target by remember { mutableStateOf(IntSize.Zero) }
+    val bitmap =
+        produceState<ImageBitmap?>(
+            null,
+            spec,
+            target,
+            colors,
+            style,
+            density,
+            fontFamilyResolver,
+            layoutDirection,
+        ) {
+            val output = snapshotOutputFor(target, density, fontFamilyResolver, layoutDirection) ?: return@produceState
+            val previous = value
+            // Keys restart this producer, so a resize in progress keeps cancelling the delay.
+            if (previous != null && (previous.width != output.widthPx || previous.height != output.heightPx)) {
+                delay(RESIZE_SETTLE_MS)
+            }
+            value = withContext(Dispatchers.Default) { drawCalendarSnapshot(spec, output, colors, style, formatter) }
+        }
     Spacer(
         modifier
             .semantics { contentDescription = description }
-            .drawWithCache {
-                val target = IntSize(size.width.toInt(), size.height.toInt())
-                val bitmap =
-                    snapshotBitmapFor(target, localDensity, fontFamilyResolver, layoutDirection) { output ->
-                        drawCalendarSnapshot(spec, output, colors, style, formatter)
-                    }
-                onDrawBehind {
-                    if (bitmap != null) drawImage(bitmap, dstSize = target)
-                }
+            .onSizeChanged { target = it }
+            .drawBehind {
+                val image = bitmap.value
+                if (image != null) drawImage(image, dstSize = IntSize(size.width.toInt(), size.height.toInt()))
             },
     )
 }
 
 /**
- * Renders a [target]-sized snapshot with [render], or a smaller one with a scaled density
- * when [target] is above the renderer limits; null for an empty [target].
+ * The output for a [target]-sized snapshot, or a smaller one with a scaled density when
+ * [target] is above the renderer limits; null for an empty [target].
  */
-internal fun snapshotBitmapFor(
+internal fun snapshotOutputFor(
     target: IntSize,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     layoutDirection: LayoutDirection,
-    render: (CalendarSnapshotOutput) -> ImageBitmap,
-): ImageBitmap? {
+): CalendarSnapshotOutput? {
     if (target.width < 1 || target.height < 1) return null
     val scale = snapshotDownscale(target.width, target.height)
     val outputDensity = if (scale < 1f) Density(density.density * scale, density.fontScale) else density
     val width = (target.width * scale).toInt().coerceIn(1, MAX_SNAPSHOT_SIDE_PX)
     val height = (target.height * scale).toInt().coerceIn(1, MAX_SNAPSHOT_SIDE_PX)
-    return render(CalendarSnapshotOutput(width, height, outputDensity, fontFamilyResolver, layoutDirection))
+    return CalendarSnapshotOutput(width, height, outputDensity, fontFamilyResolver, layoutDirection)
 }
+
+/** How long the size must stay unchanged before [CalendarSnapshot] renders at the new size. */
+private const val RESIZE_SETTLE_MS = 100L
 
 /** The factor (at most 1) that brings a [width] × [height] px snapshot inside the renderer limits. */
 internal fun snapshotDownscale(

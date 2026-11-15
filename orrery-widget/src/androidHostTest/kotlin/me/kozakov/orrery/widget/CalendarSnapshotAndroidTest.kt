@@ -25,13 +25,15 @@ import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 import java.util.Locale
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
-import kotlin.test.assertNull
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 /** The Android overload: what it reads from the Context, and that it does not keep the Context. */
@@ -113,24 +115,51 @@ class CalendarSnapshotAndroidTest {
     }
 
     @Test
+    fun theFontResolverIsSharedPerApplication() {
+        val first = AndroidSnapshotEnvironment.of(app).fontFamilyResolver
+        assertSame(first, AndroidSnapshotEnvironment.of(nightMode(true)).fontFamilyResolver)
+        assertSame(first, AndroidSnapshotEnvironment.of(object : ContextWrapper(app) {}).fontFamilyResolver)
+        val bold = configured { fontWeightAdjustment = 300 }
+        assertNotSame(first, AndroidSnapshotEnvironment.of(bold).fontFamilyResolver)
+    }
+
+    @Test
     fun theContextIsNotRetained() {
-        val reference = renderWithThrowawayContext()
-        repeat(GC_ATTEMPTS) {
-            if (reference.get() != null) {
-                System.gc()
-                System.runFinalization()
-                Thread.sleep(GC_PAUSE_MS)
-            }
+        // A fresh cache, so the shared resolver is created from the throwaway context and is still
+        // held after the call: the check below then also covers what the resolver keeps.
+        AndroidSnapshotEnvironment.clearFontFamilyResolverCache()
+        val queue = ReferenceQueue<Context>()
+        val reference = renderWithThrowawayContext(queue)
+        val deadline = System.nanoTime() + GC_TIMEOUT_MS * NANOS_PER_MS
+        var collected = false
+        while (!collected && System.nanoTime() < deadline) {
+            System.gc()
+            System.runFinalization()
+            collected = queue.remove(GC_PAUSE_MS) != null
         }
-        assertNull(reference.get(), "the Context passed to renderCalendarSnapshot is still reachable")
+        assertTrue(
+            collected || reference.get() == null,
+            "the Context passed to renderCalendarSnapshot is still reachable",
+        )
     }
 
     /** Renders with a context that nothing else references, and returns only a weak reference to it. */
-    private fun renderWithThrowawayContext(): WeakReference<Context> {
+    private fun renderWithThrowawayContext(queue: ReferenceQueue<Context>): WeakReference<Context> {
         val context = object : ContextWrapper(app) {}
         val bitmap = render(context)
         assertEquals(300, bitmap.width)
-        return WeakReference(context)
+        return WeakReference(context, queue)
+    }
+
+    @Test
+    fun dayHeadingsFollowTheLocaleOrder() {
+        val date = LocalDate(2026, 11, 14)
+        val english = AndroidSnapshotEnvironment.of(configured { setLocale(Locale.US) }).formatter()
+        assertEquals("Sat, Nov 14", english.dayHeading(date))
+        val ukrainian = configured { setLocale(Locale.forLanguageTag("uk-UA")) }
+        val heading = AndroidSnapshotEnvironment.of(ukrainian).formatter().dayHeading(date)
+        // Day before month, as in the Ukrainian title.
+        assertTrue(heading.indexOf("14") < heading.indexOf("лист"), heading)
     }
 
     private fun render(
@@ -151,7 +180,8 @@ class CalendarSnapshotAndroidTest {
     private fun ImageBitmap.pixels(): IntArray = IntArray(width * height).also { readPixels(it) }
 
     private companion object {
-        const val GC_ATTEMPTS = 20
-        const val GC_PAUSE_MS = 50L
+        const val GC_TIMEOUT_MS = 10_000L
+        const val GC_PAUSE_MS = 100L
+        const val NANOS_PER_MS = 1_000_000L
     }
 }

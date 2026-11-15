@@ -229,26 +229,34 @@ internal class CalendarSnapshotPainter(
             drawTodayMark(colors.today, radius, cell.center)
         }
         if (texts != null) {
-            val color =
-                when {
-                    selected -> colors.selectionContent
-                    state.isToday -> colors.todayContent
-                    state.cell.isOutside -> colors.outsideDay
-                    state.selection == SelectionMark.RangeMiddle -> colors.rangeDayColor(state.tint ?: colors.day)
-                    else -> state.tint ?: colors.day
-                }
             val layout = texts.day(state.cell.date.day, isBold = selected || state.isToday)
             val topLeft = Offset(cell.center.x - layout.size.width / 2f, cell.center.y - layout.size.height / 2f)
-            drawText(layout, color, topLeft)
+            drawText(layout, dayTextColor(state), topLeft)
         }
-        if (state.dots > 0) {
-            // On the selection pill or today's circle the dots keep their place inside it.
-            val centerY = if (selected || state.isToday) dots.centerYOnMark else dots.centerY
-            val override = if (selected) colors.selectionContent else null
-            val dotColors = List(state.dots) { colors.eventDot }
-            inset(cell.left, cell.top, size.width - cell.right, size.height - cell.bottom) {
-                drawEventDots(dotColors, centerY, dots.diameter, dots.diameter * DOT_SPACING_FACTOR, override)
-            }
+        if (state.dots > 0) drawDayDots(state, cell, dots)
+    }
+
+    private fun dayTextColor(state: SnapshotDayState): Color =
+        when {
+            state.selection.isEndpoint -> colors.selectionContent
+            state.isToday -> colors.todayContent
+            state.cell.isOutside -> colors.outsideDay
+            state.selection == SelectionMark.RangeMiddle -> colors.rangeDayColor(state.tint ?: colors.day)
+            else -> state.tint ?: colors.day
+        }
+
+    private fun DrawScope.drawDayDots(
+        state: SnapshotDayState,
+        cell: Rect,
+        dots: DotRow,
+    ) {
+        val selected = state.selection.isEndpoint
+        // On the selection pill or today's circle the dots keep their place inside it.
+        val centerY = if (selected || state.isToday) dots.centerYOnMark else dots.centerY
+        val override = if (selected) colors.selectionContent else null
+        val dotColors = List(state.dots) { colors.eventDot }
+        inset(cell.left, cell.top, size.width - cell.right, size.height - cell.bottom) {
+            drawEventDots(dotColors, centerY, dots.diameter, dots.diameter * DOT_SPACING_FACTOR, override)
         }
     }
 

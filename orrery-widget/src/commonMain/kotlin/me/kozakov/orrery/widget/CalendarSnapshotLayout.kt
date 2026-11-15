@@ -270,6 +270,7 @@ internal fun planGridText(
     val weekdayPx = minOf(request.weekdayTextPx, cellWidth * WEEKDAY_TEXT_CELL_FACTOR)
     val weekdaysFit = request.showWeekdays && weekdayPx >= request.weekdayFloorPx
     val candidates = listOf(request.showTitle to weekdaysFit, false to weekdaysFit, false to false).distinct()
+
     // Day number size with the title and weekday rows of [plan] above the grid, or null if there is no room.
     fun dayPxBelow(plan: GridTextPlan): Float? {
         val gridHeight = height - plan.titleBand - plan.weekdayBand

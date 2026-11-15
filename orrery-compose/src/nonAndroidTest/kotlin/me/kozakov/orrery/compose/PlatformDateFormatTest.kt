@@ -91,6 +91,15 @@ class PlatformDateFormatTest {
     }
 
     @Test
+    fun dayHeadersUseTheLocaleOrder() {
+        val date = LocalDate(2026, 11, 14)
+        assertEquals("Sat, Nov 14", dayHeader(date, "en-US").replace('\u00A0', ' '))
+        assertEquals("сб, 14 лист.", dayHeader(date, "uk-UA").replace('\u00A0', ' '))
+        // The current locale resolves without throwing; its value depends on the host.
+        PlatformDateFormat.dayHeader(date)
+    }
+
+    @Test
     fun uppercasesLatinText() {
         assertEquals("TODAY", PlatformDateFormat.uppercase("today"))
     }

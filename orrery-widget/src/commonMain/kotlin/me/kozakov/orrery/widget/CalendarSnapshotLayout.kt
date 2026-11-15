@@ -252,7 +252,8 @@ internal fun gridTextRequest(
  * Sizes the text of a [rows]-row grid in a [width] × [height] px content box.
  *
  * Day numbers are `min(requested, cell × DAY_TEXT_CELL_FACTOR)` and weekday labels
- * `min(requested, cell width × WEEKDAY_TEXT_CELL_FACTOR)`; neither goes below its floor,
+ * `min(requested, cell width × WEEKDAY_TEXT_CELL_FACTOR)`, and never larger than the day
+ * numbers unless that would take them below their floor; neither goes below its floor,
  * `minTextScale` times the size at font scale 1 (see [GridTextRequest]). Cells shrink
  * first; when the day numbers would go below that floor, the title row is dropped, then
  * the weekday row (a weekday row too narrow for its floor is dropped at once). Only if the
@@ -269,15 +270,24 @@ internal fun planGridText(
     val weekdayPx = minOf(request.weekdayTextPx, cellWidth * WEEKDAY_TEXT_CELL_FACTOR)
     val weekdaysFit = request.showWeekdays && weekdayPx >= request.weekdayFloorPx
     val candidates = listOf(request.showTitle to weekdaysFit, false to weekdaysFit, false to false).distinct()
-    for ((title, weekdays) in candidates) {
-        val plan = GridTextPlan(title, weekdays, request.titleTextPx, weekdayPx, dayTextPx = 0f)
+    // Day number size with the title and weekday rows of [plan] above the grid, or null if there is no room.
+    fun dayPxBelow(plan: GridTextPlan): Float? {
         val gridHeight = height - plan.titleBand - plan.weekdayBand
-        if (gridHeight > 0f && width > 0f) {
-            val cell = minOf(cellWidth, gridHeight / rows)
-            val dayPx = minOf(request.dayTextPx, cell * DAY_TEXT_CELL_FACTOR)
-            if (dayPx >= request.dayFloorPx) {
+        if (gridHeight <= 0f || width <= 0f) return null
+        return minOf(request.dayTextPx, minOf(cellWidth, gridHeight / rows) * DAY_TEXT_CELL_FACTOR)
+    }
+    for ((title, weekdays) in candidates) {
+        val dayPx = dayPxBelow(GridTextPlan(title, weekdays, request.titleTextPx, weekdayPx, dayTextPx = 0f))
+        if (dayPx != null && dayPx >= request.dayFloorPx) {
+            // Short cells shrink the day numbers but not the weekday labels, so cap those at the
+            // numbers' size; the thinner weekday row then leaves the numbers a little more room.
+            val cappedWeekdayPx = minOf(weekdayPx, maxOf(dayPx, request.weekdayFloorPx))
+            if (!weekdays || cappedWeekdayPx >= weekdayPx) {
                 return GridTextPlan(title, weekdays, request.titleTextPx, weekdayPx, dayPx)
             }
+            val capped = GridTextPlan(title, true, request.titleTextPx, cappedWeekdayPx, dayTextPx = 0f)
+            // A thinner weekday row only adds grid height, so the numbers stay at least dayPx.
+            return GridTextPlan(title, true, request.titleTextPx, cappedWeekdayPx, dayPxBelow(capped) ?: dayPx)
         }
     }
     return GridTextPlan(

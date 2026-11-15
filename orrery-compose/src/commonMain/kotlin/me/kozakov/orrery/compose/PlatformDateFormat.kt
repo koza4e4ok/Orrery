@@ -37,7 +37,10 @@ internal expect object PlatformDateFormat {
         style: DateFormattingStyle,
     ): String
 
-    /** Agenda section header, e.g. "Wed, Jul 15". */
+    /**
+     * Agenda section header: short weekday, abbreviated month and day in the locale's own
+     * order (the `EEEMMMd` skeleton), e.g. "Wed, Jul 15" or "ср, 15 лип.".
+     */
     fun dayHeader(date: LocalDate): String
 
     /** Locale-ordered input pattern with a 4-digit year (e.g. "MM/dd/yyyy" or "dd.MM.yyyy"). */
@@ -64,6 +67,12 @@ internal enum class DateFormattingStyle { Medium, Long, Full }
 
 /** Whether [languageTag] (BCP 47, e.g. "de-DE") shows time of day on a 24-hour clock. */
 internal expect fun is24HourClock(languageTag: String): Boolean
+
+/** [PlatformDateFormat.dayHeader] for [languageTag] (BCP 47, e.g. "uk-UA") instead of the current locale. */
+internal expect fun dayHeader(
+    date: LocalDate,
+    languageTag: String,
+): String
 
 /** [PlatformDateFormat.formatTime] for [languageTag] (BCP 47, e.g. "zh-CN") instead of the current locale. */
 internal expect fun formatTime(
@@ -116,6 +125,14 @@ internal fun patternUses24HourClock(pattern: String): Boolean {
     val fields = pattern.replace(Regex("'[^']*'"), "")
     return 'H' in fields || 'k' in fields
 }
+
+/**
+ * [text] with its first character upper-cased by the rules of the current locale, for
+ * month titles of locales that write month names in lower case: "листопад 2026" becomes
+ * "Листопад 2026".
+ */
+internal fun capitalizeFirst(text: String): String =
+    if (text.isEmpty()) text else PlatformDateFormat.uppercase(text.substring(0, 1)) + text.substring(1)
 
 /** printf-style formatting of a built-in string template ("%s", "%1\$d", ...). */
 internal expect fun String.formatTemplate(vararg args: Any): String

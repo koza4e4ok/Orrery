@@ -39,8 +39,7 @@ internal actual object PlatformDateFormat {
             ),
         )
 
-    actual fun dayHeader(date: LocalDate): String =
-        date.toJavaLocalDate().format(DateTimeFormatter.ofPattern("EEE, MMM d", Locale.getDefault()))
+    actual fun dayHeader(date: LocalDate): String = localizedDayHeader(date, Locale.getDefault())
 
     actual fun inputDatePattern(): String = localizedDatePattern(Locale.getDefault())
 
@@ -57,6 +56,19 @@ internal actual object PlatformDateFormat {
 
 /** Locale-ordered date pattern with 4-digit years (e.g. MM/dd/yyyy for en-US). */
 internal expect fun localizedDatePattern(locale: Locale): String
+
+/** [locale]'s pattern for the `EEEMMMd` skeleton: short weekday, abbreviated month and day, e.g. "EEE, MMM d". */
+internal expect fun localeDayHeaderPattern(locale: Locale): String
+
+internal actual fun dayHeader(
+    date: LocalDate,
+    languageTag: String,
+): String = localizedDayHeader(date, Locale.forLanguageTag(languageTag))
+
+private fun localizedDayHeader(
+    date: LocalDate,
+    locale: Locale,
+): String = date.toJavaLocalDate().format(DateTimeFormatter.ofPattern(localeDayHeaderPattern(locale), locale))
 
 /** Whether [locale] shows time of day on a 24-hour clock. */
 internal expect fun localeUses24HourClock(locale: Locale): Boolean

@@ -51,7 +51,8 @@ internal actual object PlatformDateFormat {
         return symbols[month.number - 1] as String
     }
 
-    actual fun yearMonthTitle(yearMonth: YearMonth): String = format(yearMonth.firstDay, template = "yMMMM")
+    actual fun yearMonthTitle(yearMonth: YearMonth): String =
+        capitalizeFirst(format(yearMonth.firstDay, template = "yMMMM"))
 
     actual fun formatDate(
         date: LocalDate,
@@ -88,6 +89,11 @@ internal actual object PlatformDateFormat {
 }
 
 internal actual fun is24HourClock(languageTag: String): Boolean = uses24HourClock(nsLocale(languageTag))
+
+internal actual fun dayHeader(
+    date: LocalDate,
+    languageTag: String,
+): String = format(date, template = "EEEMMMd", locale = nsLocale(languageTag))
 
 internal actual fun formatTime(
     hour: Int,
@@ -129,9 +135,9 @@ private fun gregorian(): NSCalendar =
         "Gregorian calendar unavailable"
     }
 
-private fun formatter(): NSDateFormatter {
+private fun formatter(locale: NSLocale = NSLocale.currentLocale): NSDateFormatter {
     val formatter = NSDateFormatter()
-    formatter.locale = NSLocale.currentLocale
+    formatter.locale = locale
     formatter.calendar = gregorian()
     return formatter
 }
@@ -139,8 +145,9 @@ private fun formatter(): NSDateFormatter {
 private fun format(
     date: LocalDate,
     template: String,
+    locale: NSLocale = NSLocale.currentLocale,
 ): String {
-    val formatter = formatter()
+    val formatter = formatter(locale)
     formatter.setLocalizedDateFormatFromTemplate(template)
     return formatter.stringFromDate(date.toNSDate())
 }

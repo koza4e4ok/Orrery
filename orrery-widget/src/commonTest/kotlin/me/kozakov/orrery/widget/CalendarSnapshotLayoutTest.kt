@@ -195,6 +195,24 @@ class CalendarSnapshotLayoutTest {
     }
 
     @Test
+    fun weekdayLabelsAreNeverLargerThanTheDayNumbers() {
+        // A short 4x2-like box: the title goes, the 13.3 px rows give 8 px numbers, so the
+        // 10 px weekday labels shrink to 8 px and the thinner weekday row gives the numbers more room.
+        val plan = planGridText(234f, 94f, 6, request())
+        assertFalse(plan.showTitle)
+        assertTrue(plan.showWeekdays)
+        assertEquals(8f, plan.weekdayTextPx, 0.001f)
+        assertEquals((94f - 8f * LINE_HEIGHT_FACTOR) / 6 * DAY_TEXT_CELL_FACTOR, plan.dayTextPx, 0.001f)
+        assertTrue(plan.weekdayTextPx <= plan.dayTextPx)
+        for (height in 60..400) {
+            val sized = planGridText(234f, height.toFloat(), 6, request())
+            if (sized.showWeekdays && sized.showDayNumbers) {
+                assertTrue(sized.weekdayTextPx <= sized.dayTextPx + 0.001f, "height $height")
+            }
+        }
+    }
+
+    @Test
     fun narrowCellsDropTheWeekdayRowButKeepTheTitle() {
         // 16 px cells: a 16 px weekday label would need 8 px, below its 9.6 px floor.
         val plan = planGridText(112f, 700f, 6, request(weekdayPx = 16f))

@@ -47,8 +47,15 @@ private const val DOT_SPACING_FACTOR = 0.6f
 /**
  * Dot row centre below the cell centre, as a share of the pill radius. 0.85 keeps a gap
  * under the 0.6-cell day numbers while the dots stay inside the pill (0.357 + 0.04 < 0.42).
+ * Short cells move the dots further down, see [DOT_GAP_FACTOR].
  */
 private const val DOT_OFFSET_FACTOR = 0.85f
+
+/** Smallest gap between the day number's baseline and the event dots, as a multiple of their diameter. */
+private const val DOT_GAP_FACTOR = 2f
+
+/** Shrunk titles are scaled a little below the exact fit, so glyph rounding does not ellipsise them. */
+private const val TITLE_FIT_SLACK = 0.98f
 
 /** Height of an agenda event row as a multiple of its font size. */
 internal const val AGENDA_ROW_FACTOR = 1.5f
@@ -59,6 +66,7 @@ private const val AGENDA_BAR_HEIGHT_FACTOR = 0.7f
 private val AgendaBarWidth = 3.dp
 private val AgendaGap = 6.dp
 private val TodayRingWidth = 1.dp
+private val MinDotGap = 2.dp
 
 /**
  * Date text of a snapshot. The renderer backs it with the platform date formatting of
@@ -144,7 +152,7 @@ internal class CalendarSnapshotPainter(
         val plan = planGridText(content.width, content.height, grid.rowCount, request)
         var top = content.top
         if (plan.showTitle) {
-            val layout = measureLabel(measurer, title, plan.titleTextPx, FontWeight.Medium, content.width)
+            val layout = measureTitle(measurer, title, plan.titleTextPx, request.titleFloorPx, content.width)
             val box = Rect(content.left, top, content.right, top + plan.titleBand)
             drawLabel(layout, colors.title, box, centered = false)
             top += plan.titleBand
@@ -185,9 +193,10 @@ internal class CalendarSnapshotPainter(
             } else {
                 null
             }
+        val dots = DotRow.of(geometry, radius, texts, minGap = MinDotGap.toPx())
         val cells = states.map { geometry.cell(it.cell.row, it.cell.column) }
         states.forEachIndexed { index, state -> drawBand(state.selection, cells[index], radius) }
-        states.forEachIndexed { index, state -> drawDay(state, cells[index], radius, texts) }
+        states.forEachIndexed { index, state -> drawDay(state, cells[index], radius, texts, dots) }
     }
 
     private fun DrawScope.drawBand(
@@ -209,6 +218,7 @@ internal class CalendarSnapshotPainter(
         cell: Rect,
         radius: Float,
         texts: MonthTextCache.Texts?,
+        dots: DotRow,
     ) {
         val selected = state.selection.isEndpoint
         if (selected) drawSelectionPill(colors.selection, cell, radius, roundStart = true, roundEnd = true)
@@ -224,6 +234,7 @@ internal class CalendarSnapshotPainter(
                     selected -> colors.selectionContent
                     state.isToday -> colors.todayContent
                     state.cell.isOutside -> colors.outsideDay
+                    state.selection == SelectionMark.RangeMiddle -> colors.rangeDayColor(state.tint ?: colors.day)
                     else -> state.tint ?: colors.day
                 }
             val layout = texts.day(state.cell.date.day, isBold = selected || state.isToday)
@@ -231,12 +242,12 @@ internal class CalendarSnapshotPainter(
             drawText(layout, color, topLeft)
         }
         if (state.dots > 0) {
-            val diameter = maxOf(1f, minOf(cell.width, cell.height) * DOT_DIAMETER_FACTOR)
-            val centerY = minOf(cell.height - diameter, cell.height / 2f + radius * DOT_OFFSET_FACTOR)
+            // On the selection pill or today's circle the dots keep their place inside it.
+            val centerY = if (selected || state.isToday) dots.centerYOnMark else dots.centerY
             val override = if (selected) colors.selectionContent else null
-            val dots = List(state.dots) { colors.eventDot }
+            val dotColors = List(state.dots) { colors.eventDot }
             inset(cell.left, cell.top, size.width - cell.right, size.height - cell.bottom) {
-                drawEventDots(dots, centerY, diameter, diameter * DOT_SPACING_FACTOR, override)
+                drawEventDots(dotColors, centerY, dots.diameter, dots.diameter * DOT_SPACING_FACTOR, override)
             }
         }
     }
@@ -253,7 +264,7 @@ internal class CalendarSnapshotPainter(
         if (plan.showTitle) {
             val end = range.start.plus(range.days - 1, DateTimeUnit.DAY)
             val title = formatter.dateRange(range.start, end)
-            val layout = measureLabel(measurer, title, plan.titleTextPx, FontWeight.Medium, content.width)
+            val layout = measureTitle(measurer, title, plan.titleTextPx, request.titleFloorPx, content.width)
             val box = Rect(content.left, top, content.right, top + plan.titleBand)
             drawLabel(layout, colors.title, box, centered = false)
             top += plan.titleBand
@@ -304,6 +315,24 @@ internal class CalendarSnapshotPainter(
         }
     }
 
+    /**
+     * The title line: [text] at [textPx], or shrunk (down to [floorPx]) until it fits
+     * [maxWidth], so the end of a date range stays visible; ellipsised only below the floor.
+     */
+    private fun DrawScope.measureTitle(
+        measurer: TextMeasurer,
+        text: String,
+        textPx: Float,
+        floorPx: Float,
+        maxWidth: Float,
+    ): TextLayoutResult {
+        val natural = measureLabel(measurer, text, textPx, FontWeight.Medium, Float.MAX_VALUE)
+        val width = natural.size.width.toFloat()
+        if (width <= maxWidth) return natural
+        val fittedPx = maxOf(floorPx, minOf(textPx, textPx * maxWidth / width * TITLE_FIT_SLACK))
+        return measureLabel(measurer, text, fittedPx, FontWeight.Medium, maxWidth)
+    }
+
     /** One line of [text], ellipsised to [maxWidth]. */
     private fun DrawScope.measureLabel(
         measurer: TextMeasurer,
@@ -339,6 +368,44 @@ internal class CalendarSnapshotPainter(
                 else -> box.left
             }
         drawText(layout, color, Offset(x, box.center.y - layout.size.height / 2f))
+    }
+}
+
+/**
+ * Where the event dots of one grid go, in cell coordinates. On plain days ([centerY]) the
+ * dots sit at least [DOT_GAP_FACTOR] diameters (and `minGap`) below the day numbers'
+ * baseline, so short widget cells do not put them against the digits, but never past the
+ * cell bottom. On the selection pill or today's circle ([centerYOnMark]) they stay at
+ * [DOT_OFFSET_FACTOR] of the radius, inside the mark.
+ */
+private class DotRow(
+    val diameter: Float,
+    val centerY: Float,
+    val centerYOnMark: Float,
+) {
+    companion object {
+        fun of(
+            geometry: GridGeometry,
+            radius: Float,
+            texts: MonthTextCache.Texts?,
+            minGap: Float,
+        ): DotRow {
+            val diameter = maxOf(1f, minOf(geometry.cellWidth, geometry.cellHeight) * DOT_DIAMETER_FACTOR)
+            val middle = geometry.cellHeight / 2f
+            val preferred = middle + radius * DOT_OFFSET_FACTOR
+            val belowDigits =
+                if (texts == null) {
+                    preferred
+                } else {
+                    // Digits sit on the baseline; the layout is centred in the cell.
+                    val layout = texts.day(28, isBold = false)
+                    val baseline = middle - layout.size.height / 2f + layout.firstBaseline
+                    baseline + maxOf(minGap, diameter * DOT_GAP_FACTOR) + diameter / 2f
+                }
+            val onMark = minOf(geometry.cellHeight - diameter, preferred)
+            val centerY = minOf(maxOf(onMark, belowDigits), geometry.cellHeight - diameter / 2f)
+            return DotRow(diameter, centerY, onMark)
+        }
     }
 }
 

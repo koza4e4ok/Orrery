@@ -28,10 +28,14 @@ public fun DayOfWeek.displayName(
         locale,
     )
 
-/** Localized month + year title, e.g. "July 2026". */
+/**
+ * Localized month + year title, e.g. "July 2026". The month name starts with a capital
+ * letter, by [locale]'s case rules, also where it is written in lower case in running
+ * text: "Листопад 2026" in Ukrainian.
+ */
 public fun YearMonth.displayName(locale: Locale = Locale.getDefault()): String {
     val month = firstDay.toJavaLocalDate().month.getDisplayName(TextStyle.FULL_STANDALONE, locale)
-    return "$month $year"
+    return "${month.replaceFirstChar { it.titlecase(locale) }} $year"
 }
 
 /** Localized standalone month name, e.g. "July" or "Jul". */

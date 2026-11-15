@@ -7,6 +7,12 @@ import java.util.Locale
 
 internal actual fun localizedDatePattern(locale: Locale): String = DateFormat.getBestDateTimePattern(locale, "yyyyMMdd")
 
+internal actual fun localeDayHeaderPattern(locale: Locale): String =
+    DateFormat.getBestDateTimePattern(locale, DAY_HEADER_SKELETON)
+
+/** Short weekday, abbreviated month and day; ICU orders them for the locale. */
+private const val DAY_HEADER_SKELETON = "EEEMMMd"
+
 internal actual fun localeUses24HourClock(locale: Locale): Boolean =
     patternUses24HourClock(DateFormat.getBestDateTimePattern(locale, "jm"))
 

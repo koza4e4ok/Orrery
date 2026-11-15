@@ -37,7 +37,7 @@ internal actual object PlatformDateFormat {
     ): String = intlFormat(2024, month.number, 1, if (short) """{"month":"short"}""" else """{"month":"long"}""")
 
     actual fun yearMonthTitle(yearMonth: YearMonth): String =
-        intlFormat(yearMonth.year, yearMonth.month.number, 1, """{"year":"numeric","month":"long"}""")
+        capitalizeFirst(intlFormat(yearMonth.year, yearMonth.month.number, 1, """{"year":"numeric","month":"long"}"""))
 
     actual fun formatDate(
         date: LocalDate,
@@ -53,7 +53,7 @@ internal actual object PlatformDateFormat {
     }
 
     actual fun dayHeader(date: LocalDate): String =
-        intlFormat(date.year, date.month.number, date.day, """{"weekday":"short","month":"short","day":"numeric"}""")
+        intlFormatIn(date.year, date.month.number, date.day, DAY_HEADER_OPTIONS, tag = "")
 
     actual fun inputDatePattern(): String = normalizeInputPattern(jsInputDatePattern())
 
@@ -69,6 +69,14 @@ internal actual object PlatformDateFormat {
 }
 
 internal actual fun is24HourClock(languageTag: String): Boolean = jsIs24HourClock(languageTag)
+
+/** Intl orders the weekday, month and day for the locale, as the `EEEMMMd` skeleton does elsewhere. */
+internal actual fun dayHeader(
+    date: LocalDate,
+    languageTag: String,
+): String = intlFormatIn(date.year, date.month.number, date.day, DAY_HEADER_OPTIONS, languageTag)
+
+private const val DAY_HEADER_OPTIONS = """{"weekday":"short","month":"short","day":"numeric"}"""
 
 internal actual fun formatTime(
     hour: Int,
@@ -114,6 +122,15 @@ private fun intlFormat(
     month: Int,
     day: Int,
     options: String,
+): String = intlFormatIn(year, month, day, options, tag = "")
+
+/** Intl.DateTimeFormat of a UTC calendar day for [tag] (empty = default locale). */
+private fun intlFormatIn(
+    year: Int,
+    month: Int,
+    day: Int,
+    options: String,
+    tag: String,
 ): String =
     js(
         """{
@@ -121,7 +138,7 @@ private fun intlFormat(
     date.setUTCFullYear(year, month - 1, day);
     const opts = JSON.parse(options);
     opts.timeZone = 'UTC';
-    return new Intl.DateTimeFormat(undefined, opts).format(date);
+    return new Intl.DateTimeFormat(tag ? tag : undefined, opts).format(date);
 }""",
     )
 

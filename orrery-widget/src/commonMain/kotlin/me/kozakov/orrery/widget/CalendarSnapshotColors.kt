@@ -28,7 +28,10 @@ public class CalendarSnapshotColors(
     public val selection: Color,
     /** Day numbers and event dots on selected days. */
     public val selectionContent: Color,
-    /** Band behind the days inside a selected range. */
+    /**
+     * Band behind the days inside a selected range. Day numbers on it are mixed toward
+     * white or black where needed, so they reach 4.5:1 contrast against it.
+     */
     public val rangeBand: Color,
     /** Day numbers of holidays without their own colour. */
     public val holiday: Color,

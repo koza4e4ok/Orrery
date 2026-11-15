@@ -211,6 +211,7 @@ class CalendarSnapshotGoldenTest {
     ) = LocalDateTime(2026, 11, day, hour, minute)
 
     private companion object {
-        const val PURPLE = 0xFF6A1B9AL
+        // Material Purple 400: a colour bar that shows on both the light and the dark surface.
+        const val PURPLE = 0xFFAB47BCL
     }
 }

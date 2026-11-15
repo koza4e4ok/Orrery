@@ -195,9 +195,10 @@ private fun Configuration.primaryLocale(): Locale =
 
 /**
  * Date text in an explicit [locale], with the same patterns as the platform formatting of
- * `orrery-compose`, except the day heading: that uses the locale's own order for the
- * `EEEMMMd` skeleton (`DateFormat.getBestDateTimePattern`), so Ukrainian reads
- * "сб, 14 лист." like its titles, and English still reads "Sat, Nov 14".
+ * `orrery-compose` (`PlatformDateText`), so `renderCalendarSnapshot(context, …)` and the
+ * `CalendarSnapshot` composable print the same text for the same locale. Day headings use
+ * the locale's order for the `EEEMMMd` skeleton (`DateFormat.getBestDateTimePattern`) on
+ * both: "Sat, Nov 14", "сб, 14 лист.".
  */
 internal class LocaleSnapshotFormatter(
     private val locale: Locale,

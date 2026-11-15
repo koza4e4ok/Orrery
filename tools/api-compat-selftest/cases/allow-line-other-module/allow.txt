@@ -1,0 +1,3 @@
+# planned break
+lib-b | com/example/a/Foo :: public final fun baz (Ljava/lang/String;)V | 1.0-bridge | row 1
+lib-b | com.example.a/Foo :: final fun baz(kotlin/String) // com.example.a/Foo.baz|baz(kotlin.String){}[0] | 1.0-bridge | row 1

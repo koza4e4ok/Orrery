@@ -1,0 +1,14 @@
+# Allow-list for tools/api-compat.py: planned 1.0 breaks against the baseline (spec 2.3, 2.4).
+#
+# One entry per line, either a whole class or one dump line of a class:
+#   <module> | class <ClassName> | <reason: 1.0-bridge or 1.0-dataclass> | <ledger row>
+#   <module> | <ClassName> :: <dump line> | <reason> | <ledger row>
+# Class names in JVM (a/b/C$D) or klib (a.b/C.D) form; klib top-level declarations use
+# <top-level>. Generate entries from the ledger (docs/api-audit-1.0.md) with
+#   python3 tools/api-compat.py --baseline-ref v0.9.2 --emit-removed --reason <r> --ledger <row>
+# instead of typing them; Ritsuko reviews the generated file.
+#
+# Lifecycle: used while the baseline is v0.9.2 (PR gate and the publish gate of the
+# v1.0.0-rc.1 tag). The first PR after v1.0.0-rc.1 is tagged moves API_BASELINE_REF in
+# ci.yml to the RC and empties this file; the script fails while the baseline is
+# 1.0.0-rc.1 or later and this file has any entry.

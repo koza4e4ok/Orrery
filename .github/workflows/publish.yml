@@ -9,11 +9,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tools/api-compat.py reads the previous v* tag
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
+      # Release gate: a tag that fails any of the next three steps never reaches Maven Central.
+      - name: ABI gate selftest
+        run: python3 tools/api-compat-selftest.py
+      - name: ABI compatibility against the previous v* tag (enforcing)
+        run: python3 tools/api-compat.py --previous-of "$GITHUB_REF_NAME" --require-empty orrery-widget
+      # The Linux test tasks of ci.yml; screenshots, lint and the sample build stay in PR CI.
+      - name: ABI dump check and tests
+        run: >
+          ./gradlew checkKotlinAbi
+          :orrery-core:allTests :orrery-lunar:allTests :orrery-calendars:allTests :orrery-holidays:allTests
+          :orrery-compose:testDebugUnitTest :orrery-compose:desktopTest :orrery-compose:wasmJsTest
+          :orrery-widget:testAndroidHostTest :orrery-widget:desktopTest :orrery-widget:wasmJsTest
       - name: Publish to Maven Central
         # orrery-widget ships with the 1.0.0 rc (#89); drop this exclusion in that release PR.
         run: ./gradlew publishToMavenCentral -x :orrery-widget:publishToMavenCentral

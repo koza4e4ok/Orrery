@@ -1,0 +1,3 @@
+public final class com/example/w/Leak {
+	public fun <init> ()V
+}

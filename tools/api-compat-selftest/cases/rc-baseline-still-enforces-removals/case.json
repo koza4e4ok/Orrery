@@ -1,0 +1,7 @@
+{
+  "baseline_version": "v1.0.0-rc.1",
+  "exit": 1,
+  "contains": [
+    "lib-a: removed 2"
+  ]
+}

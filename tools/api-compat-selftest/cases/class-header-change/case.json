@@ -1,0 +1,6 @@
+{
+  "exit": 1,
+  "contains": [
+    "CHANGED lib-a.api: com.example.a.Foo :: public final class com/example/a/Foo {"
+  ]
+}

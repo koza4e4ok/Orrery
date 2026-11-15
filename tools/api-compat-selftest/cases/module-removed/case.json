@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-b: removed 0, changed 0, lost targets 1",
+    "removed module"
+  ]
+}

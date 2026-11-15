@@ -1,0 +1,25 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <Example:lib-a>
+final class com.example.a/Foo { // com.example.a/Foo|null[0]
+    constructor <init>(kotlin/Int) // com.example.a/Foo.<init>|<init>(kotlin.Int){}[0]
+
+    final fun bar(): kotlin/Int // com.example.a/Foo.bar|bar(){}[0]
+    final fun baz(kotlin/String) // com.example.a/Foo.baz|baz(kotlin.String){}[0]
+}
+
+final class com.example.a/Gone { // com.example.a/Gone|null[0]
+    constructor <init>() // com.example.a/Gone.<init>|<init>(){}[0]
+
+    final fun ping() // com.example.a/Gone.ping|ping(){}[0]
+}
+
+// Targets: [iosArm64, iosSimulatorArm64]
+final fun com.example.a/iosOnly(): kotlin/Int // com.example.a/iosOnly|iosOnly(){}[0]
+
+final fun com.example.a/helper(kotlin/Int): kotlin/Int // com.example.a/helper|helper(kotlin.Int){}[0]

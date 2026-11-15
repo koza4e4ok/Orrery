@@ -16,7 +16,9 @@ Thanks for helping. Bug reports, questions and pull requests are all welcome.
 - Add a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for anything
   users will notice.
 - If you change public API, run `./gradlew updateKotlinAbi` and commit the updated
-  dumps; CI's `checkKotlinAbi` fails otherwise.
+  dumps; CI's `checkKotlinAbi` fails otherwise. CI also compares the dumps with the
+  last release (`python3 tools/api-compat.py`): removing or changing a stable
+  declaration fails unless it is a planned break in `tools/api-compat-allow.txt`.
 - If you change how something looks, refresh the screenshot goldens with
   `./gradlew :orrery-compose:recordRoborazziDebug`.
 - CI must pass. The commands below run the same checks locally.

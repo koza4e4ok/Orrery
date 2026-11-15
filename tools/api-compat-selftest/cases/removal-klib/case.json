@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-a: removed 1, changed 0",
+    "REMOVED lib-a.klib.api: com.example.a.Foo :: final fun baz(kotlin/String)"
+  ]
+}

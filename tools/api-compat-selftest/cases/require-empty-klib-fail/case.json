@@ -1,0 +1,10 @@
+{
+  "args": [
+    "--require-empty",
+    "widget"
+  ],
+  "exit": 1,
+  "contains": [
+    "FAILED: --require-empty widget: api/widget.klib.api declares 1 line(s)"
+  ]
+}

@@ -28,8 +28,12 @@
    version-catalog `orrery = "X.Y.Z"`).
 2. Commit: `git commit -am "release: X.Y.Z"`.
 3. Tag and push: `git tag vX.Y.Z && git push origin main vX.Y.Z`.
-4. The `Publish` workflow builds, signs, uploads to the Central Portal, and releases
-   automatically (`publishToMavenCentral(automaticRelease = true)`).
+4. The `Publish` workflow first runs the release gate: `checkKotlinAbi`,
+   `tools/api-compat.py --previous-of <tag>` (the dumps against the previous `v*` tag,
+   enforcing, with `tools/api-compat-allow.txt`) and the Linux test tasks of `ci.yml`.
+   A tag that fails the gate never publishes: fix it on `main` and tag a new version.
+   Then it builds, signs, uploads to the Central Portal, and releases automatically
+   (`publishToMavenCentral(automaticRelease = true)`).
 5. Bump `VERSION_NAME` to the next `X.Y.(Z+1)-SNAPSHOT`, update the snapshot version in the
    README's **Snapshots** note to match, and commit.
 

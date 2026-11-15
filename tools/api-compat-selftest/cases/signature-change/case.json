@@ -1,0 +1,8 @@
+{
+  "exit": 1,
+  "contains": [
+    "lib-a: removed 0, changed 2",
+    "CHANGED lib-a.api: com.example.a.Foo :: public final fun bar ()I",
+    "CHANGED lib-a.klib.api: com.example.a.Foo :: final fun bar(): kotlin/Int"
+  ]
+}

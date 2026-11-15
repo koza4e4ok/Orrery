@@ -1,0 +1,1 @@
+lib-a | com.example.a.Foo :: public final fun baz (Ljava/lang/String;)V | 1.0-bridge | row 1

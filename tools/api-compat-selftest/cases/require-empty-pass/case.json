@@ -1,0 +1,10 @@
+{
+  "args": [
+    "--require-empty",
+    "widget"
+  ],
+  "exit": 0,
+  "contains": [
+    "widget: required to be empty, not compared"
+  ]
+}

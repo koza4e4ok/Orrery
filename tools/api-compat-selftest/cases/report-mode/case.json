@@ -1,0 +1,11 @@
+{
+  "args": [
+    "--report"
+  ],
+  "exit": 0,
+  "contains": [
+    "mode report",
+    "REMOVED lib-a.api",
+    "REPORT: 2 incompatible change(s)"
+  ]
+}

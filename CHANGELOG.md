@@ -4,12 +4,18 @@
 
 ### Changed
 
-- Agenda day headings follow the locale's order on every platform (#136): Android and
-  Desktop now use the `EEEMMMd` skeleton like iOS and Web, so Ukrainian reads
-  "сб, 14 лист." instead of "сб, лист. 14", and the `CalendarSnapshot` composable prints
-  the same headings as `renderCalendarSnapshot(context, …)`. Month titles start with a
-  capital letter in every locale ("Листопад 2026"), on JVM through
-  `YearMonth.displayName`.
+- Agenda day headings follow the locale's order on every platform (#136): Android now
+  uses the `EEEMMMd` skeleton like iOS and Web, so Ukrainian reads "сб, 14 лист."
+  instead of "сб, лист. 14", and the `CalendarSnapshot` composable prints the same
+  headings as `renderCalendarSnapshot(context, …)`. Desktop (JDK 17 has no skeleton API)
+  approximates the skeleton from the JDK's long date pattern without the year and era:
+  the day and month order match, but punctuation and the weekday position can differ
+  from Android (ja "土, 11月14日" instead of "11月14日(土)").
+- Month titles of locales that write month names in lower case start with a capital
+  letter ("листопад 2026" → "Листопад 2026"). On Android and Desktop,
+  `YearMonth.displayName` title-cases the month and prints "<Month> <year>"; on iOS and
+  Web the first character of the platform's title is title-cased, so year-first titles
+  (hu "2026. november") keep their lower-case month.
 - Calendar snapshots (`orrery-widget`): weekday labels are never larger than the day
   numbers, event dots keep a gap below the numbers in short widget cells, day numbers
   inside a selected range reach 4.5:1 contrast against the range band, and a title that

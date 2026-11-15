@@ -22,10 +22,15 @@ internal actual fun localizedDatePattern(locale: Locale): String {
 }
 
 /**
- * Without a skeleton API, derive `EEEMMMd` from the locale's LONG date pattern: drop the
- * year with its separators, abbreviate the month and put the short weekday in front, so
- * "MMMM d, y" (en-US) becomes "EEE, MMM d" and "d MMMM y 'р'." (uk) becomes "EEE, d MMM".
- * Locales that write the weekday after the date (ja: "M月d日(EEE)") still get it in front.
+ * An approximation of the `EEEMMMd` skeleton, which JDK 17 has no API for: take the
+ * locale's LONG date pattern, drop the year and era with their separators, abbreviate the
+ * month and put the short weekday in front, so "MMMM d, y" (en-US) becomes "EEE, MMM d",
+ * "d MMMM y 'р'." (uk) becomes "EEE, d MMM" and "d MMMM G y" (th) becomes "EEE, d MMM".
+ * The day and month order follow the locale; the weekday position and punctuation can
+ * differ from Android/ICU (ja gets "EEE, M月d日" where ICU gives "M月d日(EEE)").
+ *
+ * TODO: use DateTimeFormatterBuilder.getLocalizedDateTimePattern("MMMEd", …) (JDK 19+)
+ *  once the JVM baseline moves past 17.
  */
 internal actual fun localeDayHeaderPattern(locale: Locale): String {
     val long =
@@ -39,32 +44,39 @@ internal actual fun localeDayHeaderPattern(locale: Locale): String {
 }
 
 /**
- * [pattern] without its year field and the literals that separate the year from the
+ * [pattern] without its year and era fields and the literals that separate them from the
  * rest, with a full month (MMMM or LLLL) abbreviated: "d MMMM y 'р'." becomes "d MMM",
  * "y年M月d日" becomes "M月d日". Quoted literals are kept whole.
  */
 internal fun abbreviatedMonthDayPattern(pattern: String): String {
-    val tokens = datePatternParts(pattern)
-    val year = tokens.indexOfFirst { it.isField && it.text[0] in YEAR_FIELDS }
-    val kept =
-        if (year < 0) {
-            tokens
-        } else {
-            var from = year
-            var to = year + 1
-            while (to < tokens.size && !tokens[to].isField) to++
-            // A trailing year takes the separator before it too ("MMMM d, y").
-            if (to == tokens.size) {
-                while (from > 0 && !tokens[from - 1].isField) from--
-            }
-            tokens.subList(0, from) + tokens.subList(to, tokens.size)
-        }
+    var kept = datePatternParts(pattern)
+    while (true) {
+        val field = kept.indexOfFirst { it.isField && it.text[0] in YEAR_AND_ERA_FIELDS }
+        if (field < 0) break
+        kept = withoutField(kept, field)
+    }
     return kept
         .joinToString("") { if (it.isField && it.text in FULL_MONTH_FIELDS) it.text.dropLast(1) else it.text }
         .trim()
 }
 
-private const val YEAR_FIELDS = "yYu"
+/** [tokens] without the field at [field] and the literals after it, or before it when it is last. */
+private fun withoutField(
+    tokens: List<DatePatternPart>,
+    field: Int,
+): List<DatePatternPart> {
+    var from = field
+    var to = field + 1
+    while (to < tokens.size && !tokens[to].isField) to++
+    // A trailing field takes the separator before it too ("MMMM d, y").
+    if (to == tokens.size) {
+        while (from > 0 && !tokens[from - 1].isField) from--
+    }
+    return tokens.subList(0, from) + tokens.subList(to, tokens.size)
+}
+
+/** Year fields and era fields (G, and g in case a pattern carries it), which go with the year. */
+private const val YEAR_AND_ERA_FIELDS = "yYuGg"
 private val FULL_MONTH_FIELDS = setOf("MMMM", "LLLL")
 
 private class DatePatternPart(

@@ -6,6 +6,7 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 /** Platform formatter contract on Desktop, iOS and Web, independent of the host locale. */
@@ -95,8 +96,24 @@ class PlatformDateFormatTest {
         val date = LocalDate(2026, 11, 14)
         assertEquals("Sat, Nov 14", dayHeader(date, "en-US").replace('\u00A0', ' '))
         assertEquals("сб, 14 лист.", dayHeader(date, "uk-UA").replace('\u00A0', ' '))
-        // The current locale resolves without throwing; its value depends on the host.
-        PlatformDateFormat.dayHeader(date)
+        // The current locale's text depends on the host, but it shows the day and no year.
+        val header = PlatformDateFormat.dayHeader(date)
+        assertTrue(header.isNotBlank() && "2026" !in header, header)
+        assertNotEquals(header, PlatformDateFormat.dayHeader(LocalDate(2026, 11, 15)), "weekday or day ignored")
+        assertNotEquals(header, PlatformDateFormat.dayHeader(LocalDate(2026, 11, 21)), "day of month ignored")
+        assertNotEquals(header, PlatformDateFormat.dayHeader(LocalDate(2026, 12, 14)), "month ignored")
+    }
+
+    @Test
+    fun capitalizesTheFirstCharacterInTitleCase() {
+        assertEquals("Листопад 2026", capitalizeFirst("листопад 2026"))
+        assertEquals("November 2026", capitalizeFirst("November 2026"))
+        assertEquals("", capitalizeFirst(""))
+        // Only the first character: a year-first title keeps its month as it is.
+        assertEquals("2026. november", capitalizeFirst("2026. november"))
+        // Title case, not upper case: Georgian stays Mkhedruli (upper case would be Mtavruli "Ნ").
+        assertEquals("ნოემბერი 2026", capitalizeFirst("ნოემბერი 2026"))
+        assertEquals("ǅ", capitalizeFirst("ǆ"))
     }
 
     @Test

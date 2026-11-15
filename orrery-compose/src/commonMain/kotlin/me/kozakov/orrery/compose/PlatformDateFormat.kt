@@ -127,12 +127,24 @@ internal fun patternUses24HourClock(pattern: String): Boolean {
 }
 
 /**
- * [text] with its first character upper-cased by the rules of the current locale, for
- * month titles of locales that write month names in lower case: "листопад 2026" becomes
- * "Листопад 2026".
+ * [text] with its first character in title case, for month titles of locales that write
+ * month names in lower case: "листопад 2026" becomes "Листопад 2026". Only the first
+ * character changes, so a year-first title (hu "2026. november") keeps its lower-case
+ * month, unlike JVM's `YearMonth.displayName`, which always prints "<Month> <year>".
  */
-internal fun capitalizeFirst(text: String): String =
-    if (text.isEmpty()) text else PlatformDateFormat.uppercase(text.substring(0, 1)) + text.substring(1)
+internal fun capitalizeFirst(text: String): String {
+    if (text.isEmpty()) return text
+    val first = text[0]
+    // Title case where it differs from upper case (Georgian "ნ" stays "ნ", "ǆ" becomes "ǅ"),
+    // otherwise the locale's upper case (Turkish "i" becomes "İ"), like JVM's titlecase(locale).
+    val head =
+        if (first.titlecaseChar() != first.uppercaseChar()) {
+            first.titlecase()
+        } else {
+            PlatformDateFormat.uppercase(first.toString())
+        }
+    return head + text.substring(1)
+}
 
 /** printf-style formatting of a built-in string template ("%s", "%1\$d", ...). */
 internal expect fun String.formatTemplate(vararg args: Any): String

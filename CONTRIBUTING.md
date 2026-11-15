@@ -17,8 +17,19 @@ Thanks for helping. Bug reports, questions and pull requests are all welcome.
   users will notice.
 - If you change public API, run `./gradlew updateKotlinAbi` and commit the updated
   dumps; CI's `checkKotlinAbi` fails otherwise. CI also compares the dumps with the
-  last release (`python3 tools/api-compat.py`): removing or changing a stable
-  declaration fails unless it is a planned break in `tools/api-compat-allow.txt`.
+  last release (`tools/api-compat.py`). Removing or changing a stable declaration, or
+  dropping a target, is **reported today and required from the 1.0 freeze** (#89 task 14);
+  then it fails unless it is a planned break in `tools/api-compat-allow.txt`. To run it
+  locally (Python 3, no Gradle), fetch the tags and pin the baseline the way CI does:
+
+  ```sh
+  git fetch --tags
+  API_BASELINE_REF=v0.9.2 python3 tools/api-compat.py --report --require-empty orrery-widget
+  python3 tools/api-compat-selftest.py   # if you change the gate itself
+  ```
+
+  Without the tags it exits 2 ("no v* tag found"). `API_BASELINE_REF` is set in
+  `.github/workflows/ci.yml`; drop `--report` to see the enforcing verdict.
 - If you change how something looks, refresh the screenshot goldens with
   `./gradlew :orrery-compose:recordRoborazziDebug`.
 - CI must pass. The commands below run the same checks locally.

@@ -28,6 +28,8 @@ jobs:
           :orrery-compose:desktopTest :orrery-compose:wasmJsTest
           :orrery-widget:testAndroidHostTest :orrery-widget:desktopTest :orrery-widget:wasmJsTest
           :sample:assembleDebug
+      - name: Check the guide snippets marked as sample code match the sample
+        run: python3 tools/check-guide-snippets.py docs/guide/*.md
       - name: Check the Kotlin/Wasm yarn.lock is committed
         run: |
           if [ -n "$(git status --porcelain -- kotlin-js-store)" ]; then
@@ -40,7 +42,8 @@ jobs:
           ./gradlew :orrery-core:publishToMavenLocal :orrery-lunar:publishToMavenLocal :orrery-calendars:publishToMavenLocal \
             :orrery-holidays:publishToMavenLocal :orrery-compose:publishToMavenLocal :orrery-widget:publishToMavenLocal
           ls ~/.m2/repository/me/kozakov/orrery/
-      - name: Check orrery-widget pins the exact orrery-* version and has no Glance
+      # Scans what the Maven Local step above published: add a new published module there too.
+      - name: Check orrery-widget pins the exact orrery-* version and no published artifact mentions Glance
         run: |
           v=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
           repo=~/.m2/repository/me/kozakov/orrery
@@ -57,11 +60,15 @@ jobs:
             fi
           done
           if grep -il glance $modules $poms; then echo "orrery-widget mentions Glance"; exit 1; fi
+          # Glance is a :sample dependency only; no published POM or module file may mention it.
+          if grep -ril --include='*.pom' --include='*.module' glance "$repo"; then echo "a published orrery-* artifact mentions Glance"; exit 1; fi
       - name: Check a v* tag publish would skip orrery-widget (same command as publish.yml)
         run: |
           ./gradlew publishToMavenCentral -x :orrery-widget:publishToMavenCentral --dry-run | tee publish-plan.txt
           grep -q ':orrery-compose:publish' publish-plan.txt || { echo "dry run planned no orrery-compose publish"; exit 1; }
           if grep ':orrery-widget:publish' publish-plan.txt; then echo "a v* tag would publish orrery-widget"; exit 1; fi
+          # :sample (the only module with Glance) must never be published.
+          if grep ':sample:' publish-plan.txt; then echo "a v* tag would publish :sample"; exit 1; fi
           grep -qF 'publishToMavenCentral -x :orrery-widget:publishToMavenCentral' .github/workflows/publish.yml \
             || { echo "publish.yml no longer matches this check; update both"; exit 1; }
       - name: Check the Android AAR ships the baseline profile and string resources

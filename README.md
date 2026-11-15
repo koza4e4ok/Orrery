@@ -110,6 +110,7 @@ Modal `OrreryDatePickerDialog` and full-screen `OrreryDateRangePickerDialog` wit
 | Day/week schedules and agenda | ✅ | – | – |
 | Heatmap | ✅ | ✅ | – |
 | Lunar, Hijri, Persian, public holidays | ✅ optional modules | – | – |
+| Home-screen widget and share-image snapshots | Experimental `orrery-widget`: month, week and agenda bitmaps ([guide](docs/guide/widgets-and-snapshots.md)) | – | – |
 | Maturity | Pre-1.0, new | Mature, widely used | First-party |
 
 Choose kizitonwose/Calendar if you need Android Views, Kotlin/JS or a long track

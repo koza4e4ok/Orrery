@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_month_label">Orrery month</string>
+    <string name="widget_month_description">This month with today and event days marked</string>
+    <string name="widget_agenda_label">Orrery agenda</string>
+    <string name="widget_agenda_description">Events of the next seven days</string>
+</resources>

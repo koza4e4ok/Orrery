@@ -90,6 +90,23 @@ public fun CalendarSnapshotDefaults.colors(context: Context): CalendarSnapshotCo
     return colors(scheme)
 }
 
+/**
+ * The content description of [spec]'s snapshot in [context]'s locale: the month title, or
+ * the spoken date range of a week or agenda strip, the same text the [CalendarSnapshot]
+ * composable announces. A bitmap has no semantics, so set this on the host view that
+ * shows it, for example the `contentDescription` of a Glance `Image`. Reads [context]
+ * synchronously and does not retain it.
+ */
+@ExperimentalOrreryApi
+public fun calendarSnapshotDescription(
+    context: Context,
+    spec: CalendarSnapshotSpec,
+): String {
+    // A description never prints a time, so the clock setting does not matter.
+    val formatter = LocaleSnapshotFormatter(context.resources.configuration.primaryLocale(), is24Hour = false)
+    return snapshotDescription(spec, formatter)
+}
+
 private fun Configuration.isNight(): Boolean =
     (uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 

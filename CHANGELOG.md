@@ -104,6 +104,13 @@
   outside 1..4096 px a side or above 4 194 304 px throw `IllegalArgumentException` naming
   the values. Agenda text now shrinks down to `minTextScale` of its size at font scale 1
   before rows are dropped, like the day numbers. All `@ExperimentalOrreryApi`.
+- `orrery-widget` home-screen widgets (#89): `calendarSnapshotDescription(context, spec)` on
+  Android returns the text the `CalendarSnapshot` composable announces (month title or the
+  spoken date range) in the context's locale, for the content description of a widget image.
+  The sample app has a Glance month widget (2×2 and up) and agenda widget (4×2 and up) that
+  render at the widget's pixel size and refresh at midnight, on clock, time zone and locale
+  changes and hourly. New guide: [Widgets and snapshots](docs/guide/widgets-and-snapshots.md).
+  Glance is a dependency of the sample only, never of a published module.
 
 ## [0.9.2] - 2026-11-05
 

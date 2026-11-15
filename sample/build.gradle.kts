@@ -40,9 +40,12 @@ dependencies {
     implementation(project(":orrery-lunar"))
     implementation(project(":orrery-calendars"))
     implementation(project(":orrery-holidays"))
+    implementation(project(":orrery-widget"))
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.core)
     implementation(libs.activity.compose)
     implementation(libs.androidx.profileinstaller)
+    // The home-screen widget glue. Glance stays in :sample, which is never published.
+    implementation(libs.glance.appwidget)
 }

@@ -82,8 +82,8 @@ class CalendarSnapshotAndroidTest {
         assertEquals(2f, environment.density.fontScale)
         assertEquals(LayoutDirection.Ltr, environment.layoutDirection)
         assertEquals(Locale.forLanguageTag("uk-UA"), environment.locale)
-        val title = environment.formatter().monthTitle(YearMonth(2026, 11))
-        assertTrue("листопад" in title && "2026" in title, title)
+        // Month titles start with a capital in every locale (#138).
+        assertEquals("Листопад 2026", environment.formatter().monthTitle(YearMonth(2026, 11)))
         assertTrue(environment.formatter().time(LocalTime(14, 5)).isNotBlank())
 
         val hebrew = configured { setLocale(Locale.forLanguageTag("he-IL")) }
@@ -173,7 +173,7 @@ class CalendarSnapshotAndroidTest {
         val agenda = spec.copy(range = CalendarSnapshotRange.Agenda(LocalDate(2026, 11, 14), days = 1))
         assertEquals("November 14, 2026", calendarSnapshotDescription(english, agenda))
         val ukrainian = calendarSnapshotDescription(configured { setLocale(Locale.forLanguageTag("uk-UA")) }, spec)
-        assertTrue("листопад" in ukrainian && "2026" in ukrainian, ukrainian)
+        assertEquals("Листопад 2026", ukrainian)
     }
 
     private fun render(

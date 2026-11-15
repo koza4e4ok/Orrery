@@ -14,7 +14,7 @@ jobs:
       API_BASELINE_REF: v0.9.2
       # "false" = report mode: the gate prints its findings but does not fail the job.
       # Set to "true" at the 1.0 freeze (#89 task 14) to make the gate required.
-      API_COMPAT_ENFORCE: "false"
+      API_COMPAT_ENFORCE: "true" # DEMO: one-off enforce, reverted in the next commit
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

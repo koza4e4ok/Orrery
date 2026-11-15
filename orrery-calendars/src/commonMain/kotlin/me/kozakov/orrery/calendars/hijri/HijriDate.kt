@@ -69,7 +69,7 @@ public fun HijriDate.toLocalDate(): LocalDate {
  *
  * @throws IllegalArgumentException for [HijriVariant.UmmAlQura] outside 1300..1600 AH.
  */
-public fun HijriDate.monthLength(): Int =
+internal fun HijriDate.monthLength(): Int =
     when (variant) {
         HijriVariant.UmmAlQura -> {
             UmmAlQura.requireYear(year)

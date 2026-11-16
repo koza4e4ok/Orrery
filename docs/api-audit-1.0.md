@@ -6,7 +6,7 @@ Generated from the sources and ABI dumps of `50bd6e3` against the baseline `v0.9
 
 | Section | Rows | Allow-list reason |
 |---|---|---|
-| B: HIDDEN bridges, removed at 1.0 (5B) | 45 (`orrery-compose` 38, `orrery-core` 7) | `1.0-bridge` |
+| B: HIDDEN bridges, removed at 1.0 (5B) | 46: 45 bridges (`orrery-compose` 38, `orrery-core` 7) and B-046, their compiler-generated lambdas (task 9) | `1.0-bridge` |
 | S: signature changes since `v0.9.2` without a bridge (5C) | 2 | `1.0-signature` |
 | D: public data classes (8B) | 45 (A 7, B 20, C 18) | `1.0-dataclass` (A and B) |
 | E: public enums (rule 3) | 20 | - |
@@ -69,6 +69,7 @@ Binary-only break: a recompile against 1.0 needs no source change. *Added in* is
 | B-043 | `orrery-core` | `SelectionMode.Single(autoAdvance, autoSelectDay)` [Selection.kt:26](../orrery-core/src/commonMain/kotlin/me/kozakov/orrery/core/Selection.kt#L26) | #92 | v0.1.0 | yes | `this(...)` | Binary compatibility | 2/1 | `1.0-bridge` |
 | B-044 | `orrery-core` | `SelectionMode.Single.copy(autoAdvance, autoSelectDay)` [Selection.kt:32](../orrery-core/src/commonMain/kotlin/me/kozakov/orrery/core/Selection.kt#L32) | #92 | v0.1.0 | yes | `Single` | Binary compatibility | 2/1 | `1.0-bridge` |
 | B-045 | `orrery-core` | `SelectionEngine(mode, bounds, disabled)` [SelectionEngine.kt:49](../orrery-core/src/commonMain/kotlin/me/kozakov/orrery/core/SelectionEngine.kt#L49) | #108 | v0.1.0 | yes | `this(...)` | Binary compatibility | 1/1 | `1.0-bridge` |
+| B-046 | `orrery-compose` | Compiler-generated `ComposableSingletons` getters of the default slot lambdas of B-014 to B-019, not a bridge: `ComposableSingletons$CalendarsKt` (8, from B-014 to B-018) and `ComposableSingletons$CollapsibleCalendarScaffoldKt` (1, from B-019). Added by hand in task 9: `checkKotlinAbi` dropped them with the bridges and the gate reported them unmapped. | - | - | yes | - | - | 9/0 | `1.0-bridge` |
 
 ## S: signature changes since v0.9.2 (5C)
 

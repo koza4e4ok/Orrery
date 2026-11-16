@@ -206,6 +206,37 @@ class NestedClasses(unittest.TestCase):
         self.assertEqual(1, code, out)
         self.assertIn("class entry com.example.n.Outer is invalid", out)
 
+    def jvm_only(self, name, classes):
+        """A JVM-only tree with the given class blocks of the nested base dump."""
+        blocks = (self.BASE / "lib-n" / "api" / "lib-n.api").read_text(encoding="utf-8").split("\n\n")
+        api = self.tmp / name / "lib-n" / "api"
+        api.mkdir(parents=True)
+        keep = [b for b in blocks if b.split(" {", 1)[0].rsplit("/", 1)[1] in classes]
+        self.assertEqual(len(classes), len(keep), name)
+        (api / "lib-n.api").write_text("\n\n".join(keep).rstrip("\n") + "\n", encoding="utf-8")
+        return self.tmp / name
+
+    def emit_jvm(self, head_classes):
+        base = self.jvm_only("base", ["Outer", "Outer$Inner", "Outer$Inner$Deep"])
+        head = self.jvm_only("head-" + str(len(list(self.tmp.iterdir()))), head_classes)
+        return run_gate(["--baseline-dir", str(base), "--head-dir", str(head), "--baseline-version", "v0.9.2",
+                         "--allow-list", str(self.tmp / "none.txt"), "--no-summary", "--emit-removed",
+                         "--reason", "1.0-dataclass", "--ledger", "row 1"])
+
+    def test_inner_removed_while_deep_stays_is_gone(self):
+        # Asuka QA mutant M10: a nested class left in head does not keep its outer class alive.
+        code, out, _ = self.emit_jvm(["Outer", "Outer$Inner$Deep"])
+        self.assertEqual(0, code, out)
+        self.assertEqual("# lib-n: com.example.n.Outer.Inner\n"
+                         "lib-n | class com.example.n.Outer.Inner | 1.0-dataclass | row 1\n", out)
+
+    def test_deep_removed_while_inner_stays_is_gone(self):
+        # ...and the reverse: an outer class left in head does not keep its nested class alive.
+        code, out, _ = self.emit_jvm(["Outer", "Outer$Inner"])
+        self.assertEqual(0, code, out)
+        self.assertEqual("# lib-n: com.example.n.Outer.Inner.Deep\n"
+                         "lib-n | class com.example.n.Outer.Inner.Deep | 1.0-dataclass | row 1\n", out)
+
     def test_class_entry_does_not_cover_its_nested_classes(self):
         code, out, _ = self.gate("lib-n | class com/example/n/Outer$Inner | 1.0-dataclass | row 1\n", "--report")
         self.assertEqual(0, code, out)
@@ -290,6 +321,24 @@ class LedgerMap(unittest.TestCase):
         rows[0] = ("lib-a", "com.example.a.Gone", "1.0-bridge", "B-001", lines[0])
         _, out, _ = self.emit(rows)
         self.assertIn("lib-a | class com.example.a.Gone | TODO-reason | TODO-ledger-row", out)
+
+    def test_partly_mapped_vanished_class_is_a_todo(self):
+        # Asuka QA mutant M3: lines without a row must not be outvoted by the mapped ones.
+        lines = ["public final class com/example/a/Gone {", "public fun <init> ()V"]
+        rows = [r for r in self.ROWS if r[1] != "com/example/a/Gone"]
+        rows += [("lib-a", "com.example.a.Point", "1.0-dataclass", "D-002", "public final fun component2 ()I")]
+        rows += [("lib-a", "com.example.a.Gone", "1.0-dataclass", "D-001", l) for l in lines]
+        _, out, err = self.emit(rows)
+        self.assertIn("lib-a | class com.example.a.Gone | TODO-reason | TODO-ledger-row", out)
+        self.assertNotIn("lib-a | class com.example.a.Gone | 1.0-dataclass", out)
+        self.assertIn("emitted 6 entries, 1 unmapped (TODO)", err)
+
+    def test_class_row_wins_for_a_vanished_class(self):
+        # Asuka QA mutant M2: for a class with no declaration left, its class row is the entry.
+        rows = [("lib-a", "com.example.a.Gone", "1.0-dataclass", "D-001"),
+                ("lib-a", "com.example.a.Gone", "1.0-bridge", "B-001", "public final fun ping ()V")]
+        _, out, _ = self.emit(rows)
+        self.assertIn("lib-a | class com.example.a.Gone | 1.0-dataclass | D-001", out)
 
     def test_bad_map_rows_are_setup_errors(self):
         cases = {

@@ -451,9 +451,40 @@ class GitBaseline(unittest.TestCase):
         self.assertEqual(1, code, out)
         self.assertIn("baseline v0.9.2,", out)
 
-    NON_SOAK = "lib-a | com.example.a.Foo :: public final fun bar ()I | 1.0-bridge | row 1\n"
+    NON_SOAK = "lib-a | com.example.a.Foo :: public final fun bar ()I | 1.0-bridge | B-001\n"
+
+    def add_ledger(self):
+        (self.repo / "docs").mkdir(exist_ok=True)
+        (self.repo / "docs" / "api-audit-1.0.md").write_text("| B-001 | bridge |\n", encoding="utf-8")
+
+    def test_ledger_doc_is_found_from_the_git_root(self):
+        # Asuka QA SHOULD 3 on #140 (mutant M7): run the script itself from the repository, with no
+        # --root or --ledger-doc, and a ledger field that is not a row of docs/api-audit-1.0.md.
+        self.add_ledger()
+        allow = self.repo / "tools" / "api-compat-allow.txt"
+        allow.write_text(self.NON_SOAK.replace("B-001", "B-999"), encoding="utf-8")
+        proc = subprocess.run([sys.executable, str(HERE / "api-compat.py"), "--baseline-ref", "v0.9.2",
+                               "--no-summary"], cwd=self.repo / "tools", capture_output=True, text=True)
+        self.assertEqual(2, proc.returncode, proc.stdout + proc.stderr)
+        self.assertIn("ledger row 'B-999' is not a row ID of the ledger", proc.stderr)
+        allow.write_text(self.NON_SOAK, encoding="utf-8")
+        proc = subprocess.run([sys.executable, str(HERE / "api-compat.py"), "--baseline-ref", "v0.9.2",
+                               "--no-summary", "--report"], cwd=self.repo / "tools", capture_output=True, text=True)
+        self.assertEqual(0, proc.returncode, proc.stdout + proc.stderr)
+
+    def test_allow_list_or_map_without_the_ledger_doc_is_a_setup_error(self):
+        (self.repo / "tools" / "api-compat-allow.txt").write_text(self.NON_SOAK, encoding="utf-8")
+        code, _, err = self.gate("--report")
+        self.assertEqual(2, code)
+        self.assertIn("docs/api-audit-1.0.md is missing, but the allow-list names ledger rows", err)
+        ledger_map = self.repo / "tools" / "map.tsv"
+        ledger_map.write_text("lib-a\tcom.example.a.Foo\t1.0-bridge\tB-001\n", encoding="utf-8")
+        code, _, err = self.gate("--emit-removed", "--ledger-map", str(ledger_map))
+        self.assertEqual(2, code)
+        self.assertIn("docs/api-audit-1.0.md is missing, but the ledger map names ledger rows", err)
 
     def test_sha_baseline_uses_the_nearest_tag_for_the_rc_rule(self):
+        self.add_ledger()
         self.git("tag", "v1.0.0-rc.1", "v0.9.10")
         (self.repo / "tools" / "api-compat-allow.txt").write_text(self.NON_SOAK, encoding="utf-8")
         sha = subprocess.run(["git", "rev-parse", "v0.9.10"], cwd=self.repo, check=True,
@@ -463,6 +494,7 @@ class GitBaseline(unittest.TestCase):
         self.assertIn(f"baseline {sha} (v1.0.0-rc.1) is 1.0.0-rc.1 or later, so only 'rc-soak'", out)
 
     def test_rc_tag_baseline_rejects_non_soak_entries(self):
+        self.add_ledger()
         self.git("tag", "v1.0.0-rc.1", "v0.9.10")
         (self.repo / "tools" / "api-compat-allow.txt").write_text(self.NON_SOAK, encoding="utf-8")
         code, out, _ = self.gate("--baseline-ref", "v1.0.0-rc.1")

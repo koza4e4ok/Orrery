@@ -43,7 +43,8 @@ Map rows (tab-separated, `#` starts a comment), the line form wins over the clas
 A class entry takes its class row, else the one value all its lines map to. Unmapped lines keep
 `TODO-reason`/`TODO-ledger-row`, which the allow-list parser rejects. With a map the output
 starts with the allow-list header, so `... --emit-removed --ledger-map <tsv> > allow.txt` writes
-the whole file. When the ledger `docs/api-audit-1.0.md` exists (or `--ledger-doc` names it),
+the whole file. In a repository, a map or a non-empty allow-list without `docs/api-audit-1.0.md` is a setup error.
+When the ledger `docs/api-audit-1.0.md` exists (or `--ledger-doc` names it),
 every non-`rc-soak` ledger field of the allow-list and the map must be a row ID of that file
 (`| B-001 |` at the start of a table row) whose letter matches the reason (`1.0-bridge` B,
 `1.0-signature` S, `1.0-dataclass` D). An `rc-soak` ledger field must be the approval link on #89,
@@ -362,6 +363,14 @@ def parse_ledger_map(path, ledger_ids):
     return rows
 
 
+def has_entries(path):
+    """True if the allow-list file exists and has a line that is not blank or a comment."""
+    if path is None or not Path(path).exists():
+        return False
+    return any(l.strip() and not l.strip().startswith("#")
+               for l in Path(path).read_text(encoding="utf-8").splitlines())
+
+
 def parse_allow_list(path, ledger_ids=None):
     entries = []
     if path is None or not Path(path).exists():
@@ -499,8 +508,15 @@ def run(args):
     if allow_path is None and root is not None:
         allow_path = os.path.relpath(Path(root) / DEFAULT_ALLOW_LIST)
     ledger_doc = args.ledger_doc
-    if ledger_doc is None and root is not None and (Path(root) / DEFAULT_LEDGER_DOC).exists():
+    if ledger_doc is None and root is not None:
         ledger_doc = os.path.relpath(Path(root) / DEFAULT_LEDGER_DOC)
+        if not Path(ledger_doc).exists():
+            # The ID check must not switch itself off when the ledger is renamed or dropped.
+            if args.ledger_map or (not args.emit_removed and has_entries(allow_path)):
+                raise SetupError(f"{DEFAULT_LEDGER_DOC} is missing, but the "
+                                 f"{'ledger map' if args.ledger_map else 'allow-list'} names ledger rows; "
+                                 f"restore the ledger or pass --ledger-doc")
+            ledger_doc = None
     ledger_ids = read_ledger_ids(ledger_doc)
     ledger_map = parse_ledger_map(args.ledger_map, ledger_ids) if args.ledger_map else None
     entries = [] if args.emit_removed else parse_allow_list(allow_path, ledger_ids)

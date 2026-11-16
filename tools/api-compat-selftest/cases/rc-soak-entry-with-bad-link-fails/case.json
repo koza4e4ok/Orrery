@@ -1,9 +1,7 @@
 {
   "baseline_version": "v1.0.0-rc.1",
-  "exit": 1,
-  "contains": [
-    "allow.txt:2:",
-    "allow.txt:3:",
-    "only 'rc-soak' entries"
+  "exit": 2,
+  "stderr": [
+    "allow.txt:2: an rc-soak ledger field must be Andrii's approval comment on #89"
   ]
 }

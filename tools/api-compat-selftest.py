@@ -331,6 +331,38 @@ class LedgerMap(unittest.TestCase):
         code, _, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc), "--report")
         self.assertEqual(0, code, err)
 
+    SOAK = "https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-42"
+
+    def test_rc_soak_map_row_is_generated_and_checked(self):
+        # RELEASING step 3: the soak PR adds rc-soak rows (approval URL as the ledger field) to the
+        # map and regenerates the allow-list (Ritsuko SHOULD 1 on #140).
+        rows = self.ROWS + [("lib-a", "com.example.a.Point", "rc-soak", self.SOAK, "public final fun component2 ()I")]
+        code, emitted, err = self.emit(rows, "--ledger-doc", str(self.doc))
+        self.assertEqual(0, code, err)
+        self.assertIn(f"lib-a | com.example.a.Point :: public final fun component2 ()I | rc-soak | {self.SOAK}",
+                      emitted)
+        self.assertIn("0 unmapped", err)
+        allow = self.tmp / "allow.txt"
+        allow.write_text(emitted, encoding="utf-8")
+        code, out, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc), "--enforce", "true")
+        self.assertEqual(0, code, out + err)
+        self.assertIn("allowed 11", out)
+
+    def test_rc_soak_with_free_text_is_rejected_on_any_baseline(self):
+        # Asuka QA SHOULD 2 on #140: a v0.9.2 baseline must not let rc-soak skip the ledger.
+        for text in ("because I said so", "https://github.com/koza4e4ok/Orrery/issues/90#issuecomment-1"):
+            rows = [("lib-a", "com.example.a.Foo", "rc-soak", text, "public final fun bar ()I")]
+            for doc in ([], ["--ledger-doc", str(self.doc)]):
+                code, _, err = self.emit(rows, *doc)
+                self.assertEqual(2, code, (text, doc))
+                self.assertIn("an rc-soak ledger field must be Andrii's approval comment on #89", err)
+            allow = self.tmp / "allow.txt"
+            allow.write_text(f"lib-a | com.example.a.Foo :: public final fun bar ()I | rc-soak | {text}\n",
+                             encoding="utf-8")
+            code, _, err = self.gate("--allow-list", str(allow), "--report")
+            self.assertEqual(2, code, text)
+            self.assertIn("an rc-soak ledger field must be Andrii's approval comment on #89", err)
+
     def test_row_ids_are_only_read_from_the_first_cell(self):
         ids = api_compat.read_ledger_ids(self.doc)
         self.assertEqual({"B-001", "S-001", "D-001", "D-002", "K-001"}, ids)

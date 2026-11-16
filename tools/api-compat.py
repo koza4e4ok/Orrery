@@ -45,7 +45,9 @@ A class entry takes its class row, else the one value all its lines map to. Unma
 starts with the allow-list header, so `... --emit-removed --ledger-map <tsv> > allow.txt` writes
 the whole file. When the ledger `docs/api-audit-1.0.md` exists (or `--ledger-doc` names it),
 every non-`rc-soak` ledger field of the allow-list and the map must be a row ID of that file
-(`| B-001 |` at the start of a table row). Python standard library only; the selftest is
+(`| B-001 |` at the start of a table row) whose letter matches the reason (`1.0-bridge` B,
+`1.0-signature` S, `1.0-dataclass` D). An `rc-soak` ledger field must be the approval link on #89,
+whatever the baseline. Python standard library only; the selftest is
 tools/api-compat-selftest.py, and tools/api-ledger.py generates the ledger and the map.
 """
 import argparse
@@ -323,6 +325,10 @@ def check_ledger_field(where, reason, ledger, ledger_ids):
         raise SetupError(f"{where}: reason {reason!r} is not one of {', '.join(REASONS)}")
     if ledger in PLACEHOLDERS:
         raise SetupError(f"{where}: ledger field {ledger!r} is a placeholder; fill in the ledger row")
+    if reason == "rc-soak" and not SOAK_LINK.match(ledger):
+        # Checked for every baseline, so the map cannot route a break round the ledger.
+        raise SetupError(f"{where}: an rc-soak ledger field must be Andrii's approval comment on #89 "
+                         f"(https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-<id>), not {ledger!r}")
     if ledger_ids is not None and reason != "rc-soak":
         if ledger not in ledger_ids:
             raise SetupError(f"{where}: ledger row {ledger!r} is not a row ID of the ledger "

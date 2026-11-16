@@ -19,7 +19,9 @@ Thanks for helping. Bug reports, questions and pull requests are all welcome.
   dumps; CI's `checkKotlinAbi` fails otherwise. CI also compares the dumps with the
   last release (`tools/api-compat.py`). Removing or changing a stable declaration, or
   dropping a target, is **reported today and required from the 1.0 freeze** (#89 task 14);
-  then it fails unless it is a planned break in `tools/api-compat-allow.txt`. To run it
+  then it fails unless it is a planned break in `tools/api-compat-allow.txt`. That file is
+  generated from the 1.0 ledger (`docs/api-audit-1.0.md`) through `tools/api-ledger-map.tsv`,
+  never edited by hand; CI checks it. To run it
   locally (Python 3, no Gradle), fetch the tags and pin the baseline the way CI does:
 
   ```sh

@@ -1,0 +1,23 @@
+// Klib ABI Dump
+// Targets: [iosArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <Example:lib-n>
+final class com.example.n/Outer { // com.example.n/Outer|null[0]
+    constructor <init>() // com.example.n/Outer.<init>|<init>(){}[0]
+
+    final fun size(): kotlin/Int // com.example.n/Outer.size|size(){}[0]
+
+    final class Inner { // com.example.n/Outer.Inner|null[0]
+        constructor <init>(kotlin/Int) // com.example.n/Outer.Inner.<init>|<init>(kotlin.Int){}[0]
+
+        final fun getValue(): kotlin/Int // com.example.n/Outer.Inner.getValue|getValue(){}[0]
+
+        final class Deep { // com.example.n/Outer.Inner.Deep|null[0]
+            constructor <init>() // com.example.n/Outer.Inner.Deep.<init>|<init>(){}[0]
+        }
+    }
+}

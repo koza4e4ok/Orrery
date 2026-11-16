@@ -33,8 +33,23 @@ Allow-list lines (`#` starts a comment):
     <module> | <ClassName> :: <dump line> | <reason> | <ledger row>
 Class names may be written in JVM (`a/b/C$D`) or klib (`a.b/C.D`) form; klib top-level
 declarations use `<top-level>`. `--emit-removed` prints the missing baseline lines in this
-format, grouped by class; a class whose every baseline line is missing becomes one class
-entry. Python standard library only; the selftest is tools/api-compat-selftest.py.
+format, grouped by class; a class with no declaration left in head becomes one class entry.
+
+Ledger-driven generation (spec 2.4, task 8): `--emit-removed --ledger-map <tsv>` takes the
+reason and ledger row of every entry from the map instead of one `--reason`/`--ledger` for all.
+Map rows (tab-separated, `#` starts a comment), the line form wins over the class form:
+    <module> <TAB> <class> <TAB> <reason> <TAB> <ledger row>
+    <module> <TAB> <class> <TAB> <reason> <TAB> <ledger row> <TAB> <dump line>
+A class entry takes its class row, else the one value all its lines map to. Unmapped lines keep
+`TODO-reason`/`TODO-ledger-row`, which the allow-list parser rejects. With a map the output
+starts with the allow-list header, so `... --emit-removed --ledger-map <tsv> > allow.txt` writes
+the whole file. In a repository, a map or a non-empty allow-list without `docs/api-audit-1.0.md` is a setup error.
+When the ledger `docs/api-audit-1.0.md` exists (or `--ledger-doc` names it),
+every non-`rc-soak` ledger field of the allow-list and the map must be a row ID of that file
+(`| B-001 |` at the start of a table row) whose letter matches the reason (`1.0-bridge` B,
+`1.0-signature` S, `1.0-dataclass` D). An `rc-soak` ledger field must be the approval link on #89,
+whatever the baseline. Python standard library only; the selftest is
+tools/api-compat-selftest.py, and tools/api-ledger.py generates the ledger and the map.
 """
 import argparse
 import os
@@ -57,6 +72,33 @@ PLACEHOLDERS = ("TODO-reason", "TODO-ledger-row")
 # rc-soak entries must point at Andrii's approval comment on #89 (spec 2.3, soak rule).
 SOAK_LINK = re.compile(r"^https://github\.com/koza4e4ok/Orrery/(issues|pull)/89#issuecomment-[0-9]+$")
 DEFAULT_ALLOW_LIST = "tools/api-compat-allow.txt"
+DEFAULT_LEDGER_DOC = "docs/api-audit-1.0.md"
+DEFAULT_LEDGER_MAP = "tools/api-ledger-map.tsv"
+# A row ID is the first cell of a ledger table row; an ID anywhere else in a line is not one.
+LEDGER_ROW_ID = re.compile(r"^\|\s*([A-Z]-\d{3})\s*\|")
+# The ledger field of a 1.0 entry must name a row of the section its reason belongs to.
+REASON_ROW_LETTER = {"1.0-bridge": "B", "1.0-signature": "S", "1.0-dataclass": "D"}
+ALLOW_HEADER = """\
+# Allow-list for tools/api-compat.py: planned 1.0 breaks against the baseline (spec 2.3, 2.4).
+# GENERATED, do not edit by hand. Regenerate with the command below; Ritsuko reviews the result.
+#
+# One entry per line, either a whole class or one dump line of a class:
+#   <module> | class <ClassName> | <reason> | <ledger row>
+#   <module> | <ClassName> :: <dump line> | <reason> | <ledger row>
+# Reason is one of: 1.0-bridge, 1.0-dataclass, 1.0-signature, rc-soak. Anything else, or a
+# TODO-reason / TODO-ledger-row placeholder, is an error (exit 2). The ledger row is a row ID of
+# docs/api-audit-1.0.md; the reason and row of each entry come from tools/api-ledger-map.tsv.
+# A class entry is valid only if the class has no declaration left in any head dump of the
+# module; "class <top-level>" is rejected. Target loss is never allow-listable. An entry that
+# matches nothing is a warning in report mode and fails in enforce mode.
+#
+# Lifecycle: used while the baseline is v0.9.2 (PR gate and the publish gate of the
+# v1.0.0-rc.1 tag). The first PR after v1.0.0-rc.1 is tagged moves API_BASELINE_REF in
+# ci.yml to the RC and empties this file. From an rc.1 baseline on, only rc-soak entries
+# whose ledger field is Andrii's approval comment on #89
+# (https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-<id>) pass; a final tag
+# (publish.yml passes --forbid-entries) and any 1.0.0+ baseline take no entries at all.
+"""
 KINDS = ("removed", "changed", "lost-target")
 
 
@@ -266,7 +308,71 @@ class AllowEntry:
         return self.line is None or self.line == finding.line
 
 
-def parse_allow_list(path):
+def read_ledger_ids(path):
+    """Row IDs (`B-001`, ...) of the ledger file, or None if there is no ledger to check against."""
+    if path is None:
+        return None
+    if not Path(path).exists():
+        raise SetupError(f"ledger {path} does not exist")
+    ids = set()
+    for raw in Path(path).read_text(encoding="utf-8").splitlines():
+        m = LEDGER_ROW_ID.match(raw.strip())
+        if m:
+            ids.add(m.group(1))
+    return ids
+
+
+def check_ledger_field(where, reason, ledger, ledger_ids):
+    if reason not in REASONS:
+        raise SetupError(f"{where}: reason {reason!r} is not one of {', '.join(REASONS)}")
+    if ledger in PLACEHOLDERS:
+        raise SetupError(f"{where}: ledger field {ledger!r} is a placeholder; fill in the ledger row")
+    if reason == "rc-soak" and not SOAK_LINK.match(ledger):
+        # Checked for every baseline, so the map cannot route a break round the ledger.
+        raise SetupError(f"{where}: an rc-soak ledger field must be Andrii's approval comment on #89 "
+                         f"(https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-<id>), not {ledger!r}")
+    if ledger_ids is not None and reason != "rc-soak":
+        if ledger not in ledger_ids:
+            raise SetupError(f"{where}: ledger row {ledger!r} is not a row ID of the ledger "
+                             f"({DEFAULT_LEDGER_DOC}, rows like '| B-001 |')")
+        letter = REASON_ROW_LETTER[reason]
+        if not re.fullmatch(rf"{letter}-\d{{3}}", ledger):
+            raise SetupError(f"{where}: reason {reason} must name a row {letter}-NNN of the ledger, "
+                             f"not {ledger!r}")
+
+
+def parse_ledger_map(path, ledger_ids):
+    """{(module, class key, line or None): (reason, ledger)} from the tab-separated ledger map."""
+    rows = {}
+    if not Path(path).exists():
+        raise SetupError(f"ledger map {path} does not exist")
+    for n, raw in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        where = f"{path}:{n}"
+        fields = [f.strip() for f in raw.split("\t")]
+        if len(fields) not in (4, 5) or not all(fields):
+            raise SetupError(f"{where}: expected '<module>\\t<class>\\t<reason>\\t<ledger row>[\\t<dump line>]'")
+        module, cls, reason, ledger = fields[:4]
+        check_ledger_field(where, reason, ledger, ledger_ids)
+        key = (module, class_key(cls), normalise(fields[4]) if len(fields) == 5 else None)
+        if key[2] is None and key[1] == TOP_LEVEL:
+            raise SetupError(f"{where}: a class row for {TOP_LEVEL} is not allowed; map its lines one by one")
+        if key in rows and rows[key] != (reason, ledger):
+            raise SetupError(f"{where}: {key[1]} {key[2] or '(class row)'} is mapped twice with different values")
+        rows[key] = (reason, ledger)
+    return rows
+
+
+def has_entries(path):
+    """True if the allow-list file exists and has a line that is not blank or a comment."""
+    if path is None or not Path(path).exists():
+        return False
+    return any(l.strip() and not l.strip().startswith("#")
+               for l in Path(path).read_text(encoding="utf-8").splitlines())
+
+
+def parse_allow_list(path, ledger_ids=None):
     entries = []
     if path is None or not Path(path).exists():
         return entries
@@ -282,10 +388,7 @@ def parse_allow_list(path):
         if len(fields) != 4 or not all(fields):
             raise SetupError(f"{where}: expected '<module> | <class Name or Name :: dump line> | <reason> | <ledger row>'")
         module, target, reason, ledger = fields
-        if reason not in REASONS:
-            raise SetupError(f"{where}: reason {reason!r} is not one of {', '.join(REASONS)}")
-        if ledger in PLACEHOLDERS:
-            raise SetupError(f"{where}: ledger field {ledger!r} is a placeholder; fill in the ledger row")
+        check_ledger_field(where, reason, ledger, ledger_ids)
         if target.startswith("class "):
             cls = class_key(target[6:])
             if cls == TOP_LEVEL:
@@ -348,22 +451,43 @@ def compare_module(module, base_files, head_files):
     return findings, added
 
 
-def emit_removed(findings, classes, reason, ledger):
-    """Allow-list lines for every missing baseline line; one class entry per vanished class."""
-    out = []
+def emit_removed(findings, classes, reason, ledger, ledger_map=None):
+    """Allow-list lines for every missing baseline line; one class entry per vanished class.
+
+    Without a ledger map every entry gets `reason` and `ledger`; with one, each line takes its
+    line row, else its class row, else the defaults (placeholders unless given). Returns the
+    lines and the number of entries left on the defaults.
+    """
+    ledger_map = ledger_map or {}
+    default = (reason, ledger)
+    out, unmapped = [], 0
     missing = {}
     for f in findings:
         if f.kind in ("removed", "changed"):
             missing.setdefault(f.module, {}).setdefault(class_key(f.container), set()).add(f.line)
+
+    def value(module, cls, line):
+        return ledger_map.get((module, cls, line)) or ledger_map.get((module, cls, None))
+
     for module in sorted(missing):
         for cls in sorted(missing[module]):
             gone = missing[module][cls]
             out.append(f"# {module}: {cls}")
             if class_gone(classes, module, cls):
-                out.append(f"{module} | class {cls} | {reason} | {ledger}")
+                found = ledger_map.get((module, cls, None))
+                if found is None:
+                    values = {value(module, cls, line) for line in gone}
+                    found = values.pop() if len(values) == 1 else None
+                unmapped += found is None
+                r, l = found or default
+                out.append(f"{module} | class {cls} | {r} | {l}")
             else:
-                out += [f"{module} | {cls} :: {line} | {reason} | {ledger}" for line in sorted(gone)]
-    return out
+                for line in sorted(gone):
+                    found = value(module, cls, line)
+                    unmapped += found is None
+                    r, l = found or default
+                    out.append(f"{module} | {cls} :: {line} | {r} | {l}")
+    return out, unmapped
 
 
 def run(args):
@@ -384,7 +508,19 @@ def run(args):
     allow_path = args.allow_list
     if allow_path is None and root is not None:
         allow_path = os.path.relpath(Path(root) / DEFAULT_ALLOW_LIST)
-    entries = parse_allow_list(allow_path)
+    ledger_doc = args.ledger_doc
+    if ledger_doc is None and root is not None:
+        ledger_doc = os.path.relpath(Path(root) / DEFAULT_LEDGER_DOC)
+        if not Path(ledger_doc).exists():
+            # The ID check must not switch itself off when the ledger is renamed or dropped.
+            if args.ledger_map or (not args.emit_removed and has_entries(allow_path)):
+                raise SetupError(f"{DEFAULT_LEDGER_DOC} is missing, but the "
+                                 f"{'ledger map' if args.ledger_map else 'allow-list'} names ledger rows; "
+                                 f"restore the ledger or pass --ledger-doc")
+            ledger_doc = None
+    ledger_ids = read_ledger_ids(ledger_doc)
+    ledger_map = parse_ledger_map(args.ledger_map, ledger_ids) if args.ledger_map else None
+    entries = [] if args.emit_removed else parse_allow_list(allow_path, ledger_ids)
 
     report = args.report or args.enforce == "false"
     label = ref if not version or version == ref else f"{ref} ({version})"
@@ -437,7 +573,16 @@ def run(args):
 
     classes = head_classes(head_dumps)
     if args.emit_removed:
-        print("\n".join(emit_removed(findings, classes, args.reason, args.ledger)))
+        lines, unmapped = emit_removed(findings, classes, args.reason, args.ledger, ledger_map)
+        if ledger_map is not None:
+            # A fixed command, not the arguments as typed: `refs/tags/v0.9.2` or `./tools/...` must not
+            # change the file (the CI step diffs it).
+            command = (f"python3 tools/api-compat.py --baseline-ref {version or ref} --emit-removed "
+                       f"--ledger-map {DEFAULT_LEDGER_MAP}")
+            lines = [*ALLOW_HEADER.splitlines(), f"#", f"# Generated with: {command}", "", *lines]
+        print("\n".join(lines))
+        count = sum(1 for line in lines if line and not line.startswith("#"))
+        print(f"api-compat: emitted {count} entries, {unmapped} unmapped (TODO)", file=sys.stderr)
         return 0
 
     for e in entries:
@@ -535,6 +680,10 @@ def main(argv=None):
                    help="print the missing baseline lines as allow-list entries and exit 0")
     p.add_argument("--reason", default="TODO-reason", help="reason field for --emit-removed")
     p.add_argument("--ledger", default="TODO-ledger-row", help="ledger field for --emit-removed")
+    p.add_argument("--ledger-map", metavar="TSV", help="per-class and per-line reason and ledger row "
+                   "for --emit-removed (tools/api-ledger-map.tsv); unmapped lines keep the defaults")
+    p.add_argument("--ledger-doc", help=f"ledger whose row IDs the ledger fields must name "
+                   f"(default: {DEFAULT_LEDGER_DOC} if it exists)")
     p.add_argument("--verbose", action="store_true", help="also list additions and allowed lines")
     p.add_argument("--root", help="repository root (default: git toplevel of the cwd)")
     p.add_argument("--baseline-dir", help=argparse.SUPPRESS)

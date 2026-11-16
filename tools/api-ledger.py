@@ -688,6 +688,9 @@ def generate(ref, baseline):
         raise SystemExit("api-ledger: bridge matching failed:\n  " + "\n  ".join(problems))
 
     map_rows, line_map = [], {}
+    # Baseline dump lines as written (tag_lines() folds `synthetic` away).
+    base_lines = {(module, line) for module, files in base.items() for rel, text in files.items()
+                  for _, line in api.Dump(text, rel.endswith(".klib.api")).decls}
 
     def add(module, cls, reason, rid, line):
         key = (module, api.class_key(cls), api.normalise(line))
@@ -703,7 +706,9 @@ def generate(ref, baseline):
         bid = f"B-{n:03d}"
         for line in b.jvm:
             add(b.module, b.jvm_class, "1.0-bridge", bid, line)
-            if line in b.main_jvm and " synthetic " in f" {line} " and CTOR_MARKER not in line:
+            if (line in b.main_jvm and " synthetic " in f" {line} " and CTOR_MARKER not in line
+                    and (b.module, api.normalise(desynth(line))) in base_lines):
+                # The baseline still has the released, non-synthetic form: the gate reports that line.
                 add(b.module, b.jvm_class, "1.0-bridge", bid, desynth(line))
         for line in b.klib:
             add(b.module, b.klib_class, "1.0-bridge", bid, line)
@@ -767,8 +772,8 @@ def render_map(sha, rows):
         "# (1.0-bridge B, 1.0-signature S, 1.0-dataclass D), or the approval link for rc-soak.",
         "# <module> TAB <class> TAB <reason> TAB <ledger row, or approval URL for rc-soak> TAB <dump line>",
         "# One row per dump line that a ledger row removes: bridges (B), signature changes (S) and",
-        "# the componentN functions of the tier A/B data classes (D). A bridge added after v0.9.2",
-        "# has two rows, its synthetic head line and the released non-synthetic line. Rows that",
+        "# the componentN functions of the tier A/B data classes (D). A bridge whose line is not yet",
+        "# synthetic in the baseline also has a row for that released non-synthetic line. Rows that",
         "# match no finding today are used when task 9 removes the bridges and task 10 converts",
         "# the data classes.",
     ]

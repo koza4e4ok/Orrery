@@ -102,6 +102,21 @@ PROPOSED = {
     "EventOverlapMode.Stacked": ("B", "layout config (one option today, may gain e.g. a lane cap)"),
 }
 
+# Spec 2.4 item 3, `Defaults` members that duplicate another entry point: a judgement call, so
+# a curated list (Ritsuko's ruling on #140, comment 6904611721). generate() fails if a member is
+# gone or its KDoc no longer has the cited text. These rows are not breaks: no map rows.
+# (module, object, member, duplicates, KDoc text that must be there, plan)
+DEFAULTS_DUPLICATES = [
+    ("orrery-compose", "CalendarDefaults", "DaysOfWeekHeader", "CalendarDefaults.WeekHeader", "Alias of [WeekHeader]",
+     "Task 9: `@Deprecated(level = WARNING)` with `ReplaceWith(\"WeekHeader(daysOfWeek, modifier, leadingSpacer, "
+     "contentColor, weekendDays, weekendContentColor)\")` on the public overload (same file as its bridge B-013); "
+     "removed in 2.0 (rule 6). No allow-list entry, no gate effect. Option for Andrii: remove it at 1.0 "
+     "instead, one more source break with an allow-list reason and a migration row."),
+]
+NOT_DUPLICATES = ("Not duplicates: the other same-named `Defaults` members (`DayHeader`, `strings`) are "
+                  "different widgets or different defaults. Scan method: member-name overlap plus a KDoc "
+                  "search, not a full semantic review.")
+
 
 def git(*args):
     proc = subprocess.run(["git", *args], capture_output=True, text=True)
@@ -622,6 +637,29 @@ def kdoc_flags(sources):
     return rows
 
 
+def defaults_duplicates(sources):
+    """X rows: each curated duplicate with its source line, checked against the sources."""
+    rows = []
+    for module, obj, member, dup, evidence, plan in DEFAULTS_DUPLICATES:
+        hits = []
+        for src in sources:
+            if src.module != module:
+                continue
+            for i, line in enumerate(src.lines):
+                if not re.match(rf"public fun {member}\(", line.strip()) or src.containers(i) != [obj]:
+                    continue
+                before = "\n".join(src.lines[max(0, i - 10):i])
+                if "DeprecationLevel.HIDDEN" in before.rsplit("*/", 1)[-1]:
+                    continue  # its bridge, a B row
+                if evidence in before:
+                    hits.append(f"{Path(src.path).name}:{i + 1}")
+        if len(hits) != 1:
+            raise SystemExit(f"api-ledger: Defaults duplicate {obj}.{member} with KDoc {evidence!r}: "
+                             f"expected one declaration, found {hits or 'none'}")
+        rows.append((module, f"{obj}.{member}", dup, evidence, plan, hits[0]))
+    return rows
+
+
 def finding_name(f):
     cls = api.class_key(f.container)
     short = cls.split(".")[-1]
@@ -711,7 +749,7 @@ def generate(ref, baseline):
 
     enums, sealed = enums_and_sealed(sources)
     doc = render_doc(sha, baseline, b_rows, s_rows, d_rows, enums, sealed, leaks(head), kdoc_flags(sources),
-                     findings, line_map)
+                     defaults_duplicates(sources), findings, line_map)
     return doc, render_map(sha, map_rows)
 
 
@@ -739,7 +777,8 @@ def render_map(sha, rows):
     return "\n".join(out) + "\n"
 
 
-def render_doc(sha, baseline, b_rows, s_rows, d_rows, enums, sealed, leak_rows, kdoc_rows, findings, line_map):
+def render_doc(sha, baseline, b_rows, s_rows, d_rows, enums, sealed, leak_rows, kdoc_rows, dup_rows, findings,
+               line_map):
     tiers = {t: sum(1 for r in d_rows if r[3] == t) for t in "ABC"}
     by_module = {}
     for _, b, *_ in b_rows:
@@ -769,6 +808,7 @@ def render_doc(sha, baseline, b_rows, s_rows, d_rows, enums, sealed, leak_rows, 
     w(f"| T: public sealed types (rule 3) | {len(sealed)} | - |")
     w(f"| L: stable signatures that reference an undeclared type (rule 4) | {len(leak_rows)} | - |")
     w(f"| K: KDoc that calls stable API experimental, internal or changing | {len(kdoc_rows)} | - |")
+    w(f"| X: `Defaults` members that duplicate another entry point (2.4 item 3) | {len(dup_rows)} | - |")
     w(f"| Gate findings against `{baseline}` mapped to a row | {mapped} of {len(findings)} | - |")
     w("")
     w("Spec 2.1 counted 43 bridges at `b17cdaa`. #134 (vertical gap between day cells) added two "
@@ -872,6 +912,18 @@ def render_doc(sha, baseline, b_rows, s_rows, d_rows, enums, sealed, leak_rows, 
             w(f"| K-{n:03d} | `{module}` | `{where}` | {md(text)} |")
     else:
         w("None found.")
+    w("")
+    w("## X: `Defaults` members that duplicate another entry point (2.4 item 3)")
+    w("")
+    w("Curated in `tools/api-ledger.py` (`DEFAULTS_DUPLICATES`, Ritsuko's ruling on #140); the generator checks "
+      "that each member and the cited KDoc still exist. Not a break at 1.0, so no map row and no allow-list entry.")
+    w("")
+    w("| ID | Module | Member | Duplicates | Evidence (KDoc) | Plan | Source |")
+    w("|---|---|---|---|---|---|---|")
+    for n, (module, member, dup, evidence, plan, where) in enumerate(dup_rows, 1):
+        w(f"| X-{n:03d} | `{module}` | `{member}` | `{dup}` | {md(evidence)} | {md(plan)} | `{where}` |")
+    w("")
+    w(NOT_DUPLICATES)
     w("")
     w(f"## Gate findings against {baseline}")
     w("")

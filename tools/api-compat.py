@@ -73,6 +73,7 @@ PLACEHOLDERS = ("TODO-reason", "TODO-ledger-row")
 SOAK_LINK = re.compile(r"^https://github\.com/koza4e4ok/Orrery/(issues|pull)/89#issuecomment-[0-9]+$")
 DEFAULT_ALLOW_LIST = "tools/api-compat-allow.txt"
 DEFAULT_LEDGER_DOC = "docs/api-audit-1.0.md"
+DEFAULT_LEDGER_MAP = "tools/api-ledger-map.tsv"
 # A row ID is the first cell of a ledger table row; an ID anywhere else in a line is not one.
 LEDGER_ROW_ID = re.compile(r"^\|\s*([A-Z]-\d{3})\s*\|")
 # The ledger field of a 1.0 entry must name a row of the section its reason belongs to.
@@ -574,7 +575,10 @@ def run(args):
     if args.emit_removed:
         lines, unmapped = emit_removed(findings, classes, args.reason, args.ledger, ledger_map)
         if ledger_map is not None:
-            command = f"python3 tools/api-compat.py --baseline-ref {ref} --emit-removed --ledger-map {args.ledger_map}"
+            # A fixed command, not the arguments as typed: `refs/tags/v0.9.2` or `./tools/...` must not
+            # change the file (the CI step diffs it).
+            command = (f"python3 tools/api-compat.py --baseline-ref {version or ref} --emit-removed "
+                       f"--ledger-map {DEFAULT_LEDGER_MAP}")
             lines = [*ALLOW_HEADER.splitlines(), f"#", f"# Generated with: {command}", "", *lines]
         print("\n".join(lines))
         count = sum(1 for line in lines if line and not line.startswith("#"))

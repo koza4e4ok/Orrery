@@ -298,7 +298,15 @@ class LedgerMap(unittest.TestCase):
         ], self.entries(out))
         self.assertIn("emitted 6 entries, 1 unmapped (TODO)", err)
         self.assertTrue(out.startswith("# Allow-list for tools/api-compat.py"), out)
-        self.assertIn("# Generated with: python3 tools/api-compat.py --baseline-ref", out)
+        self.assertIn("\n# Generated with: python3 tools/api-compat.py --baseline-ref v0.9.2 --emit-removed "
+                      "--ledger-map tools/api-ledger-map.tsv\n", out)
+
+    def test_generated_with_line_does_not_echo_the_arguments(self):
+        _, first, _ = self.emit(self.ROWS)
+        _, second, _ = self.gate("--allow-list", str(self.empty), "--emit-removed", "--ledger-map",
+                                 "./" + os.path.relpath(self.write_map(self.ROWS)))
+        self.assertEqual(first, second)
+        self.assertNotIn(str(self.tmp), first)
 
     def test_round_trip_with_a_complete_map_passes_the_ledger_check(self):
         rows = self.ROWS + [("lib-a", "com.example.a.Point", "1.0-dataclass", "D-002", "public final fun component2 ()I")]

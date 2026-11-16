@@ -70,7 +70,10 @@ PLACEHOLDERS = ("TODO-reason", "TODO-ledger-row")
 SOAK_LINK = re.compile(r"^https://github\.com/koza4e4ok/Orrery/(issues|pull)/89#issuecomment-[0-9]+$")
 DEFAULT_ALLOW_LIST = "tools/api-compat-allow.txt"
 DEFAULT_LEDGER_DOC = "docs/api-audit-1.0.md"
+# A row ID is the first cell of a ledger table row; an ID anywhere else in a line is not one.
 LEDGER_ROW_ID = re.compile(r"^\|\s*([A-Z]-\d{3})\s*\|")
+# The ledger field of a 1.0 entry must name a row of the section its reason belongs to.
+REASON_ROW_LETTER = {"1.0-bridge": "B", "1.0-signature": "S", "1.0-dataclass": "D"}
 ALLOW_HEADER = """\
 # Allow-list for tools/api-compat.py: planned 1.0 breaks against the baseline (spec 2.3, 2.4).
 # GENERATED, do not edit by hand. Regenerate with the command below; Ritsuko reviews the result.
@@ -320,9 +323,14 @@ def check_ledger_field(where, reason, ledger, ledger_ids):
         raise SetupError(f"{where}: reason {reason!r} is not one of {', '.join(REASONS)}")
     if ledger in PLACEHOLDERS:
         raise SetupError(f"{where}: ledger field {ledger!r} is a placeholder; fill in the ledger row")
-    if ledger_ids is not None and reason != "rc-soak" and ledger not in ledger_ids:
-        raise SetupError(f"{where}: ledger row {ledger!r} is not a row ID of the ledger "
-                         f"({DEFAULT_LEDGER_DOC}, rows like '| B-001 |')")
+    if ledger_ids is not None and reason != "rc-soak":
+        if ledger not in ledger_ids:
+            raise SetupError(f"{where}: ledger row {ledger!r} is not a row ID of the ledger "
+                             f"({DEFAULT_LEDGER_DOC}, rows like '| B-001 |')")
+        letter = REASON_ROW_LETTER[reason]
+        if not re.fullmatch(rf"{letter}-\d{{3}}", ledger):
+            raise SetupError(f"{where}: reason {reason} must name a row {letter}-NNN of the ledger, "
+                             f"not {ledger!r}")
 
 
 def parse_ledger_map(path, ledger_ids):

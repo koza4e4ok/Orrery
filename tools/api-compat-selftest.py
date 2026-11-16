@@ -216,7 +216,8 @@ class NestedClasses(unittest.TestCase):
 class LedgerMap(unittest.TestCase):
     """--emit-removed --ledger-map: per-line and per-class reason and ledger row (task 8)."""
 
-    LEDGER = "| B-001 | bridge |\n| S-001 | signature |\n| D-001 | data class |\n| D-002 | data class |\n"
+    LEDGER = ("| B-001 | bridge |\n| S-001 | signature |\n| D-001 | data class |\n| D-002 | data class |\n"
+              "| K-001 | kdoc |\n| `Foo.bar` | covered by B-777 |\n")
     ROWS = [
         ("lib-a", "com.example.a.Foo", "1.0-bridge", "B-001", "public final fun bar ()I"),
         ("lib-a", "com.example.a.Foo", "1.0-signature", "S-001"),
@@ -299,6 +300,15 @@ class LedgerMap(unittest.TestCase):
             "is mapped twice with different values": [("lib-a", "com.example.a.Foo", "1.0-bridge", "B-001"),
                                                       ("lib-a", "com/example/a/Foo", "1.0-signature", "S-001")],
             "ledger row 'B-999' is not a row ID": [("lib-a", "com.example.a.Foo", "1.0-bridge", "B-999")],
+            # An ID that only appears in a later cell of a row is not a row ID.
+            "ledger row 'B-777' is not a row ID": [("lib-a", "com.example.a.Foo", "1.0-bridge", "B-777")],
+            # The row letter must match the reason (Asuka QA SHOULD 1 on #140).
+            "reason 1.0-dataclass must name a row D-NNN of the ledger, not 'K-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-dataclass", "K-001")],
+            "reason 1.0-bridge must name a row B-NNN of the ledger, not 'S-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-bridge", "S-001")],
+            "reason 1.0-signature must name a row S-NNN of the ledger, not 'D-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-signature", "D-001")],
         }
         for message, rows in cases.items():
             code, _, err = self.emit(rows, "--ledger-doc", str(self.doc))
@@ -311,11 +321,19 @@ class LedgerMap(unittest.TestCase):
         code, _, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc))
         self.assertEqual(2, code)
         self.assertIn("ledger row 'row 1' is not a row ID of the ledger", err)
+        allow.write_text("lib-a | com.example.a.Foo :: public final fun bar ()I | 1.0-bridge | D-001\n", encoding="utf-8")
+        code, _, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc))
+        self.assertEqual(2, code)
+        self.assertIn("reason 1.0-bridge must name a row B-NNN of the ledger, not 'D-001'", err)
         # rc-soak entries carry an approval link, not a row ID.
         allow.write_text("lib-a | com.example.a.Foo :: public final fun bar ()I | rc-soak | "
                          "https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-1\n", encoding="utf-8")
         code, _, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc), "--report")
         self.assertEqual(0, code, err)
+
+    def test_row_ids_are_only_read_from_the_first_cell(self):
+        ids = api_compat.read_ledger_ids(self.doc)
+        self.assertEqual({"B-001", "S-001", "D-001", "D-002", "K-001"}, ids)
 
     def test_missing_ledger_doc_is_a_setup_error(self):
         code, _, err = self.gate("--allow-list", str(self.empty), "--ledger-doc", str(self.tmp / "nope.md"))

@@ -43,6 +43,13 @@ jobs:
       - name: ABI compatibility against ${{ env.API_BASELINE_REF }} (enforce=${{ env.API_COMPAT_ENFORCE }})
         run: |
           git fetch --no-tags --depth=1 origin "refs/tags/$API_BASELINE_REF:refs/tags/$API_BASELINE_REF"
+          # The allow-list is generated from the ledger map (docs/api-audit-1.0.md, task 8), never by hand.
+          python3 tools/api-compat.py --baseline-ref "$API_BASELINE_REF" --emit-removed \
+            --ledger-map tools/api-ledger-map.tsv > "$RUNNER_TEMP/api-compat-allow.txt"
+          diff -u tools/api-compat-allow.txt "$RUNNER_TEMP/api-compat-allow.txt" || {
+            echo "::error::tools/api-compat-allow.txt is not the generated one; regenerate it (see docs/api-audit-1.0.md)"
+            exit 1
+          }
           python3 tools/api-compat.py --enforce "$API_COMPAT_ENFORCE" --require-empty orrery-widget
       - name: Check the guide snippets marked as sample code match the sample
         run: python3 tools/check-guide-snippets.py docs/guide/*.md

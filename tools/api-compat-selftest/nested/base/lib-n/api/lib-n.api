@@ -1,0 +1,13 @@
+public final class com/example/n/Outer {
+	public fun <init> ()V
+	public final fun size ()I
+}
+
+public final class com/example/n/Outer$Inner {
+	public fun <init> (I)V
+	public final fun getValue ()I
+}
+
+public final class com/example/n/Outer$Inner$Deep {
+	public fun <init> ()V
+}

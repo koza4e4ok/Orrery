@@ -4,7 +4,8 @@
 `base/` holds the baseline dumps. Each `cases/<name>/` builds a head tree from `base/` plus
 the files in its `head/` overlay minus the paths in `delete.txt`, runs the gate with its
 optional `allow.txt` and checks `case.json`: `exit`, `contains` and `absent` (stdout),
-`stderr`, `args`, `env` and `baseline_version` (default `v0.9.2`, `null` for none). The tests below the cases cover `--emit-removed`,
+`stderr`, `args`, `env` and `baseline_version` (default `v0.9.2`, `null` for none). The tests below the cases cover `--emit-removed`, `--ledger-map` and the ledger
+row check, nested classes (`nested/`, `Outer$Inner`),
 the job summary, version ordering and baseline refs resolved from a real git repository.
 Run: python3 tools/api-compat-selftest.py
 """
@@ -165,6 +166,175 @@ class EmitRemoved(unittest.TestCase):
         text = summary.read_text(encoding="utf-8")
         self.assertIn("| lib-a | 10 | 1 | 0 | 0 | 1 |", text)
         self.assertIn("(report mode)", text)
+
+
+class NestedClasses(unittest.TestCase):
+    """Nested JVM classes (`Outer$Inner`) and their klib form (`Outer.Inner`) are one class key."""
+
+    BASE = FIXTURES / "nested" / "base"
+    HEAD = FIXTURES / "nested" / "head"
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def gate(self, allow_text, *extra):
+        allow = self.tmp / "allow.txt"
+        allow.write_text(allow_text, encoding="utf-8")
+        return run_gate(["--baseline-dir", str(self.BASE), "--head-dir", str(self.HEAD), "--baseline-version",
+                         "v0.9.2", "--allow-list", str(allow), "--no-summary", *extra])
+
+    def test_emit_gives_one_class_entry_per_nested_class(self):
+        code, out, _ = self.gate("", "--emit-removed", "--reason", "1.0-dataclass", "--ledger", "row 1")
+        self.assertEqual(0, code)
+        self.assertEqual("# lib-n: com.example.n.Outer.Inner\n"
+                         "lib-n | class com.example.n.Outer.Inner | 1.0-dataclass | row 1\n"
+                         "# lib-n: com.example.n.Outer.Inner.Deep\n"
+                         "lib-n | class com.example.n.Outer.Inner.Deep | 1.0-dataclass | row 1\n", out)
+
+    def test_jvm_and_klib_forms_of_a_nested_class_entry_cover_both_dumps(self):
+        code, out, _ = self.gate("lib-n | class com/example/n/Outer$Inner | 1.0-dataclass | row 1\n"
+                                 "lib-n | class com.example.n/Outer.Inner.Deep | 1.0-dataclass | row 1\n")
+        self.assertEqual(0, code, out)
+        self.assertIn("lib-n: removed 0, changed 0, lost targets 0, allowed 10, added 0", out)
+        self.assertNotIn("stale", out)
+
+    def test_outer_class_entry_is_invalid_while_outer_exists(self):
+        code, out, _ = self.gate("lib-n | class com/example/n/Outer | 1.0-dataclass | row 1\n")
+        self.assertEqual(1, code, out)
+        self.assertIn("class entry com.example.n.Outer is invalid", out)
+
+    def test_class_entry_does_not_cover_its_nested_classes(self):
+        code, out, _ = self.gate("lib-n | class com/example/n/Outer$Inner | 1.0-dataclass | row 1\n", "--report")
+        self.assertEqual(0, code, out)
+        self.assertIn("lib-n: removed 4, changed 0, lost targets 0, allowed 6, added 0", out)
+        self.assertIn("REMOVED lib-n.api: com.example.n.Outer.Inner.Deep :: public fun <init> ()V", out)
+
+
+class LedgerMap(unittest.TestCase):
+    """--emit-removed --ledger-map: per-line and per-class reason and ledger row (task 8)."""
+
+    LEDGER = "| B-001 | bridge |\n| S-001 | signature |\n| D-001 | data class |\n| D-002 | data class |\n"
+    ROWS = [
+        ("lib-a", "com.example.a.Foo", "1.0-bridge", "B-001", "public final fun bar ()I"),
+        ("lib-a", "com.example.a.Foo", "1.0-signature", "S-001"),
+        ("lib-a", "com/example/a/Gone", "1.0-dataclass", "D-001"),
+        ("lib-a", "com.example.a.Point", "1.0-dataclass", "D-002", "public final fun component1 ()I"),
+    ]
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.head = self.tmp / "head"
+        build_head(FIXTURES / "emit", self.head)
+        self.empty = self.tmp / "empty.txt"
+        self.empty.write_text("", encoding="utf-8")
+        self.doc = self.tmp / "ledger.md"
+        self.doc.write_text(self.LEDGER, encoding="utf-8")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def write_map(self, rows):
+        path = self.tmp / "map.tsv"
+        path.write_text("# comment\n" + "".join("\t".join(r) + "\n" for r in rows), encoding="utf-8")
+        return path
+
+    def gate(self, *extra):
+        return run_gate(["--baseline-dir", str(BASE), "--head-dir", str(self.head), "--baseline-version",
+                         "v0.9.2", "--no-summary", *extra])
+
+    def emit(self, rows, *extra):
+        return self.gate("--allow-list", str(self.empty), "--emit-removed", "--ledger-map", str(self.write_map(rows)),
+                         *extra)
+
+    @staticmethod
+    def entries(text):
+        return [l for l in text.splitlines() if l and not l.startswith("#")]
+
+    def test_line_rows_win_over_class_rows_and_unmapped_lines_keep_placeholders(self):
+        code, out, err = self.emit(self.ROWS, "--ledger-doc", str(self.doc))
+        self.assertEqual(0, code, err)
+        self.assertEqual([
+            "lib-a | com.example.a.Foo :: final fun baz(kotlin/String) // com.example.a/Foo.baz|baz(kotlin.String){}[0] | 1.0-signature | S-001",
+            "lib-a | com.example.a.Foo :: public final fun bar ()I | 1.0-bridge | B-001",
+            "lib-a | com.example.a.Foo :: public final fun baz (Ljava/lang/String;)V | 1.0-signature | S-001",
+            "lib-a | class com.example.a.Gone | 1.0-dataclass | D-001",
+            "lib-a | com.example.a.Point :: public final fun component1 ()I | 1.0-dataclass | D-002",
+            "lib-a | com.example.a.Point :: public final fun component2 ()I | TODO-reason | TODO-ledger-row",
+        ], self.entries(out))
+        self.assertIn("emitted 6 entries, 1 unmapped (TODO)", err)
+        self.assertTrue(out.startswith("# Allow-list for tools/api-compat.py"), out)
+        self.assertIn("# Generated with: python3 tools/api-compat.py --baseline-ref", out)
+
+    def test_round_trip_with_a_complete_map_passes_the_ledger_check(self):
+        rows = self.ROWS + [("lib-a", "com.example.a.Point", "1.0-dataclass", "D-002", "public final fun component2 ()I")]
+        _, emitted, _ = self.emit(rows, "--ledger-doc", str(self.doc))
+        allow = self.tmp / "allow.txt"
+        allow.write_text(emitted, encoding="utf-8")
+        code, out, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc), "--enforce", "true")
+        self.assertEqual(0, code, out + err)
+        self.assertIn("lib-a: removed 0, changed 0, lost targets 0, allowed 11, added 1", out)
+        self.assertNotIn("stale", out)
+
+    def test_class_entry_takes_the_value_its_lines_agree_on(self):
+        lines = ["public final class com/example/a/Gone {", "public fun <init> ()V", "public final fun ping ()V",
+                 "final class com.example.a/Gone { // com.example.a/Gone|null[0]",
+                 "constructor <init>() // com.example.a/Gone.<init>|<init>(){}[0]",
+                 "final fun ping() // com.example.a/Gone.ping|ping(){}[0]"]
+        rows = [("lib-a", "com.example.a.Gone", "1.0-dataclass", "D-001", l) for l in lines]
+        _, out, _ = self.emit(rows)
+        self.assertIn("lib-a | class com.example.a.Gone | 1.0-dataclass | D-001", out)
+        rows[0] = ("lib-a", "com.example.a.Gone", "1.0-bridge", "B-001", lines[0])
+        _, out, _ = self.emit(rows)
+        self.assertIn("lib-a | class com.example.a.Gone | TODO-reason | TODO-ledger-row", out)
+
+    def test_bad_map_rows_are_setup_errors(self):
+        cases = {
+            "reason 'removed' is not one of": [("lib-a", "com.example.a.Foo", "removed", "B-001")],
+            "is a placeholder": [("lib-a", "com.example.a.Foo", "1.0-bridge", "TODO-ledger-row")],
+            "expected '<module>": [("lib-a", "com.example.a.Foo", "1.0-bridge")],
+            "a class row for <top-level> is not allowed": [("lib-a", "<top-level>", "1.0-bridge", "B-001")],
+            "is mapped twice with different values": [("lib-a", "com.example.a.Foo", "1.0-bridge", "B-001"),
+                                                      ("lib-a", "com/example/a/Foo", "1.0-signature", "S-001")],
+            "ledger row 'B-999' is not a row ID": [("lib-a", "com.example.a.Foo", "1.0-bridge", "B-999")],
+        }
+        for message, rows in cases.items():
+            code, _, err = self.emit(rows, "--ledger-doc", str(self.doc))
+            self.assertEqual(2, code, message)
+            self.assertIn(message, err)
+
+    def test_allow_list_ledger_rows_must_be_ledger_ids(self):
+        allow = self.tmp / "allow.txt"
+        allow.write_text("lib-a | com.example.a.Foo :: public final fun bar ()I | 1.0-bridge | row 1\n", encoding="utf-8")
+        code, _, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc))
+        self.assertEqual(2, code)
+        self.assertIn("ledger row 'row 1' is not a row ID of the ledger", err)
+        # rc-soak entries carry an approval link, not a row ID.
+        allow.write_text("lib-a | com.example.a.Foo :: public final fun bar ()I | rc-soak | "
+                         "https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-1\n", encoding="utf-8")
+        code, _, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc), "--report")
+        self.assertEqual(0, code, err)
+
+    def test_missing_ledger_doc_is_a_setup_error(self):
+        code, _, err = self.gate("--allow-list", str(self.empty), "--ledger-doc", str(self.tmp / "nope.md"))
+        self.assertEqual(2, code)
+        self.assertIn("does not exist", err)
+
+
+class RepositoryLedger(unittest.TestCase):
+    """The committed ledger, map and allow-list agree (ci.yml also regenerates the allow-list)."""
+
+    ROOT = HERE.parent
+
+    def test_map_and_allow_list_reference_ledger_rows(self):
+        ids = api_compat.read_ledger_ids(self.ROOT / "docs" / "api-audit-1.0.md")
+        self.assertTrue(any(i.startswith("B-") for i in ids))
+        self.assertTrue(api_compat.parse_ledger_map(self.ROOT / "tools" / "api-ledger-map.tsv", ids))
+        self.assertTrue(api_compat.parse_allow_list(self.ROOT / "tools" / "api-compat-allow.txt", ids))
+        allow = (self.ROOT / "tools" / "api-compat-allow.txt").read_text(encoding="utf-8")
+        self.assertIn("# Generated with: python3 tools/api-compat.py --baseline-ref", allow)
 
 
 class Versions(unittest.TestCase):

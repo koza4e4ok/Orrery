@@ -1,0 +1,13 @@
+// Klib ABI Dump
+// Targets: [iosArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <Example:lib-n>
+final class com.example.n/Outer { // com.example.n/Outer|null[0]
+    constructor <init>() // com.example.n/Outer.<init>|<init>(){}[0]
+
+    final fun size(): kotlin/Int // com.example.n/Outer.size|size(){}[0]
+}

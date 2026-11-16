@@ -35,10 +35,11 @@
    entries at all. A tag that fails the gate never publishes: fix it on `main` and tag a
    new version.
 
-   > **Until task 8 generates the allow-list**, any tag pushed from `main` fails this gate,
-   > a `0.9.x` patch included: `main` has 26 findings against `v0.9.2` (bridges turned
-   > `synthetic` and the #129 heatmap signature changes) and `tools/api-compat-allow.txt`
-   > is empty. That is intended; do not tag before task 8 lands.
+   > The allow-list is generated from the 1.0 ledger (`docs/api-audit-1.0.md`, task 8) and
+   > the map `tools/api-ledger-map.tsv`; CI fails if the committed file differs from
+   > `python3 tools/api-compat.py --baseline-ref v0.9.2 --emit-removed --ledger-map
+   > tools/api-ledger-map.tsv`. Every PR that changes the findings against `v0.9.2`
+   > (tasks 9 and 10) regenerates it in the same PR.
    Then it builds, signs, uploads to the Central Portal, and releases automatically
    (`publishToMavenCentral(automaticRelease = true)`).
 5. Bump `VERSION_NAME` to the next `X.Y.(Z+1)-SNAPSHOT`, update the snapshot version in the
@@ -54,7 +55,8 @@ part of the release:
    `ci.yml` (exactly `true` or `false`; anything else fails the step). The PR gate is now
    required. The rc.1 tag's publish gate runs against `v0.9.2` with the generated list.
 2. **First PR after `v1.0.0-rc.1` is tagged:** move `API_BASELINE_REF` to `v1.0.0-rc.1`
-   and empty the allow-list. From an rc baseline on, the script fails on any entry that is
+   and empty the allow-list by regenerating it against the RC (no findings, so only the
+   header is left, and the CI regeneration check uses the new baseline). From an rc baseline on, the script fails on any entry that is
    not `rc-soak`, in report mode too. The same PR drops
    `-x :orrery-widget:publishToMavenCentral` from `publish.yml` if the widget ships.
 3. **A break found during the soak:** Andrii approves it in a comment on #89. A PR makes

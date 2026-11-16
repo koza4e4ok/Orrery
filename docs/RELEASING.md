@@ -60,9 +60,13 @@ part of the release:
    not `rc-soak`, in report mode too. The same PR drops
    `-x :orrery-widget:publishToMavenCentral` from `publish.yml` if the widget ships.
 3. **A break found during the soak:** Andrii approves it in a comment on #89. A PR makes
-   the change and adds temporary entries with reason `rc-soak` and that comment's URL as the
-   ledger field (`https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-<id>`); the
-   script checks the URL's shape, Ritsuko checks it is Andrii's at review. Tag `rc.2`: its
+   the change, adds one row per removed dump line to `tools/api-ledger-map.tsv` with reason
+   `rc-soak` and that comment's URL as the ledger field
+   (`https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-<id>`), and regenerates the
+   allow-list from the map with the command in step 4 of the release flow (with the current
+   `API_BASELINE_REF`), so the CI regeneration check stays green. Do not add `rc-soak` entries
+   to the allow-list by hand: CI rejects an allow-list that differs from the generated one. The
+   script checks the URL's shape on every baseline, Ritsuko checks it is Andrii's at review. Tag `rc.2`: its
    publish gate runs against `rc.1` and passes on those entries. The first PR after `rc.2`
    moves the baseline to `rc.2` and empties the list again.
 4. **`v1.0.0`:** the list must be empty. `publish.yml` passes `--forbid-entries` for any
@@ -70,6 +74,33 @@ part of the release:
    `API_BASELINE_REF` to `v1.0.0`.
 5. **1.1, `orrery-widget` graduates:** drop `--require-empty orrery-widget` from `ci.yml`
    and `publish.yml`; from then on its dumps are compared like any stable module.
+
+## Ledger map after task 8: unmapped findings
+
+`tools/api-ledger.py` generated `docs/api-audit-1.0.md` and `tools/api-ledger-map.tsv` at
+`50bd6e3`. Once task 9 deletes the bridges it cannot find them any more, so it is not rerun;
+from then on the map and the ledger are maintained by hand, and review is the guard (CI only
+checks that the allow-list is what the committed map generates; `api-compat.py` checks each
+map row's reason, that its ledger field is an existing row with the letter of its reason
+(`1.0-bridge` B, `1.0-signature` S, `1.0-dataclass` D), and the soak link of `rc-soak`
+rows).
+
+When a PR regenerates the allow-list and an entry comes out as `TODO-reason | TODO-ledger-row`
+(the parser then fails with exit 2), the finding is not in the ledger. If the break is
+intended:
+
+1. Add a ledger row to `docs/api-audit-1.0.md` in the right section, with the next free ID
+   (`B-046`, `S-003`, `D-046`, ...). Never renumber or reuse an existing ID.
+2. Add one map row per removed dump line (module, class, reason, the new ID, the exact dump
+   line from the baseline dump) to `tools/api-ledger-map.tsv`.
+3. Regenerate the allow-list and commit all three files in the same PR. Ritsuko reviews the
+   new rows.
+
+If the break is not intended, fix the code instead. Task 10 in particular: a hand-written
+`copy` must keep every parameter's default value. Without the defaults the
+`copy$default` synthetic line disappears, which is a source break for every caller that
+names only some arguments; that line is not in the map (the D rows only cover `componentN`),
+so it shows up as `TODO`. Keep the defaults rather than adding a row for it.
 
 ## Local dry-run (no credentials needed)
 

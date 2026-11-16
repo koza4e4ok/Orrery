@@ -47,7 +47,7 @@ jobs:
           python3 tools/api-compat.py --baseline-ref "$API_BASELINE_REF" --emit-removed \
             --ledger-map tools/api-ledger-map.tsv > "$RUNNER_TEMP/api-compat-allow.txt"
           diff -u tools/api-compat-allow.txt "$RUNNER_TEMP/api-compat-allow.txt" || {
-            echo "::error::tools/api-compat-allow.txt is not the generated one; regenerate it (see docs/api-audit-1.0.md)"
+            echo "::error::tools/api-compat-allow.txt is not the generated one; regenerate it with exactly the command in docs/RELEASING.md (release flow, step 4). An unmapped finding shows as TODO-reason in the diff: see docs/RELEASING.md, 'Ledger map after task 8'."
             exit 1
           }
           python3 tools/api-compat.py --enforce "$API_COMPAT_ENFORCE" --require-empty orrery-widget

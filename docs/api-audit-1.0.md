@@ -156,7 +156,7 @@ Tier A and B become plain classes in task 10 (defaults on the constructor, hand-
 
 ## E: public enums (rule 3)
 
-Rule 3: a public enum that may gain entries says "do not rely on exhaustive `when` across versions" in its KDoc. *Note* is whether the KDoc says so today; task 12 adds the missing ones.
+Rule 3: a public enum that may gain entries says "do not rely on exhaustive `when` across versions" in its KDoc. *Closed* types (`CLOSED_TYPES`, a fixed set that cannot gain a member) need no such KDoc. *Note* is whether the KDoc says so today; *Task 12* lists what task 12 adds. The same columns apply to the sealed types in T.
 
 | ID | Module | Enum | Entries | Closed | Note | Task 12 | Source |
 |---|---|---|---|---|---|---|---|

@@ -102,6 +102,17 @@ PROPOSED = {
     "EventOverlapMode.Stacked": ("B", "layout config (one option today, may gain e.g. a lane cap)"),
 }
 
+# Rule 3 does not apply to a closed set: these enums and sealed types cannot gain a member, so
+# they need no "do not rely on exhaustive when" KDoc (Ritsuko's NIT on #140). render_doc() fails
+# if a name is not an E or T row.
+CLOSED_TYPES = {"SolarTerm", "DayPosition", "DecoratorLayer", "DateTimePickerStep", "DatePickerDisplayMode",
+                "EventSpan"}
+# K rows that were reviewed and are fine as they are: {source path: review note}.
+KDOC_REVIEWED = {
+    "orrery-core/src/commonMain/kotlin/me/kozakov/orrery/OptInMarkers.kt":
+        "reviewed, benign: the KDoc of the opt-in marker itself (Ritsuko, #140)",
+}
+
 # Spec 2.4 item 3, `Defaults` members that duplicate another entry point: a judgement call, so
 # a curated list (Ritsuko's ruling on #140, comment 6904611721). generate() fails if a member is
 # gone or its KDoc no longer has the cited text. These rows are not breaks: no map rows.
@@ -877,20 +888,33 @@ def render_doc(sha, baseline, b_rows, s_rows, d_rows, enums, sealed, leak_rows, 
     w("## E: public enums (rule 3)")
     w("")
     w("Rule 3: a public enum that may gain entries says \"do not rely on exhaustive `when` across "
-      "versions\" in its KDoc. *Note* is whether the KDoc says so today; task 12 adds the missing ones.")
+      "versions\" in its KDoc. *Closed* types (`CLOSED_TYPES`, a fixed set that cannot \"
+      "gain a member) need no such KDoc. *Note* is whether the KDoc says so today; *Task 12* lists what task 12 adds. \"
+      "The same columns apply to the sealed types in T.")
     w("")
-    w("| ID | Module | Enum | Entries | Note | Source |")
-    w("|---|---|---|---|---|---|")
+    unknown = CLOSED_TYPES - {r[2] for r in enums} - {r[2] for r in sealed}
+    if unknown:
+        raise SystemExit(f"api-ledger: CLOSED_TYPES names no E or T row: {', '.join(sorted(unknown))}")
+
+    def todo(name, note):
+        return "-" if name in CLOSED_TYPES or note == "yes" else "add the KDoc"
+
+    w("| ID | Module | Enum | Entries | Closed | Note | Task 12 | Source |")
+    w("|---|---|---|---|---|---|---|---|")
     for n, (module, pkg, name, entries, note, where) in enumerate(enums, 1):
-        w(f"| E-{n:03d} | `{module}` | `{name}` | {', '.join(entries)} | {note} | `{where}` |")
+        closed = "closed" if name in CLOSED_TYPES else "open"
+        w(f"| E-{n:03d} | `{module}` | `{name}` | {', '.join(entries)} | {closed} | {note} | {todo(name, note)} "
+          f"| `{where}` |")
     w("")
     w("## T: public sealed types (rule 3)")
     w("")
-    w("| ID | Module | Sealed type | Subtypes | Note | Source |")
-    w("|---|---|---|---|---|---|")
+    w("| ID | Module | Sealed type | Subtypes | Closed | Note | Task 12 | Source |")
+    w("|---|---|---|---|---|---|---|---|")
     for n, (module, pkg, name, subs, note, where) in enumerate(sealed, 1):
         exp = " (experimental)" if module in EXPERIMENTAL_MODULES else ""
-        w(f"| T-{n:03d} | `{module}`{exp} | `{name}` | {', '.join(subs) or '-'} | {note} | `{where}` |")
+        closed = "closed" if name in CLOSED_TYPES else "open"
+        w(f"| T-{n:03d} | `{module}`{exp} | `{name}` | {', '.join(subs) or '-'} | {closed} | {note} "
+          f"| {todo(name, note)} | `{where}` |")
     w("")
     w("## L: undeclared types in stable signatures (rule 4)")
     w("")
@@ -911,10 +935,11 @@ def render_doc(sha, baseline, b_rows, s_rows, d_rows, enums, sealed, leak_rows, 
       "*unstable* or *may change*. Each needs a look: stable API must not call itself any of these.")
     w("")
     if kdoc_rows:
-        w("| ID | Module | Where | Text |")
-        w("|---|---|---|---|")
+        w("| ID | Module | Where | Text | Review |")
+        w("|---|---|---|---|---|")
         for n, (module, where, text) in enumerate(kdoc_rows, 1):
-            w(f"| K-{n:03d} | `{module}` | `{where}` | {md(text)} |")
+            review = KDOC_REVIEWED.get(where.rsplit(":", 1)[0], "open")
+            w(f"| K-{n:03d} | `{module}` | `{where}` | {md(text)} | {review} |")
     else:
         w("None found.")
     w("")

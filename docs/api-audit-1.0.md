@@ -158,42 +158,42 @@ Tier A and B become plain classes in task 10 (defaults on the constructor, hand-
 
 Rule 3: a public enum that may gain entries says "do not rely on exhaustive `when` across versions" in its KDoc. *Note* is whether the KDoc says so today; task 12 adds the missing ones.
 
-| ID | Module | Enum | Entries | Note | Source |
-|---|---|---|---|---|---|
-| E-001 | `orrery-calendars` | `HijriVariant` | UmmAlQura, Tabular | no | `HijriDate.kt:6` |
-| E-002 | `orrery-compose` | `CalendarDensity` | Compact, Comfortable, Expanded | no | `CalendarStyle.kt:16` |
-| E-003 | `orrery-compose` | `CollapsibleCalendarAnchor` | Week, TwoWeeks, Month | no | `CollapsibleCalendarScaffold.kt:67` |
-| E-004 | `orrery-compose` | `DatePickerDisplayMode` | Picker, Input | no | `DatePickerState.kt:22` |
-| E-005 | `orrery-compose` | `DateTimePickerStep` | Date, Time | no | `DateTimePickerDialog.kt:73` |
-| E-006 | `orrery-compose` | `DecoratorLayer` | Behind, Over | no | `DayDecorators.kt:38` |
-| E-007 | `orrery-compose` | `OutDateClickPolicy` | Ignore, SelectOnly, SelectAndScrollToMonth | no | `SelectionState.kt:30` |
-| E-008 | `orrery-compose` | `RangeEndpointStyle` | FullCell, SplitHorizontal, SplitDiagonal | no | `CalendarStyle.kt:45` |
-| E-009 | `orrery-compose` | `ScheduleDragKind` | Create, Move, ResizeStart, ResizeEnd | no | `ScheduleEditing.kt:14` |
-| E-010 | `orrery-compose` | `ScrollSource` | Initial, UserDrag, Programmatic | no | `Observation.kt:16` |
-| E-011 | `orrery-core` | `AutoSelectDay` | FirstDayOfMonth, LastSelectedDay, LastSelectedDayIgnoringCurrent | no | `Selection.kt:104` |
-| E-012 | `orrery-core` | `DayPosition` | InDate, MonthDate, OutDate | no | `CalendarModels.kt:7` |
-| E-013 | `orrery-core` | `Frequency` | DAILY, WEEKLY, MONTHLY, YEARLY | yes | `Recurrence.kt:13` |
-| E-014 | `orrery-core` | `InvalidDatePolicy` | SkipInvalid, ClampToMonthEnd | no | `Recurrence.kt:42` |
-| E-015 | `orrery-core` | `OutDateStyle` | EndOfRow, None, EndOfGrid | no | `CalendarModels.kt:37` |
-| E-016 | `orrery-holidays` | `Church` | Western, Orthodox | no | `HolidayRule.kt:65` |
-| E-017 | `orrery-holidays` | `HolidayType` | Public, Bank, Optional, Observance | no | `HolidayRule.kt:93` |
-| E-018 | `orrery-holidays` | `Observance` | None, NearestWeekday, NextWorkingDay, SundayToMonday | no | `HolidayRule.kt:74` |
-| E-019 | `orrery-lunar` | `ChineseVariant` | SIMPLIFIED, TRADITIONAL_TW, TRADITIONAL_HK | no | `LunarStrings.kt:4` |
-| E-020 | `orrery-lunar` | `SolarTerm` | CHUNFEN, QINGMING, GUYU, LIXIA, XIAOMAN, MANGZHONG, XIAZHI, XIAOSHU, DASHU, LIQIU, CHUSHU, BAILU, QIUFEN, HANLU, SHUANGJIANG, LIDONG, XIAOXUE, DAXUE, DONGZHI, XIAOHAN, DAHAN, LICHUN, YUSHUI, JINGZHE | no | `SolarTerms.kt:6` |
+| ID | Module | Enum | Entries | Closed | Note | Task 12 | Source |
+|---|---|---|---|---|---|---|---|
+| E-001 | `orrery-calendars` | `HijriVariant` | UmmAlQura, Tabular | open | no | add the KDoc | `HijriDate.kt:6` |
+| E-002 | `orrery-compose` | `CalendarDensity` | Compact, Comfortable, Expanded | open | no | add the KDoc | `CalendarStyle.kt:16` |
+| E-003 | `orrery-compose` | `CollapsibleCalendarAnchor` | Week, TwoWeeks, Month | open | no | add the KDoc | `CollapsibleCalendarScaffold.kt:67` |
+| E-004 | `orrery-compose` | `DatePickerDisplayMode` | Picker, Input | closed | no | - | `DatePickerState.kt:22` |
+| E-005 | `orrery-compose` | `DateTimePickerStep` | Date, Time | closed | no | - | `DateTimePickerDialog.kt:73` |
+| E-006 | `orrery-compose` | `DecoratorLayer` | Behind, Over | closed | no | - | `DayDecorators.kt:38` |
+| E-007 | `orrery-compose` | `OutDateClickPolicy` | Ignore, SelectOnly, SelectAndScrollToMonth | open | no | add the KDoc | `SelectionState.kt:30` |
+| E-008 | `orrery-compose` | `RangeEndpointStyle` | FullCell, SplitHorizontal, SplitDiagonal | open | no | add the KDoc | `CalendarStyle.kt:45` |
+| E-009 | `orrery-compose` | `ScheduleDragKind` | Create, Move, ResizeStart, ResizeEnd | open | no | add the KDoc | `ScheduleEditing.kt:14` |
+| E-010 | `orrery-compose` | `ScrollSource` | Initial, UserDrag, Programmatic | open | no | add the KDoc | `Observation.kt:16` |
+| E-011 | `orrery-core` | `AutoSelectDay` | FirstDayOfMonth, LastSelectedDay, LastSelectedDayIgnoringCurrent | open | no | add the KDoc | `Selection.kt:104` |
+| E-012 | `orrery-core` | `DayPosition` | InDate, MonthDate, OutDate | closed | no | - | `CalendarModels.kt:7` |
+| E-013 | `orrery-core` | `Frequency` | DAILY, WEEKLY, MONTHLY, YEARLY | open | yes | - | `Recurrence.kt:13` |
+| E-014 | `orrery-core` | `InvalidDatePolicy` | SkipInvalid, ClampToMonthEnd | open | no | add the KDoc | `Recurrence.kt:42` |
+| E-015 | `orrery-core` | `OutDateStyle` | EndOfRow, None, EndOfGrid | open | no | add the KDoc | `CalendarModels.kt:37` |
+| E-016 | `orrery-holidays` | `Church` | Western, Orthodox | open | no | add the KDoc | `HolidayRule.kt:65` |
+| E-017 | `orrery-holidays` | `HolidayType` | Public, Bank, Optional, Observance | open | no | add the KDoc | `HolidayRule.kt:93` |
+| E-018 | `orrery-holidays` | `Observance` | None, NearestWeekday, NextWorkingDay, SundayToMonday | open | no | add the KDoc | `HolidayRule.kt:74` |
+| E-019 | `orrery-lunar` | `ChineseVariant` | SIMPLIFIED, TRADITIONAL_TW, TRADITIONAL_HK | open | no | add the KDoc | `LunarStrings.kt:4` |
+| E-020 | `orrery-lunar` | `SolarTerm` | CHUNFEN, QINGMING, GUYU, LIXIA, XIAOMAN, MANGZHONG, XIAZHI, XIAOSHU, DASHU, LIQIU, CHUSHU, BAILU, QIUFEN, HANLU, SHUANGJIANG, LIDONG, XIAOXUE, DAXUE, DONGZHI, XIAOHAN, DAHAN, LICHUN, YUSHUI, JINGZHE | closed | no | - | `SolarTerms.kt:6` |
 
 ## T: public sealed types (rule 3)
 
-| ID | Module | Sealed type | Subtypes | Note | Source |
-|---|---|---|---|---|---|
-| T-001 | `orrery-compose` | `CalendarRowHeight` | FillViewport, Fixed, WrapContent | no | `CalendarFormats.kt:13` |
-| T-002 | `orrery-compose` | `DateRangeCalendarLayoutMode` | Adaptive, DualMonth, SingleMonth | no | `DateRangeCalendarLayoutMode.kt:7` |
-| T-003 | `orrery-compose` | `TodayIndicator` | FilledCircle, None, Ring, Underline | no | `CalendarDefaults.kt:220` |
-| T-004 | `orrery-core` | `EventOverlapMode` | SideBySide, Stacked | no | `ScheduleLayout.kt:12` |
-| T-005 | `orrery-core` | `EventSpan` | AllDay, Timed | no | `CalendarEvent.kt:12` |
-| T-006 | `orrery-core` | `SelectionEvent` | Intercepted, OutOfRange, RangeTooLong, RangeTooShort, TooManyDays | no | `Selection.kt:124` |
-| T-007 | `orrery-core` | `SelectionMode` | Month, Multi, None, Range, Single, Week | no | `Selection.kt:6` |
-| T-008 | `orrery-holidays` | `HolidayDate` | EasterOffset, Fixed, HijriFixed, NthWeekday, OneOff, PersianFixed, WeekdayRelative | no | `HolidayRule.kt:8` |
-| T-009 | `orrery-widget` (experimental) | `CalendarSnapshotRange` | Agenda, Month, Week | yes | `CalendarSnapshotRange.kt:17` |
+| ID | Module | Sealed type | Subtypes | Closed | Note | Task 12 | Source |
+|---|---|---|---|---|---|---|---|
+| T-001 | `orrery-compose` | `CalendarRowHeight` | FillViewport, Fixed, WrapContent | open | no | add the KDoc | `CalendarFormats.kt:13` |
+| T-002 | `orrery-compose` | `DateRangeCalendarLayoutMode` | Adaptive, DualMonth, SingleMonth | open | no | add the KDoc | `DateRangeCalendarLayoutMode.kt:7` |
+| T-003 | `orrery-compose` | `TodayIndicator` | FilledCircle, None, Ring, Underline | open | no | add the KDoc | `CalendarDefaults.kt:220` |
+| T-004 | `orrery-core` | `EventOverlapMode` | SideBySide, Stacked | open | no | add the KDoc | `ScheduleLayout.kt:12` |
+| T-005 | `orrery-core` | `EventSpan` | AllDay, Timed | closed | no | - | `CalendarEvent.kt:12` |
+| T-006 | `orrery-core` | `SelectionEvent` | Intercepted, OutOfRange, RangeTooLong, RangeTooShort, TooManyDays | open | no | add the KDoc | `Selection.kt:124` |
+| T-007 | `orrery-core` | `SelectionMode` | Month, Multi, None, Range, Single, Week | open | no | add the KDoc | `Selection.kt:6` |
+| T-008 | `orrery-holidays` | `HolidayDate` | EasterOffset, Fixed, HijriFixed, NthWeekday, OneOff, PersianFixed, WeekdayRelative | open | no | add the KDoc | `HolidayRule.kt:8` |
+| T-009 | `orrery-widget` (experimental) | `CalendarSnapshotRange` | Agenda, Month, Week | open | yes | - | `CalendarSnapshotRange.kt:17` |
 
 ## L: undeclared types in stable signatures (rule 4)
 
@@ -205,10 +205,10 @@ None found.
 
 KDoc lines of the stable modules that say *experimental*, *internal use*, *subject to change*, *unstable* or *may change*. Each needs a look: stable API must not call itself any of these.
 
-| ID | Module | Where | Text |
-|---|---|---|---|
-| K-001 | `orrery-core` | `orrery-core/src/commonMain/kotlin/me/kozakov/orrery/OptInMarkers.kt:4` | Marks API that is public but not yet stable: it may change or disappear in any |
-| K-002 | `orrery-core` | `orrery-core/src/commonMain/kotlin/me/kozakov/orrery/OptInMarkers.kt:9` | `@OptIn(ExperimentalOrreryApi::class)` (or the `-opt-in` compiler flag) to |
+| ID | Module | Where | Text | Review |
+|---|---|---|---|---|
+| K-001 | `orrery-core` | `orrery-core/src/commonMain/kotlin/me/kozakov/orrery/OptInMarkers.kt:4` | Marks API that is public but not yet stable: it may change or disappear in any | reviewed, benign: the KDoc of the opt-in marker itself (Ritsuko, #140) |
+| K-002 | `orrery-core` | `orrery-core/src/commonMain/kotlin/me/kozakov/orrery/OptInMarkers.kt:9` | `@OptIn(ExperimentalOrreryApi::class)` (or the `-opt-in` compiler flag) to | reviewed, benign: the KDoc of the opt-in marker itself (Ritsuko, #140) |
 
 ## X: `Defaults` members that duplicate another entry point (2.4 item 3)
 

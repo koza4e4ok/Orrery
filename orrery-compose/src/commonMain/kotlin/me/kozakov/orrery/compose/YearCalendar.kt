@@ -286,24 +286,3 @@ public fun CalendarDefaults.MiniMonth(
 }
 
 private val MiniDayTextStyle = TextStyle(fontSize = 9.sp, textAlign = TextAlign.Center)
-
-@Deprecated(
-    "Kept for binary compatibility; use the overload with selection and dayInfo.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun CalendarDefaults.MiniMonth(
-    yearMonth: YearMonth,
-    modifier: Modifier = Modifier,
-    firstDayOfWeek: DayOfWeek = DayOfWeek.MONDAY,
-    today: LocalDate = currentDate(),
-) {
-    MiniMonth(
-        yearMonth = yearMonth,
-        modifier = modifier,
-        firstDayOfWeek = firstDayOfWeek,
-        today = today,
-        selection = null,
-        dayInfo = null,
-    )
-}

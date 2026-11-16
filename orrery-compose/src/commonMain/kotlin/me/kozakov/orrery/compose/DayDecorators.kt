@@ -210,27 +210,6 @@ public object DayDecorators {
             firstDayOfWeek = firstDayOfWeek,
         )
 
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with firstDayOfWeek.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Composable
-    public fun spanningEventBars(
-        eventsByDate: (LocalDate) -> List<CalendarEvent<*>>,
-        maxBars: Int = 2,
-        barHeight: Dp = 4.dp,
-        barSpacing: Dp = 2.dp,
-        defaultColor: Color = MaterialTheme.colorScheme.primary,
-    ): DayDecorator =
-        spanningEventBars(
-            eventsByDate = eventsByDate,
-            maxBars = maxBars,
-            barHeight = barHeight,
-            barSpacing = barSpacing,
-            defaultColor = defaultColor,
-            firstDayOfWeek = PlatformDateFormat.firstDayOfWeek(),
-        )
-
     private class SpanningEventBars(
         private val eventsByDate: (LocalDate) -> List<CalendarEvent<*>>,
         private val maxBars: Int,
@@ -683,25 +662,6 @@ public object DayDecorators {
             }
         }
     }
-
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with selectedOutlineColor.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Composable
-    public fun badge(
-        maxCount: Int = 9,
-        containerColor: Color = MaterialTheme.colorScheme.error,
-        contentColor: Color = MaterialTheme.colorScheme.onError,
-        count: (LocalDate) -> Int,
-    ): DayDecorator =
-        badge(
-            maxCount = maxCount,
-            containerColor = containerColor,
-            contentColor = contentColor,
-            selectedOutlineColor = null,
-            count = count,
-        )
 
     @Composable
     private fun defaultHeatmapScale(): (Float) -> Color {

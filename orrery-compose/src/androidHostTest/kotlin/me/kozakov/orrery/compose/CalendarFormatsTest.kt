@@ -100,7 +100,7 @@ class CalendarFormatsTest {
                 visibleDaysOfWeek = workWeek,
                 weekHeader = { days ->
                     headerDays = days
-                    CalendarDefaults.DaysOfWeekHeader(days)
+                    CalendarDefaults.WeekHeader(days)
                 },
                 dayContent = { day -> Text(day.date.toString(), Modifier.testTag("d-${day.date}")) },
             )

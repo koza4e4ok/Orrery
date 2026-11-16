@@ -100,38 +100,7 @@ public class ScheduleDimensions(
     public val resizeHandleThickness: Dp = DefaultResizeHandleThickness,
     public val resizeHandleTouchSize: Dp = DefaultResizeHandleTouchSize,
     public val ghostBorderWidth: Dp = DefaultGhostBorderWidth,
-) {
-    @Deprecated(
-        "Kept for binary compatibility; use the constructor with the resize handle and ghost sizes.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Suppress("LongParameterList")
-    public constructor(
-        timeGutterWidth: Dp,
-        tileCornerRadius: Dp,
-        tileAccentBarWidth: Dp,
-        tileHorizontalGap: Dp,
-        tileVerticalGap: Dp,
-        nowLineStrokeWidth: Dp,
-        nowDotRadius: Dp,
-        allDayChipHeight: Dp,
-        maxVisibleAllDayRows: Int,
-    ) : this(
-        timeGutterWidth = timeGutterWidth,
-        tileCornerRadius = tileCornerRadius,
-        tileAccentBarWidth = tileAccentBarWidth,
-        tileHorizontalGap = tileHorizontalGap,
-        tileVerticalGap = tileVerticalGap,
-        nowLineStrokeWidth = nowLineStrokeWidth,
-        nowDotRadius = nowDotRadius,
-        allDayChipHeight = allDayChipHeight,
-        maxVisibleAllDayRows = maxVisibleAllDayRows,
-        resizeHandleWidth = DefaultResizeHandleWidth,
-        resizeHandleThickness = DefaultResizeHandleThickness,
-        resizeHandleTouchSize = DefaultResizeHandleTouchSize,
-        ghostBorderWidth = DefaultGhostBorderWidth,
-    )
-}
+)
 
 private val DefaultResizeHandleWidth = 28.dp
 private val DefaultResizeHandleThickness = 4.dp
@@ -167,28 +136,7 @@ public class ScheduleStrings(
     public val shortenEnd: String = "Shorten end",
     public val createAt: String = "Create event at %1\$s",
     public val dragTimeRange: String = "%1\$s – %2\$s",
-) {
-    /** Fills the editing strings with their English text. */
-    @Deprecated(
-        "Kept for binary compatibility; use the constructor with the editing strings.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    public constructor(
-        allDayLabel: String,
-        nowLabel: String,
-    ) : this(
-        allDayLabel = allDayLabel,
-        nowLabel = nowLabel,
-        moveEarlier = "Move earlier",
-        moveLater = "Move later",
-        movePreviousDay = "Move to previous day",
-        moveNextDay = "Move to next day",
-        extendEnd = "Extend end",
-        shortenEnd = "Shorten end",
-        createAt = "Create event at %1\$s",
-        dragTimeRange = "%1\$s – %2\$s",
-    )
-}
+)
 
 /** Defaults for [DaySchedule] and [WeekSchedule]. */
 @Suppress("TooManyFunctions")
@@ -249,35 +197,6 @@ public object ScheduleDefaults {
             ghostBorderWidth = ghostBorderWidth,
         )
 
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with the resize handle and ghost sizes.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Suppress("LongParameterList")
-    public fun dimensions(
-        timeGutterWidth: Dp = 56.dp,
-        tileCornerRadius: Dp = 6.dp,
-        tileAccentBarWidth: Dp = 3.dp,
-        tileHorizontalGap: Dp = 2.dp,
-        tileVerticalGap: Dp = 1.dp,
-        nowLineStrokeWidth: Dp = 2.dp,
-        nowDotRadius: Dp = 4.dp,
-        allDayChipHeight: Dp = 20.dp,
-        maxVisibleAllDayRows: Int = 3,
-    ): ScheduleDimensions =
-        dimensions(
-            timeGutterWidth = timeGutterWidth,
-            tileCornerRadius = tileCornerRadius,
-            tileAccentBarWidth = tileAccentBarWidth,
-            tileHorizontalGap = tileHorizontalGap,
-            tileVerticalGap = tileVerticalGap,
-            nowLineStrokeWidth = nowLineStrokeWidth,
-            nowDotRadius = nowDotRadius,
-            allDayChipHeight = allDayChipHeight,
-            maxVisibleAllDayRows = maxVisibleAllDayRows,
-            resizeHandleWidth = DefaultResizeHandleWidth,
-        )
-
     /**
      * Builds [ScheduleStrings]. Defaults are resolved from the current
      * locale's resources; override any parameter to replace a string.
@@ -308,22 +227,6 @@ public object ScheduleDefaults {
             shortenEnd = shortenEnd,
             createAt = createAt,
             dragTimeRange = dragTimeRange,
-        )
-
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with the editing strings.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Composable
-    @ReadOnlyComposable
-    public fun strings(
-        allDayLabel: String = orreryString(OrreryString.AgendaAllDay),
-        nowLabel: String = orreryString(OrreryString.ScheduleNow),
-    ): ScheduleStrings =
-        strings(
-            allDayLabel = allDayLabel,
-            nowLabel = nowLabel,
-            moveEarlier = orreryString(OrreryString.ScheduleMoveEarlier),
         )
 
     /**
@@ -521,16 +424,6 @@ public object ScheduleDefaults {
         )
     }
 
-    @Deprecated("Kept for binary compatibility; use the overload with is24Hour.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun HourLabel(
-        hour: Int,
-        colors: ScheduleColors,
-        modifier: Modifier = Modifier,
-    ) {
-        HourLabel(hour, colors, modifier, is24Hour = systemUses24HourClock())
-    }
-
     /** Default current-time line: a dot at the start edge and a horizontal line. */
     @Composable
     public fun NowIndicator(
@@ -655,18 +548,6 @@ public object ScheduleDefaults {
                 }
             }
         }
-    }
-
-    @Deprecated("Kept for binary compatibility; use the overload with is24Hour.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun EventTile(
-        positioned: PositionedEvent<*>,
-        colors: ScheduleColors,
-        dimensions: ScheduleDimensions = dimensions(),
-        modifier: Modifier = Modifier,
-        onClick: (() -> Unit)? = null,
-    ) {
-        EventTile(positioned, colors, dimensions, modifier, onClick, is24Hour = systemUses24HourClock())
     }
 }
 

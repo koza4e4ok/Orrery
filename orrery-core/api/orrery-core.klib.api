@@ -270,7 +270,6 @@ sealed interface me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.cor
     }
 
     final class Single : me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.core/SelectionMode.Single|null[0]
-        constructor <init>(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ...) // me.kozakov.orrery.core/SelectionMode.Single.<init>|<init>(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay){}[0]
         constructor <init>(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ..., kotlin/Boolean = ...) // me.kozakov.orrery.core/SelectionMode.Single.<init>|<init>(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay;kotlin.Boolean){}[0]
 
         final val allowClear // me.kozakov.orrery.core/SelectionMode.Single.allowClear|{}allowClear[0]
@@ -283,7 +282,6 @@ sealed interface me.kozakov.orrery.core/SelectionMode { // me.kozakov.orrery.cor
         final fun component1(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.component1|component1(){}[0]
         final fun component2(): me.kozakov.orrery.core/AutoSelectDay // me.kozakov.orrery.core/SelectionMode.Single.component2|component2(){}[0]
         final fun component3(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.component3|component3(){}[0]
-        final fun copy(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ...): me.kozakov.orrery.core/SelectionMode.Single // me.kozakov.orrery.core/SelectionMode.Single.copy|copy(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay){}[0]
         final fun copy(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ..., kotlin/Boolean = ...): me.kozakov.orrery.core/SelectionMode.Single // me.kozakov.orrery.core/SelectionMode.Single.copy|copy(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay;kotlin.Boolean){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/SelectionMode.Single.hashCode|hashCode(){}[0]
@@ -342,7 +340,6 @@ final class <#A: out kotlin/Any?> me.kozakov.orrery.core/AllDayBanner { // me.ko
 }
 
 final class <#A: out kotlin/Any?> me.kozakov.orrery.core/CalendarEvent { // me.kozakov.orrery.core/CalendarEvent|null[0]
-    constructor <init>(kotlin/String, kotlin/String, me.kozakov.orrery.core/EventSpan, kotlin/String? = ..., kotlin/Long? = ..., #A? = ...) // me.kozakov.orrery.core/CalendarEvent.<init>|<init>(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?){}[0]
     constructor <init>(kotlin/String, kotlin/String, me.kozakov.orrery.core/EventSpan, kotlin/String? = ..., kotlin/Long? = ..., #A? = ..., me.kozakov.orrery.core/RecurrenceRule? = ..., me.kozakov.orrery.core/RecurrenceInstance? = ...) // me.kozakov.orrery.core/CalendarEvent.<init>|<init>(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?;me.kozakov.orrery.core.RecurrenceRule?;me.kozakov.orrery.core.RecurrenceInstance?){}[0]
 
     final val colorArgb // me.kozakov.orrery.core/CalendarEvent.colorArgb|{}colorArgb[0]
@@ -370,7 +367,6 @@ final class <#A: out kotlin/Any?> me.kozakov.orrery.core/CalendarEvent { // me.k
     final fun component6(): #A? // me.kozakov.orrery.core/CalendarEvent.component6|component6(){}[0]
     final fun component7(): me.kozakov.orrery.core/RecurrenceRule? // me.kozakov.orrery.core/CalendarEvent.component7|component7(){}[0]
     final fun component8(): me.kozakov.orrery.core/RecurrenceInstance? // me.kozakov.orrery.core/CalendarEvent.component8|component8(){}[0]
-    final fun copy(kotlin/String = ..., kotlin/String = ..., me.kozakov.orrery.core/EventSpan = ..., kotlin/String? = ..., kotlin/Long? = ..., #A? = ...): me.kozakov.orrery.core/CalendarEvent<#A> // me.kozakov.orrery.core/CalendarEvent.copy|copy(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?){}[0]
     final fun copy(kotlin/String = ..., kotlin/String = ..., me.kozakov.orrery.core/EventSpan = ..., kotlin/String? = ..., kotlin/Long? = ..., #A? = ..., me.kozakov.orrery.core/RecurrenceRule? = ..., me.kozakov.orrery.core/RecurrenceInstance? = ...): me.kozakov.orrery.core/CalendarEvent<#A> // me.kozakov.orrery.core/CalendarEvent.copy|copy(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?;me.kozakov.orrery.core.RecurrenceRule?;me.kozakov.orrery.core.RecurrenceInstance?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/CalendarEvent.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/CalendarEvent.hashCode|hashCode(){}[0]
@@ -546,7 +542,6 @@ final class me.kozakov.orrery.core/CalendarWeek { // me.kozakov.orrery.core/Cale
 }
 
 final class me.kozakov.orrery.core/DayInfo { // me.kozakov.orrery.core/DayInfo|null[0]
-    constructor <init>(kotlin/String?, kotlin/Boolean = ..., kotlin.collections/List<kotlin/String> = ...) // me.kozakov.orrery.core/DayInfo.<init>|<init>(kotlin.String?;kotlin.Boolean;kotlin.collections.List<kotlin.String>){}[0]
     constructor <init>(kotlin/String?, kotlin/Boolean = ..., kotlin.collections/List<kotlin/String> = ..., kotlin/Int = ..., kotlin/Long? = ..., kotlin/Any? = ...) // me.kozakov.orrery.core/DayInfo.<init>|<init>(kotlin.String?;kotlin.Boolean;kotlin.collections.List<kotlin.String>;kotlin.Int;kotlin.Long?;kotlin.Any?){}[0]
 
     final val colorArgb // me.kozakov.orrery.core/DayInfo.colorArgb|{}colorArgb[0]
@@ -568,7 +563,6 @@ final class me.kozakov.orrery.core/DayInfo { // me.kozakov.orrery.core/DayInfo|n
     final fun component4(): kotlin/Int // me.kozakov.orrery.core/DayInfo.component4|component4(){}[0]
     final fun component5(): kotlin/Long? // me.kozakov.orrery.core/DayInfo.component5|component5(){}[0]
     final fun component6(): kotlin/Any? // me.kozakov.orrery.core/DayInfo.component6|component6(){}[0]
-    final fun copy(kotlin/String? = ..., kotlin/Boolean = ..., kotlin.collections/List<kotlin/String> = ...): me.kozakov.orrery.core/DayInfo // me.kozakov.orrery.core/DayInfo.copy|copy(kotlin.String?;kotlin.Boolean;kotlin.collections.List<kotlin.String>){}[0]
     final fun copy(kotlin/String? = ..., kotlin/Boolean = ..., kotlin.collections/List<kotlin/String> = ..., kotlin/Int = ..., kotlin/Long? = ..., kotlin/Any? = ...): me.kozakov.orrery.core/DayInfo // me.kozakov.orrery.core/DayInfo.copy|copy(kotlin.String?;kotlin.Boolean;kotlin.collections.List<kotlin.String>;kotlin.Int;kotlin.Long?;kotlin.Any?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.core/DayInfo.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // me.kozakov.orrery.core/DayInfo.hashCode|hashCode(){}[0]
@@ -726,7 +720,6 @@ final class me.kozakov.orrery.core/Selection { // me.kozakov.orrery.core/Selecti
 
 final class me.kozakov.orrery.core/SelectionEngine { // me.kozakov.orrery.core/SelectionEngine|null[0]
     constructor <init>(me.kozakov.orrery.core/SelectionMode, kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>? = ..., me.kozakov.orrery.core/DisabledDates = ..., kotlin/Boolean = ..., kotlin/Int = ..., kotlin/Int? = ...) // me.kozakov.orrery.core/SelectionEngine.<init>|<init>(me.kozakov.orrery.core.SelectionMode;kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>?;me.kozakov.orrery.core.DisabledDates;kotlin.Boolean;kotlin.Int;kotlin.Int?){}[0]
-    constructor <init>(me.kozakov.orrery.core/SelectionMode, kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>?, me.kozakov.orrery.core/DisabledDates) // me.kozakov.orrery.core/SelectionEngine.<init>|<init>(me.kozakov.orrery.core.SelectionMode;kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>?;me.kozakov.orrery.core.DisabledDates){}[0]
 
     final fun click(me.kozakov.orrery.core/Selection, kotlinx.datetime/LocalDate): me.kozakov.orrery.core/SelectionResult // me.kozakov.orrery.core/SelectionEngine.click|click(me.kozakov.orrery.core.Selection;kotlinx.datetime.LocalDate){}[0]
     final fun replace(me.kozakov.orrery.core/Selection, me.kozakov.orrery.core/Selection): me.kozakov.orrery.core/SelectionResult // me.kozakov.orrery.core/SelectionEngine.replace|replace(me.kozakov.orrery.core.Selection;me.kozakov.orrery.core.Selection){}[0]

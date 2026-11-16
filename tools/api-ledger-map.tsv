@@ -7,10 +7,11 @@
 #   comment on #89 (https://github.com/koza4e4ok/Orrery/issues/89#issuecomment-<id>) as the
 #   ledger field. See docs/RELEASING.md, "Ledger map after task 8".
 # tools/api-compat.py checks every row: the reason, a ledger row whose letter matches it
-# (1.0-bridge B, 1.0-signature S, 1.0-dataclass D), or the approval link for rc-soak.
+# (1.0-bridge B, 1.0-signature S, 1.0-dataclass D, 1.0-removal X), or the approval link for rc-soak.
 # <module> TAB <class> TAB <reason> TAB <ledger row, or approval URL for rc-soak> TAB <dump line>
 # One row per dump line that a ledger row removes: bridges (B), signature changes (S) and
-# the componentN functions of the tier A/B data classes (D). A bridge whose line is not yet
+# the componentN functions of the tier A/B data classes (D), and the public overload of a
+# Defaults duplicate removed at 1.0 (X, added by hand in task 9). A bridge whose line is not yet
 # synthetic in the baseline also has a row for that released non-synthetic line. Rows that
 # match no finding today are used when task 9 removes the bridges and task 10 converts
 # the data classes.
@@ -311,3 +312,5 @@ orrery-compose	me.kozakov.orrery.compose.HeatmapDefaults	1.0-signature	S-001	fin
 orrery-compose	me.kozakov.orrery.compose.HeatmapDefaults	1.0-signature	S-001	public final fun colorScale (ILandroidx/compose/runtime/Composer;II)Lkotlin/jvm/functions/Function1;
 orrery-compose	<top-level>	1.0-signature	S-002	final fun me.kozakov.orrery.compose/HeatmapMonth(kotlinx.datetime/YearMonth, kotlin/Function1<kotlinx.datetime/LocalDate, kotlin/Float?>, androidx.compose.ui/Modifier?, kotlin/Function1<kotlinx.datetime/LocalDate, kotlin/Unit>?, kotlin/Function1<kotlin/Float, androidx.compose.ui.graphics/Color>?, androidx.compose.ui.graphics/Color, androidx.compose.ui.graphics/Shape?, kotlin/Boolean, kotlin/Boolean, kotlinx.datetime/DayOfWeek?, me.kozakov.orrery.compose/HeatmapStrings?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int, kotlin/Int) // me.kozakov.orrery.compose/HeatmapMonth|HeatmapMonth(kotlinx.datetime.YearMonth;kotlin.Function1<kotlinx.datetime.LocalDate,kotlin.Float?>;androidx.compose.ui.Modifier?;kotlin.Function1<kotlinx.datetime.LocalDate,kotlin.Unit>?;kotlin.Function1<kotlin.Float,androidx.compose.ui.graphics.Color>?;androidx.compose.ui.graphics.Color;androidx.compose.ui.graphics.Shape?;kotlin.Boolean;kotlin.Boolean;kotlinx.datetime.DayOfWeek?;me.kozakov.orrery.compose.HeatmapStrings?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
 orrery-compose	me.kozakov.orrery.compose.HeatmapMonthKt	1.0-signature	S-002	public static final fun HeatmapMonth-kWc7xho (Lkotlinx/datetime/YearMonth;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;JLandroidx/compose/ui/graphics/Shape;ZZLkotlinx/datetime/DayOfWeek;Lme/kozakov/orrery/compose/HeatmapStrings;Landroidx/compose/runtime/Composer;III)V
+orrery-compose	me.kozakov.orrery.compose.CalendarDefaults	1.0-removal	X-001	final fun DaysOfWeekHeader(kotlin.collections/List<kotlinx.datetime/DayOfWeek>, androidx.compose.ui/Modifier?, kotlin/Boolean, androidx.compose.ui.graphics/Color, kotlin.collections/Set<kotlinx.datetime/DayOfWeek>?, androidx.compose.ui.graphics/Color, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // me.kozakov.orrery.compose/CalendarDefaults.DaysOfWeekHeader|DaysOfWeekHeader(kotlin.collections.List<kotlinx.datetime.DayOfWeek>;androidx.compose.ui.Modifier?;kotlin.Boolean;androidx.compose.ui.graphics.Color;kotlin.collections.Set<kotlinx.datetime.DayOfWeek>?;androidx.compose.ui.graphics.Color;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+orrery-compose	me.kozakov.orrery.compose.CalendarDefaults	1.0-removal	X-001	public final fun DaysOfWeekHeader-3XDdZGQ (Ljava/util/List;Landroidx/compose/ui/Modifier;ZJLjava/util/Set;JLandroidx/compose/runtime/Composer;II)V

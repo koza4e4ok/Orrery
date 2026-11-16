@@ -199,18 +199,6 @@ public object AgendaDefaults {
         }
     }
 
-    @Deprecated("Kept for binary compatibility; use the overload with is24Hour.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun EventRow(
-        event: CalendarEvent<*>,
-        modifier: Modifier = Modifier,
-        onClick: (() -> Unit)? = null,
-        strings: AgendaStrings = strings(),
-        date: LocalDate? = LocalAgendaDate.current,
-    ) {
-        EventRow(event, modifier, onClick, strings, date, is24Hour = systemUses24HourClock())
-    }
-
     /** Default placeholder for a day without events when `showEmptyDays = true`. */
     @Composable
     public fun EmptyDay(

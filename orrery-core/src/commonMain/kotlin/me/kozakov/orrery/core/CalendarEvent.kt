@@ -73,54 +73,6 @@ public data class CalendarEvent<out T>(
     public val recurrence: RecurrenceRule? = null,
     public val instance: RecurrenceInstance? = null,
 ) {
-    /** Binary-compatible 6-argument constructor for callers compiled against 0.9.x. */
-    @Deprecated(
-        message = "Binary compatibility bridge for the 6-arg CalendarEvent constructor",
-        level = DeprecationLevel.HIDDEN,
-    )
-    public constructor(
-        id: String,
-        title: String,
-        span: EventSpan,
-        subtitle: String? = null,
-        colorArgb: Long? = null,
-        payload: T? = null,
-    ) : this(
-        id = id,
-        title = title,
-        span = span,
-        subtitle = subtitle,
-        colorArgb = colorArgb,
-        payload = payload,
-        recurrence = null,
-        instance = null,
-    )
-
-    /** Binary-compatible 6-argument copy bridge for callers compiled against 0.9.x. */
-    @Deprecated(
-        message = "Binary compatibility bridge for the 6-arg CalendarEvent.copy",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Suppress("LongParameterList")
-    public fun copy(
-        id: String = this.id,
-        title: String = this.title,
-        span: EventSpan = this.span,
-        subtitle: String? = this.subtitle,
-        colorArgb: Long? = this.colorArgb,
-        payload: @UnsafeVariance T? = this.payload,
-    ): CalendarEvent<T> =
-        CalendarEvent(
-            id = id,
-            title = title,
-            span = span,
-            subtitle = subtitle,
-            colorArgb = colorArgb,
-            payload = payload,
-            recurrence = recurrence,
-            instance = instance,
-        )
-
     /** True if this event covers any part of [date]. */
     public fun occursOn(date: LocalDate): Boolean = date >= span.startDate && date <= span.endDate
 

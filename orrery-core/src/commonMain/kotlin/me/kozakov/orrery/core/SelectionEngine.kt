@@ -46,13 +46,6 @@ public class SelectionEngine(
         requireValidRangeDays(minRangeDays, maxRangeDays)
     }
 
-    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-    public constructor(
-        mode: SelectionMode,
-        bounds: ClosedRange<LocalDate>?,
-        disabled: DisabledDates,
-    ) : this(mode, bounds, disabled, false, 1, null)
-
     public fun click(
         current: Selection,
         date: LocalDate,

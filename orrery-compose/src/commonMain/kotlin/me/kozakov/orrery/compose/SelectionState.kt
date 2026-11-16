@@ -435,24 +435,6 @@ public fun rememberCalendarSelectionState(
     return state
 }
 
-@Deprecated("Kept for binary compatibility; use the overload with range guardrails.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun rememberCalendarSelectionState(
-    mode: SelectionMode = SelectionMode.Single(),
-    initialSelection: Selection = Selection.Empty,
-    bounds: ClosedRange<LocalDate>? = null,
-    disabled: DisabledDates = DisabledDates.None,
-    onEvent: (SelectionEvent) -> Unit = {},
-): CalendarSelectionState =
-    rememberCalendarSelectionState(
-        mode = mode,
-        initialSelection = initialSelection,
-        bounds = bounds,
-        disabled = disabled,
-        onEvent = onEvent,
-        disallowDisabledInRange = false,
-    )
-
 /** Fills a null [SelectionMode.Week.firstDayOfWeek] with the locale's first day of week. */
 internal fun SelectionMode.withLocaleFirstDayOfWeek(): SelectionMode =
     if (this is SelectionMode.Week && firstDayOfWeek == null) {

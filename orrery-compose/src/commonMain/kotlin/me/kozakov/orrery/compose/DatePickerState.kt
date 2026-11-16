@@ -329,30 +329,3 @@ public fun rememberOrreryDateRangePickerState(
     SideEffect { state.selection.disabled = disabledDates }
     return state
 }
-
-@Deprecated("Kept for binary compatibility; use the overload with range guardrails.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun rememberOrreryDateRangePickerState(
-    initialStartDate: LocalDate? = null,
-    initialEndDate: LocalDate? = null,
-    initialDisplayedMonth: YearMonth =
-        initialStartDate?.let { YearMonth(it.year, it.month) } ?: currentYearMonth(),
-    yearRange: IntRange = 1971..2055,
-    initialDisplayMode: DatePickerDisplayMode = DatePickerDisplayMode.Picker,
-    minDays: Int? = null,
-    maxDays: Int? = null,
-    disabledDates: DisabledDates = DisabledDates.None,
-    firstDayOfWeek: DayOfWeek = PlatformDateFormat.firstDayOfWeek(),
-): OrreryDateRangePickerState =
-    rememberOrreryDateRangePickerState(
-        initialStartDate = initialStartDate,
-        initialEndDate = initialEndDate,
-        initialDisplayedMonth = initialDisplayedMonth,
-        yearRange = yearRange,
-        initialDisplayMode = initialDisplayMode,
-        minDays = minDays,
-        maxDays = maxDays,
-        disabledDates = disabledDates,
-        firstDayOfWeek = firstDayOfWeek,
-        disallowDisabledInRange = false,
-    )

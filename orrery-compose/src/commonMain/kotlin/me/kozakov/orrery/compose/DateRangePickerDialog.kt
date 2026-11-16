@@ -228,58 +228,6 @@ private fun RangePickerContent(
     }
 }
 
-@Deprecated("Kept for binary compatibility; use the overload with layoutMode.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun OrreryDateRangePickerDialog(
-    onDismissRequest: () -> Unit,
-    confirmButton: @Composable () -> Unit,
-    state: OrreryDateRangePickerState = rememberOrreryDateRangePickerState(),
-    modifier: Modifier = Modifier,
-    colors: CalendarDayColors = CalendarDefaults.dayColors(),
-    shapes: CalendarDayShapes = CalendarDefaults.dayShapes(),
-    today: LocalDate = currentDate(),
-    strings: DatePickerStrings = DatePickerDefaults.strings(),
-    presets: List<DateRangePreset> = emptyList(),
-) {
-    OrreryDateRangePickerDialog(
-        onDismissRequest = onDismissRequest,
-        confirmButton = confirmButton,
-        state = state,
-        modifier = modifier,
-        colors = colors,
-        shapes = shapes,
-        today = today,
-        strings = strings,
-        presets = presets,
-        layoutMode = DateRangeCalendarLayoutMode.Adaptive(),
-    )
-}
-
-@Deprecated("Kept for binary compatibility; use the overload with presets.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun OrreryDateRangePickerDialog(
-    onDismissRequest: () -> Unit,
-    confirmButton: @Composable () -> Unit,
-    state: OrreryDateRangePickerState = rememberOrreryDateRangePickerState(),
-    modifier: Modifier = Modifier,
-    colors: CalendarDayColors = CalendarDefaults.dayColors(),
-    shapes: CalendarDayShapes = CalendarDefaults.dayShapes(),
-    today: LocalDate = currentDate(),
-    strings: DatePickerStrings = DatePickerDefaults.strings(),
-) {
-    OrreryDateRangePickerDialog(
-        onDismissRequest = onDismissRequest,
-        confirmButton = confirmButton,
-        state = state,
-        modifier = modifier,
-        colors = colors,
-        shapes = shapes,
-        today = today,
-        strings = strings,
-        presets = emptyList(),
-    )
-}
-
 /** The 0.9 calendar face: one vertically scrolling column of months with sticky titles. */
 @Composable
 private fun SingleMonthRangeCalendar(

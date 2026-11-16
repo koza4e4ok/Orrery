@@ -55,79 +55,7 @@ public class CalendarDayColors(
     public val hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
     public val weekendContentColor: Color = contentColor,
     public val weekendDays: Set<DayOfWeek> = DefaultWeekendDays,
-) {
-    @Deprecated("Kept for binary compatibility; use the primary constructor.", level = DeprecationLevel.HIDDEN)
-    public constructor(
-        containerColor: Color,
-        contentColor: Color,
-        todayContentColor: Color,
-        todayIndicatorColor: Color,
-        selectedContainerColor: Color,
-        selectedContentColor: Color,
-        inRangeContainerColor: Color,
-        inRangeContentColor: Color,
-        outDateContentColor: Color,
-        unavailableContainerColor: Color,
-        unavailableContentColor: Color,
-        labelColor: Color,
-        holidayLabelColor: Color = labelColor,
-        focusedBorderColor: Color = todayIndicatorColor,
-        hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
-    ) : this(
-        containerColor,
-        contentColor,
-        todayContentColor,
-        todayIndicatorColor,
-        selectedContainerColor,
-        selectedContentColor,
-        inRangeContainerColor,
-        inRangeContentColor,
-        outDateContentColor,
-        unavailableContainerColor,
-        unavailableContentColor,
-        labelColor,
-        holidayLabelColor,
-        focusedBorderColor,
-        hoverContainerColor,
-        contentColor,
-        DefaultWeekendDays,
-    )
-
-    @Deprecated("Kept for binary compatibility; use the primary constructor.", level = DeprecationLevel.HIDDEN)
-    public constructor(
-        containerColor: Color,
-        contentColor: Color,
-        todayContentColor: Color,
-        todayIndicatorColor: Color,
-        selectedContainerColor: Color,
-        selectedContentColor: Color,
-        inRangeContainerColor: Color,
-        inRangeContentColor: Color,
-        outDateContentColor: Color,
-        unavailableContainerColor: Color,
-        unavailableContentColor: Color,
-        labelColor: Color,
-        holidayLabelColor: Color = labelColor,
-    ) : this(
-        containerColor,
-        contentColor,
-        todayContentColor,
-        todayIndicatorColor,
-        selectedContainerColor,
-        selectedContentColor,
-        inRangeContainerColor,
-        inRangeContentColor,
-        outDateContentColor,
-        unavailableContainerColor,
-        unavailableContentColor,
-        labelColor,
-        holidayLabelColor,
-        todayIndicatorColor,
-        contentColor.copy(alpha = 0.08f),
-        contentColor,
-        DefaultWeekendDays,
-    )
-}
+)
 
 /** Default [CalendarDayShapes.verticalInset]: a 4.dp gap between the shapes of adjacent weeks. */
 internal val DefaultDayVerticalInset: Dp = 2.dp
@@ -165,42 +93,7 @@ public class CalendarDayShapes(
     public val focusedBorderWidth: Dp = 2.dp,
     public val rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
     public val verticalInset: Dp = DefaultDayVerticalInset,
-) {
-    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-    public constructor(
-        dayShape: Shape,
-        selectedShape: Shape,
-        inRangeShape: Shape,
-        todayIndicator: TodayIndicator,
-        focusedBorderWidth: Dp = 2.dp,
-        rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
-    ) : this(
-        dayShape,
-        selectedShape,
-        inRangeShape,
-        todayIndicator,
-        focusedBorderWidth,
-        rangeEndpointStyle,
-        DefaultDayVerticalInset,
-    )
-
-    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-    public constructor(
-        dayShape: Shape,
-        selectedShape: Shape,
-        inRangeShape: Shape,
-        todayIndicator: TodayIndicator,
-        focusedBorderWidth: Dp = 2.dp,
-    ) : this(dayShape, selectedShape, inRangeShape, todayIndicator, focusedBorderWidth, RangeEndpointStyle.FullCell)
-
-    @Deprecated("Kept for binary compatibility; use the primary constructor.", level = DeprecationLevel.HIDDEN)
-    public constructor(
-        dayShape: Shape,
-        selectedShape: Shape,
-        inRangeShape: Shape,
-        todayIndicator: TodayIndicator,
-    ) : this(dayShape, selectedShape, inRangeShape, todayIndicator, 2.dp)
-}
+)
 
 /**
  * State descriptions [DefaultDay] reports to accessibility services
@@ -278,84 +171,6 @@ public object CalendarDefaults {
             weekendDays,
         )
 
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with weekend colors.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Composable
-    public fun dayColors(
-        containerColor: Color = Color.Transparent,
-        contentColor: Color = MaterialTheme.colorScheme.onSurface,
-        todayContentColor: Color = MaterialTheme.colorScheme.primary,
-        todayIndicatorColor: Color = MaterialTheme.colorScheme.primary,
-        selectedContainerColor: Color = MaterialTheme.colorScheme.primary,
-        selectedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
-        inRangeContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
-        inRangeContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-        outDateContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-        unavailableContainerColor: Color = Color.Transparent,
-        unavailableContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-        labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        holidayLabelColor: Color = MaterialTheme.colorScheme.primary,
-        focusedBorderColor: Color = todayIndicatorColor,
-        hoverContainerColor: Color = contentColor.copy(alpha = 0.08f),
-    ): CalendarDayColors =
-        dayColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            todayContentColor = todayContentColor,
-            todayIndicatorColor = todayIndicatorColor,
-            selectedContainerColor = selectedContainerColor,
-            selectedContentColor = selectedContentColor,
-            inRangeContainerColor = inRangeContainerColor,
-            inRangeContentColor = inRangeContentColor,
-            outDateContentColor = outDateContentColor,
-            unavailableContainerColor = unavailableContainerColor,
-            unavailableContentColor = unavailableContentColor,
-            labelColor = labelColor,
-            holidayLabelColor = holidayLabelColor,
-            focusedBorderColor = focusedBorderColor,
-            hoverContainerColor = hoverContainerColor,
-        )
-
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with focus and hover colors.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Composable
-    public fun dayColors(
-        containerColor: Color = Color.Transparent,
-        contentColor: Color = MaterialTheme.colorScheme.onSurface,
-        todayContentColor: Color = MaterialTheme.colorScheme.primary,
-        todayIndicatorColor: Color = MaterialTheme.colorScheme.primary,
-        selectedContainerColor: Color = MaterialTheme.colorScheme.primary,
-        selectedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
-        inRangeContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
-        inRangeContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-        outDateContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-        unavailableContainerColor: Color = Color.Transparent,
-        unavailableContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-        labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        holidayLabelColor: Color = MaterialTheme.colorScheme.primary,
-    ): CalendarDayColors =
-        dayColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            todayContentColor = todayContentColor,
-            todayIndicatorColor = todayIndicatorColor,
-            selectedContainerColor = selectedContainerColor,
-            selectedContentColor = selectedContentColor,
-            inRangeContainerColor = inRangeContainerColor,
-            inRangeContentColor = inRangeContentColor,
-            outDateContentColor = outDateContentColor,
-            unavailableContainerColor = unavailableContainerColor,
-            unavailableContentColor = unavailableContentColor,
-            labelColor = labelColor,
-            holidayLabelColor = holidayLabelColor,
-            focusedBorderColor = todayIndicatorColor,
-            hoverContainerColor = contentColor.copy(alpha = 0.08f),
-        )
-
     public fun dayShapes(
         dayShape: Shape = CircleShape,
         selectedShape: Shape = CircleShape,
@@ -374,54 +189,6 @@ public object CalendarDefaults {
             rangeEndpointStyle,
             verticalInset,
         )
-
-    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-    public fun dayShapes(
-        dayShape: Shape = CircleShape,
-        selectedShape: Shape = CircleShape,
-        inRangeShape: Shape = RectangleShape,
-        todayIndicator: TodayIndicator = TodayIndicator.Ring(),
-        focusedBorderWidth: Dp = 2.dp,
-        rangeEndpointStyle: RangeEndpointStyle = RangeEndpointStyle.FullCell,
-    ): CalendarDayShapes =
-        dayShapes(
-            dayShape,
-            selectedShape,
-            inRangeShape,
-            todayIndicator,
-            focusedBorderWidth,
-            rangeEndpointStyle,
-            DefaultDayVerticalInset,
-        )
-
-    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-    public fun dayShapes(
-        dayShape: Shape = CircleShape,
-        selectedShape: Shape = CircleShape,
-        inRangeShape: Shape = RectangleShape,
-        todayIndicator: TodayIndicator = TodayIndicator.Ring(),
-        focusedBorderWidth: Dp = 2.dp,
-    ): CalendarDayShapes =
-        dayShapes(
-            dayShape,
-            selectedShape,
-            inRangeShape,
-            todayIndicator,
-            focusedBorderWidth,
-            RangeEndpointStyle.FullCell,
-        )
-
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with focusedBorderWidth.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    public fun dayShapes(
-        dayShape: Shape = CircleShape,
-        selectedShape: Shape = CircleShape,
-        inRangeShape: Shape = RectangleShape,
-        todayIndicator: TodayIndicator = TodayIndicator.Ring(),
-    ): CalendarDayShapes =
-        dayShapes(dayShape, selectedShape, inRangeShape, todayIndicator, 2.dp, RangeEndpointStyle.FullCell)
 
     /**
      * Default Material 3 [CalendarStyle]: circle day and selection shapes
@@ -565,55 +332,6 @@ public object CalendarDefaults {
                 )
             }
         }
-    }
-
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with weekend colors.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Composable
-    public fun WeekHeader(
-        daysOfWeek: List<DayOfWeek>,
-        modifier: Modifier = Modifier,
-        leadingSpacer: Boolean = false,
-    ) {
-        WeekHeader(daysOfWeek = daysOfWeek, modifier = modifier, leadingSpacer = leadingSpacer)
-    }
-
-    /**
-     * Alias of [WeekHeader] for weekday header rows with localized short
-     * names; labels of [weekendDays] use [weekendContentColor].
-     */
-    @Composable
-    public fun DaysOfWeekHeader(
-        daysOfWeek: List<DayOfWeek>,
-        modifier: Modifier = Modifier,
-        leadingSpacer: Boolean = false,
-        contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        weekendDays: Set<DayOfWeek> = DefaultWeekendDays,
-        weekendContentColor: Color = contentColor,
-    ) {
-        WeekHeader(
-            daysOfWeek = daysOfWeek,
-            modifier = modifier,
-            leadingSpacer = leadingSpacer,
-            contentColor = contentColor,
-            weekendDays = weekendDays,
-            weekendContentColor = weekendContentColor,
-        )
-    }
-
-    @Deprecated(
-        "Kept for binary compatibility; use the overload with weekend colors.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Composable
-    public fun DaysOfWeekHeader(
-        daysOfWeek: List<DayOfWeek>,
-        modifier: Modifier = Modifier,
-        leadingSpacer: Boolean = false,
-    ) {
-        WeekHeader(daysOfWeek = daysOfWeek, modifier = modifier, leadingSpacer = leadingSpacer)
     }
 
     /** ISO week number cell for the leading column. */

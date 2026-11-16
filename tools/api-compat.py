@@ -15,8 +15,8 @@ current one:
 
 Additions and new modules pass and are counted (`--verbose` lists them). Comment lines and
 whitespace are ignored. The planned 1.0 breaks pass through an allow-list
-(`tools/api-compat-allow.txt`, spec 2.3): reasons `1.0-bridge`, `1.0-dataclass`, `1.0-signature`
-or `rc-soak`; a `class` entry is valid only for a class with no declaration left in head;
+(`tools/api-compat-allow.txt`, spec 2.3): reasons `1.0-bridge`, `1.0-dataclass`, `1.0-signature`,
+`1.0-removal` or `rc-soak`; a `class` entry is valid only for a class with no declaration left in head;
 target loss is never allow-listed; stale entries fail in enforce mode. Against a baseline of
 `1.0.0-rc.1` or later only `rc-soak` entries linking an approval comment on #89 pass, and a
 `1.0.0`+ baseline or `--forbid-entries` (final release tags) takes no entries at all. `--require-empty <module>` fails if that module's dumps declare anything (used for
@@ -47,7 +47,8 @@ the whole file. In a repository, a map or a non-empty allow-list without `docs/a
 When the ledger `docs/api-audit-1.0.md` exists (or `--ledger-doc` names it),
 every non-`rc-soak` ledger field of the allow-list and the map must be a row ID of that file
 (`| B-001 |` at the start of a table row) whose letter matches the reason (`1.0-bridge` B,
-`1.0-signature` S, `1.0-dataclass` D). An `rc-soak` ledger field must be the approval link on #89,
+`1.0-signature` S, `1.0-dataclass` D, `1.0-removal` X: a `Defaults` duplicate removed at 1.0,
+X-001 by Andrii's ruling on #140). An `rc-soak` ledger field must be the approval link on #89,
 whatever the baseline. Python standard library only; the selftest is
 tools/api-compat-selftest.py, and tools/api-ledger.py generates the ledger and the map.
 """
@@ -67,7 +68,7 @@ KLIB_SIGNATURE = re.compile(r" // ([^|\s]+)\|")
 TOP_LEVEL = "<top-level>"
 RC_FLOOR = "1.0.0-rc.1"
 FINAL_FLOOR = "1.0.0"
-REASONS = ("1.0-bridge", "1.0-dataclass", "1.0-signature", "rc-soak")
+REASONS = ("1.0-bridge", "1.0-dataclass", "1.0-signature", "1.0-removal", "rc-soak")
 PLACEHOLDERS = ("TODO-reason", "TODO-ledger-row")
 # rc-soak entries must point at Andrii's approval comment on #89 (spec 2.3, soak rule).
 SOAK_LINK = re.compile(r"^https://github\.com/koza4e4ok/Orrery/(issues|pull)/89#issuecomment-[0-9]+$")
@@ -77,7 +78,7 @@ DEFAULT_LEDGER_MAP = "tools/api-ledger-map.tsv"
 # A row ID is the first cell of a ledger table row; an ID anywhere else in a line is not one.
 LEDGER_ROW_ID = re.compile(r"^\|\s*([A-Z]-\d{3})\s*\|")
 # The ledger field of a 1.0 entry must name a row of the section its reason belongs to.
-REASON_ROW_LETTER = {"1.0-bridge": "B", "1.0-signature": "S", "1.0-dataclass": "D"}
+REASON_ROW_LETTER = {"1.0-bridge": "B", "1.0-signature": "S", "1.0-dataclass": "D", "1.0-removal": "X"}
 ALLOW_HEADER = """\
 # Allow-list for tools/api-compat.py: planned 1.0 breaks against the baseline (spec 2.3, 2.4).
 # GENERATED, do not edit by hand. Regenerate with the command below; Ritsuko reviews the result.
@@ -85,9 +86,11 @@ ALLOW_HEADER = """\
 # One entry per line, either a whole class or one dump line of a class:
 #   <module> | class <ClassName> | <reason> | <ledger row>
 #   <module> | <ClassName> :: <dump line> | <reason> | <ledger row>
-# Reason is one of: 1.0-bridge, 1.0-dataclass, 1.0-signature, rc-soak. Anything else, or a
-# TODO-reason / TODO-ledger-row placeholder, is an error (exit 2). The ledger row is a row ID of
-# docs/api-audit-1.0.md; the reason and row of each entry come from tools/api-ledger-map.tsv.
+# Reason is one of: 1.0-bridge, 1.0-dataclass, 1.0-signature, 1.0-removal, rc-soak. Anything
+# else, or a TODO-reason / TODO-ledger-row placeholder, is an error (exit 2). The ledger row is a
+# row ID of docs/api-audit-1.0.md whose letter matches the reason (1.0-bridge B, 1.0-signature S,
+# 1.0-dataclass D, 1.0-removal X); the reason and row of each entry come from
+# tools/api-ledger-map.tsv.
 # A class entry is valid only if the class has no declaration left in any head dump of the
 # module; "class <top-level>" is rejected. Target loss is never allow-listable. An entry that
 # matches nothing is a warning in report mode and fails in enforce mode.

@@ -1,6 +1,6 @@
 {
   "exit": 2,
   "stderr": [
-    "reason 'TODO-reason' is not one of 1.0-bridge, 1.0-dataclass, 1.0-signature, rc-soak"
+    "reason 'TODO-reason' is not one of 1.0-bridge, 1.0-dataclass, 1.0-signature, 1.0-removal, rc-soak"
   ]
 }

@@ -82,7 +82,7 @@ part of the release:
 from then on the map and the ledger are maintained by hand, and review is the guard (CI only
 checks that the allow-list is what the committed map generates; `api-compat.py` checks each
 map row's reason, that its ledger field is an existing row with the letter of its reason
-(`1.0-bridge` B, `1.0-signature` S, `1.0-dataclass` D), and the soak link of `rc-soak`
+(`1.0-bridge` B, `1.0-signature` S, `1.0-dataclass` D, `1.0-removal` X), and the soak link of `rc-soak`
 rows).
 
 When a PR regenerates the allow-list and an entry comes out as `TODO-reason | TODO-ledger-row`

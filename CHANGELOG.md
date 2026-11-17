@@ -37,6 +37,15 @@ The 1.0 breaks are listed row by row in the API audit ledger,
   `equals`, `hashCode` and `toString` give the same results, so other call sites compile
   unchanged; code compiled against 0.9.x that calls a `componentN` function needs a rebuild.
   `LunarDate` and the `HolidayDate` rule shapes stay data classes.
+- The growth-prone data classes of `orrery-compose` are plain classes now (ledger
+  [section D](docs/api-audit-1.0.md#d-public-data-classes-8b-decision-8), tier B):
+  `CalendarRowHeight.Fixed`, `CalendarRowHeight.FillViewport`, `TodayIndicator.Ring`,
+  `VisibleMonthChange` and `VisibleWeekChange`. Their `componentN` functions are gone, so
+  destructuring declarations such as `val (month, source) = change` stop compiling: read the
+  properties by name. Constructors, named arguments and `copy(...)` keep the same parameters
+  and defaults, and `equals`, `hashCode` and `toString` give the same results, so other call
+  sites compile unchanged; code compiled against 0.9.x that calls a `componentN` function
+  needs a rebuild.
 
 ### Changed
 

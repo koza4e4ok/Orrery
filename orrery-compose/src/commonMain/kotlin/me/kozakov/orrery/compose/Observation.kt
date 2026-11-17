@@ -25,16 +25,58 @@ public enum class ScrollSource {
 }
 
 /** A visible-month change emitted by [visibleMonthChanges], with the [source] that caused it. */
-public data class VisibleMonthChange(
+public class VisibleMonthChange(
     public val month: YearMonth,
     public val source: ScrollSource,
-)
+) {
+    /** Returns a copy of this change with the given properties replaced. */
+    public fun copy(
+        month: YearMonth = this.month,
+        source: ScrollSource = this.source,
+    ): VisibleMonthChange = VisibleMonthChange(month = month, source = source)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VisibleMonthChange) return false
+        return month == other.month &&
+            source == other.source
+    }
+
+    override fun hashCode(): Int {
+        var result = month.hashCode()
+        result = 31 * result + source.hashCode()
+        return result
+    }
+
+    override fun toString(): String = "VisibleMonthChange(month=$month, source=$source)"
+}
 
 /** A visible-week change emitted by [visibleWeekChanges], with the [source] that caused it. */
-public data class VisibleWeekChange(
+public class VisibleWeekChange(
     public val week: CalendarWeek,
     public val source: ScrollSource,
-)
+) {
+    /** Returns a copy of this change with the given properties replaced. */
+    public fun copy(
+        week: CalendarWeek = this.week,
+        source: ScrollSource = this.source,
+    ): VisibleWeekChange = VisibleWeekChange(week = week, source = source)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VisibleWeekChange) return false
+        return week == other.week &&
+            source == other.source
+    }
+
+    override fun hashCode(): Int {
+        var result = week.hashCode()
+        result = 31 * result + source.hashCode()
+        return result
+    }
+
+    override fun toString(): String = "VisibleWeekChange(week=$week, source=$source)"
+}
 
 /** Emits the first visible month, deduplicated; collect outside composition. */
 public fun CalendarState.visibleMonths(): Flow<YearMonth> = snapshotFlow { firstVisibleMonth }.distinctUntilChanged()

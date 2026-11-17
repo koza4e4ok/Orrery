@@ -132,7 +132,6 @@ sealed interface me.kozakov.orrery.compose/CalendarRowHeight { // me.kozakov.orr
         final val minRowHeight // me.kozakov.orrery.compose/CalendarRowHeight.FillViewport.minRowHeight|{}minRowHeight[0]
             final fun <get-minRowHeight>(): androidx.compose.ui.unit/Dp // me.kozakov.orrery.compose/CalendarRowHeight.FillViewport.minRowHeight.<get-minRowHeight>|<get-minRowHeight>(){}[0]
 
-        final fun component1(): androidx.compose.ui.unit/Dp // me.kozakov.orrery.compose/CalendarRowHeight.FillViewport.component1|component1(){}[0]
         final fun copy(androidx.compose.ui.unit/Dp = ...): me.kozakov.orrery.compose/CalendarRowHeight.FillViewport // me.kozakov.orrery.compose/CalendarRowHeight.FillViewport.copy|copy(androidx.compose.ui.unit.Dp){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.compose/CalendarRowHeight.FillViewport.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // me.kozakov.orrery.compose/CalendarRowHeight.FillViewport.hashCode|hashCode(){}[0]
@@ -145,7 +144,6 @@ sealed interface me.kozakov.orrery.compose/CalendarRowHeight { // me.kozakov.orr
         final val height // me.kozakov.orrery.compose/CalendarRowHeight.Fixed.height|{}height[0]
             final fun <get-height>(): androidx.compose.ui.unit/Dp // me.kozakov.orrery.compose/CalendarRowHeight.Fixed.height.<get-height>|<get-height>(){}[0]
 
-        final fun component1(): androidx.compose.ui.unit/Dp // me.kozakov.orrery.compose/CalendarRowHeight.Fixed.component1|component1(){}[0]
         final fun copy(androidx.compose.ui.unit/Dp = ...): me.kozakov.orrery.compose/CalendarRowHeight.Fixed // me.kozakov.orrery.compose/CalendarRowHeight.Fixed.copy|copy(androidx.compose.ui.unit.Dp){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.compose/CalendarRowHeight.Fixed.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // me.kozakov.orrery.compose/CalendarRowHeight.Fixed.hashCode|hashCode(){}[0]
@@ -191,7 +189,6 @@ sealed interface me.kozakov.orrery.compose/TodayIndicator { // me.kozakov.orrery
         final val width // me.kozakov.orrery.compose/TodayIndicator.Ring.width|{}width[0]
             final fun <get-width>(): androidx.compose.ui.unit/Dp // me.kozakov.orrery.compose/TodayIndicator.Ring.width.<get-width>|<get-width>(){}[0]
 
-        final fun component1(): androidx.compose.ui.unit/Dp // me.kozakov.orrery.compose/TodayIndicator.Ring.component1|component1(){}[0]
         final fun copy(androidx.compose.ui.unit/Dp = ...): me.kozakov.orrery.compose/TodayIndicator.Ring // me.kozakov.orrery.compose/TodayIndicator.Ring.copy|copy(androidx.compose.ui.unit.Dp){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.compose/TodayIndicator.Ring.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // me.kozakov.orrery.compose/TodayIndicator.Ring.hashCode|hashCode(){}[0]
@@ -762,8 +759,6 @@ final class me.kozakov.orrery.compose/VisibleMonthChange { // me.kozakov.orrery.
     final val source // me.kozakov.orrery.compose/VisibleMonthChange.source|{}source[0]
         final fun <get-source>(): me.kozakov.orrery.compose/ScrollSource // me.kozakov.orrery.compose/VisibleMonthChange.source.<get-source>|<get-source>(){}[0]
 
-    final fun component1(): kotlinx.datetime/YearMonth // me.kozakov.orrery.compose/VisibleMonthChange.component1|component1(){}[0]
-    final fun component2(): me.kozakov.orrery.compose/ScrollSource // me.kozakov.orrery.compose/VisibleMonthChange.component2|component2(){}[0]
     final fun copy(kotlinx.datetime/YearMonth = ..., me.kozakov.orrery.compose/ScrollSource = ...): me.kozakov.orrery.compose/VisibleMonthChange // me.kozakov.orrery.compose/VisibleMonthChange.copy|copy(kotlinx.datetime.YearMonth;me.kozakov.orrery.compose.ScrollSource){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.compose/VisibleMonthChange.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // me.kozakov.orrery.compose/VisibleMonthChange.hashCode|hashCode(){}[0]
@@ -778,8 +773,6 @@ final class me.kozakov.orrery.compose/VisibleWeekChange { // me.kozakov.orrery.c
     final val week // me.kozakov.orrery.compose/VisibleWeekChange.week|{}week[0]
         final fun <get-week>(): me.kozakov.orrery.core/CalendarWeek // me.kozakov.orrery.compose/VisibleWeekChange.week.<get-week>|<get-week>(){}[0]
 
-    final fun component1(): me.kozakov.orrery.core/CalendarWeek // me.kozakov.orrery.compose/VisibleWeekChange.component1|component1(){}[0]
-    final fun component2(): me.kozakov.orrery.compose/ScrollSource // me.kozakov.orrery.compose/VisibleWeekChange.component2|component2(){}[0]
     final fun copy(me.kozakov.orrery.core/CalendarWeek = ..., me.kozakov.orrery.compose/ScrollSource = ...): me.kozakov.orrery.compose/VisibleWeekChange // me.kozakov.orrery.compose/VisibleWeekChange.copy|copy(me.kozakov.orrery.core.CalendarWeek;me.kozakov.orrery.compose.ScrollSource){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.compose/VisibleWeekChange.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // me.kozakov.orrery.compose/VisibleWeekChange.hashCode|hashCode(){}[0]

@@ -112,9 +112,22 @@ public class CalendarDayStrings(
 /** How today's date is marked when it is not selected. */
 public sealed interface TodayIndicator {
     /** Outlined [CalendarDayShapes.dayShape] ring — the default. */
-    public data class Ring(
-        val width: Dp = 1.dp,
-    ) : TodayIndicator
+    public class Ring(
+        public val width: Dp = 1.dp,
+    ) : TodayIndicator {
+        /** Returns a copy of this indicator with the given properties replaced. */
+        public fun copy(width: Dp = this.width): Ring = Ring(width = width)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Ring) return false
+            return width == other.width
+        }
+
+        override fun hashCode(): Int = width.hashCode()
+
+        override fun toString(): String = "Ring(width=$width)"
+    }
 
     /**
      * Fills the day shape with the indicator color; the day number then

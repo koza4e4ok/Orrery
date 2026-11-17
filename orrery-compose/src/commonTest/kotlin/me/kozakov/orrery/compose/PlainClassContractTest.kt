@@ -63,6 +63,20 @@ class PlainClassContractTest {
     }
 
     /**
+     * Each of [differing] changes only a [ScrollSource] of [base]. Enum hashCode is the identity hash, so only
+     * equals is asserted here, not a hash inequality.
+     */
+    private fun <T : Any> assertDiffersBySource(
+        base: T,
+        vararg differing: T,
+    ) {
+        differing.forEachIndexed { index, variant ->
+            assertNotEquals(base, variant, "source variant $index: $variant")
+            assertNotEquals(variant, base, "source variant $index: $variant")
+        }
+    }
+
+    /**
      * Dp is a value class over Float and the data classes compared it like Float.equals:
      * -0.dp and 0.dp differ, NaN (Dp.Unspecified) equals NaN and hashes the same.
      */
@@ -144,6 +158,9 @@ class PlainClassContractTest {
             VisibleMonthChange(YearMonth(2026, 7), ScrollSource.Programmatic),
             monthChange.copy(),
             monthChange.copy(month = YearMonth(2026, 8)),
+        )
+        assertDiffersBySource(
+            monthChange,
             monthChange.copy(source = ScrollSource.UserDrag),
             monthChange.copy(source = ScrollSource.Initial),
         )
@@ -180,6 +197,9 @@ class PlainClassContractTest {
             ),
             weekChange.copy(),
             weekChange.copy(week = otherWeek),
+        )
+        assertDiffersBySource(
+            weekChange,
             weekChange.copy(source = ScrollSource.Programmatic),
             weekChange.copy(source = ScrollSource.Initial),
         )

@@ -6,12 +6,6 @@ public abstract interface annotation class me/kozakov/orrery/InternalOrreryApi :
 
 public final class me/kozakov/orrery/core/AllDayBanner {
 	public fun <init> (Lme/kozakov/orrery/core/CalendarEvent;IIIZZ)V
-	public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent;
-	public final fun component2 ()I
-	public final fun component3 ()I
-	public final fun component4 ()I
-	public final fun component5 ()Z
-	public final fun component6 ()Z
 	public final fun copy (Lme/kozakov/orrery/core/CalendarEvent;IIIZZ)Lme/kozakov/orrery/core/AllDayBanner;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/AllDayBanner;Lme/kozakov/orrery/core/CalendarEvent;IIIZZILjava/lang/Object;)Lme/kozakov/orrery/core/AllDayBanner;
 	public fun equals (Ljava/lang/Object;)Z
@@ -54,8 +48,6 @@ public final class me/kozakov/orrery/core/ByDay {
 
 public final class me/kozakov/orrery/core/CalendarDay {
 	public fun <init> (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayPosition;)V
-	public final fun component1 ()Lkotlinx/datetime/LocalDate;
-	public final fun component2 ()Lme/kozakov/orrery/core/DayPosition;
 	public final fun copy (Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayPosition;)Lme/kozakov/orrery/core/CalendarDay;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarDay;Lkotlinx/datetime/LocalDate;Lme/kozakov/orrery/core/DayPosition;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarDay;
 	public fun equals (Ljava/lang/Object;)Z
@@ -68,14 +60,6 @@ public final class me/kozakov/orrery/core/CalendarDay {
 public final class me/kozakov/orrery/core/CalendarEvent {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/RecurrenceInstance;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/RecurrenceInstance;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Lme/kozakov/orrery/core/EventSpan;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/lang/Long;
-	public final fun component6 ()Ljava/lang/Object;
-	public final fun component7 ()Lme/kozakov/orrery/core/RecurrenceRule;
-	public final fun component8 ()Lme/kozakov/orrery/core/RecurrenceInstance;
 	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/RecurrenceInstance;)Lme/kozakov/orrery/core/CalendarEvent;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarEvent;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;Lme/kozakov/orrery/core/RecurrenceRule;Lme/kozakov/orrery/core/RecurrenceInstance;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent;
 	public fun equals (Ljava/lang/Object;)Z
@@ -102,8 +86,6 @@ public final class me/kozakov/orrery/core/CalendarEventKt {
 
 public final class me/kozakov/orrery/core/CalendarMonth {
 	public fun <init> (Lkotlinx/datetime/YearMonth;Ljava/util/List;)V
-	public final fun component1 ()Lkotlinx/datetime/YearMonth;
-	public final fun component2 ()Ljava/util/List;
 	public final fun copy (Lkotlinx/datetime/YearMonth;Ljava/util/List;)Lme/kozakov/orrery/core/CalendarMonth;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarMonth;Lkotlinx/datetime/YearMonth;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarMonth;
 	public fun equals (Ljava/lang/Object;)Z
@@ -131,7 +113,6 @@ public final class me/kozakov/orrery/core/CalendarPages {
 
 public final class me/kozakov/orrery/core/CalendarWeek {
 	public fun <init> (Ljava/util/List;)V
-	public final fun component1 ()Ljava/util/List;
 	public final fun copy (Ljava/util/List;)Lme/kozakov/orrery/core/CalendarWeek;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarWeek;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarWeek;
 	public fun equals (Ljava/lang/Object;)Z
@@ -143,12 +124,6 @@ public final class me/kozakov/orrery/core/CalendarWeek {
 public final class me/kozakov/orrery/core/DayInfo {
 	public fun <init> (Ljava/lang/String;ZLjava/util/List;ILjava/lang/Long;Ljava/lang/Object;)V
 	public synthetic fun <init> (Ljava/lang/String;ZLjava/util/List;ILjava/lang/Long;Ljava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Z
-	public final fun component3 ()Ljava/util/List;
-	public final fun component4 ()I
-	public final fun component5 ()Ljava/lang/Long;
-	public final fun component6 ()Ljava/lang/Object;
 	public final fun copy (Ljava/lang/String;ZLjava/util/List;ILjava/lang/Long;Ljava/lang/Object;)Lme/kozakov/orrery/core/DayInfo;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/DayInfo;Ljava/lang/String;ZLjava/util/List;ILjava/lang/Long;Ljava/lang/Object;ILjava/lang/Object;)Lme/kozakov/orrery/core/DayInfo;
 	public fun equals (Ljava/lang/Object;)Z
@@ -191,9 +166,6 @@ public final class me/kozakov/orrery/core/DayPosition : java/lang/Enum {
 
 public final class me/kozakov/orrery/core/DayScheduleLayout {
 	public fun <init> (Lkotlinx/datetime/LocalDate;Ljava/util/List;Ljava/util/List;)V
-	public final fun component1 ()Lkotlinx/datetime/LocalDate;
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()Ljava/util/List;
 	public final fun copy (Lkotlinx/datetime/LocalDate;Ljava/util/List;Ljava/util/List;)Lme/kozakov/orrery/core/DayScheduleLayout;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/DayScheduleLayout;Lkotlinx/datetime/LocalDate;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/DayScheduleLayout;
 	public fun equals (Ljava/lang/Object;)Z
@@ -248,7 +220,6 @@ public final class me/kozakov/orrery/core/EventOverlapMode$Stacked : me/kozakov/
 	public fun <init> ()V
 	public fun <init> (F)V
 	public synthetic fun <init> (FILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()F
 	public final fun copy (F)Lme/kozakov/orrery/core/EventOverlapMode$Stacked;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/EventOverlapMode$Stacked;FILjava/lang/Object;)Lme/kozakov/orrery/core/EventOverlapMode$Stacked;
 	public fun equals (Ljava/lang/Object;)Z
@@ -303,9 +274,6 @@ public final class me/kozakov/orrery/core/Frequency : java/lang/Enum {
 
 public final class me/kozakov/orrery/core/HeatmapSummary {
 	public fun <init> (III)V
-	public final fun component1 ()I
-	public final fun component2 ()I
-	public final fun component3 ()I
 	public final fun copy (III)Lme/kozakov/orrery/core/HeatmapSummary;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/HeatmapSummary;IIIILjava/lang/Object;)Lme/kozakov/orrery/core/HeatmapSummary;
 	public fun equals (Ljava/lang/Object;)Z
@@ -352,15 +320,6 @@ public final class me/kozakov/orrery/core/OutDateStyle : java/lang/Enum {
 
 public final class me/kozakov/orrery/core/PositionedEvent {
 	public fun <init> (Lme/kozakov/orrery/core/CalendarEvent;Lkotlinx/datetime/LocalDate;IIIIIFF)V
-	public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent;
-	public final fun component2 ()Lkotlinx/datetime/LocalDate;
-	public final fun component3 ()I
-	public final fun component4 ()I
-	public final fun component5 ()I
-	public final fun component6 ()I
-	public final fun component7 ()I
-	public final fun component8 ()F
-	public final fun component9 ()F
 	public final fun copy (Lme/kozakov/orrery/core/CalendarEvent;Lkotlinx/datetime/LocalDate;IIIIIFF)Lme/kozakov/orrery/core/PositionedEvent;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/PositionedEvent;Lme/kozakov/orrery/core/CalendarEvent;Lkotlinx/datetime/LocalDate;IIIIIFFILjava/lang/Object;)Lme/kozakov/orrery/core/PositionedEvent;
 	public fun equals (Ljava/lang/Object;)Z
@@ -466,10 +425,6 @@ public final class me/kozakov/orrery/core/Selection {
 	public fun <init> ()V
 	public fun <init> (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;)V
 	public synthetic fun <init> (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/datetime/LocalDate;
-	public final fun component2 ()Lkotlinx/datetime/LocalDate;
-	public final fun component3 ()Lkotlinx/datetime/LocalDate;
-	public final fun component4 ()Ljava/util/Set;
 	public final fun copy (Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;)Lme/kozakov/orrery/core/Selection;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/Selection;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Lkotlinx/datetime/LocalDate;Ljava/util/Set;ILjava/lang/Object;)Lme/kozakov/orrery/core/Selection;
 	public fun equals (Ljava/lang/Object;)Z
@@ -565,7 +520,6 @@ public final class me/kozakov/orrery/core/SelectionMode$Month : me/kozakov/orrer
 	public fun <init> ()V
 	public fun <init> (Z)V
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Z
 	public final fun copy (Z)Lme/kozakov/orrery/core/SelectionMode$Month;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Month;ZILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Month;
 	public fun equals (Ljava/lang/Object;)Z
@@ -578,7 +532,6 @@ public final class me/kozakov/orrery/core/SelectionMode$Multi : me/kozakov/orrer
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/Integer;)V
 	public synthetic fun <init> (Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/Integer;
 	public final fun copy (Ljava/lang/Integer;)Lme/kozakov/orrery/core/SelectionMode$Multi;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Multi;Ljava/lang/Integer;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Multi;
 	public fun equals (Ljava/lang/Object;)Z
@@ -598,8 +551,6 @@ public final class me/kozakov/orrery/core/SelectionMode$Range : me/kozakov/orrer
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/Integer;Ljava/lang/Integer;)V
 	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/Integer;
-	public final fun component2 ()Ljava/lang/Integer;
 	public final fun copy (Ljava/lang/Integer;Ljava/lang/Integer;)Lme/kozakov/orrery/core/SelectionMode$Range;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Range;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Range;
 	public fun equals (Ljava/lang/Object;)Z
@@ -615,9 +566,6 @@ public final class me/kozakov/orrery/core/SelectionMode$Single : me/kozakov/orre
 	public fun <init> ()V
 	public fun <init> (ZLme/kozakov/orrery/core/AutoSelectDay;Z)V
 	public synthetic fun <init> (ZLme/kozakov/orrery/core/AutoSelectDay;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Z
-	public final fun component2 ()Lme/kozakov/orrery/core/AutoSelectDay;
-	public final fun component3 ()Z
 	public final fun copy (ZLme/kozakov/orrery/core/AutoSelectDay;Z)Lme/kozakov/orrery/core/SelectionMode$Single;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Single;ZLme/kozakov/orrery/core/AutoSelectDay;ZILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Single;
 	public fun equals (Ljava/lang/Object;)Z
@@ -632,8 +580,6 @@ public final class me/kozakov/orrery/core/SelectionMode$Week : me/kozakov/orrery
 	public fun <init> ()V
 	public fun <init> (Lkotlinx/datetime/DayOfWeek;Z)V
 	public synthetic fun <init> (Lkotlinx/datetime/DayOfWeek;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/datetime/DayOfWeek;
-	public final fun component2 ()Z
 	public final fun copy (Lkotlinx/datetime/DayOfWeek;Z)Lme/kozakov/orrery/core/SelectionMode$Week;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Week;Lkotlinx/datetime/DayOfWeek;ZILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Week;
 	public fun equals (Ljava/lang/Object;)Z
@@ -656,8 +602,6 @@ public final class me/kozakov/orrery/core/SelectionPresets {
 
 public final class me/kozakov/orrery/core/SelectionResult {
 	public fun <init> (Lme/kozakov/orrery/core/Selection;Ljava/util/List;)V
-	public final fun component1 ()Lme/kozakov/orrery/core/Selection;
-	public final fun component2 ()Ljava/util/List;
 	public final fun copy (Lme/kozakov/orrery/core/Selection;Ljava/util/List;)Lme/kozakov/orrery/core/SelectionResult;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionResult;Lme/kozakov/orrery/core/Selection;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionResult;
 	public fun equals (Ljava/lang/Object;)Z
@@ -669,9 +613,6 @@ public final class me/kozakov/orrery/core/SelectionResult {
 
 public final class me/kozakov/orrery/core/WeekBannerPackResult {
 	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
-	public final fun component1 ()Ljava/util/List;
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()Ljava/util/List;
 	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/util/List;)Lme/kozakov/orrery/core/WeekBannerPackResult;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/WeekBannerPackResult;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/WeekBannerPackResult;
 	public fun equals (Ljava/lang/Object;)Z
@@ -684,12 +625,6 @@ public final class me/kozakov/orrery/core/WeekBannerPackResult {
 
 public final class me/kozakov/orrery/core/WeekEventBanner {
 	public fun <init> (Lme/kozakov/orrery/core/CalendarEvent;IIIZZ)V
-	public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent;
-	public final fun component2 ()I
-	public final fun component3 ()I
-	public final fun component4 ()I
-	public final fun component5 ()Z
-	public final fun component6 ()Z
 	public final fun copy (Lme/kozakov/orrery/core/CalendarEvent;IIIZZ)Lme/kozakov/orrery/core/WeekEventBanner;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/core/WeekEventBanner;Lme/kozakov/orrery/core/CalendarEvent;IIIZZILjava/lang/Object;)Lme/kozakov/orrery/core/WeekEventBanner;
 	public fun equals (Ljava/lang/Object;)Z

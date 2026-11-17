@@ -16,6 +16,27 @@ The 1.0 breaks are listed row by row in the API audit ledger,
 - `CalendarDefaults.DaysOfWeekHeader` is removed (ledger row X-001), a source break:
   it was an alias of `CalendarDefaults.WeekHeader`, which takes the same parameters,
   so replace `DaysOfWeekHeader(...)` with `WeekHeader(...)`.
+- The growth-prone data classes of `orrery-core` are plain classes now (ledger
+  [section D](docs/api-audit-1.0.md#d-public-data-classes-8b-decision-8), tiers A and B):
+  `CalendarEvent`, `DayInfo`, `SelectionMode.Single`, `Range`, `Multi`, `Week` and `Month`,
+  `Selection`, `SelectionResult`, `CalendarDay`, `CalendarWeek`, `CalendarMonth`,
+  `HeatmapSummary`, `EventOverlapMode.Stacked`, `PositionedEvent`, `DayScheduleLayout`,
+  `AllDayBanner`, `WeekEventBanner` and `WeekBannerPackResult`. Their `componentN`
+  functions are gone, so destructuring declarations such as `val (id, title) = event` stop
+  compiling: read the properties by name. Constructors, named arguments and `copy(...)` keep
+  the same parameters and defaults, and `equals`, `hashCode` and `toString` give the same
+  results, so other call sites compile unchanged; code compiled against 0.9.x that calls a
+  `componentN` function needs a rebuild. The closed value types `ByDay`, `EventSpan.AllDay`,
+  `EventSpan.Timed` and `SelectionEvent.*` stay data classes.
+- The growth-prone data classes of `orrery-holidays` and `orrery-lunar` are plain classes
+  now (ledger [section D](docs/api-audit-1.0.md#d-public-data-classes-8b-decision-8), tier B):
+  `HolidayRule`, `PublicHoliday` and `LunarDayMetadata`. Their `componentN` functions are
+  gone, so destructuring declarations such as `val (date, ruleId) = holiday` stop compiling:
+  read the properties by name. Constructors, named arguments and `copy(...)` keep the same
+  parameters and defaults (`HolidayRule.copy` still requires `"en"` in `names`), and
+  `equals`, `hashCode` and `toString` give the same results, so other call sites compile
+  unchanged; code compiled against 0.9.x that calls a `componentN` function needs a rebuild.
+  `LunarDate` and the `HolidayDate` rule shapes stay data classes.
 - The growth-prone data classes of `orrery-compose` are plain classes now (ledger
   [section D](docs/api-audit-1.0.md#d-public-data-classes-8b-decision-8), tier B):
   `CalendarRowHeight.Fixed`, `CalendarRowHeight.FillViewport`, `TodayIndicator.Ring`,

@@ -23,7 +23,7 @@ public sealed interface EventOverlapMode {
      *
      * @property laneIndentFraction Horizontal indent per lane in `0f..1f` (default 15%).
      */
-    public data class Stacked(
+    public class Stacked(
         public val laneIndentFraction: Float = 0.15f,
     ) : EventOverlapMode {
         init {
@@ -31,6 +31,21 @@ public sealed interface EventOverlapMode {
                 "laneIndentFraction ($laneIndentFraction) must be in 0..1"
             }
         }
+
+        /** Returns a copy of this mode with the given properties replaced. */
+        public fun copy(laneIndentFraction: Float = this.laneIndentFraction): Stacked =
+            Stacked(laneIndentFraction = laneIndentFraction)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Stacked) return false
+            // equals() rather than ==, as in the former data class: -0f and 0f differ, NaN equals NaN.
+            return laneIndentFraction.equals(other.laneIndentFraction)
+        }
+
+        override fun hashCode(): Int = laneIndentFraction.hashCode()
+
+        override fun toString(): String = "Stacked(laneIndentFraction=$laneIndentFraction)"
     }
 }
 
@@ -49,7 +64,8 @@ public sealed interface EventOverlapMode {
  * @property leftFraction Normalized horizontal start offset in `0f..1f`.
  * @property widthFraction Normalized horizontal width in `0f..1f`.
  */
-public data class PositionedEvent<out T>(
+@Suppress("LongParameterList")
+public class PositionedEvent<out T>(
     public val event: CalendarEvent<T>,
     public val date: LocalDate,
     public val startMinute: Int,
@@ -59,7 +75,64 @@ public data class PositionedEvent<out T>(
     public val columnCount: Int,
     public val leftFraction: Float,
     public val widthFraction: Float,
-)
+) {
+    /** Returns a copy of this placement with the given properties replaced. */
+    public fun copy(
+        event: CalendarEvent<@UnsafeVariance T> = this.event,
+        date: LocalDate = this.date,
+        startMinute: Int = this.startMinute,
+        endMinute: Int = this.endMinute,
+        displayEndMinute: Int = this.displayEndMinute,
+        columnIndex: Int = this.columnIndex,
+        columnCount: Int = this.columnCount,
+        leftFraction: Float = this.leftFraction,
+        widthFraction: Float = this.widthFraction,
+    ): PositionedEvent<T> =
+        PositionedEvent(
+            event = event,
+            date = date,
+            startMinute = startMinute,
+            endMinute = endMinute,
+            displayEndMinute = displayEndMinute,
+            columnIndex = columnIndex,
+            columnCount = columnCount,
+            leftFraction = leftFraction,
+            widthFraction = widthFraction,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PositionedEvent<*>) return false
+        // Fractions use equals() rather than ==, as in the former data class: -0f and 0f differ, NaN equals NaN.
+        return event == other.event &&
+            date == other.date &&
+            startMinute == other.startMinute &&
+            endMinute == other.endMinute &&
+            displayEndMinute == other.displayEndMinute &&
+            columnIndex == other.columnIndex &&
+            columnCount == other.columnCount &&
+            leftFraction.equals(other.leftFraction) &&
+            widthFraction.equals(other.widthFraction)
+    }
+
+    override fun hashCode(): Int {
+        var result = event.hashCode()
+        result = 31 * result + date.hashCode()
+        result = 31 * result + startMinute.hashCode()
+        result = 31 * result + endMinute.hashCode()
+        result = 31 * result + displayEndMinute.hashCode()
+        result = 31 * result + columnIndex.hashCode()
+        result = 31 * result + columnCount.hashCode()
+        result = 31 * result + leftFraction.hashCode()
+        result = 31 * result + widthFraction.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "PositionedEvent(event=$event, date=$date, startMinute=$startMinute, endMinute=$endMinute, " +
+            "displayEndMinute=$displayEndMinute, columnIndex=$columnIndex, columnCount=$columnCount, " +
+            "leftFraction=$leftFraction, widthFraction=$widthFraction)"
+}
 
 /**
  * Partitioned events for a single [date] column: all-day banner items plus
@@ -68,11 +141,39 @@ public data class PositionedEvent<out T>(
  * @property allDayEvents [EventSpan.AllDay] events covering [date], ordered by start date, title and id.
  * @property timedEvents Timed placements ordered by start minute, longer events first.
  */
-public data class DayScheduleLayout<out T>(
+public class DayScheduleLayout<out T>(
     public val date: LocalDate,
     public val allDayEvents: List<CalendarEvent<T>>,
     public val timedEvents: List<PositionedEvent<T>>,
-)
+) {
+    /** Returns a copy of this layout with the given properties replaced. */
+    public fun copy(
+        date: LocalDate = this.date,
+        allDayEvents: List<CalendarEvent<@UnsafeVariance T>> = this.allDayEvents,
+        timedEvents: List<PositionedEvent<@UnsafeVariance T>> = this.timedEvents,
+    ): DayScheduleLayout<T> =
+        DayScheduleLayout(
+            date = date,
+            allDayEvents = allDayEvents,
+            timedEvents = timedEvents,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DayScheduleLayout<*>) return false
+        return date == other.date && allDayEvents == other.allDayEvents && timedEvents == other.timedEvents
+    }
+
+    override fun hashCode(): Int {
+        var result = date.hashCode()
+        result = 31 * result + allDayEvents.hashCode()
+        result = 31 * result + timedEvents.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "DayScheduleLayout(date=$date, allDayEvents=$allDayEvents, timedEvents=$timedEvents)"
+}
 
 /**
  * Computes [DayScheduleLayout] for [events] occurring on [date].
@@ -279,14 +380,58 @@ private fun Interval<*>.overlaps(other: Interval<*>): Boolean =
  * @property clippedStart True when the event starts before the first covered column's date.
  * @property clippedEnd True when the event ends after the last covered column's date.
  */
-public data class AllDayBanner<out T>(
+public class AllDayBanner<out T>(
     public val event: CalendarEvent<T>,
     public val startColumn: Int,
     public val endColumnInclusive: Int,
     public val laneIndex: Int,
     public val clippedStart: Boolean,
     public val clippedEnd: Boolean,
-)
+) {
+    /** Returns a copy of this banner with the given properties replaced. */
+    @Suppress("LongParameterList")
+    public fun copy(
+        event: CalendarEvent<@UnsafeVariance T> = this.event,
+        startColumn: Int = this.startColumn,
+        endColumnInclusive: Int = this.endColumnInclusive,
+        laneIndex: Int = this.laneIndex,
+        clippedStart: Boolean = this.clippedStart,
+        clippedEnd: Boolean = this.clippedEnd,
+    ): AllDayBanner<T> =
+        AllDayBanner(
+            event = event,
+            startColumn = startColumn,
+            endColumnInclusive = endColumnInclusive,
+            laneIndex = laneIndex,
+            clippedStart = clippedStart,
+            clippedEnd = clippedEnd,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AllDayBanner<*>) return false
+        return event == other.event &&
+            startColumn == other.startColumn &&
+            endColumnInclusive == other.endColumnInclusive &&
+            laneIndex == other.laneIndex &&
+            clippedStart == other.clippedStart &&
+            clippedEnd == other.clippedEnd
+    }
+
+    override fun hashCode(): Int {
+        var result = event.hashCode()
+        result = 31 * result + startColumn.hashCode()
+        result = 31 * result + endColumnInclusive.hashCode()
+        result = 31 * result + laneIndex.hashCode()
+        result = 31 * result + clippedStart.hashCode()
+        result = 31 * result + clippedEnd.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "AllDayBanner(event=$event, startColumn=$startColumn, endColumnInclusive=$endColumnInclusive, " +
+            "laneIndex=$laneIndex, clippedStart=$clippedStart, clippedEnd=$clippedEnd)"
+}
 
 /**
  * Packs the [EventSpan.AllDay] events among [events] into banners spanning the

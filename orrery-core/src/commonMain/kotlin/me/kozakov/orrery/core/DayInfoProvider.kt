@@ -46,14 +46,58 @@ public object DayInfoPriority {
  * @property payload Arbitrary data attached by the provider (for example `LunarDayMetadata` from
  *   orrery-lunar), passed through unchanged. Read it with [payloadAs].
  */
-public data class DayInfo(
+public class DayInfo(
     public val label: String?,
     public val isHoliday: Boolean = false,
     public val tags: List<String> = emptyList(),
     public val priority: Int = DayInfoPriority.DEFAULT,
     public val colorArgb: Long? = null,
     public val payload: Any? = null,
-)
+) {
+    /** Returns a copy of this day info with the given properties replaced. */
+    @Suppress("LongParameterList")
+    public fun copy(
+        label: String? = this.label,
+        isHoliday: Boolean = this.isHoliday,
+        tags: List<String> = this.tags,
+        priority: Int = this.priority,
+        colorArgb: Long? = this.colorArgb,
+        payload: Any? = this.payload,
+    ): DayInfo =
+        DayInfo(
+            label = label,
+            isHoliday = isHoliday,
+            tags = tags,
+            priority = priority,
+            colorArgb = colorArgb,
+            payload = payload,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DayInfo) return false
+        return label == other.label &&
+            isHoliday == other.isHoliday &&
+            tags == other.tags &&
+            priority == other.priority &&
+            colorArgb == other.colorArgb &&
+            payload == other.payload
+    }
+
+    override fun hashCode(): Int {
+        var result = label.hashCode()
+        result = 31 * result + isHoliday.hashCode()
+        result = 31 * result + tags.hashCode()
+        result = 31 * result + priority.hashCode()
+        result = 31 * result + colorArgb.hashCode()
+        result = 31 * result + payload.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "DayInfo(label=$label, isHoliday=$isHoliday, tags=$tags, priority=$priority, colorArgb=$colorArgb, " +
+            "payload=$payload)"
+}
 
 /** Type-safe extraction of [DayInfo.payload], returning null if absent or of a different type. */
 public inline fun <reified T> DayInfo.payloadAs(): T? = payload as? T

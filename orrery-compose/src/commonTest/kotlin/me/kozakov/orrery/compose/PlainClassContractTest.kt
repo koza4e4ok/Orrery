@@ -108,7 +108,7 @@ class PlainClassContractTest {
     }
 
     @Test
-    fun `CalendarRowHeight FillViewport keeps its default, copy and toString`() {
+    fun `CalendarRowHeight FillViewport keeps its default and copy and toString`() {
         assertEquals(40.dp, CalendarRowHeight.FillViewport().minRowHeight)
         assertEquals(CalendarRowHeight.FillViewport(40.dp), CalendarRowHeight.FillViewport())
         assertEquals(44.5.dp, fillViewport.copy(minRowHeight = 44.5.dp).minRowHeight)
@@ -129,7 +129,7 @@ class PlainClassContractTest {
     }
 
     @Test
-    fun `TodayIndicator Ring keeps its default, copy and toString`() {
+    fun `TodayIndicator Ring keeps its default and copy and toString`() {
         assertEquals(1.dp, TodayIndicator.Ring().width)
         assertEquals(TodayIndicator.Ring(1.dp), TodayIndicator.Ring())
         assertEquals(3.5.dp, ring.copy(width = 3.5.dp).width)

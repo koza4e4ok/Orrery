@@ -15,8 +15,10 @@ import kotlin.test.assertNull
  * they replace.
  */
 class PlainClassContractTest {
+    private val jul9 = LocalDate(2026, 7, 9)
     private val jul10 = LocalDate(2026, 7, 10)
     private val jul11 = LocalDate(2026, 7, 11)
+    private val jul12 = LocalDate(2026, 7, 12)
     private val rule = RecurrenceRule.weekly(DayOfWeek.FRIDAY)
     private val instance = RecurrenceInstance(seriesId = "series", recurrenceId = jul10)
 
@@ -49,21 +51,31 @@ class PlainClassContractTest {
 
     private val placed = PositionedEvent(event, jul10, 60, 90, 120, 1, 2, 0.5f, 0.25f)
 
-    /** [equal] is built separately from [base]; each of [differing] changes one property of [base]. */
+    /**
+     * [equal] is built separately from [base]; [copied] is `base.copy()` with no arguments; each of [differing]
+     * changes one property of [base] to a value with a different hash.
+     *
+     * Every property of [base] differs from its constructor default, from null and from every other property of
+     * the same type, so [copied] only equals [base] if each `copy` default reads its own property.
+     */
     private fun <T : Any> assertContract(
         base: T,
         equal: T,
+        copied: T,
         vararg differing: T,
     ) {
         assertEquals(base, equal)
         assertEquals(equal, base)
         assertEquals(base.hashCode(), equal.hashCode())
         assertEquals(base.toString(), equal.toString())
+        assertEquals(base, copied, "copy() with no arguments")
+        assertEquals(base.hashCode(), copied.hashCode(), "copy() with no arguments")
         assertNotEquals<Any?>(base, null)
         assertNotEquals<Any>(base, "not a $base")
         differing.forEachIndexed { index, variant ->
             assertNotEquals(base, variant, "variant $index: $variant")
             assertNotEquals(variant, base, "variant $index: $variant")
+            assertNotEquals(base.hashCode(), variant.hashCode(), "hashCode of variant $index: $variant")
         }
     }
 
@@ -72,6 +84,7 @@ class PlainClassContractTest {
         assertContract(
             event,
             newEvent(),
+            event.copy(),
             event.copy(id = "x"),
             event.copy(title = "x"),
             event.copy(span = EventSpan.AllDay(jul10)),
@@ -81,7 +94,6 @@ class PlainClassContractTest {
             event.copy(recurrence = null),
             event.copy(instance = null),
         )
-        assertEquals(event, event.copy())
     }
 
     @Test
@@ -126,6 +138,7 @@ class PlainClassContractTest {
         assertContract(
             dayInfo,
             DayInfo("Holiday", true, listOf("public"), DayInfoPriority.PUBLIC_HOLIDAY, 0xFFC62828, 42),
+            dayInfo.copy(),
             dayInfo.copy(label = null),
             dayInfo.copy(isHoliday = false),
             dayInfo.copy(tags = emptyList()),
@@ -133,7 +146,6 @@ class PlainClassContractTest {
             dayInfo.copy(colorArgb = null),
             dayInfo.copy(payload = 43),
         )
-        assertEquals(dayInfo, dayInfo.copy())
     }
 
     @Test
@@ -166,29 +178,38 @@ class PlainClassContractTest {
 
     @Test
     fun `SelectionMode variants compare every property`() {
-        val single = SelectionMode.Single(autoAdvance = true, autoSelectDay = AutoSelectDay.LastSelectedDay)
+        val single =
+            SelectionMode.Single(autoAdvance = true, autoSelectDay = AutoSelectDay.LastSelectedDay, allowClear = true)
         assertContract(
             single,
-            SelectionMode.Single(true, AutoSelectDay.LastSelectedDay, false),
+            SelectionMode.Single(true, AutoSelectDay.LastSelectedDay, true),
+            single.copy(),
             single.copy(autoAdvance = false),
             single.copy(autoSelectDay = AutoSelectDay.FirstDayOfMonth),
-            single.copy(allowClear = true),
+            single.copy(allowClear = false),
         )
         val range = SelectionMode.Range(minDays = 2, maxDays = 7)
-        assertContract(range, SelectionMode.Range(2, 7), range.copy(minDays = null), range.copy(maxDays = 8))
+        assertContract(
+            range,
+            SelectionMode.Range(2, 7),
+            range.copy(),
+            range.copy(minDays = null),
+            range.copy(maxDays = 8),
+        )
         assertEquals(7, range.copy(minDays = 3).maxDays)
         val multi = SelectionMode.Multi(maxCount = 3)
-        assertContract(multi, SelectionMode.Multi(3), multi.copy(maxCount = null))
-        val week = SelectionMode.Week(firstDayOfWeek = DayOfWeek.SUNDAY)
+        assertContract(multi, SelectionMode.Multi(3), multi.copy(), multi.copy(maxCount = null))
+        val week = SelectionMode.Week(firstDayOfWeek = DayOfWeek.SUNDAY, allowClear = false)
         assertContract(
             week,
-            SelectionMode.Week(DayOfWeek.SUNDAY, true),
+            SelectionMode.Week(DayOfWeek.SUNDAY, false),
+            week.copy(),
             week.copy(firstDayOfWeek = null),
-            week.copy(allowClear = false),
+            week.copy(allowClear = true),
         )
-        assertEquals(DayOfWeek.SUNDAY, week.copy(allowClear = false).firstDayOfWeek)
-        val month = SelectionMode.Month()
-        assertContract(month, SelectionMode.Month(true), month.copy(allowClear = false))
+        assertEquals(DayOfWeek.SUNDAY, week.copy(allowClear = true).firstDayOfWeek)
+        val month = SelectionMode.Month(allowClear = false)
+        assertContract(month, SelectionMode.Month(false), month.copy(), month.copy(allowClear = true))
     }
 
     @Test
@@ -205,26 +226,28 @@ class PlainClassContractTest {
 
     @Test
     fun `Selection and SelectionResult compare every property`() {
-        val selection = Selection(single = jul10, rangeStart = jul10, rangeEnd = jul11, multi = setOf(jul10))
+        val selection = Selection(single = jul9, rangeStart = jul10, rangeEnd = jul11, multi = setOf(jul12))
         assertContract(
             selection,
-            Selection(jul10, jul10, jul11, setOf(jul10)),
+            Selection(jul9, jul10, jul11, setOf(jul12)),
+            selection.copy(),
             selection.copy(single = null),
             selection.copy(rangeStart = jul11),
             selection.copy(rangeEnd = null),
             selection.copy(multi = emptySet()),
         )
         assertEquals(Selection.Empty, Selection())
-        assertEquals(setOf(jul10), selection.copy(single = jul11).multi)
+        assertEquals(setOf(jul12), selection.copy(single = jul11).multi)
         assertEquals(
-            "Selection(single=2026-07-10, rangeStart=2026-07-10, rangeEnd=2026-07-11, multi=[2026-07-10])",
+            "Selection(single=2026-07-09, rangeStart=2026-07-10, rangeEnd=2026-07-11, multi=[2026-07-12])",
             selection.toString(),
         )
 
         val result = SelectionResult(selection, listOf(SelectionEvent.OutOfRange(jul11)))
         assertContract(
             result,
-            SelectionResult(Selection(jul10, jul10, jul11, setOf(jul10)), listOf(SelectionEvent.OutOfRange(jul11))),
+            SelectionResult(Selection(jul9, jul10, jul11, setOf(jul12)), listOf(SelectionEvent.OutOfRange(jul11))),
+            result.copy(),
             result.copy(selection = Selection.Empty),
             result.copy(events = emptyList()),
         )
@@ -241,6 +264,7 @@ class PlainClassContractTest {
         assertContract(
             day,
             CalendarDay(LocalDate(2026, 7, 10), DayPosition.MonthDate),
+            day.copy(),
             day.copy(date = jul11),
             day.copy(position = DayPosition.OutDate),
         )
@@ -249,12 +273,14 @@ class PlainClassContractTest {
         assertContract(
             week,
             CalendarWeek(listOf(CalendarDay(jul10, DayPosition.MonthDate))),
+            week.copy(),
             week.copy(days = emptyList()),
         )
         val month = CalendarMonth(YearMonth(2026, 7), listOf(week))
         assertContract(
             month,
             CalendarMonth(YearMonth(2026, 7), listOf(CalendarWeek(listOf(day)))),
+            month.copy(),
             month.copy(yearMonth = YearMonth(2026, 8)),
             month.copy(weeks = emptyList()),
         )
@@ -272,18 +298,26 @@ class PlainClassContractTest {
         assertContract(
             summary,
             HeatmapSummary(5, 2, 3),
+            summary.copy(),
             summary.copy(activeDays = 6),
             summary.copy(currentStreak = 0),
             summary.copy(longestStreak = 4),
         )
         assertEquals(HeatmapSummary(5, 9, 3), summary.copy(currentStreak = 9))
+        // The data class formula: the first property's hash, then 31 * h + the next one.
+        assertEquals((5 * 31 + 2) * 31 + 3, summary.hashCode())
         assertEquals("HeatmapSummary(activeDays=5, currentStreak=2, longestStreak=3)", summary.toString())
     }
 
     @Test
     fun `EventOverlapMode Stacked compares its property and keeps its check`() {
         val stacked = EventOverlapMode.Stacked(laneIndentFraction = 0.25f)
-        assertContract(stacked, EventOverlapMode.Stacked(0.25f), stacked.copy(laneIndentFraction = 0.5f))
+        assertContract(
+            stacked,
+            EventOverlapMode.Stacked(0.25f),
+            stacked.copy(),
+            stacked.copy(laneIndentFraction = 0.5f),
+        )
         assertEquals(EventOverlapMode.Stacked(), EventOverlapMode.Stacked().copy())
         assertEquals("Stacked(laneIndentFraction=0.25)", stacked.toString())
         assertFailsWith<IllegalArgumentException> { EventOverlapMode.Stacked(1.5f) }
@@ -291,10 +325,28 @@ class PlainClassContractTest {
     }
 
     @Test
+    fun `Float properties keep the data class equals semantics`() {
+        // -0f and 0f differ.
+        assertNotEquals(EventOverlapMode.Stacked(0f), EventOverlapMode.Stacked(-0f))
+        assertNotEquals(placed.copy(leftFraction = 0f), placed.copy(leftFraction = -0f))
+        assertNotEquals(placed.copy(widthFraction = 0f), placed.copy(widthFraction = -0f))
+
+        // NaN equals NaN and hashes the same. Stacked rejects NaN, so only PositionedEvent can hold it.
+        val nanLeft = placed.copy(leftFraction = Float.NaN)
+        assertEquals(nanLeft, placed.copy(leftFraction = Float.NaN))
+        assertEquals(nanLeft.hashCode(), placed.copy(leftFraction = Float.NaN).hashCode())
+        val nanWidth = placed.copy(widthFraction = Float.NaN)
+        assertEquals(nanWidth, placed.copy(widthFraction = Float.NaN))
+        assertEquals(nanWidth.hashCode(), placed.copy(widthFraction = Float.NaN).hashCode())
+        assertFailsWith<IllegalArgumentException> { EventOverlapMode.Stacked(Float.NaN) }
+    }
+
+    @Test
     fun `PositionedEvent compares every property`() {
         assertContract(
             placed,
             PositionedEvent(newEvent(), jul10, 60, 90, 120, 1, 2, 0.5f, 0.25f),
+            placed.copy(),
             placed.copy(event = otherEvent),
             placed.copy(date = jul11),
             placed.copy(startMinute = 61),
@@ -319,6 +371,7 @@ class PlainClassContractTest {
         assertContract(
             layout,
             DayScheduleLayout(jul10, listOf(otherEvent), listOf(placed)),
+            layout.copy(),
             layout.copy(date = jul11),
             layout.copy(allDayEvents = emptyList()),
             layout.copy(timedEvents = emptyList()),
@@ -333,6 +386,7 @@ class PlainClassContractTest {
         assertContract(
             banner,
             AllDayBanner(newEvent(), 0, 2, 1, true, false),
+            banner.copy(),
             banner.copy(event = otherEvent),
             banner.copy(startColumn = 1),
             banner.copy(endColumnInclusive = 3),
@@ -354,6 +408,7 @@ class PlainClassContractTest {
         assertContract(
             banner,
             WeekEventBanner(newEvent(), 1, 3, 0, false, true),
+            banner.copy(),
             banner.copy(event = otherEvent),
             banner.copy(startColumn = 0),
             banner.copy(endColumnInclusive = 4),
@@ -372,6 +427,7 @@ class PlainClassContractTest {
         assertContract(
             result,
             WeekBannerPackResult(listOf(jul10, jul11), listOf(banner), listOf(0, 1)),
+            result.copy(),
             result.copy(weekDates = listOf(jul10)),
             result.copy(banners = emptyList()),
             result.copy(overflowCountByColumn = listOf(0, 0)),

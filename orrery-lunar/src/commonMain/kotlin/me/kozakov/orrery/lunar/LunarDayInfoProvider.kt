@@ -13,12 +13,47 @@ import me.kozakov.orrery.core.DayInfoProvider
  *   weekday, such as Mother's Day, Father's Day and Thanksgiving.
  * @property traditionalFestival Festival on the lunar calendar (e.g. Dragon Boat Festival), if any.
  */
-public data class LunarDayMetadata(
+public class LunarDayMetadata(
     public val lunarDate: LunarDate,
     public val solarTerm: SolarTerm? = null,
     public val gregorianFestival: String? = null,
     public val traditionalFestival: String? = null,
-)
+) {
+    /** Returns a copy of this metadata with the given properties replaced. */
+    public fun copy(
+        lunarDate: LunarDate = this.lunarDate,
+        solarTerm: SolarTerm? = this.solarTerm,
+        gregorianFestival: String? = this.gregorianFestival,
+        traditionalFestival: String? = this.traditionalFestival,
+    ): LunarDayMetadata =
+        LunarDayMetadata(
+            lunarDate = lunarDate,
+            solarTerm = solarTerm,
+            gregorianFestival = gregorianFestival,
+            traditionalFestival = traditionalFestival,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LunarDayMetadata) return false
+        return lunarDate == other.lunarDate &&
+            solarTerm == other.solarTerm &&
+            gregorianFestival == other.gregorianFestival &&
+            traditionalFestival == other.traditionalFestival
+    }
+
+    override fun hashCode(): Int {
+        var result = lunarDate.hashCode()
+        result = 31 * result + solarTerm.hashCode()
+        result = 31 * result + gregorianFestival.hashCode()
+        result = 31 * result + traditionalFestival.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "LunarDayMetadata(lunarDate=$lunarDate, solarTerm=$solarTerm, gregorianFestival=$gregorianFestival, " +
+            "traditionalFestival=$traditionalFestival)"
+}
 
 /**
  * [DayInfoProvider] backed by the Chinese lunisolar calendar: secondary labels follow the

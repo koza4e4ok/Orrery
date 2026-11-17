@@ -114,14 +114,14 @@ public enum class HolidayType {
  * @property subdivisions ISO 3166-2 subdivision codes (e.g. `"DE-BY"`) the rule applies to, or
  *   null for the whole country.
  */
-public data class HolidayRule(
-    val id: String,
-    val names: Map<String, String>,
-    val date: HolidayDate,
-    val type: HolidayType = HolidayType.Public,
-    val years: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
-    val observance: Observance = Observance.None,
-    val subdivisions: Set<String>? = null,
+public class HolidayRule(
+    public val id: String,
+    public val names: Map<String, String>,
+    public val date: HolidayDate,
+    public val type: HolidayType = HolidayType.Public,
+    public val years: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
+    public val observance: Observance = Observance.None,
+    public val subdivisions: Set<String>? = null,
 ) {
     init {
         require("en" in names) { "names must contain \"en\" ($id)" }
@@ -136,6 +136,54 @@ public data class HolidayRule(
         val primary = language.substringBefore('-').substringBefore('_').lowercase()
         return names[language] ?: names[primary] ?: names.getValue("en")
     }
+
+    /** Returns a copy of this rule with the given properties replaced. */
+    @Suppress("LongParameterList")
+    public fun copy(
+        id: String = this.id,
+        names: Map<String, String> = this.names,
+        date: HolidayDate = this.date,
+        type: HolidayType = this.type,
+        years: IntRange = this.years,
+        observance: Observance = this.observance,
+        subdivisions: Set<String>? = this.subdivisions,
+    ): HolidayRule =
+        HolidayRule(
+            id = id,
+            names = names,
+            date = date,
+            type = type,
+            years = years,
+            observance = observance,
+            subdivisions = subdivisions,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is HolidayRule) return false
+        return id == other.id &&
+            names == other.names &&
+            date == other.date &&
+            type == other.type &&
+            years == other.years &&
+            observance == other.observance &&
+            subdivisions == other.subdivisions
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + names.hashCode()
+        result = 31 * result + date.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + years.hashCode()
+        result = 31 * result + observance.hashCode()
+        result = 31 * result + subdivisions.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "HolidayRule(id=$id, names=$names, date=$date, type=$type, years=$years, observance=$observance, " +
+            "subdivisions=$subdivisions)"
 }
 
 /**
@@ -145,11 +193,55 @@ public data class HolidayRule(
  * @property isEstimated True when the date comes from a calculated calendar (Hijri) and the
  *   official date may still be announced differently.
  */
-public data class PublicHoliday(
-    val date: LocalDate,
-    val ruleId: String,
-    val name: String,
-    val type: HolidayType,
-    val isSubstitute: Boolean = false,
-    val isEstimated: Boolean = false,
-)
+public class PublicHoliday(
+    public val date: LocalDate,
+    public val ruleId: String,
+    public val name: String,
+    public val type: HolidayType,
+    public val isSubstitute: Boolean = false,
+    public val isEstimated: Boolean = false,
+) {
+    /** Returns a copy of this holiday with the given properties replaced. */
+    @Suppress("LongParameterList")
+    public fun copy(
+        date: LocalDate = this.date,
+        ruleId: String = this.ruleId,
+        name: String = this.name,
+        type: HolidayType = this.type,
+        isSubstitute: Boolean = this.isSubstitute,
+        isEstimated: Boolean = this.isEstimated,
+    ): PublicHoliday =
+        PublicHoliday(
+            date = date,
+            ruleId = ruleId,
+            name = name,
+            type = type,
+            isSubstitute = isSubstitute,
+            isEstimated = isEstimated,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PublicHoliday) return false
+        return date == other.date &&
+            ruleId == other.ruleId &&
+            name == other.name &&
+            type == other.type &&
+            isSubstitute == other.isSubstitute &&
+            isEstimated == other.isEstimated
+    }
+
+    override fun hashCode(): Int {
+        var result = date.hashCode()
+        result = 31 * result + ruleId.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + isSubstitute.hashCode()
+        result = 31 * result + isEstimated.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "PublicHoliday(date=$date, ruleId=$ruleId, name=$name, type=$type, isSubstitute=$isSubstitute, " +
+            "isEstimated=$isEstimated)"
+}

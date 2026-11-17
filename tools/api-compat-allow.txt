@@ -308,3 +308,40 @@ orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun compone
 orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component4 ()I | 1.0-dataclass | D-027
 orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component5 ()Z | 1.0-dataclass | D-027
 orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component6 ()Z | 1.0-dataclass | D-027
+# orrery-holidays: me.kozakov.orrery.holidays.HolidayRule
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: final fun component1(): kotlin/String // me.kozakov.orrery.holidays/HolidayRule.component1|component1(){}[0] | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: final fun component2(): kotlin.collections/Map<kotlin/String, kotlin/String> // me.kozakov.orrery.holidays/HolidayRule.component2|component2(){}[0] | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: final fun component3(): me.kozakov.orrery.holidays/HolidayDate // me.kozakov.orrery.holidays/HolidayRule.component3|component3(){}[0] | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: final fun component4(): me.kozakov.orrery.holidays/HolidayType // me.kozakov.orrery.holidays/HolidayRule.component4|component4(){}[0] | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: final fun component5(): kotlin.ranges/IntRange // me.kozakov.orrery.holidays/HolidayRule.component5|component5(){}[0] | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: final fun component6(): me.kozakov.orrery.holidays/Observance // me.kozakov.orrery.holidays/HolidayRule.component6|component6(){}[0] | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: final fun component7(): kotlin.collections/Set<kotlin/String>? // me.kozakov.orrery.holidays/HolidayRule.component7|component7(){}[0] | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: public final fun component1 ()Ljava/lang/String; | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: public final fun component2 ()Ljava/util/Map; | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: public final fun component3 ()Lme/kozakov/orrery/holidays/HolidayDate; | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: public final fun component4 ()Lme/kozakov/orrery/holidays/HolidayType; | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: public final fun component5 ()Lkotlin/ranges/IntRange; | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: public final fun component6 ()Lme/kozakov/orrery/holidays/Observance; | 1.0-dataclass | D-044
+orrery-holidays | me.kozakov.orrery.holidays.HolidayRule :: public final fun component7 ()Ljava/util/Set; | 1.0-dataclass | D-044
+# orrery-holidays: me.kozakov.orrery.holidays.PublicHoliday
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.holidays/PublicHoliday.component1|component1(){}[0] | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: final fun component2(): kotlin/String // me.kozakov.orrery.holidays/PublicHoliday.component2|component2(){}[0] | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: final fun component3(): kotlin/String // me.kozakov.orrery.holidays/PublicHoliday.component3|component3(){}[0] | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: final fun component4(): me.kozakov.orrery.holidays/HolidayType // me.kozakov.orrery.holidays/PublicHoliday.component4|component4(){}[0] | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: final fun component5(): kotlin/Boolean // me.kozakov.orrery.holidays/PublicHoliday.component5|component5(){}[0] | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: final fun component6(): kotlin/Boolean // me.kozakov.orrery.holidays/PublicHoliday.component6|component6(){}[0] | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: public final fun component1 ()Lkotlinx/datetime/LocalDate; | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: public final fun component2 ()Ljava/lang/String; | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: public final fun component3 ()Ljava/lang/String; | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: public final fun component4 ()Lme/kozakov/orrery/holidays/HolidayType; | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: public final fun component5 ()Z | 1.0-dataclass | D-045
+orrery-holidays | me.kozakov.orrery.holidays.PublicHoliday :: public final fun component6 ()Z | 1.0-dataclass | D-045
+# orrery-lunar: me.kozakov.orrery.lunar.LunarDayMetadata
+orrery-lunar | me.kozakov.orrery.lunar.LunarDayMetadata :: final fun component1(): me.kozakov.orrery.lunar/LunarDate // me.kozakov.orrery.lunar/LunarDayMetadata.component1|component1(){}[0] | 1.0-dataclass | D-034
+orrery-lunar | me.kozakov.orrery.lunar.LunarDayMetadata :: final fun component2(): me.kozakov.orrery.lunar/SolarTerm? // me.kozakov.orrery.lunar/LunarDayMetadata.component2|component2(){}[0] | 1.0-dataclass | D-034
+orrery-lunar | me.kozakov.orrery.lunar.LunarDayMetadata :: final fun component3(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.component3|component3(){}[0] | 1.0-dataclass | D-034
+orrery-lunar | me.kozakov.orrery.lunar.LunarDayMetadata :: final fun component4(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.component4|component4(){}[0] | 1.0-dataclass | D-034
+orrery-lunar | me.kozakov.orrery.lunar.LunarDayMetadata :: public final fun component1 ()Lme/kozakov/orrery/lunar/LunarDate; | 1.0-dataclass | D-034
+orrery-lunar | me.kozakov.orrery.lunar.LunarDayMetadata :: public final fun component2 ()Lme/kozakov/orrery/lunar/SolarTerm; | 1.0-dataclass | D-034
+orrery-lunar | me.kozakov.orrery.lunar.LunarDayMetadata :: public final fun component3 ()Ljava/lang/String; | 1.0-dataclass | D-034
+orrery-lunar | me.kozakov.orrery.lunar.LunarDayMetadata :: public final fun component4 ()Ljava/lang/String; | 1.0-dataclass | D-034

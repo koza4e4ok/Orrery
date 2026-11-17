@@ -91,10 +91,6 @@ final class me.kozakov.orrery.lunar/LunarDayMetadata { // me.kozakov.orrery.luna
     final val traditionalFestival // me.kozakov.orrery.lunar/LunarDayMetadata.traditionalFestival|{}traditionalFestival[0]
         final fun <get-traditionalFestival>(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.traditionalFestival.<get-traditionalFestival>|<get-traditionalFestival>(){}[0]
 
-    final fun component1(): me.kozakov.orrery.lunar/LunarDate // me.kozakov.orrery.lunar/LunarDayMetadata.component1|component1(){}[0]
-    final fun component2(): me.kozakov.orrery.lunar/SolarTerm? // me.kozakov.orrery.lunar/LunarDayMetadata.component2|component2(){}[0]
-    final fun component3(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.component3|component3(){}[0]
-    final fun component4(): kotlin/String? // me.kozakov.orrery.lunar/LunarDayMetadata.component4|component4(){}[0]
     final fun copy(me.kozakov.orrery.lunar/LunarDate = ..., me.kozakov.orrery.lunar/SolarTerm? = ..., kotlin/String? = ..., kotlin/String? = ...): me.kozakov.orrery.lunar/LunarDayMetadata // me.kozakov.orrery.lunar/LunarDayMetadata.copy|copy(me.kozakov.orrery.lunar.LunarDate;me.kozakov.orrery.lunar.SolarTerm?;kotlin.String?;kotlin.String?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // me.kozakov.orrery.lunar/LunarDayMetadata.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // me.kozakov.orrery.lunar/LunarDayMetadata.hashCode|hashCode(){}[0]

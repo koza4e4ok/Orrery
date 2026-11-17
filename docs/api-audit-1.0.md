@@ -171,3 +171,98 @@ Rule 3: a public enum that may gain entries says "do not rely on exhaustive `whe
 | E-006 | `orrery-compose` | `DecoratorLayer` | Behind, Over | closed | no | - | `DayDecorators.kt:38` |
 | E-007 | `orrery-compose` | `OutDateClickPolicy` | Ignore, SelectOnly, SelectAndScrollToMonth | open | no | add the KDoc | `SelectionState.kt:30` |
 | E-008 | `orrery-compose` | `RangeEndpointStyle` | FullCell, SplitHorizontal, SplitDiagonal | open | no | add the KDoc | `CalendarStyle.kt:45` |
+| E-009 | `orrery-compose` | `ScheduleDragKind` | Create, Move, ResizeStart, ResizeEnd | open | no | add the KDoc | `ScheduleEditing.kt:14` |
+| E-010 | `orrery-compose` | `ScrollSource` | Initial, UserDrag, Programmatic | open | no | add the KDoc | `Observation.kt:16` |
+| E-011 | `orrery-core` | `AutoSelectDay` | FirstDayOfMonth, LastSelectedDay, LastSelectedDayIgnoringCurrent | open | no | add the KDoc | `Selection.kt:104` |
+| E-012 | `orrery-core` | `DayPosition` | InDate, MonthDate, OutDate | closed | no | - | `CalendarModels.kt:7` |
+| E-013 | `orrery-core` | `Frequency` | DAILY, WEEKLY, MONTHLY, YEARLY | open | yes | - | `Recurrence.kt:13` |
+| E-014 | `orrery-core` | `InvalidDatePolicy` | SkipInvalid, ClampToMonthEnd | open | no | add the KDoc | `Recurrence.kt:42` |
+| E-015 | `orrery-core` | `OutDateStyle` | EndOfRow, None, EndOfGrid | open | no | add the KDoc | `CalendarModels.kt:37` |
+| E-016 | `orrery-holidays` | `Church` | Western, Orthodox | open | no | add the KDoc | `HolidayRule.kt:65` |
+| E-017 | `orrery-holidays` | `HolidayType` | Public, Bank, Optional, Observance | open | no | add the KDoc | `HolidayRule.kt:93` |
+| E-018 | `orrery-holidays` | `Observance` | None, NearestWeekday, NextWorkingDay, SundayToMonday | open | no | add the KDoc | `HolidayRule.kt:74` |
+| E-019 | `orrery-lunar` | `ChineseVariant` | SIMPLIFIED, TRADITIONAL_TW, TRADITIONAL_HK | open | no | add the KDoc | `LunarStrings.kt:4` |
+| E-020 | `orrery-lunar` | `SolarTerm` | CHUNFEN, QINGMING, GUYU, LIXIA, XIAOMAN, MANGZHONG, XIAZHI, XIAOSHU, DASHU, LIQIU, CHUSHU, BAILU, QIUFEN, HANLU, SHUANGJIANG, LIDONG, XIAOXUE, DAXUE, DONGZHI, XIAOHAN, DAHAN, LICHUN, YUSHUI, JINGZHE | closed | no | - | `SolarTerms.kt:6` |
+
+## T: public sealed types (rule 3)
+
+| ID | Module | Sealed type | Subtypes | Closed | Note | Task 12 | Source |
+|---|---|---|---|---|---|---|---|
+| T-001 | `orrery-compose` | `CalendarRowHeight` | FillViewport, Fixed, WrapContent | open | no | add the KDoc | `CalendarFormats.kt:13` |
+| T-002 | `orrery-compose` | `DateRangeCalendarLayoutMode` | Adaptive, DualMonth, SingleMonth | open | no | add the KDoc | `DateRangeCalendarLayoutMode.kt:7` |
+| T-003 | `orrery-compose` | `TodayIndicator` | FilledCircle, None, Ring, Underline | open | no | add the KDoc | `CalendarDefaults.kt:220` |
+| T-004 | `orrery-core` | `EventOverlapMode` | SideBySide, Stacked | open | no | add the KDoc | `ScheduleLayout.kt:12` |
+| T-005 | `orrery-core` | `EventSpan` | AllDay, Timed | closed | no | - | `CalendarEvent.kt:12` |
+| T-006 | `orrery-core` | `SelectionEvent` | Intercepted, OutOfRange, RangeTooLong, RangeTooShort, TooManyDays | open | no | add the KDoc | `Selection.kt:124` |
+| T-007 | `orrery-core` | `SelectionMode` | Month, Multi, None, Range, Single, Week | open | no | add the KDoc | `Selection.kt:6` |
+| T-008 | `orrery-holidays` | `HolidayDate` | EasterOffset, Fixed, HijriFixed, NthWeekday, OneOff, PersianFixed, WeekdayRelative | open | no | add the KDoc | `HolidayRule.kt:8` |
+| T-009 | `orrery-widget` (experimental) | `CalendarSnapshotRange` | Agenda, Month, Week | open | yes | - | `CalendarSnapshotRange.kt:17` |
+
+## L: undeclared types in stable signatures (rule 4)
+
+Types under `me/kozakov/orrery/` that a stable JVM dump line references but no dump declares: an internal type, or one the `@InternalOrreryApi`/`@ExperimentalOrreryApi` dump filters hide.
+
+None found.
+
+## K: KDoc wording (2.4 item 3)
+
+KDoc lines of the stable modules that say *experimental*, *internal use*, *subject to change*, *unstable* or *may change*. Each needs a look: stable API must not call itself any of these.
+
+| ID | Module | Where | Text | Review |
+|---|---|---|---|---|
+| K-001 | `orrery-core` | `orrery-core/src/commonMain/kotlin/me/kozakov/orrery/OptInMarkers.kt:4` | Marks API that is public but not yet stable: it may change or disappear in any | reviewed, benign: the KDoc of the opt-in marker itself (Ritsuko, #140) |
+| K-002 | `orrery-core` | `orrery-core/src/commonMain/kotlin/me/kozakov/orrery/OptInMarkers.kt:9` | `@OptIn(ExperimentalOrreryApi::class)` (or the `-opt-in` compiler flag) to | reviewed, benign: the KDoc of the opt-in marker itself (Ritsuko, #140) |
+
+## X: `Defaults` members that duplicate another entry point (2.4 item 3)
+
+Curated in `tools/api-ledger.py` (`DEFAULTS_DUPLICATES`, Ritsuko's ruling on #140); the generator checks that each member and the cited KDoc still exist. The lead ruling on #140, delegated by Andrii (https://github.com/koza4e4ok/Orrery/pull/140#issuecomment-6910956574, shared decision 0007) replaced the deprecation plan: X-001 is removed at 1.0 in task 9, a source break (use `WeekHeader`). Its dump lines are map rows with reason `1.0-removal`, added by hand like every row after task 8, so the allow-list covers them; the migration guide (task 11) lists it.
+
+| ID | Module | Member | Duplicates | Evidence (KDoc) | Plan | Source |
+|---|---|---|---|---|---|---|
+| X-001 | `orrery-compose` | `CalendarDefaults.DaysOfWeekHeader` | `CalendarDefaults.WeekHeader` | Alias of [WeekHeader] | removed at 1.0 (lead ruling, 2026-11-16) | `CalendarDefaults.kt:588` |
+
+Not duplicates: the other same-named `Defaults` members (`DayHeader`, `strings`) are different widgets or different defaults. Scan method: member-name overlap plus a KDoc search, not a full semantic review.
+
+## Gate findings against v0.9.2
+
+Every finding of `tools/api-compat.py` against `v0.9.2` at `50bd6e3` and the row that covers it. The allow-list is generated from these rows.
+
+| Module | Dump | Kind | Declaration | Row |
+|---|---|---|---|---|
+| `orrery-compose` | `android/orrery-compose.api` | changed | `CalendarDefaults.dayShapes` | B-009 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `OrreryDateRangePickerDialog` | B-021 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `HeatmapDefaults.colorScale` | S-001 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `HeatmapMonth` | S-002 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `ScheduleDefaults.dimensions` | B-029 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `ScheduleDefaults.strings` | B-030 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `ScheduleStrings` | B-028 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `DaySchedule` | B-033 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `DaySchedule` | B-035 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `WeekSchedule` | B-034 |
+| `orrery-compose` | `android/orrery-compose.api` | changed | `WeekSchedule` | B-036 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `CalendarDefaults.dayShapes` | B-009 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `OrreryDateRangePickerDialog` | B-021 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `HeatmapDefaults.colorScale` | S-001 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `HeatmapMonth` | S-002 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `ScheduleDefaults.dimensions` | B-029 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `ScheduleDefaults.strings` | B-030 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `ScheduleStrings` | B-028 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `DaySchedule` | B-033 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `DaySchedule` | B-035 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `WeekSchedule` | B-034 |
+| `orrery-compose` | `desktop/orrery-compose.api` | changed | `WeekSchedule` | B-036 |
+| `orrery-compose` | `orrery-compose.klib.api` | changed | `HeatmapMonth` | S-002 |
+| `orrery-compose` | `orrery-compose.klib.api` | changed | `HeatmapDefaults.colorScale` | S-001 |
+| `orrery-core` | `orrery-core.api` | changed | `CalendarEvent.copy` | B-040 |
+| `orrery-core` | `orrery-core.api` | changed | `CalendarEvent` | B-039 |
+
+## Regenerating
+
+```sh
+git fetch --tags
+python3 tools/api-ledger.py --ref 50bd6e3   # this file and tools/api-ledger-map.tsv
+python3 tools/api-compat.py --baseline-ref v0.9.2 --emit-removed \
+    --ledger-map tools/api-ledger-map.tsv > tools/api-compat-allow.txt
+```
+
+The ledger is generated at this commit. Once task 9 removes the bridges the generator cannot find them any more, so later PRs keep the existing rows as they are and regenerate only the allow-list (CI checks that the committed allow-list is the generated one). A finding that regenerates as `TODO-reason` needs a new row here and its map rows in the same PR, reviewed by Ritsuko; a hand-written `copy` in task 10 must keep every default parameter, or `copy$default` disappears, which is a source break no row covers. The full procedure is in `docs/RELEASING.md`, "Ledger map after task 8".

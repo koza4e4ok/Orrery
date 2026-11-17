@@ -142,27 +142,169 @@ orrery-compose | me.kozakov.orrery.compose.ScheduleViewKt :: public static final
 orrery-compose | me.kozakov.orrery.compose.SelectionStateKt :: public static final synthetic fun rememberCalendarSelectionState (Lme/kozakov/orrery/core/SelectionMode;Lme/kozakov/orrery/core/Selection;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lme/kozakov/orrery/compose/CalendarSelectionState; | 1.0-bridge | B-037
 # orrery-compose: me.kozakov.orrery.compose.YearCalendarKt
 orrery-compose | me.kozakov.orrery.compose.YearCalendarKt :: public static final synthetic fun MiniMonth (Lme/kozakov/orrery/compose/CalendarDefaults;Lkotlinx/datetime/YearMonth;Landroidx/compose/ui/Modifier;Lkotlinx/datetime/DayOfWeek;Lkotlinx/datetime/LocalDate;Landroidx/compose/runtime/Composer;II)V | 1.0-bridge | B-038
+# orrery-core: me.kozakov.orrery.core.AllDayBanner
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: final fun component1(): me.kozakov.orrery.core/CalendarEvent<#A> // me.kozakov.orrery.core/AllDayBanner.component1|component1(){}[0] | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: final fun component2(): kotlin/Int // me.kozakov.orrery.core/AllDayBanner.component2|component2(){}[0] | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: final fun component3(): kotlin/Int // me.kozakov.orrery.core/AllDayBanner.component3|component3(){}[0] | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: final fun component4(): kotlin/Int // me.kozakov.orrery.core/AllDayBanner.component4|component4(){}[0] | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: final fun component5(): kotlin/Boolean // me.kozakov.orrery.core/AllDayBanner.component5|component5(){}[0] | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: final fun component6(): kotlin/Boolean // me.kozakov.orrery.core/AllDayBanner.component6|component6(){}[0] | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent; | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: public final fun component2 ()I | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: public final fun component3 ()I | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: public final fun component4 ()I | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: public final fun component5 ()Z | 1.0-dataclass | D-001
+orrery-core | me.kozakov.orrery.core.AllDayBanner :: public final fun component6 ()Z | 1.0-dataclass | D-001
+# orrery-core: me.kozakov.orrery.core.CalendarDay
+orrery-core | me.kozakov.orrery.core.CalendarDay :: final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/CalendarDay.component1|component1(){}[0] | 1.0-dataclass | D-003
+orrery-core | me.kozakov.orrery.core.CalendarDay :: final fun component2(): me.kozakov.orrery.core/DayPosition // me.kozakov.orrery.core/CalendarDay.component2|component2(){}[0] | 1.0-dataclass | D-003
+orrery-core | me.kozakov.orrery.core.CalendarDay :: public final fun component1 ()Lkotlinx/datetime/LocalDate; | 1.0-dataclass | D-003
+orrery-core | me.kozakov.orrery.core.CalendarDay :: public final fun component2 ()Lme/kozakov/orrery/core/DayPosition; | 1.0-dataclass | D-003
 # orrery-core: me.kozakov.orrery.core.CalendarEvent
 orrery-core | me.kozakov.orrery.core.CalendarEvent :: constructor <init>(kotlin/String, kotlin/String, me.kozakov.orrery.core/EventSpan, kotlin/String? = ..., kotlin/Long? = ..., #A? = ...) // me.kozakov.orrery.core/CalendarEvent.<init>|<init>(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?){}[0] | 1.0-bridge | B-039
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: final fun component1(): kotlin/String // me.kozakov.orrery.core/CalendarEvent.component1|component1(){}[0] | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: final fun component2(): kotlin/String // me.kozakov.orrery.core/CalendarEvent.component2|component2(){}[0] | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: final fun component3(): me.kozakov.orrery.core/EventSpan // me.kozakov.orrery.core/CalendarEvent.component3|component3(){}[0] | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: final fun component4(): kotlin/String? // me.kozakov.orrery.core/CalendarEvent.component4|component4(){}[0] | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: final fun component5(): kotlin/Long? // me.kozakov.orrery.core/CalendarEvent.component5|component5(){}[0] | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: final fun component6(): #A? // me.kozakov.orrery.core/CalendarEvent.component6|component6(){}[0] | 1.0-dataclass | D-004
 orrery-core | me.kozakov.orrery.core.CalendarEvent :: final fun copy(kotlin/String = ..., kotlin/String = ..., me.kozakov.orrery.core/EventSpan = ..., kotlin/String? = ..., kotlin/Long? = ..., #A? = ...): me.kozakov.orrery.core/CalendarEvent<#A> // me.kozakov.orrery.core/CalendarEvent.copy|copy(kotlin.String;kotlin.String;me.kozakov.orrery.core.EventSpan;kotlin.String?;kotlin.Long?;1:0?){}[0] | 1.0-bridge | B-040
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: public final fun component1 ()Ljava/lang/String; | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: public final fun component2 ()Ljava/lang/String; | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: public final fun component3 ()Lme/kozakov/orrery/core/EventSpan; | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: public final fun component4 ()Ljava/lang/String; | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: public final fun component5 ()Ljava/lang/Long; | 1.0-dataclass | D-004
+orrery-core | me.kozakov.orrery.core.CalendarEvent :: public final fun component6 ()Ljava/lang/Object; | 1.0-dataclass | D-004
 orrery-core | me.kozakov.orrery.core.CalendarEvent :: public final fun copy (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent; | 1.0-bridge | B-040
 orrery-core | me.kozakov.orrery.core.CalendarEvent :: public fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;)V | 1.0-bridge | B-039
 orrery-core | me.kozakov.orrery.core.CalendarEvent :: public static synthetic fun copy$default (Lme/kozakov/orrery/core/CalendarEvent;Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;ILjava/lang/Object;)Lme/kozakov/orrery/core/CalendarEvent; | 1.0-bridge | B-040
 orrery-core | me.kozakov.orrery.core.CalendarEvent :: public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lme/kozakov/orrery/core/EventSpan;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V | 1.0-bridge | B-039
+# orrery-core: me.kozakov.orrery.core.CalendarMonth
+orrery-core | me.kozakov.orrery.core.CalendarMonth :: final fun component1(): kotlinx.datetime/YearMonth // me.kozakov.orrery.core/CalendarMonth.component1|component1(){}[0] | 1.0-dataclass | D-005
+orrery-core | me.kozakov.orrery.core.CalendarMonth :: final fun component2(): kotlin.collections/List<me.kozakov.orrery.core/CalendarWeek> // me.kozakov.orrery.core/CalendarMonth.component2|component2(){}[0] | 1.0-dataclass | D-005
+orrery-core | me.kozakov.orrery.core.CalendarMonth :: public final fun component1 ()Lkotlinx/datetime/YearMonth; | 1.0-dataclass | D-005
+orrery-core | me.kozakov.orrery.core.CalendarMonth :: public final fun component2 ()Ljava/util/List; | 1.0-dataclass | D-005
+# orrery-core: me.kozakov.orrery.core.CalendarWeek
+orrery-core | me.kozakov.orrery.core.CalendarWeek :: final fun component1(): kotlin.collections/List<me.kozakov.orrery.core/CalendarDay> // me.kozakov.orrery.core/CalendarWeek.component1|component1(){}[0] | 1.0-dataclass | D-006
+orrery-core | me.kozakov.orrery.core.CalendarWeek :: public final fun component1 ()Ljava/util/List; | 1.0-dataclass | D-006
 # orrery-core: me.kozakov.orrery.core.DayInfo
 orrery-core | me.kozakov.orrery.core.DayInfo :: constructor <init>(kotlin/String?, kotlin/Boolean = ..., kotlin.collections/List<kotlin/String> = ...) // me.kozakov.orrery.core/DayInfo.<init>|<init>(kotlin.String?;kotlin.Boolean;kotlin.collections.List<kotlin.String>){}[0] | 1.0-bridge | B-041
+orrery-core | me.kozakov.orrery.core.DayInfo :: final fun component1(): kotlin/String? // me.kozakov.orrery.core/DayInfo.component1|component1(){}[0] | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: final fun component2(): kotlin/Boolean // me.kozakov.orrery.core/DayInfo.component2|component2(){}[0] | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: final fun component3(): kotlin.collections/List<kotlin/String> // me.kozakov.orrery.core/DayInfo.component3|component3(){}[0] | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: final fun component4(): kotlin/Int // me.kozakov.orrery.core/DayInfo.component4|component4(){}[0] | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: final fun component5(): kotlin/Long? // me.kozakov.orrery.core/DayInfo.component5|component5(){}[0] | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: final fun component6(): kotlin/Any? // me.kozakov.orrery.core/DayInfo.component6|component6(){}[0] | 1.0-dataclass | D-007
 orrery-core | me.kozakov.orrery.core.DayInfo :: final fun copy(kotlin/String? = ..., kotlin/Boolean = ..., kotlin.collections/List<kotlin/String> = ...): me.kozakov.orrery.core/DayInfo // me.kozakov.orrery.core/DayInfo.copy|copy(kotlin.String?;kotlin.Boolean;kotlin.collections.List<kotlin.String>){}[0] | 1.0-bridge | B-042
+orrery-core | me.kozakov.orrery.core.DayInfo :: public final fun component1 ()Ljava/lang/String; | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: public final fun component2 ()Z | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: public final fun component3 ()Ljava/util/List; | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: public final fun component4 ()I | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: public final fun component5 ()Ljava/lang/Long; | 1.0-dataclass | D-007
+orrery-core | me.kozakov.orrery.core.DayInfo :: public final fun component6 ()Ljava/lang/Object; | 1.0-dataclass | D-007
 orrery-core | me.kozakov.orrery.core.DayInfo :: public final synthetic fun copy (Ljava/lang/String;ZLjava/util/List;)Lme/kozakov/orrery/core/DayInfo; | 1.0-bridge | B-042
 orrery-core | me.kozakov.orrery.core.DayInfo :: public static synthetic fun copy$default (Lme/kozakov/orrery/core/DayInfo;Ljava/lang/String;ZLjava/util/List;ILjava/lang/Object;)Lme/kozakov/orrery/core/DayInfo; | 1.0-bridge | B-042
 orrery-core | me.kozakov.orrery.core.DayInfo :: public synthetic fun <init> (Ljava/lang/String;ZLjava/util/List;)V | 1.0-bridge | B-041
 orrery-core | me.kozakov.orrery.core.DayInfo :: public synthetic fun <init> (Ljava/lang/String;ZLjava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V | 1.0-bridge | B-041
+# orrery-core: me.kozakov.orrery.core.DayScheduleLayout
+orrery-core | me.kozakov.orrery.core.DayScheduleLayout :: final fun component1(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/DayScheduleLayout.component1|component1(){}[0] | 1.0-dataclass | D-008
+orrery-core | me.kozakov.orrery.core.DayScheduleLayout :: final fun component2(): kotlin.collections/List<me.kozakov.orrery.core/CalendarEvent<#A>> // me.kozakov.orrery.core/DayScheduleLayout.component2|component2(){}[0] | 1.0-dataclass | D-008
+orrery-core | me.kozakov.orrery.core.DayScheduleLayout :: final fun component3(): kotlin.collections/List<me.kozakov.orrery.core/PositionedEvent<#A>> // me.kozakov.orrery.core/DayScheduleLayout.component3|component3(){}[0] | 1.0-dataclass | D-008
+orrery-core | me.kozakov.orrery.core.DayScheduleLayout :: public final fun component1 ()Lkotlinx/datetime/LocalDate; | 1.0-dataclass | D-008
+orrery-core | me.kozakov.orrery.core.DayScheduleLayout :: public final fun component2 ()Ljava/util/List; | 1.0-dataclass | D-008
+orrery-core | me.kozakov.orrery.core.DayScheduleLayout :: public final fun component3 ()Ljava/util/List; | 1.0-dataclass | D-008
+# orrery-core: me.kozakov.orrery.core.EventOverlapMode.Stacked
+orrery-core | me.kozakov.orrery.core.EventOverlapMode.Stacked :: final fun component1(): kotlin/Float // me.kozakov.orrery.core/EventOverlapMode.Stacked.component1|component1(){}[0] | 1.0-dataclass | D-009
+orrery-core | me.kozakov.orrery.core.EventOverlapMode.Stacked :: public final fun component1 ()F | 1.0-dataclass | D-009
+# orrery-core: me.kozakov.orrery.core.HeatmapSummary
+orrery-core | me.kozakov.orrery.core.HeatmapSummary :: final fun component1(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.component1|component1(){}[0] | 1.0-dataclass | D-012
+orrery-core | me.kozakov.orrery.core.HeatmapSummary :: final fun component2(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.component2|component2(){}[0] | 1.0-dataclass | D-012
+orrery-core | me.kozakov.orrery.core.HeatmapSummary :: final fun component3(): kotlin/Int // me.kozakov.orrery.core/HeatmapSummary.component3|component3(){}[0] | 1.0-dataclass | D-012
+orrery-core | me.kozakov.orrery.core.HeatmapSummary :: public final fun component1 ()I | 1.0-dataclass | D-012
+orrery-core | me.kozakov.orrery.core.HeatmapSummary :: public final fun component2 ()I | 1.0-dataclass | D-012
+orrery-core | me.kozakov.orrery.core.HeatmapSummary :: public final fun component3 ()I | 1.0-dataclass | D-012
+# orrery-core: me.kozakov.orrery.core.PositionedEvent
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component1(): me.kozakov.orrery.core/CalendarEvent<#A> // me.kozakov.orrery.core/PositionedEvent.component1|component1(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component2(): kotlinx.datetime/LocalDate // me.kozakov.orrery.core/PositionedEvent.component2|component2(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component3(): kotlin/Int // me.kozakov.orrery.core/PositionedEvent.component3|component3(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component4(): kotlin/Int // me.kozakov.orrery.core/PositionedEvent.component4|component4(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component5(): kotlin/Int // me.kozakov.orrery.core/PositionedEvent.component5|component5(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component6(): kotlin/Int // me.kozakov.orrery.core/PositionedEvent.component6|component6(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component7(): kotlin/Int // me.kozakov.orrery.core/PositionedEvent.component7|component7(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component8(): kotlin/Float // me.kozakov.orrery.core/PositionedEvent.component8|component8(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: final fun component9(): kotlin/Float // me.kozakov.orrery.core/PositionedEvent.component9|component9(){}[0] | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent; | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component2 ()Lkotlinx/datetime/LocalDate; | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component3 ()I | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component4 ()I | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component5 ()I | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component6 ()I | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component7 ()I | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component8 ()F | 1.0-dataclass | D-013
+orrery-core | me.kozakov.orrery.core.PositionedEvent :: public final fun component9 ()F | 1.0-dataclass | D-013
+# orrery-core: me.kozakov.orrery.core.Selection
+orrery-core | me.kozakov.orrery.core.Selection :: final fun component1(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.component1|component1(){}[0] | 1.0-dataclass | D-014
+orrery-core | me.kozakov.orrery.core.Selection :: final fun component2(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.component2|component2(){}[0] | 1.0-dataclass | D-014
+orrery-core | me.kozakov.orrery.core.Selection :: final fun component3(): kotlinx.datetime/LocalDate? // me.kozakov.orrery.core/Selection.component3|component3(){}[0] | 1.0-dataclass | D-014
+orrery-core | me.kozakov.orrery.core.Selection :: final fun component4(): kotlin.collections/Set<kotlinx.datetime/LocalDate> // me.kozakov.orrery.core/Selection.component4|component4(){}[0] | 1.0-dataclass | D-014
+orrery-core | me.kozakov.orrery.core.Selection :: public final fun component1 ()Lkotlinx/datetime/LocalDate; | 1.0-dataclass | D-014
+orrery-core | me.kozakov.orrery.core.Selection :: public final fun component2 ()Lkotlinx/datetime/LocalDate; | 1.0-dataclass | D-014
+orrery-core | me.kozakov.orrery.core.Selection :: public final fun component3 ()Lkotlinx/datetime/LocalDate; | 1.0-dataclass | D-014
+orrery-core | me.kozakov.orrery.core.Selection :: public final fun component4 ()Ljava/util/Set; | 1.0-dataclass | D-014
 # orrery-core: me.kozakov.orrery.core.SelectionEngine
 orrery-core | me.kozakov.orrery.core.SelectionEngine :: constructor <init>(me.kozakov.orrery.core/SelectionMode, kotlin.ranges/ClosedRange<kotlinx.datetime/LocalDate>?, me.kozakov.orrery.core/DisabledDates) // me.kozakov.orrery.core/SelectionEngine.<init>|<init>(me.kozakov.orrery.core.SelectionMode;kotlin.ranges.ClosedRange<kotlinx.datetime.LocalDate>?;me.kozakov.orrery.core.DisabledDates){}[0] | 1.0-bridge | B-045
 orrery-core | me.kozakov.orrery.core.SelectionEngine :: public synthetic fun <init> (Lme/kozakov/orrery/core/SelectionMode;Lkotlin/ranges/ClosedRange;Lme/kozakov/orrery/core/DisabledDates;)V | 1.0-bridge | B-045
+# orrery-core: me.kozakov.orrery.core.SelectionMode.Month
+orrery-core | me.kozakov.orrery.core.SelectionMode.Month :: final fun component1(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Month.component1|component1(){}[0] | 1.0-dataclass | D-020
+orrery-core | me.kozakov.orrery.core.SelectionMode.Month :: public final fun component1 ()Z | 1.0-dataclass | D-020
+# orrery-core: me.kozakov.orrery.core.SelectionMode.Multi
+orrery-core | me.kozakov.orrery.core.SelectionMode.Multi :: final fun component1(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Multi.component1|component1(){}[0] | 1.0-dataclass | D-021
+orrery-core | me.kozakov.orrery.core.SelectionMode.Multi :: public final fun component1 ()Ljava/lang/Integer; | 1.0-dataclass | D-021
+# orrery-core: me.kozakov.orrery.core.SelectionMode.Range
+orrery-core | me.kozakov.orrery.core.SelectionMode.Range :: final fun component1(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Range.component1|component1(){}[0] | 1.0-dataclass | D-022
+orrery-core | me.kozakov.orrery.core.SelectionMode.Range :: final fun component2(): kotlin/Int? // me.kozakov.orrery.core/SelectionMode.Range.component2|component2(){}[0] | 1.0-dataclass | D-022
+orrery-core | me.kozakov.orrery.core.SelectionMode.Range :: public final fun component1 ()Ljava/lang/Integer; | 1.0-dataclass | D-022
+orrery-core | me.kozakov.orrery.core.SelectionMode.Range :: public final fun component2 ()Ljava/lang/Integer; | 1.0-dataclass | D-022
 # orrery-core: me.kozakov.orrery.core.SelectionMode.Single
 orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: constructor <init>(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ...) // me.kozakov.orrery.core/SelectionMode.Single.<init>|<init>(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay){}[0] | 1.0-bridge | B-043
+orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: final fun component1(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.component1|component1(){}[0] | 1.0-dataclass | D-023
+orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: final fun component2(): me.kozakov.orrery.core/AutoSelectDay // me.kozakov.orrery.core/SelectionMode.Single.component2|component2(){}[0] | 1.0-dataclass | D-023
+orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: final fun component3(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Single.component3|component3(){}[0] | 1.0-dataclass | D-023
 orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: final fun copy(kotlin/Boolean = ..., me.kozakov.orrery.core/AutoSelectDay = ...): me.kozakov.orrery.core/SelectionMode.Single // me.kozakov.orrery.core/SelectionMode.Single.copy|copy(kotlin.Boolean;me.kozakov.orrery.core.AutoSelectDay){}[0] | 1.0-bridge | B-044
+orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: public final fun component1 ()Z | 1.0-dataclass | D-023
+orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: public final fun component2 ()Lme/kozakov/orrery/core/AutoSelectDay; | 1.0-dataclass | D-023
+orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: public final fun component3 ()Z | 1.0-dataclass | D-023
 orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: public final synthetic fun copy (ZLme/kozakov/orrery/core/AutoSelectDay;)Lme/kozakov/orrery/core/SelectionMode$Single; | 1.0-bridge | B-044
 orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: public static synthetic fun copy$default (Lme/kozakov/orrery/core/SelectionMode$Single;ZLme/kozakov/orrery/core/AutoSelectDay;ILjava/lang/Object;)Lme/kozakov/orrery/core/SelectionMode$Single; | 1.0-bridge | B-044
 orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: public synthetic fun <init> (ZLme/kozakov/orrery/core/AutoSelectDay;)V | 1.0-bridge | B-043
 orrery-core | me.kozakov.orrery.core.SelectionMode.Single :: public synthetic fun <init> (ZLme/kozakov/orrery/core/AutoSelectDay;ILkotlin/jvm/internal/DefaultConstructorMarker;)V | 1.0-bridge | B-043
+# orrery-core: me.kozakov.orrery.core.SelectionMode.Week
+orrery-core | me.kozakov.orrery.core.SelectionMode.Week :: final fun component1(): kotlinx.datetime/DayOfWeek? // me.kozakov.orrery.core/SelectionMode.Week.component1|component1(){}[0] | 1.0-dataclass | D-024
+orrery-core | me.kozakov.orrery.core.SelectionMode.Week :: final fun component2(): kotlin/Boolean // me.kozakov.orrery.core/SelectionMode.Week.component2|component2(){}[0] | 1.0-dataclass | D-024
+orrery-core | me.kozakov.orrery.core.SelectionMode.Week :: public final fun component1 ()Lkotlinx/datetime/DayOfWeek; | 1.0-dataclass | D-024
+orrery-core | me.kozakov.orrery.core.SelectionMode.Week :: public final fun component2 ()Z | 1.0-dataclass | D-024
+# orrery-core: me.kozakov.orrery.core.SelectionResult
+orrery-core | me.kozakov.orrery.core.SelectionResult :: final fun component1(): me.kozakov.orrery.core/Selection // me.kozakov.orrery.core/SelectionResult.component1|component1(){}[0] | 1.0-dataclass | D-025
+orrery-core | me.kozakov.orrery.core.SelectionResult :: final fun component2(): kotlin.collections/List<me.kozakov.orrery.core/SelectionEvent> // me.kozakov.orrery.core/SelectionResult.component2|component2(){}[0] | 1.0-dataclass | D-025
+orrery-core | me.kozakov.orrery.core.SelectionResult :: public final fun component1 ()Lme/kozakov/orrery/core/Selection; | 1.0-dataclass | D-025
+orrery-core | me.kozakov.orrery.core.SelectionResult :: public final fun component2 ()Ljava/util/List; | 1.0-dataclass | D-025
+# orrery-core: me.kozakov.orrery.core.WeekBannerPackResult
+orrery-core | me.kozakov.orrery.core.WeekBannerPackResult :: final fun component1(): kotlin.collections/List<kotlinx.datetime/LocalDate> // me.kozakov.orrery.core/WeekBannerPackResult.component1|component1(){}[0] | 1.0-dataclass | D-026
+orrery-core | me.kozakov.orrery.core.WeekBannerPackResult :: final fun component2(): kotlin.collections/List<me.kozakov.orrery.core/WeekEventBanner<#A>> // me.kozakov.orrery.core/WeekBannerPackResult.component2|component2(){}[0] | 1.0-dataclass | D-026
+orrery-core | me.kozakov.orrery.core.WeekBannerPackResult :: final fun component3(): kotlin.collections/List<kotlin/Int> // me.kozakov.orrery.core/WeekBannerPackResult.component3|component3(){}[0] | 1.0-dataclass | D-026
+orrery-core | me.kozakov.orrery.core.WeekBannerPackResult :: public final fun component1 ()Ljava/util/List; | 1.0-dataclass | D-026
+orrery-core | me.kozakov.orrery.core.WeekBannerPackResult :: public final fun component2 ()Ljava/util/List; | 1.0-dataclass | D-026
+orrery-core | me.kozakov.orrery.core.WeekBannerPackResult :: public final fun component3 ()Ljava/util/List; | 1.0-dataclass | D-026
+# orrery-core: me.kozakov.orrery.core.WeekEventBanner
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: final fun component1(): me.kozakov.orrery.core/CalendarEvent<#A> // me.kozakov.orrery.core/WeekEventBanner.component1|component1(){}[0] | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: final fun component2(): kotlin/Int // me.kozakov.orrery.core/WeekEventBanner.component2|component2(){}[0] | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: final fun component3(): kotlin/Int // me.kozakov.orrery.core/WeekEventBanner.component3|component3(){}[0] | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: final fun component4(): kotlin/Int // me.kozakov.orrery.core/WeekEventBanner.component4|component4(){}[0] | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: final fun component5(): kotlin/Boolean // me.kozakov.orrery.core/WeekEventBanner.component5|component5(){}[0] | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: final fun component6(): kotlin/Boolean // me.kozakov.orrery.core/WeekEventBanner.component6|component6(){}[0] | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component1 ()Lme/kozakov/orrery/core/CalendarEvent; | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component2 ()I | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component3 ()I | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component4 ()I | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component5 ()Z | 1.0-dataclass | D-027
+orrery-core | me.kozakov.orrery.core.WeekEventBanner :: public final fun component6 ()Z | 1.0-dataclass | D-027

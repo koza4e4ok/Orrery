@@ -17,7 +17,7 @@ import kotlinx.datetime.LocalDate
  * @property continuesIntoNextWeek True when the event ends after the last
  *   date of the week (the banner is clipped on its end side).
  */
-public data class WeekEventBanner<out T>(
+public class WeekEventBanner<out T>(
     public val event: CalendarEvent<T>,
     public val startColumn: Int,
     public val endColumnInclusive: Int,
@@ -27,6 +27,51 @@ public data class WeekEventBanner<out T>(
 ) {
     /** Number of columns the banner covers. */
     public val columnSpan: Int get() = endColumnInclusive - startColumn + 1
+
+    /** Returns a copy of this banner with the given properties replaced. */
+    @Suppress("LongParameterList")
+    public fun copy(
+        event: CalendarEvent<@UnsafeVariance T> = this.event,
+        startColumn: Int = this.startColumn,
+        endColumnInclusive: Int = this.endColumnInclusive,
+        laneIndex: Int = this.laneIndex,
+        continuesFromPreviousWeek: Boolean = this.continuesFromPreviousWeek,
+        continuesIntoNextWeek: Boolean = this.continuesIntoNextWeek,
+    ): WeekEventBanner<T> =
+        WeekEventBanner(
+            event = event,
+            startColumn = startColumn,
+            endColumnInclusive = endColumnInclusive,
+            laneIndex = laneIndex,
+            continuesFromPreviousWeek = continuesFromPreviousWeek,
+            continuesIntoNextWeek = continuesIntoNextWeek,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is WeekEventBanner<*>) return false
+        return event == other.event &&
+            startColumn == other.startColumn &&
+            endColumnInclusive == other.endColumnInclusive &&
+            laneIndex == other.laneIndex &&
+            continuesFromPreviousWeek == other.continuesFromPreviousWeek &&
+            continuesIntoNextWeek == other.continuesIntoNextWeek
+    }
+
+    override fun hashCode(): Int {
+        var result = event.hashCode()
+        result = 31 * result + startColumn.hashCode()
+        result = 31 * result + endColumnInclusive.hashCode()
+        result = 31 * result + laneIndex.hashCode()
+        result = 31 * result + continuesFromPreviousWeek.hashCode()
+        result = 31 * result + continuesIntoNextWeek.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "WeekEventBanner(event=$event, startColumn=$startColumn, endColumnInclusive=$endColumnInclusive, " +
+            "laneIndex=$laneIndex, continuesFromPreviousWeek=$continuesFromPreviousWeek, " +
+            "continuesIntoNextWeek=$continuesIntoNextWeek)"
 }
 
 /**
@@ -37,11 +82,42 @@ public data class WeekEventBanner<out T>(
  * @property overflowCountByColumn For each column of [weekDates], how many
  *   covering events did not fit in the visible lanes (shown as `+N`).
  */
-public data class WeekBannerPackResult<out T>(
+public class WeekBannerPackResult<out T>(
     public val weekDates: List<LocalDate>,
     public val banners: List<WeekEventBanner<T>>,
     public val overflowCountByColumn: List<Int>,
-)
+) {
+    /** Returns a copy of this result with the given properties replaced. */
+    public fun copy(
+        weekDates: List<LocalDate> = this.weekDates,
+        banners: List<WeekEventBanner<@UnsafeVariance T>> = this.banners,
+        overflowCountByColumn: List<Int> = this.overflowCountByColumn,
+    ): WeekBannerPackResult<T> =
+        WeekBannerPackResult(
+            weekDates = weekDates,
+            banners = banners,
+            overflowCountByColumn = overflowCountByColumn,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is WeekBannerPackResult<*>) return false
+        return weekDates == other.weekDates &&
+            banners == other.banners &&
+            overflowCountByColumn == other.overflowCountByColumn
+    }
+
+    override fun hashCode(): Int {
+        var result = weekDates.hashCode()
+        result = 31 * result + banners.hashCode()
+        result = 31 * result + overflowCountByColumn.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "WeekBannerPackResult(weekDates=$weekDates, banners=$banners, " +
+            "overflowCountByColumn=$overflowCountByColumn)"
+}
 
 /**
  * Packs the [events] that overlap [weekDates] into horizontal lanes for a

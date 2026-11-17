@@ -84,7 +84,7 @@ A public signature that changed on main after the baseline tag and ships without
 
 Tier A and B become plain classes in task 10 (defaults on the constructor, hand-written `copy`, `equals`, `hashCode`, `toString`, no `componentN`); tier C stays a `data class`. *Surface removed* is what the conversion takes out of the dumps: the `componentN` functions, so destructuring stops compiling. A hand-written `copy` with the same parameters keeps the `copy` signature. *Spec name* is the name in the spec 2.4 table where it differs from the declaration. *Proposed* rows are not in the spec table.
 
-Status: the tier B rows of `orrery-compose` (D-028 to D-032) are converted in task 10, part 3 (#PR).
+Status: the tier B rows of `orrery-compose` (D-028 to D-032) are converted in task 10, part 3 (#147).
 
 | ID | Module | Class | Tier | Reason | Surface removed | Spec name |
 |---|---|---|---|---|---|---|

@@ -6,7 +6,6 @@ import kotlinx.datetime.YearMonth
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 
@@ -60,7 +59,7 @@ class PlainClassContractTest {
         assertEquals(equal, base)
         assertEquals(base.hashCode(), equal.hashCode())
         assertEquals(base.toString(), equal.toString())
-        assertFalse(base.equals(null))
+        assertNotEquals<Any?>(base, null)
         assertNotEquals<Any>(base, "not a $base")
         differing.forEachIndexed { index, variant ->
             assertNotEquals(base, variant, "variant $index: $variant")

@@ -42,7 +42,8 @@ class PlainClassContractTest {
      * changes one property of [base] to a value with a different hash.
      *
      * Every property of [base] differs from its constructor default, from null and from every other property of
-     * the same type, so [copied] only equals [base] if each `copy` default reads its own property.
+     * the same type, so [copied] only equals [base] if each `copy` default reads its own property. The exception
+     * is the two `PublicHoliday` flags, both `true`, which `PublicHoliday keeps its two flags apart` covers.
      */
     private fun <T : Any> assertContract(
         base: T,

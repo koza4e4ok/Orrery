@@ -327,10 +327,10 @@ class WeekendRtlKeyboardTest {
     }
 
     @Test
-    fun daysOfWeekHeaderHonorsCustomWeekendDays() {
+    fun weekHeaderHonorsCustomWeekendDays() {
         rule.setContent {
             MaterialTheme {
-                CalendarDefaults.DaysOfWeekHeader(
+                CalendarDefaults.WeekHeader(
                     daysOfWeek = listOf(DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY),
                     contentColor = Color.Black,
                     weekendDays = setOf(DayOfWeek.FRIDAY),

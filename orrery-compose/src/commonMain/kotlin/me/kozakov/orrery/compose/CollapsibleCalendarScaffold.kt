@@ -325,37 +325,6 @@ public fun CollapsibleCalendarScaffold(
     )
 }
 
-@Deprecated("Kept for binary compatibility; use the overload with showWeekNumbers.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun CollapsibleCalendarScaffold(
-    calendarState: CalendarState,
-    weekState: WeekCalendarState,
-    modifier: Modifier = Modifier,
-    state: CollapsibleCalendarState = rememberCollapsibleCalendarState(),
-    dayHeight: Dp = 48.dp,
-    gesturesEnabled: Boolean = true,
-    enableDirectDrag: Boolean = true,
-    dragHandle: (@Composable () -> Unit)? = null,
-    weekHeader: (@Composable ColumnScope.(List<DayOfWeek>) -> Unit)? = { CalendarDefaults.WeekHeader(it) },
-    dayContent: @Composable BoxScope.(CalendarDay) -> Unit,
-    content: @Composable () -> Unit,
-) {
-    CollapsibleCalendarScaffoldImpl(
-        calendarState = calendarState,
-        weekState = weekState,
-        modifier = modifier,
-        state = state,
-        dayHeight = dayHeight,
-        gesturesEnabled = gesturesEnabled,
-        enableDirectDrag = enableDirectDrag,
-        dragHandle = dragHandle,
-        weekNumber = null,
-        weekHeader = weekHeader,
-        dayContent = dayContent,
-        content = content,
-    )
-}
-
 /** A Material 3 grab bar for the `dragHandle` slot of [CollapsibleCalendarScaffold]. */
 @Composable
 public fun CalendarDefaults.CollapsibleDragHandle(

@@ -22,19 +22,7 @@ public sealed interface SelectionMode {
         val autoAdvance: Boolean = false,
         val autoSelectDay: AutoSelectDay = AutoSelectDay.FirstDayOfMonth,
         val allowClear: Boolean = false,
-    ) : SelectionMode {
-        @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-        public constructor(
-            autoAdvance: Boolean = false,
-            autoSelectDay: AutoSelectDay = AutoSelectDay.FirstDayOfMonth,
-        ) : this(autoAdvance, autoSelectDay, false)
-
-        @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-        public fun copy(
-            autoAdvance: Boolean = this.autoAdvance,
-            autoSelectDay: AutoSelectDay = this.autoSelectDay,
-        ): Single = Single(autoAdvance, autoSelectDay, allowClear)
-    }
+    ) : SelectionMode
 
     /**
      * Start/end range. Day counts are inclusive: a range of one day has

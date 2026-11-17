@@ -248,7 +248,7 @@ class LedgerMap(unittest.TestCase):
     """--emit-removed --ledger-map: per-line and per-class reason and ledger row (task 8)."""
 
     LEDGER = ("| B-001 | bridge |\n| S-001 | signature |\n| D-001 | data class |\n| D-002 | data class |\n"
-              "| K-001 | kdoc |\n| `Foo.bar` | covered by B-777 |\n")
+              "| X-001 | defaults duplicate |\n| K-001 | kdoc |\n| `Foo.bar` | covered by B-777 |\n")
     ROWS = [
         ("lib-a", "com.example.a.Foo", "1.0-bridge", "B-001", "public final fun bar ()I"),
         ("lib-a", "com.example.a.Foo", "1.0-signature", "S-001"),
@@ -366,6 +366,19 @@ class LedgerMap(unittest.TestCase):
                 [("lib-a", "com.example.a.Foo", "1.0-bridge", "S-001")],
             "reason 1.0-signature must name a row S-NNN of the ledger, not 'D-001'":
                 [("lib-a", "com.example.a.Foo", "1.0-signature", "D-001")],
+            # 1.0-removal (X-001, the lead ruling on #140) names an X row, and only it does.
+            "reason 1.0-removal must name a row X-NNN of the ledger, not 'B-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-removal", "B-001")],
+            "reason 1.0-removal must name a row X-NNN of the ledger, not 'S-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-removal", "S-001")],
+            "reason 1.0-removal must name a row X-NNN of the ledger, not 'D-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-removal", "D-001")],
+            "reason 1.0-bridge must name a row B-NNN of the ledger, not 'X-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-bridge", "X-001")],
+            "reason 1.0-signature must name a row S-NNN of the ledger, not 'X-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-signature", "X-001")],
+            "reason 1.0-dataclass must name a row D-NNN of the ledger, not 'X-001'":
+                [("lib-a", "com.example.a.Foo", "1.0-dataclass", "X-001")],
         }
         for message, rows in cases.items():
             code, _, err = self.emit(rows, "--ledger-doc", str(self.doc))
@@ -420,9 +433,36 @@ class LedgerMap(unittest.TestCase):
             self.assertEqual(2, code, text)
             self.assertIn("an rc-soak ledger field must be Andrii's approval comment on #89", err)
 
+    def test_removal_rows_name_an_x_row_and_pass_the_gate(self):
+        # Task 9: X-001 (CalendarDefaults.DaysOfWeekHeader) is removed at 1.0 with reason 1.0-removal.
+        rows = [("lib-a", "com.example.a.Foo", "1.0-removal", "X-001", "public final fun bar ()I")] + self.ROWS[1:]
+        rows += [("lib-a", "com.example.a.Point", "1.0-dataclass", "D-002", "public final fun component2 ()I")]
+        code, emitted, err = self.emit(rows, "--ledger-doc", str(self.doc))
+        self.assertEqual(0, code, err)
+        self.assertIn("lib-a | com.example.a.Foo :: public final fun bar ()I | 1.0-removal | X-001", emitted)
+        self.assertIn("0 unmapped", err)
+        allow = self.tmp / "allow.txt"
+        allow.write_text(emitted, encoding="utf-8")
+        code, out, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc), "--report")
+        self.assertEqual(0, code, out + err)
+        # The allow-list parser applies the same letter rule as the map.
+        for row in ("B-001", "S-001", "D-001"):
+            allow.write_text(f"lib-a | com.example.a.Foo :: public final fun bar ()I | 1.0-removal | {row}\n",
+                             encoding="utf-8")
+            code, _, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc), "--report")
+            self.assertEqual(2, code, row)
+            self.assertIn(f"reason 1.0-removal must name a row X-NNN of the ledger, not '{row}'", err)
+        for reason in ("1.0-bridge", "1.0-signature", "1.0-dataclass"):
+            allow.write_text(f"lib-a | com.example.a.Foo :: public final fun bar ()I | {reason} | X-001\n",
+                             encoding="utf-8")
+            code, _, err = self.gate("--allow-list", str(allow), "--ledger-doc", str(self.doc), "--report")
+            self.assertEqual(2, code, reason)
+            self.assertIn(f"reason {reason} must name a row", err)
+            self.assertIn("not 'X-001'", err)
+
     def test_row_ids_are_only_read_from_the_first_cell(self):
         ids = api_compat.read_ledger_ids(self.doc)
-        self.assertEqual({"B-001", "S-001", "D-001", "D-002", "K-001"}, ids)
+        self.assertEqual({"B-001", "S-001", "D-001", "D-002", "X-001", "K-001"}, ids)
 
     def test_missing_ledger_doc_is_a_setup_error(self):
         code, _, err = self.gate("--allow-list", str(self.empty), "--ledger-doc", str(self.tmp / "nope.md"))

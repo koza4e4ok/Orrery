@@ -53,44 +53,7 @@ public data class DayInfo(
     public val priority: Int = DayInfoPriority.DEFAULT,
     public val colorArgb: Long? = null,
     public val payload: Any? = null,
-) {
-    /** Binary-compatible 3-argument constructor for 0.5.x callers. */
-    @Deprecated(
-        message = "Binary compatibility bridge for 3-arg DayInfo constructor",
-        level = DeprecationLevel.HIDDEN,
-    )
-    public constructor(
-        label: String?,
-        isHoliday: Boolean = false,
-        tags: List<String> = emptyList(),
-    ) : this(
-        label = label,
-        isHoliday = isHoliday,
-        tags = tags,
-        priority = DayInfoPriority.DEFAULT,
-        colorArgb = null,
-        payload = null,
-    )
-
-    /** Binary-compatible 3-argument copy bridge for callers compiled against 0.5.x. */
-    @Deprecated(
-        message = "Binary compatibility bridge for 3-arg DayInfo.copy",
-        level = DeprecationLevel.HIDDEN,
-    )
-    public fun copy(
-        label: String? = this.label,
-        isHoliday: Boolean = this.isHoliday,
-        tags: List<String> = this.tags,
-    ): DayInfo =
-        DayInfo(
-            label = label,
-            isHoliday = isHoliday,
-            tags = tags,
-            priority = this.priority,
-            colorArgb = this.colorArgb,
-            payload = this.payload,
-        )
-}
+)
 
 /** Type-safe extraction of [DayInfo.payload], returning null if absent or of a different type. */
 public inline fun <reified T> DayInfo.payloadAs(): T? = payload as? T

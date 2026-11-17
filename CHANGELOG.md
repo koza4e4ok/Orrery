@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### BREAKING
+
+The 1.0 breaks are listed row by row in the API audit ledger,
+[`docs/api-audit-1.0.md`](docs/api-audit-1.0.md) (#89); the migration guide follows.
+
+- The 45 hidden binary-compatibility bridges are removed (ledger section B, B-001 to
+  B-045: 38 in `orrery-compose`, 7 in `orrery-core`). They were invisible to source, so
+  this is a binary-only break: an app or library compiled against 0.9.x or earlier that
+  links one of the old signatures fails with `NoSuchMethodError` until it is recompiled
+  against 1.0. Recompiling needs no source change. Their `*BinaryCompatTest` tests are
+  removed with them.
+- `CalendarDefaults.DaysOfWeekHeader` is removed (ledger row X-001), a source break:
+  it was an alias of `CalendarDefaults.WeekHeader`, which takes the same parameters,
+  so replace `DaysOfWeekHeader(...)` with `WeekHeader(...)`.
+
 ### Changed
 
 - Agenda day headings follow the locale's order on every platform (#136): Android now
@@ -45,11 +60,10 @@
   `ScheduleDragPreview`, `ScheduleDragKind`), edge auto-scroll, keyboard editing
   (`Alt`+arrows, a column caret with `Enter`) and TalkBack custom actions. All
   callbacks default to `null`, so existing schedules are unchanged. An `endTime`
-  that is not after `startTime` means 00:00 of the following day. The previous
-  overloads, `ScheduleStrings`, `ScheduleDimensions` and `ScheduleDefaults.strings`
-  / `dimensions` signatures stay as hidden binary-compatible bridges, and the new
+  that is not after `startTime` means 00:00 of the following day. The new
   `ScheduleDimensions` / `ScheduleStrings` constructor parameters have defaults
-  (English for the strings), so existing constructor calls still compile.
+  (English for the strings), so existing constructor calls still compile; the previous
+  signatures are not kept as bridges in 1.0 (see BREAKING).
 - RFC 5545 recurrence in `orrery-core` (#86): `RecurrenceRule` (`FREQ` DAILY to
   YEARLY, `INTERVAL`, `COUNT`, `UNTIL`, `BYDAY` with ordinals, `BYMONTHDAY`,
   `BYMONTH`, `BYSETPOS`, `WKST`, `EXDATE`) with an RRULE/EXDATE parser and
@@ -63,7 +77,7 @@
 - `CalendarEvent.recurrence` and `CalendarEvent.instance`, `occurrencesIn` and
   `expandRecurring`; multi-day occurrences keep their duration. `eventsByDate`
   expands recurring events automatically. The previous 6-argument constructor and
-  `copy` stay as hidden binary-compatible bridges.
+  `copy` are not kept as bridges in 1.0 (see BREAKING).
 - Viewport date ranges for lazy loading (#87): `CalendarState.visibleDateRange` and
   `WeekCalendarState.visibleDateRange` (the dates painted by every page that is at
   least partly on screen), plus `visibleDateRangeFlow(prefetchMonths = 1)`,

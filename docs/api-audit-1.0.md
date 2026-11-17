@@ -6,14 +6,14 @@ Generated from the sources and ABI dumps of `50bd6e3` against the baseline `v0.9
 
 | Section | Rows | Allow-list reason |
 |---|---|---|
-| B: HIDDEN bridges, removed at 1.0 (5B) | 45 (`orrery-compose` 38, `orrery-core` 7) | `1.0-bridge` |
+| B: HIDDEN bridges, removed at 1.0 (5B) | 46: 45 bridges (`orrery-compose` 38, `orrery-core` 7) and B-046, their compiler-generated lambdas (task 9) | `1.0-bridge` |
 | S: signature changes since `v0.9.2` without a bridge (5C) | 2 | `1.0-signature` |
 | D: public data classes (8B) | 45 (A 7, B 20, C 18) | `1.0-dataclass` (A and B) |
 | E: public enums (rule 3) | 20 | - |
 | T: public sealed types (rule 3) | 9 | - |
 | L: stable signatures that reference an undeclared type (rule 4) | 0 | - |
 | K: KDoc that calls stable API experimental, internal or changing | 2 | - |
-| X: `Defaults` members that duplicate another entry point (2.4 item 3) | 1 | - |
+| X: `Defaults` members that duplicate another entry point (2.4 item 3) | 1 | `1.0-removal` |
 | Gate findings against `v0.9.2` mapped to a row | 26 of 26 | - |
 
 Spec 2.1 counted 43 bridges at `b17cdaa`. #134 (vertical gap between day cells) added two after that count, so main has the number above; task 9 removes all of them.
@@ -69,6 +69,7 @@ Binary-only break: a recompile against 1.0 needs no source change. *Added in* is
 | B-043 | `orrery-core` | `SelectionMode.Single(autoAdvance, autoSelectDay)` [Selection.kt:26](../orrery-core/src/commonMain/kotlin/me/kozakov/orrery/core/Selection.kt#L26) | #92 | v0.1.0 | yes | `this(...)` | Binary compatibility | 2/1 | `1.0-bridge` |
 | B-044 | `orrery-core` | `SelectionMode.Single.copy(autoAdvance, autoSelectDay)` [Selection.kt:32](../orrery-core/src/commonMain/kotlin/me/kozakov/orrery/core/Selection.kt#L32) | #92 | v0.1.0 | yes | `Single` | Binary compatibility | 2/1 | `1.0-bridge` |
 | B-045 | `orrery-core` | `SelectionEngine(mode, bounds, disabled)` [SelectionEngine.kt:49](../orrery-core/src/commonMain/kotlin/me/kozakov/orrery/core/SelectionEngine.kt#L49) | #108 | v0.1.0 | yes | `this(...)` | Binary compatibility | 1/1 | `1.0-bridge` |
+| B-046 | `orrery-compose` | Compiler-generated `ComposableSingletons` getters of the default slot lambdas of B-014 to B-019, not a bridge: `ComposableSingletons$CalendarsKt` (8, from B-014 to B-018) and `ComposableSingletons$CollapsibleCalendarScaffoldKt` (1, from B-019). Added by hand in task 9: `checkKotlinAbi` dropped them with the bridges and the gate reported them unmapped. | - | - | yes | - | - | 9/0 | `1.0-bridge` |
 
 ## S: signature changes since v0.9.2 (5C)
 
@@ -212,11 +213,11 @@ KDoc lines of the stable modules that say *experimental*, *internal use*, *subje
 
 ## X: `Defaults` members that duplicate another entry point (2.4 item 3)
 
-Curated in `tools/api-ledger.py` (`DEFAULTS_DUPLICATES`, Ritsuko's ruling on #140); the generator checks that each member and the cited KDoc still exist. Not a break at 1.0, so no map row and no allow-list entry.
+Curated in `tools/api-ledger.py` (`DEFAULTS_DUPLICATES`, Ritsuko's ruling on #140); the generator checks that each member and the cited KDoc still exist. The lead ruling on #140, delegated by Andrii (https://github.com/koza4e4ok/Orrery/pull/140#issuecomment-6910956574, shared decision 0007) replaced the deprecation plan: X-001 is removed at 1.0 in task 9, a source break (use `WeekHeader`). Its dump lines are map rows with reason `1.0-removal`, added by hand like every row after task 8, so the allow-list covers them; the migration guide (task 11) lists it.
 
 | ID | Module | Member | Duplicates | Evidence (KDoc) | Plan | Source |
 |---|---|---|---|---|---|---|
-| X-001 | `orrery-compose` | `CalendarDefaults.DaysOfWeekHeader` | `CalendarDefaults.WeekHeader` | Alias of [WeekHeader] | Task 9: `@Deprecated(level = WARNING)` with `ReplaceWith("WeekHeader(daysOfWeek, modifier, leadingSpacer, contentColor, weekendDays, weekendContentColor)")` on the public overload (same file as its bridge B-013); removed in 2.0 (rule 6). No allow-list entry, no gate effect. Option for Andrii: remove it at 1.0 instead, one more source break with an allow-list reason and a migration row. | `CalendarDefaults.kt:588` |
+| X-001 | `orrery-compose` | `CalendarDefaults.DaysOfWeekHeader` | `CalendarDefaults.WeekHeader` | Alias of [WeekHeader] | removed at 1.0 (lead ruling, 2026-11-16) | `CalendarDefaults.kt:588` |
 
 Not duplicates: the other same-named `Defaults` members (`DayHeader`, `strings`) are different widgets or different defaults. Scan method: member-name overlap plus a KDoc search, not a full semantic review.
 

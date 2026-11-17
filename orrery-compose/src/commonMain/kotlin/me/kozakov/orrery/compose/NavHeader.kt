@@ -144,58 +144,6 @@ public fun CalendarNavHeader(
     }
 }
 
-@Deprecated("Kept for binary compatibility; use the overload with expanded.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun CalendarNavHeader(
-    state: CalendarState,
-    modifier: Modifier = Modifier,
-    onTitleClick: (() -> Unit)? = null,
-    previousMonthContentDescription: String = orreryString(OrreryString.PreviousMonth),
-    nextMonthContentDescription: String = orreryString(OrreryString.NextMonth),
-    showTodayButton: Boolean = false,
-    today: YearMonth = currentYearMonth(),
-    todayLabel: String = orreryString(OrreryString.Today),
-    title: @Composable (YearMonth) -> Unit = { month ->
-        NavHeaderTitle(month, showDropdown = onTitleClick != null, expanded = false)
-    },
-) {
-    CalendarNavHeader(
-        state = state,
-        modifier = modifier,
-        onTitleClick = onTitleClick,
-        previousMonthContentDescription = previousMonthContentDescription,
-        nextMonthContentDescription = nextMonthContentDescription,
-        showTodayButton = showTodayButton,
-        today = today,
-        todayLabel = todayLabel,
-        expanded = false,
-        title = title,
-    )
-}
-
-@Deprecated("Kept for binary compatibility; use the overload with showTodayButton.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun CalendarNavHeader(
-    state: CalendarState,
-    modifier: Modifier = Modifier,
-    onTitleClick: (() -> Unit)? = null,
-    previousMonthContentDescription: String = orreryString(OrreryString.PreviousMonth),
-    nextMonthContentDescription: String = orreryString(OrreryString.NextMonth),
-    title: @Composable (YearMonth) -> Unit = { month ->
-        NavHeaderTitle(month, showDropdown = onTitleClick != null, expanded = false)
-    },
-) {
-    CalendarNavHeader(
-        state = state,
-        modifier = modifier,
-        onTitleClick = onTitleClick,
-        previousMonthContentDescription = previousMonthContentDescription,
-        nextMonthContentDescription = nextMonthContentDescription,
-        showTodayButton = false,
-        title = title,
-    )
-}
-
 private val LocalNavHeaderExpanded = compositionLocalOf { false }
 
 internal val TodayButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)

@@ -121,7 +121,6 @@ public final class me/kozakov/orrery/compose/CalendarRowHeight$FillViewport : me
 	public fun <init> ()V
 	public synthetic fun <init> (FILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (FLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1-D9Ej5fM ()F
 	public final fun copy-0680j_4 (F)Lme/kozakov/orrery/compose/CalendarRowHeight$FillViewport;
 	public static synthetic fun copy-0680j_4$default (Lme/kozakov/orrery/compose/CalendarRowHeight$FillViewport;FILjava/lang/Object;)Lme/kozakov/orrery/compose/CalendarRowHeight$FillViewport;
 	public fun equals (Ljava/lang/Object;)Z
@@ -133,7 +132,6 @@ public final class me/kozakov/orrery/compose/CalendarRowHeight$FillViewport : me
 public final class me/kozakov/orrery/compose/CalendarRowHeight$Fixed : me/kozakov/orrery/compose/CalendarRowHeight {
 	public static final field $stable I
 	public synthetic fun <init> (FLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1-D9Ej5fM ()F
 	public final fun copy-0680j_4 (F)Lme/kozakov/orrery/compose/CalendarRowHeight$Fixed;
 	public static synthetic fun copy-0680j_4$default (Lme/kozakov/orrery/compose/CalendarRowHeight$Fixed;FILjava/lang/Object;)Lme/kozakov/orrery/compose/CalendarRowHeight$Fixed;
 	public fun equals (Ljava/lang/Object;)Z
@@ -806,7 +804,6 @@ public final class me/kozakov/orrery/compose/TodayIndicator$Ring : me/kozakov/or
 	public fun <init> ()V
 	public synthetic fun <init> (FILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (FLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1-D9Ej5fM ()F
 	public final fun copy-0680j_4 (F)Lme/kozakov/orrery/compose/TodayIndicator$Ring;
 	public static synthetic fun copy-0680j_4$default (Lme/kozakov/orrery/compose/TodayIndicator$Ring;FILjava/lang/Object;)Lme/kozakov/orrery/compose/TodayIndicator$Ring;
 	public fun equals (Ljava/lang/Object;)Z
@@ -826,8 +823,6 @@ public final class me/kozakov/orrery/compose/TodayIndicator$Underline : me/kozak
 public final class me/kozakov/orrery/compose/VisibleMonthChange {
 	public static final field $stable I
 	public fun <init> (Lkotlinx/datetime/YearMonth;Lme/kozakov/orrery/compose/ScrollSource;)V
-	public final fun component1 ()Lkotlinx/datetime/YearMonth;
-	public final fun component2 ()Lme/kozakov/orrery/compose/ScrollSource;
 	public final fun copy (Lkotlinx/datetime/YearMonth;Lme/kozakov/orrery/compose/ScrollSource;)Lme/kozakov/orrery/compose/VisibleMonthChange;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/compose/VisibleMonthChange;Lkotlinx/datetime/YearMonth;Lme/kozakov/orrery/compose/ScrollSource;ILjava/lang/Object;)Lme/kozakov/orrery/compose/VisibleMonthChange;
 	public fun equals (Ljava/lang/Object;)Z
@@ -840,8 +835,6 @@ public final class me/kozakov/orrery/compose/VisibleMonthChange {
 public final class me/kozakov/orrery/compose/VisibleWeekChange {
 	public static final field $stable I
 	public fun <init> (Lme/kozakov/orrery/core/CalendarWeek;Lme/kozakov/orrery/compose/ScrollSource;)V
-	public final fun component1 ()Lme/kozakov/orrery/core/CalendarWeek;
-	public final fun component2 ()Lme/kozakov/orrery/compose/ScrollSource;
 	public final fun copy (Lme/kozakov/orrery/core/CalendarWeek;Lme/kozakov/orrery/compose/ScrollSource;)Lme/kozakov/orrery/compose/VisibleWeekChange;
 	public static synthetic fun copy$default (Lme/kozakov/orrery/compose/VisibleWeekChange;Lme/kozakov/orrery/core/CalendarWeek;Lme/kozakov/orrery/compose/ScrollSource;ILjava/lang/Object;)Lme/kozakov/orrery/compose/VisibleWeekChange;
 	public fun equals (Ljava/lang/Object;)Z

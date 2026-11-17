@@ -15,9 +15,22 @@ public sealed interface CalendarRowHeight {
     public data object WrapContent : CalendarRowHeight
 
     /** Each week row has an exact height of [height]. */
-    public data class Fixed(
+    public class Fixed(
         public val height: Dp,
-    ) : CalendarRowHeight
+    ) : CalendarRowHeight {
+        /** Returns a copy of this row height with the given properties replaced. */
+        public fun copy(height: Dp = this.height): Fixed = Fixed(height = height)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Fixed) return false
+            return height == other.height
+        }
+
+        override fun hashCode(): Int = height.hashCode()
+
+        override fun toString(): String = "Fixed(height=$height)"
+    }
 
     /**
      * Week rows expand to share the available viewport height, with each row
@@ -32,9 +45,22 @@ public sealed interface CalendarRowHeight {
      * In [VerticalCalendar], each row uses the larger of [minRowHeight] and
      * one-sixth of the viewport height.
      */
-    public data class FillViewport(
+    public class FillViewport(
         public val minRowHeight: Dp = 40.dp,
-    ) : CalendarRowHeight
+    ) : CalendarRowHeight {
+        /** Returns a copy of this row height with the given properties replaced. */
+        public fun copy(minRowHeight: Dp = this.minRowHeight): FillViewport = FillViewport(minRowHeight = minRowHeight)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is FillViewport) return false
+            return minRowHeight == other.minRowHeight
+        }
+
+        override fun hashCode(): Int = minRowHeight.hashCode()
+
+        override fun toString(): String = "FillViewport(minRowHeight=$minRowHeight)"
+    }
 }
 
 internal fun Set<DayOfWeek>.toBitMask(): Int {

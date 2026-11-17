@@ -366,7 +366,7 @@ class LedgerMap(unittest.TestCase):
                 [("lib-a", "com.example.a.Foo", "1.0-bridge", "S-001")],
             "reason 1.0-signature must name a row S-NNN of the ledger, not 'D-001'":
                 [("lib-a", "com.example.a.Foo", "1.0-signature", "D-001")],
-            # 1.0-removal (X-001, Andrii's ruling on #140) names an X row, and only it does.
+            # 1.0-removal (X-001, the lead ruling on #140) names an X row, and only it does.
             "reason 1.0-removal must name a row X-NNN of the ledger, not 'B-001'":
                 [("lib-a", "com.example.a.Foo", "1.0-removal", "B-001")],
             "reason 1.0-removal must name a row X-NNN of the ledger, not 'S-001'":

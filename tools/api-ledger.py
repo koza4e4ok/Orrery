@@ -116,6 +116,9 @@ KDOC_REVIEWED = {
 # Spec 2.4 item 3, `Defaults` members that duplicate another entry point: a judgement call, so
 # a curated list (Ritsuko's ruling on #140, comment 6904611721). generate() fails if a member is
 # gone or its KDoc no longer has the cited text. These rows are not breaks: no map rows.
+# FROZEN after task 9 (#144): X-001 is removed at 1.0 (lead ruling on #140, comment 6910956574) and
+# the B-046 / X-001 rows in docs/api-audit-1.0.md are maintained by hand. Do not rerun the generator
+# to refresh the ledger; it would restore the superseded plan text below and drop those rows.
 # (module, object, member, duplicates, KDoc text that must be there, plan)
 DEFAULTS_DUPLICATES = [
     ("orrery-compose", "CalendarDefaults", "DaysOfWeekHeader", "CalendarDefaults.WeekHeader", "Alias of [WeekHeader]",

@@ -48,7 +48,7 @@ When the ledger `docs/api-audit-1.0.md` exists (or `--ledger-doc` names it),
 every non-`rc-soak` ledger field of the allow-list and the map must be a row ID of that file
 (`| B-001 |` at the start of a table row) whose letter matches the reason (`1.0-bridge` B,
 `1.0-signature` S, `1.0-dataclass` D, `1.0-removal` X: a `Defaults` duplicate removed at 1.0,
-X-001 by Andrii's ruling on #140). An `rc-soak` ledger field must be the approval link on #89,
+X-001 by the lead ruling on #140). An `rc-soak` ledger field must be the approval link on #89,
 whatever the baseline. Python standard library only; the selftest is
 tools/api-compat-selftest.py, and tools/api-ledger.py generates the ledger and the map.
 """

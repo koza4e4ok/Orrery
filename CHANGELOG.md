@@ -77,7 +77,7 @@ The 1.0 breaks are listed row by row in the API audit ledger,
 - `CalendarEvent.recurrence` and `CalendarEvent.instance`, `occurrencesIn` and
   `expandRecurring`; multi-day occurrences keep their duration. `eventsByDate`
   expands recurring events automatically. The previous 6-argument constructor and
-  `copy` stay as hidden binary-compatible bridges.
+  `copy` are not kept as bridges in 1.0 (see BREAKING).
 - Viewport date ranges for lazy loading (#87): `CalendarState.visibleDateRange` and
   `WeekCalendarState.visibleDateRange` (the dates painted by every page that is at
   least partly on screen), plus `visibleDateRangeFlow(prefetchMonths = 1)`,

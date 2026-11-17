@@ -213,11 +213,11 @@ KDoc lines of the stable modules that say *experimental*, *internal use*, *subje
 
 ## X: `Defaults` members that duplicate another entry point (2.4 item 3)
 
-Curated in `tools/api-ledger.py` (`DEFAULTS_DUPLICATES`, Ritsuko's ruling on #140); the generator checks that each member and the cited KDoc still exist. Andrii's ruling on #140 (https://github.com/koza4e4ok/Orrery/pull/140#issuecomment-6910956574, shared decision 0007) replaced the deprecation plan: X-001 is removed at 1.0 in task 9, a source break (use `WeekHeader`). Its dump lines are map rows with reason `1.0-removal`, added by hand like every row after task 8, so the allow-list covers them; the migration guide (task 11) lists it.
+Curated in `tools/api-ledger.py` (`DEFAULTS_DUPLICATES`, Ritsuko's ruling on #140); the generator checks that each member and the cited KDoc still exist. The lead ruling on #140, delegated by Andrii (https://github.com/koza4e4ok/Orrery/pull/140#issuecomment-6910956574, shared decision 0007) replaced the deprecation plan: X-001 is removed at 1.0 in task 9, a source break (use `WeekHeader`). Its dump lines are map rows with reason `1.0-removal`, added by hand like every row after task 8, so the allow-list covers them; the migration guide (task 11) lists it.
 
 | ID | Module | Member | Duplicates | Evidence (KDoc) | Plan | Source |
 |---|---|---|---|---|---|---|
-| X-001 | `orrery-compose` | `CalendarDefaults.DaysOfWeekHeader` | `CalendarDefaults.WeekHeader` | Alias of [WeekHeader] | removed at 1.0 (Andrii, 2026-11-16) | `CalendarDefaults.kt:588` |
+| X-001 | `orrery-compose` | `CalendarDefaults.DaysOfWeekHeader` | `CalendarDefaults.WeekHeader` | Alias of [WeekHeader] | removed at 1.0 (lead ruling, 2026-11-16) | `CalendarDefaults.kt:588` |
 
 Not duplicates: the other same-named `Defaults` members (`DayHeader`, `strings`) are different widgets or different defaults. Scan method: member-name overlap plus a KDoc search, not a full semantic review.
 

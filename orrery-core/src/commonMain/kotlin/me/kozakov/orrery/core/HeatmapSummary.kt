@@ -6,11 +6,41 @@ import kotlinx.datetime.LocalDate
  * Aggregates for a heatmap range: how many days were active, the streak
  * ending at the range end, and the longest streak anywhere in the range.
  */
-public data class HeatmapSummary(
+public class HeatmapSummary(
     public val activeDays: Int,
     public val currentStreak: Int,
     public val longestStreak: Int,
-)
+) {
+    /** Returns a copy of this summary with the given properties replaced. */
+    public fun copy(
+        activeDays: Int = this.activeDays,
+        currentStreak: Int = this.currentStreak,
+        longestStreak: Int = this.longestStreak,
+    ): HeatmapSummary =
+        HeatmapSummary(
+            activeDays = activeDays,
+            currentStreak = currentStreak,
+            longestStreak = longestStreak,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is HeatmapSummary) return false
+        return activeDays == other.activeDays &&
+            currentStreak == other.currentStreak &&
+            longestStreak == other.longestStreak
+    }
+
+    override fun hashCode(): Int {
+        var result = activeDays.hashCode()
+        result = 31 * result + currentStreak.hashCode()
+        result = 31 * result + longestStreak.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "HeatmapSummary(activeDays=$activeDays, currentStreak=$currentStreak, longestStreak=$longestStreak)"
+}
 
 /**
  * Single-pass scan of [range]. [HeatmapSummary.currentStreak] counts

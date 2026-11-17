@@ -63,7 +63,8 @@ public sealed interface EventSpan {
  * @property instance Set on occurrences produced by [occurrencesIn]: identifies the series and
  *   the occurrence start date.
  */
-public data class CalendarEvent<out T>(
+@Suppress("LongParameterList")
+public class CalendarEvent<out T>(
     public val id: String,
     public val title: String,
     public val span: EventSpan,
@@ -132,6 +133,57 @@ public data class CalendarEvent<out T>(
             instance = RecurrenceInstance(seriesId = id, recurrenceId = start),
         )
     }
+
+    /** Returns a copy of this event with the given properties replaced. */
+    public fun copy(
+        id: String = this.id,
+        title: String = this.title,
+        span: EventSpan = this.span,
+        subtitle: String? = this.subtitle,
+        colorArgb: Long? = this.colorArgb,
+        payload: @UnsafeVariance T? = this.payload,
+        recurrence: RecurrenceRule? = this.recurrence,
+        instance: RecurrenceInstance? = this.instance,
+    ): CalendarEvent<T> =
+        CalendarEvent(
+            id = id,
+            title = title,
+            span = span,
+            subtitle = subtitle,
+            colorArgb = colorArgb,
+            payload = payload,
+            recurrence = recurrence,
+            instance = instance,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CalendarEvent<*>) return false
+        return id == other.id &&
+            title == other.title &&
+            span == other.span &&
+            subtitle == other.subtitle &&
+            colorArgb == other.colorArgb &&
+            payload == other.payload &&
+            recurrence == other.recurrence &&
+            instance == other.instance
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + span.hashCode()
+        result = 31 * result + subtitle.hashCode()
+        result = 31 * result + colorArgb.hashCode()
+        result = 31 * result + payload.hashCode()
+        result = 31 * result + recurrence.hashCode()
+        result = 31 * result + instance.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "CalendarEvent(id=$id, title=$title, span=$span, subtitle=$subtitle, colorArgb=$colorArgb, " +
+            "payload=$payload, recurrence=$recurrence, instance=$instance)"
 }
 
 private fun overlaps(

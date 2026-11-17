@@ -15,19 +15,72 @@ public enum class DayPosition {
     OutDate,
 }
 
-public data class CalendarDay(
-    val date: LocalDate,
-    val position: DayPosition,
-)
+public class CalendarDay(
+    public val date: LocalDate,
+    public val position: DayPosition,
+) {
+    /** Returns a copy of this day with the given properties replaced. */
+    public fun copy(
+        date: LocalDate = this.date,
+        position: DayPosition = this.position,
+    ): CalendarDay =
+        CalendarDay(
+            date = date,
+            position = position,
+        )
 
-public data class CalendarWeek(
-    val days: List<CalendarDay>,
-)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CalendarDay) return false
+        return date == other.date && position == other.position
+    }
 
-public data class CalendarMonth(
-    val yearMonth: YearMonth,
-    val weeks: List<CalendarWeek>,
-)
+    override fun hashCode(): Int = 31 * date.hashCode() + position.hashCode()
+
+    override fun toString(): String = "CalendarDay(date=$date, position=$position)"
+}
+
+public class CalendarWeek(
+    public val days: List<CalendarDay>,
+) {
+    /** Returns a copy of this week with the given properties replaced. */
+    public fun copy(days: List<CalendarDay> = this.days): CalendarWeek = CalendarWeek(days = days)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CalendarWeek) return false
+        return days == other.days
+    }
+
+    override fun hashCode(): Int = days.hashCode()
+
+    override fun toString(): String = "CalendarWeek(days=$days)"
+}
+
+public class CalendarMonth(
+    public val yearMonth: YearMonth,
+    public val weeks: List<CalendarWeek>,
+) {
+    /** Returns a copy of this month with the given properties replaced. */
+    public fun copy(
+        yearMonth: YearMonth = this.yearMonth,
+        weeks: List<CalendarWeek> = this.weeks,
+    ): CalendarMonth =
+        CalendarMonth(
+            yearMonth = yearMonth,
+            weeks = weeks,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CalendarMonth) return false
+        return yearMonth == other.yearMonth && weeks == other.weeks
+    }
+
+    override fun hashCode(): Int = 31 * yearMonth.hashCode() + weeks.hashCode()
+
+    override fun toString(): String = "CalendarMonth(yearMonth=$yearMonth, weeks=$weeks)"
+}
 
 /**
  * Replaces the original library's `month_view_show_mode`.

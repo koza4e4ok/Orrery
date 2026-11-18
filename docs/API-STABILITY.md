@@ -2,7 +2,8 @@
 
 From 1.0.0, Orrery follows [semantic versioning](https://semver.org/) for its stable public
 API: a minor or patch release never removes or changes a stable declaration in a way that
-breaks your source code or a binary compiled against an earlier 1.x release. Breaking
+breaks your source code or a binary compiled against an earlier 1.x release (new entries of
+enums and sealed types excepted, see [rule 3](#the-rules-for-the-10-api)). Breaking
 changes are possible only in a major release (2.0), and only after a deprecation cycle.
 
 Coming from 0.9.x? 1.0.0 itself is a one-time break; see the
@@ -19,7 +20,7 @@ A declaration is stable unless it carries one of the two opt-in markers from
 
 | Marker | Opt-in level | Meaning |
 | --- | --- | --- |
-| none | - | **Stable.** Source and binary compatible within 1.x. |
+| none | - | **Stable.** Source and binary compatible within 1.x (new entries of enums and sealed types excepted, see rule 3). |
 | `@ExperimentalOrreryApi` | warning | **Experimental.** Public and documented, but it can change or disappear in any release, including a patch release, without a deprecation cycle. Every declaration of `orrery-widget` is experimental in 1.0.x. Changes are listed under "Experimental" in the [CHANGELOG](../CHANGELOG.md). |
 | `@InternalOrreryApi` | error | **Internal.** Public only so that one `orrery-*` module can use it from another. Not part of the API: no promise, not in the API reference, and unsupported outside this repository. It only works when every `orrery-*` artifact has the same version. |
 
@@ -27,8 +28,9 @@ Opting in (`@OptIn(ExperimentalOrreryApi::class)` or the `-opt-in` compiler flag
 acknowledge that the experimental API may change under you.
 
 **Experimental API graduates** by removing the marker after an API review. For
-`orrery-widget` the plan is 1.1, once it has been used by the sample and at least one real
-app for a release. From then on it is stable like the rest and covered by the gate.
+`orrery-widget` there is no promise until it graduates (planned for 1.1, once it has been used
+by the sample and at least one real app for a release). From then on it is stable like the
+rest and covered by the gate.
 
 ## The rules for the 1.0 API
 

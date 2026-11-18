@@ -229,7 +229,7 @@ These are the versions each release was built against. Android apps need `minSdk
 and, from 0.7.0, `compileSdk 37` (Compose 1.12 requires it). Releases before 0.6.0
 are Android-only.
 
-> **1.0 is a breaking release.** 1.0.0 removes the hidden binary-compatibility bridges,
+> **1.0 is a breaking release.** 1.0.0 will remove the hidden binary-compatibility bridges,
 > `CalendarDefaults.DaysOfWeekHeader` (use `WeekHeader`) and the `componentN` functions
 > of the growth-prone data classes. Recompile your app against 1.0, and use only
 > libraries built against Orrery 1.0: one compiled against 0.9.x can fail with

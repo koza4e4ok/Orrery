@@ -7,6 +7,11 @@
 The 1.0 breaks are listed row by row in the API audit ledger,
 [`docs/api-audit-1.0.md`](docs/api-audit-1.0.md) (#89); the migration guide follows.
 
+**Migration guide:** [`docs/migration/0.9-to-1.0.md`](docs/migration/0.9-to-1.0.md) covers every
+ledger row (who is affected, including libraries built against 0.9.x, and what to change).
+The 1.0 API rules and the ABI gate are described in
+[`docs/API-STABILITY.md`](docs/API-STABILITY.md).
+
 - The 45 hidden binary-compatibility bridges are removed (ledger section B, B-001 to
   B-045: 38 in `orrery-compose`, 7 in `orrery-core`). They were invisible to source, so
   this is a binary-only break: an app or library compiled against 0.9.x or earlier that

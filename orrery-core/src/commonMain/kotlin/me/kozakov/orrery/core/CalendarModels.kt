@@ -15,6 +15,13 @@ public enum class DayPosition {
     OutDate,
 }
 
+/**
+ * One cell of a month grid.
+ *
+ * @property date The day this cell shows.
+ * @property position Whether the day belongs to the rendered month or pads the grid from the
+ *   previous ([DayPosition.InDate]) or next ([DayPosition.OutDate]) month.
+ */
 public class CalendarDay(
     public val date: LocalDate,
     public val position: DayPosition,
@@ -40,6 +47,12 @@ public class CalendarDay(
     override fun toString(): String = "CalendarDay(date=$date, position=$position)"
 }
 
+/**
+ * One row of a month grid.
+ *
+ * @property days The row's days in display order, starting at the first day of week: seven,
+ *   or fewer when [monthGrid] is filtered to `visibleDaysOfWeek`.
+ */
 public class CalendarWeek(
     public val days: List<CalendarDay>,
 ) {
@@ -57,6 +70,12 @@ public class CalendarWeek(
     override fun toString(): String = "CalendarWeek(days=$days)"
 }
 
+/**
+ * A month laid out as grid rows, as built by [monthGrid].
+ *
+ * @property yearMonth The month the grid renders.
+ * @property weeks The grid rows, top to bottom.
+ */
 public class CalendarMonth(
     public val yearMonth: YearMonth,
     public val weeks: List<CalendarWeek>,
@@ -86,9 +105,17 @@ public class CalendarMonth(
  * Replaces the original library's `month_view_show_mode`.
  * [EndOfRow] = mode_all, [None] = mode_only_current (grid identical to
  * EndOfRow; renderers leave in/out cells empty), [EndOfGrid] = mode_fix (6 rows).
+ *
+ * New entries may be added in a minor release: do not rely on an exhaustive `when` over
+ * this type across versions; add an `else` branch.
  */
 public enum class OutDateStyle {
+    /** Pad the last row with next-month days up to the end of that row. */
     EndOfRow,
+
+    /** Same grid as [EndOfRow]; renderers leave the in- and out-date cells empty. */
     None,
+
+    /** Pad with next-month days up to a fixed grid of six rows. */
     EndOfGrid,
 }

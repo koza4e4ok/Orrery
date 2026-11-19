@@ -7,10 +7,24 @@ import kotlinx.datetime.LocalDate
  * Recurrence frequency of a [RecurrenceRule] (RFC 5545 `FREQ`).
  *
  * Orrery events are date-granular, so the sub-daily frequencies (`HOURLY`, `MINUTELY`,
- * `SECONDLY`) are not supported. More entries may be added in a later release: use an
- * `else` branch when matching exhaustively.
+ * `SECONDLY`) are not supported.
+ *
+ * New entries may be added in a minor release: do not rely on an exhaustive `when` over
+ * this type across versions; add an `else` branch.
  */
-public enum class Frequency { DAILY, WEEKLY, MONTHLY, YEARLY }
+public enum class Frequency {
+    /** Every [RecurrenceRule.interval] days. */
+    DAILY,
+
+    /** Every [RecurrenceRule.interval] weeks. */
+    WEEKLY,
+
+    /** Every [RecurrenceRule.interval] months. */
+    MONTHLY,
+
+    /** Every [RecurrenceRule.interval] years. */
+    YEARLY,
+}
 
 /**
  * A weekday with an optional ordinal, as in the RFC 5545 `BYDAY` part: `MO`, `2MO`, `-1FR`.
@@ -38,6 +52,9 @@ public data class ByDay(
  * This is not part of RFC 5545 and is never stored in a [RecurrenceRule] or serialised by
  * [RecurrenceRule.toRfc5545String]: pass it to [RecurrenceRule.occurrences],
  * [RecurrenceRule.asSequence], [CalendarEvent.occurrencesIn] or [expandRecurring].
+ *
+ * New entries may be added in a minor release: do not rely on an exhaustive `when` over
+ * this type across versions; add an `else` branch.
  */
 public enum class InvalidDatePolicy {
     /**

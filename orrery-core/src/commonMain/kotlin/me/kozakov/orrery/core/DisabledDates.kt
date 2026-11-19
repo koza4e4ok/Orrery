@@ -17,6 +17,7 @@ public class DisabledDates internal constructor(
     private val after: LocalDate?,
     private val predicates: List<(LocalDate) -> Boolean>,
 ) {
+    /** Whether [date] is disabled by any entry. */
     public operator fun contains(date: LocalDate): Boolean =
         date in dates ||
             date.dayOfWeek in daysOfWeek ||
@@ -25,6 +26,7 @@ public class DisabledDates internal constructor(
             ranges.any { date in it } ||
             predicates.any { it(date) }
 
+    /** Holds [None]. */
     public companion object {
         /** Disables nothing. */
         public val None: DisabledDates =
@@ -32,6 +34,7 @@ public class DisabledDates internal constructor(
     }
 }
 
+/** Receiver of the [DisabledDates] factory function; every call adds disabled dates. */
 public class DisabledDatesBuilder internal constructor() {
     private val dates = mutableSetOf<LocalDate>()
     private val ranges = mutableListOf<ClosedRange<LocalDate>>()
@@ -40,10 +43,12 @@ public class DisabledDatesBuilder internal constructor() {
     private var after: LocalDate? = null
     private val predicates = mutableListOf<(LocalDate) -> Boolean>()
 
+    /** Disables each of [dates]. */
     public fun dates(vararg dates: LocalDate) {
         this.dates += dates
     }
 
+    /** Disables each of [dates]. */
     public fun dates(dates: Collection<LocalDate>) {
         this.dates += dates
     }
@@ -53,6 +58,7 @@ public class DisabledDatesBuilder internal constructor() {
         ranges += range
     }
 
+    /** Disables every date that falls on one of [days]. */
     public fun daysOfWeek(vararg days: DayOfWeek) {
         daysOfWeek += days
     }
@@ -67,6 +73,10 @@ public class DisabledDatesBuilder internal constructor() {
         after = after?.let { minOf(it, date) } ?: date
     }
 
+    /**
+     * Disables every date for which [predicate] returns true. The predicate runs on each
+     * containment check, so it can reflect availability that changes over time.
+     */
     public fun predicate(predicate: (LocalDate) -> Boolean) {
         predicates += predicate
     }
@@ -84,5 +94,10 @@ public class DisabledDatesBuilder internal constructor() {
     }
 }
 
+/**
+ * Builds a [DisabledDates] from the entries added in [block], for example
+ * `DisabledDates { before(today); daysOfWeek(DayOfWeek.SUNDAY) }`. Returns
+ * [DisabledDates.None] when [block] adds nothing.
+ */
 public fun DisabledDates(block: DisabledDatesBuilder.() -> Unit): DisabledDates =
     DisabledDatesBuilder().apply(block).build()

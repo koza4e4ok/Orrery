@@ -5,6 +5,12 @@ import kotlinx.datetime.LocalDate
 /**
  * Aggregates for a heatmap range: how many days were active, the streak
  * ending at the range end, and the longest streak anywhere in the range.
+ * Built by [heatmapSummary].
+ *
+ * @property activeDays Number of active days in the range.
+ * @property currentStreak Consecutive active days ending at the last day of the range; zero
+ *   when that day is inactive.
+ * @property longestStreak Length of the longest run of consecutive active days in the range.
  */
 public class HeatmapSummary(
     public val activeDays: Int,

@@ -10,7 +10,10 @@ import kotlinx.datetime.LocalDateTime
  * all-day event with a start time or a timed event missing one endpoint.
  */
 public sealed interface EventSpan {
+    /** First day the event covers. */
     public val startDate: LocalDate
+
+    /** Last day the event covers (inclusive); equal to [startDate] for a one-day event. */
     public val endDate: LocalDate
 
     /**

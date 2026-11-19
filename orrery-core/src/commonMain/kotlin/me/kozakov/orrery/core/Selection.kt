@@ -17,7 +17,12 @@ import kotlinx.datetime.LocalDate
  * this type across versions; add an `else` branch.
  */
 public sealed interface SelectionMode {
-    /** Selection is off: taps never change the selection and fire no event. */
+    /**
+     * Selection is off: taps never change the selection. A tap on an in-bounds, enabled day
+     * fires no event; a tap outside the bounds still fires [SelectionEvent.OutOfRange] and a
+     * tap on a disabled day still fires [SelectionEvent.Intercepted], because
+     * [SelectionEngine.click] checks those before the mode.
+     */
     public data object None : SelectionMode
 
     /**

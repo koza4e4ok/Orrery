@@ -11,15 +11,15 @@ comments:
     severity: info
     # Main source sets only: every test source set name ends in "Test" (commonTest,
     # jvmTest, androidHostTest, desktopTest, ...).
-    excludes: ["**/test/**", "**/*Test/**"]
+    excludes: ["**/src/test/**", "**/src/*Test/**"]
     searchInProtectedClass: true
   UndocumentedPublicFunction:
     active: true
     severity: info
-    excludes: ["**/test/**", "**/*Test/**"]
+    excludes: ["**/src/test/**", "**/src/*Test/**"]
     searchProtectedFunction: true
   UndocumentedPublicProperty:
     active: true
     severity: info
-    excludes: ["**/test/**", "**/*Test/**"]
+    excludes: ["**/src/test/**", "**/src/*Test/**"]
     searchProtectedProperty: true

@@ -17,7 +17,9 @@ public class PersianStrings(
     /** [day] written with [digits]. */
     public fun dayLabel(day: Int): String = day.toString().map { digits[it - '0'] }.joinToString("")
 
+    /** Built-in label sets. */
     public companion object {
+        /** English (transliterated) month names with ASCII digits 0..9. */
         public val English: PersianStrings =
             PersianStrings(
                 listOf(
@@ -36,6 +38,7 @@ public class PersianStrings(
                 ),
             )
 
+        /** Persian month names with Persian (Extended Arabic-Indic) digits (۰..۹). */
         public val Persian: PersianStrings =
             PersianStrings(
                 listOf(

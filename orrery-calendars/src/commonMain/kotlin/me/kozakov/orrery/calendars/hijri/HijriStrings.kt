@@ -17,7 +17,9 @@ public class HijriStrings(
     /** [day] written with [digits]. */
     public fun dayLabel(day: Int): String = day.toString().map { digits[it - '0'] }.joinToString("")
 
+    /** Built-in label sets. */
     public companion object {
+        /** English (transliterated) month names with ASCII digits 0..9. */
         public val English: HijriStrings =
             HijriStrings(
                 listOf(
@@ -36,6 +38,7 @@ public class HijriStrings(
                 ),
             )
 
+        /** Arabic month names with Arabic-Indic digits (٠..٩). */
         public val Arabic: HijriStrings =
             HijriStrings(
                 listOf(

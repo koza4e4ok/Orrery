@@ -4,9 +4,20 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 
-/** How a [HolidayRule] picks its date in a Gregorian year. */
+/**
+ * How a [HolidayRule] picks its date in a Gregorian year.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
 public sealed interface HolidayDate {
-    /** The same month and day every year. */
+    /**
+     * The same month and day every year.
+     *
+     * @property month Month of the holiday.
+     * @property day Day of [month]; a day the month lacks in a year (e.g. 29 February outside
+     *   leap years) produces no date that year.
+     */
     public data class Fixed(
         val month: Month,
         val day: Int,
@@ -26,6 +37,9 @@ public sealed interface HolidayDate {
      * The first [dayOfWeek] strictly after ([after] = true) or strictly before
      * ([after] = false) [month]/[day], e.g. German Repentance Day is the Wednesday before
      * 23 November.
+     *
+     * @property month Month of the reference date.
+     * @property day Day of [month] of the reference date; the reference date itself never matches.
      */
     public data class WeekdayRelative(
         val month: Month,
@@ -42,26 +56,45 @@ public sealed interface HolidayDate {
 
     /**
      * A fixed Umm al-Qura Hijri month/day; may fall twice or not at all in a Gregorian year.
-     * Holidays from these rules are marked [PublicHoliday.isEstimated].
+     * Holidays from these rules are marked [PublicHoliday.isEstimated]. Outside the Umm al-Qura
+     * range, or for a day the Hijri month lacks that year, the rule produces no date.
+     *
+     * @property month Hijri month, 1 (Muharram) .. 12 (Dhu al-Hijjah).
+     * @property day Day of the Hijri month, 1..30.
      */
     public data class HijriFixed(
         val month: Int,
         val day: Int,
     ) : HolidayDate
 
-    /** A fixed Persian (Jalali) month/day. */
+    /**
+     * A fixed Persian (Jalali) month/day. A day the Persian month lacks that year (e.g. Esfand 30
+     * outside leap years) produces no date.
+     *
+     * @property month Persian month, 1 (Farvardin) .. 12 (Esfand).
+     * @property day Day of the Persian month, 1..31.
+     */
     public data class PersianFixed(
         val month: Int,
         val day: Int,
     ) : HolidayDate
 
-    /** One specific date, e.g. a coronation bank holiday. */
+    /**
+     * One specific date, e.g. a coronation bank holiday.
+     *
+     * @property date The date; the rule produces nothing in other years.
+     */
     public data class OneOff(
         val date: LocalDate,
     ) : HolidayDate
 }
 
-/** Easter computus used by [HolidayDate.EasterOffset]. */
+/**
+ * Easter computus used by [HolidayDate.EasterOffset].
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
 public enum class Church {
     /** Gregorian computus (Catholic and Protestant churches). */
     Western,
@@ -70,7 +103,12 @@ public enum class Church {
     Orthodox,
 }
 
-/** What happens when a holiday falls on a weekend. */
+/**
+ * What happens when a holiday falls on a weekend.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
 public enum class Observance {
     /** Nothing: no substitute day. */
     None,
@@ -89,7 +127,12 @@ public enum class Observance {
     SundayToMonday,
 }
 
-/** Kind of day, used to filter holidays. */
+/**
+ * Kind of day, used to filter holidays.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
 public enum class HolidayType {
     /** Statutory public holiday. */
     Public,
@@ -110,9 +153,13 @@ public enum class HolidayType {
  * @property id Stable identifier, e.g. `"us.independence-day"`.
  * @property names Holiday name by BCP-47 language tag; contains `"en"` and usually the local
  *   language.
+ * @property date How the rule picks its date in each year.
+ * @property type Kind of day; defaults to [HolidayType.Public].
  * @property years Years in which the rule applies, so a law change becomes two rules.
  * @property subdivisions ISO 3166-2 subdivision codes (e.g. `"DE-BY"`) the rule applies to, or
  *   null for the whole country.
+ * @property observance Substitute-day rule for a holiday that falls on a weekend; defaults to
+ *   [Observance.None].
  */
 public class HolidayRule(
     public val id: String,
@@ -189,6 +236,10 @@ public class HolidayRule(
 /**
  * One holiday occurrence produced by [HolidayCalendar].
  *
+ * @property date The day of the holiday; for a substitute, the substitute day off.
+ * @property ruleId [HolidayRule.id] of the rule that produced this holiday.
+ * @property name Holiday name in the requested language, as returned by [HolidayRule.name].
+ * @property type [HolidayRule.type] of the rule.
  * @property isSubstitute True for a day off that replaces a holiday falling on a weekend.
  * @property isEstimated True when the date comes from a calculated calendar (Hijri) and the
  *   official date may still be announced differently.

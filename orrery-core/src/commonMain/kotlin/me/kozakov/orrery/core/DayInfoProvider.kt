@@ -7,6 +7,7 @@ import kotlinx.datetime.LocalDate
  * calendar-lunar ships an implementation; consumers can provide their own.
  */
 public interface DayInfoProvider {
+    /** Information to show for [date], or null when the provider has nothing for that day. */
     public fun info(date: LocalDate): DayInfo?
 
     /**
@@ -24,10 +25,19 @@ public interface DayInfoProvider {
 
 /** Standard priority tiers for [DayInfo.priority] when composing providers. */
 public object DayInfoPriority {
+    /** Lowest tier, the [DayInfo.priority] default. */
     public const val DEFAULT: Int = 0
+
+    /** Secondary calendar labels, such as the Hijri and Persian providers of orrery-calendars. */
     public const val SECONDARY: Int = 10
+
+    /** Solar terms (orrery-lunar). */
     public const val SOLAR_TERM: Int = 20
+
+    /** Festivals (orrery-lunar). */
     public const val FESTIVAL: Int = 30
+
+    /** Public holidays (orrery-holidays), the highest standard tier. */
     public const val PUBLIC_HOLIDAY: Int = 40
 }
 

@@ -46,6 +46,12 @@ public class SelectionEngine(
         requireValidRangeDays(minRangeDays, maxRangeDays)
     }
 
+    /**
+     * Applies a tap on [date] to [current] and returns the new selection plus any events.
+     * A [date] outside the bounds fires [SelectionEvent.OutOfRange] and a disabled [date]
+     * fires [SelectionEvent.Intercepted], both leaving [current] unchanged; otherwise the
+     * mode decides (see [SelectionMode]).
+     */
     public fun click(
         current: Selection,
         date: LocalDate,

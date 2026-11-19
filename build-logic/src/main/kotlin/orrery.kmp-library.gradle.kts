@@ -47,6 +47,8 @@ kotlin {
 
 // The lint plugin's plain `detekt` task only scans src/main and src/test by default.
 detekt {
+    // Library-only rules (KDoc gate) layered on top of the shared config/detekt/detekt.yml.
+    config.from(rootProject.file("config/detekt/detekt-library.yml"))
     source.setFrom(
         fileTree("src") {
             include("*/kotlin/**/*.kt")

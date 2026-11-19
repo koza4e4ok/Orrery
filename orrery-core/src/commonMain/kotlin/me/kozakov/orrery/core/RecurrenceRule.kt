@@ -174,6 +174,11 @@ public class RecurrenceRule(
             "byMonth=$byMonth, bySetPos=$bySetPos, count=$count, until=$until, weekStart=$weekStart, " +
             "exDates=$exDates)"
 
+    /**
+     * Parsers for RFC 5545 rule strings ([parse], [parseOrNull], [parseExDates]) and factories
+     * for common rules ([daily], [weekly], [monthlyOnDay], [monthlyOnLastDay], [monthlyOnNth],
+     * [yearly]).
+     */
     public companion object {
         /**
          * Parses an RFC 5545 `RRULE` value such as `FREQ=MONTHLY;BYDAY=2MO;COUNT=12`, with or

@@ -1,0 +1,25 @@
+# Extra rules for the six published library modules only (applied by the
+# orrery.kmp-library and orrery.cmp-library convention plugins on top of detekt.yml).
+#
+# KDoc gate (v1.0 plan task 12, #89j): every public declaration in a main source set
+# needs KDoc. The rules report at `info` severity while the burn-down PR series runs,
+# so they show up in the detekt report without failing the build; the last PR of the
+# series drops the severity override to make them fatal. No baseline file.
+comments:
+  UndocumentedPublicClass:
+    active: true
+    severity: info
+    # Main source sets only: every test source set name ends in "Test" (commonTest,
+    # jvmTest, androidHostTest, desktopTest, ...).
+    excludes: ["**/src/test/**", "**/src/*Test/**"]
+    searchInProtectedClass: true
+  UndocumentedPublicFunction:
+    active: true
+    severity: info
+    excludes: ["**/src/test/**", "**/src/*Test/**"]
+    searchProtectedFunction: true
+  UndocumentedPublicProperty:
+    active: true
+    severity: info
+    excludes: ["**/src/test/**", "**/src/*Test/**"]
+    searchProtectedProperty: true

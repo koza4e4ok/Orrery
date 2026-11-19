@@ -12,21 +12,25 @@ import kotlinx.datetime.plus
 
 /** Maps pager indices to months/weeks within a calendar range. */
 public object CalendarPages {
+    /** Number of months from [start] to [end], both inclusive. */
     public fun monthCount(
         start: YearMonth,
         end: YearMonth,
     ): Int = start.monthsUntil(end) + 1
 
+    /** Pager index of [month] counted from [start] (index 0); negative when [month] is before [start]. */
     public fun monthIndex(
         start: YearMonth,
         month: YearMonth,
     ): Int = start.monthsUntil(month)
 
+    /** The month at pager [index], counted from [start] (index 0). */
     public fun monthAt(
         start: YearMonth,
         index: Int,
     ): YearMonth = start.plus(index, DateTimeUnit.MONTH)
 
+    /** First day of the week containing [date], for weeks starting on [firstDayOfWeek]. */
     public fun weekStart(
         date: LocalDate,
         firstDayOfWeek: DayOfWeek,
@@ -36,6 +40,10 @@ public object CalendarPages {
             DateTimeUnit.DAY,
         )
 
+    /**
+     * Pager index of the week containing [date], counted from the week of [startDate]
+     * (index 0), for weeks starting on [firstDayOfWeek].
+     */
     public fun weekIndex(
         startDate: LocalDate,
         date: LocalDate,
@@ -59,6 +67,10 @@ public object CalendarPages {
             .floorDiv(spanDays)
     }
 
+    /**
+     * Number of weeks, starting on [firstDayOfWeek], that cover [startDate]..[endDate]
+     * inclusive.
+     */
     public fun weekCount(
         startDate: LocalDate,
         endDate: LocalDate,

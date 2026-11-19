@@ -3,7 +3,19 @@ package me.kozakov.orrery.lunar
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 
-/** A date in the Chinese lunisolar calendar. [month] is 1..12; a leap month repeats its number. */
+/**
+ * A date in the Chinese lunisolar calendar.
+ *
+ * Convert with [toLunarDate] and [toLocalDate]; both support lunar years 1900..2099.
+ *
+ * @property year Lunar year: the Gregorian year in which this lunar year starts (Chinese New
+ *   Year). A date in January before the New Year therefore belongs to the previous lunar year.
+ * @property month Lunar month, 1..12. A leap month repeats the number of the month before it
+ *   and sets [isLeapMonth].
+ * @property day Day of the lunar month, 1..30 (a lunar month has 29 or 30 days).
+ * @property isLeapMonth `true` if [month] is the intercalary (leap) month that follows the
+ *   regular month with the same number.
+ */
 public data class LunarDate(
     val year: Int,
     val month: Int,

@@ -1,7 +1,21 @@
 package me.kozakov.orrery.lunar
 
-/** Which Chinese string set [LunarDayInfoProvider] renders. */
-public enum class ChineseVariant { SIMPLIFIED, TRADITIONAL_TW, TRADITIONAL_HK }
+/**
+ * Which Chinese string set [LunarDayInfoProvider] renders.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
+public enum class ChineseVariant {
+    /** Simplified Chinese (mainland China). */
+    SIMPLIFIED,
+
+    /** Traditional Chinese as used in Taiwan. */
+    TRADITIONAL_TW,
+
+    /** Traditional Chinese as used in Hong Kong. */
+    TRADITIONAL_HK,
+}
 
 // Transcribed from the original CalendarView resources:
 // values/strings.xml (zh-CN), values-zh-rTW/, values-zh-rHK/.

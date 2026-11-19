@@ -8,6 +8,8 @@ import me.kozakov.orrery.core.DayInfoProvider
 /**
  * Structured lunisolar metadata attached to [DayInfo.payload] by [LunarDayInfoProvider].
  *
+ * @property lunarDate The lunar date of this day.
+ * @property solarTerm The solar term that falls on this day, or `null` if none does.
  * @property gregorianFestival Gregorian-calendar festival on this date, if any. Besides
  *   fixed-date festivals (e.g. New Year's Day) it also carries floating ones computed from the
  *   weekday, such as Mother's Day, Father's Day and Thanksgiving.

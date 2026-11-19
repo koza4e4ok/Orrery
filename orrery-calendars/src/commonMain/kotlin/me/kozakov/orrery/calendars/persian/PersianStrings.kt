@@ -1,9 +1,10 @@
 package me.kozakov.orrery.calendars.persian
 
 /**
- * Labels used by [PersianDayInfoProvider]: [monthNames] holds the 12 month names from
- * Farvardin, shown on the first day of each month; [digits] holds the ten digits 0..9 used for
- * the other days' numbers.
+ * Labels used by [PersianDayInfoProvider].
+ *
+ * @property monthNames The 12 month names from Farvardin, shown on the first day of each month.
+ * @property digits The ten digits 0..9 used for the other days' numbers.
  */
 public class PersianStrings(
     public val monthNames: List<String>,

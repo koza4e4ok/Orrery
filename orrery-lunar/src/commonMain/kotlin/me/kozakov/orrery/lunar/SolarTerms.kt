@@ -2,7 +2,12 @@ package me.kozakov.orrery.lunar
 
 import kotlinx.datetime.LocalDate
 
-/** The 24 solar terms, ordinal order matching the original name table (0 = 春分, spring equinox). */
+/**
+ * The 24 solar terms, ordinal order matching the original name table (0 = 春分, spring equinox).
+ *
+ * Member docs show the Simplified Chinese name; [displayName] returns the Traditional form
+ * (e.g. 穀雨, 小滿) for [ChineseVariant.TRADITIONAL_TW] and [ChineseVariant.TRADITIONAL_HK].
+ */
 public enum class SolarTerm {
     /** 春分 (Spring Equinox): the sun at ecliptic longitude 0 degrees. */
     CHUNFEN,

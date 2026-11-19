@@ -24,8 +24,14 @@ public sealed interface HolidayDate {
     ) : HolidayDate
 
     /**
-     * The [n]th [dayOfWeek] of [month]; n = -1 is the last one. With n = 5 the rule produces
-     * no date in years where [month] has only four such weekdays.
+     * The nth weekday of a month, e.g. the fourth Thursday of November.
+     *
+     * @property month Month of the holiday.
+     * @property dayOfWeek Weekday of the holiday.
+     * @property n Which occurrence: 1..5, or -1 for the last one. With n = 5 the rule produces
+     *   no date in years where [month] has only four such weekdays. Not checked at
+     *   construction: other values throw [IllegalArgumentException] from
+     *   [HolidayCalendar.holidaysIn].
      */
     public data class NthWeekday(
         val month: Month,
@@ -48,7 +54,12 @@ public sealed interface HolidayDate {
         val after: Boolean,
     ) : HolidayDate
 
-    /** [days] after Easter Sunday of [church] (negative for days before). */
+    /**
+     * A fixed number of days from Easter Sunday.
+     *
+     * @property days Days after Easter Sunday; negative for days before.
+     * @property church Easter computus; defaults to [Church.Western].
+     */
     public data class EasterOffset(
         val days: Int,
         val church: Church = Church.Western,
@@ -56,8 +67,10 @@ public sealed interface HolidayDate {
 
     /**
      * A fixed Umm al-Qura Hijri month/day; may fall twice or not at all in a Gregorian year.
-     * Holidays from these rules are marked [PublicHoliday.isEstimated]. Outside the Umm al-Qura
-     * range, or for a day the Hijri month lacks that year, the rule produces no date.
+     * Holidays from these rules are marked [PublicHoliday.isEstimated]. The rule produces no
+     * date in a Gregorian year whose 1 January or 31 December lies outside the Umm al-Qura range
+     * (1882-11-12 .. 2174-11-25), so 1882 and 2174 give nothing; nor for a day the Hijri month
+     * lacks that year.
      *
      * @property month Hijri month, 1 (Muharram) .. 12 (Dhu al-Hijjah).
      * @property day Day of the Hijri month, 1..30.
@@ -69,7 +82,7 @@ public sealed interface HolidayDate {
 
     /**
      * A fixed Persian (Jalali) month/day. A day the Persian month lacks that year (e.g. Esfand 30
-     * outside leap years) produces no date.
+     * outside leap years), or a Persian year outside -61..3177 AP, produces no date.
      *
      * @property month Persian month, 1 (Farvardin) .. 12 (Esfand).
      * @property day Day of the Persian month, 1..31.
@@ -99,7 +112,7 @@ public enum class Church {
     /** Gregorian computus (Catholic and Protestant churches). */
     Western,
 
-    /** Julian computus converted to the Gregorian calendar (Orthodox churches). */
+    /** Julian paschalion (Julian computus) converted to the Gregorian calendar. */
     Orthodox,
 }
 
@@ -128,7 +141,8 @@ public enum class Observance {
 }
 
 /**
- * Kind of day, used to filter holidays.
+ * Kind of day, used to filter holidays: [PublicHolidayDayInfoProvider] shows only
+ * [HolidayType.Public] and [HolidayType.Bank] by default.
  *
  * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
  * `when` over this type across versions; add an `else` branch.
@@ -155,7 +169,8 @@ public enum class HolidayType {
  *   language.
  * @property date How the rule picks its date in each year.
  * @property type Kind of day; defaults to [HolidayType.Public].
- * @property years Years in which the rule applies, so a law change becomes two rules.
+ * @property years Years in which the rule applies, so a law change becomes two rules; defaults
+ *   to all years.
  * @property subdivisions ISO 3166-2 subdivision codes (e.g. `"DE-BY"`) the rule applies to, or
  *   null for the whole country.
  * @property observance Substitute-day rule for a holiday that falls on a weekend; defaults to

@@ -6,10 +6,17 @@ import kotlinx.datetime.number
 /**
  * A date in the Chinese lunisolar calendar.
  *
- * Convert with [toLunarDate] and [toLocalDate]; both support lunar years 1900..2099.
+ * Convert with [toLunarDate] and [toLocalDate]. [toLunarDate] supports Gregorian dates in
+ * 1900..2099 (1-30 January 1900 therefore map to lunar year 1899); [toLocalDate] supports lunar
+ * years 1900..2099.
+ *
+ * Not validated: neither the constructor nor [toLocalDate] checks [month], [day] or
+ * [isLeapMonth], so values that do not exist in that lunar year give a wrong date rather than
+ * an exception.
  *
  * @property year Lunar year: the Gregorian year in which this lunar year starts (Chinese New
- *   Year). A date in January before the New Year therefore belongs to the previous lunar year.
+ *   Year, between 21 January and 20 February). A date in January or February before the New
+ *   Year therefore belongs to the previous lunar year.
  * @property month Lunar month, 1..12. A leap month repeats the number of the month before it
  *   and sets [isLeapMonth].
  * @property day Day of the lunar month, 1..30 (a lunar month has 29 or 30 days).

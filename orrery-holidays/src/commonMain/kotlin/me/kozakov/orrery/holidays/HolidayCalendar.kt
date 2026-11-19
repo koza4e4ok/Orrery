@@ -14,10 +14,11 @@ import me.kozakov.orrery.calendars.persian.PersianDate
 import me.kozakov.orrery.calendars.persian.toLocalDate
 
 /**
- * Holidays of one country, computed from [rules]. Build your own (company days off,
+ * Holidays of one country, computed from its rules. Build your own (company days off,
  * observances) with the same [HolidayRule] types, or get a built-in one from [PublicHolidays].
  *
  * @property country ISO 3166-1 alpha-2 code, or any label for custom calendars.
+ * @property rules The holiday definitions this calendar evaluates.
  */
 public class HolidayCalendar(
     public val country: String,

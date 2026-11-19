@@ -86,6 +86,7 @@ public sealed interface SelectionMode {
     ) : SelectionMode {
         /** [minDays] as the engine applies it: `null` when there is no minimum (`null` or `<= 0`). */
         public val effectiveMin: Int? = minDays?.takeIf { it > 0 }
+
         /**
          * [maxDays] as the engine applies it: `null` when there is no maximum (`null` or `<= 0`),
          * and raised to [effectiveMin] when the minimum is larger.

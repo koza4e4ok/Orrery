@@ -1,9 +1,10 @@
 package me.kozakov.orrery.calendars.hijri
 
 /**
- * Labels used by [HijriDayInfoProvider]: [monthNames] holds the 12 month names from Muharram,
- * shown on the first day of each month; [digits] holds the ten digits 0..9 used for the other
- * days' numbers.
+ * Labels used by [HijriDayInfoProvider].
+ *
+ * @property monthNames The 12 month names from Muharram, shown on the first day of each month.
+ * @property digits The ten digits 0..9 used for the other days' numbers.
  */
 public class HijriStrings(
     public val monthNames: List<String>,
@@ -17,7 +18,9 @@ public class HijriStrings(
     /** [day] written with [digits]. */
     public fun dayLabel(day: Int): String = day.toString().map { digits[it - '0'] }.joinToString("")
 
+    /** Built-in label sets. */
     public companion object {
+        /** English (transliterated) month names with ASCII digits 0..9. */
         public val English: HijriStrings =
             HijriStrings(
                 listOf(
@@ -36,6 +39,7 @@ public class HijriStrings(
                 ),
             )
 
+        /** Arabic month names with Arabic-Indic digits (٠..٩). */
         public val Arabic: HijriStrings =
             HijriStrings(
                 listOf(

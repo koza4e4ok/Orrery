@@ -7,8 +7,15 @@ import kotlinx.datetime.Month
 
 /**
  * A date in the Persian (Solar Hijri, Jalali) calendar, the civil calendar of Iran and
- * Afghanistan. [month] is 1 (Farvardin) .. 12 (Esfand); months 1-6 have 31 days, 7-11 have
- * 30 and Esfand has 29, or 30 in a leap year. Supported years: -61..3177 AP.
+ * Afghanistan.
+ *
+ * Construction checks [year], [month] and that [day] is 1..31; [toLocalDate] also checks the
+ * day against the month length.
+ *
+ * @property year Persian year (AP), -61..3177.
+ * @property month Month, 1 (Farvardin) .. 12 (Esfand). Months 1-6 have 31 days, 7-11 have 30
+ *   and Esfand has 29, or 30 in a leap year.
+ * @property day Day of the month, 1..31.
  */
 public data class PersianDate(
     val year: Int,

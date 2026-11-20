@@ -2,7 +2,12 @@ package me.kozakov.orrery.calendars.hijri
 
 import kotlinx.datetime.LocalDate
 
-/** Rule set used to convert between Gregorian and Hijri dates. */
+/**
+ * Rule set used to convert between Gregorian and Hijri dates.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
 public enum class HijriVariant {
     /**
      * Saudi Arabia's official Umm al-Qura calendar, supported for 1300-01-01 .. 1600-12-30 AH
@@ -20,9 +25,16 @@ public enum class HijriVariant {
 }
 
 /**
- * A date in the Hijri (Islamic lunar) calendar. [month] is 1 (Muharram) .. 12 (Dhu al-Hijjah).
- * Construction checks the month and that [day] is 1..30; [toLocalDate] also checks the day
+ * A date in the Hijri (Islamic lunar) calendar.
+ *
+ * Construction checks only the month and that [day] is 1..30; [toLocalDate] also checks the day
  * against the month length of [variant].
+ *
+ * @property year Hijri year (AH). Not checked at construction; conversions with
+ *   [HijriVariant.UmmAlQura] require 1300..1600.
+ * @property month Month, 1 (Muharram) .. 12 (Dhu al-Hijjah).
+ * @property day Day of the month, 1..30.
+ * @property variant Rule set this date belongs to, used by [toLocalDate] and [monthLength].
  */
 public data class HijriDate(
     val year: Int,

@@ -3,7 +3,12 @@ package me.kozakov.orrery.compose
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 
-/** How [OrreryDateRangePickerDialog] arranges its calendar. */
+/**
+ * How [OrreryDateRangePickerDialog] arranges its calendar.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
 public sealed interface DateRangeCalendarLayoutMode {
     /** The 0.9 layout: one vertically scrolling column of months. */
     public data object SingleMonth : DateRangeCalendarLayoutMode

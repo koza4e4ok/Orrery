@@ -9,6 +9,9 @@ internal val ALL_DAYS_OF_WEEK_SET: Set<DayOfWeek> = DayOfWeek.entries.toSet()
 /**
  * How week rows in [HorizontalCalendar] and [VerticalCalendar] size their
  * vertical height.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public sealed interface CalendarRowHeight {
     /** Each row wraps its day cells (the default). */

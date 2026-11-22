@@ -26,6 +26,17 @@ private const val LOWEST_LEVEL_FRACTION: Float = 0.35f
  * override any of them. The day-description
  * templates receive the formatted date, the level, and the max level in
  * that order.
+ *
+ * @property legendLess Label at the low end of the legend ("Less").
+ * @property legendMore Label at the high end of the legend ("More").
+ * @property dayDescription Accessibility description of a day with data; a template receiving
+ *   the formatted date, the level and the max level ("%1$s, level %2$d of %3$d").
+ * @property dayDescriptionEmpty Accessibility description of a day without data; a template
+ *   receiving the formatted date ("%1$s, no data").
+ * @property summaryActiveDays [HeatmapDefaults.Summary] text for the number of active days; a
+ *   template receiving the count ("%d active days").
+ * @property summaryStreak [HeatmapDefaults.Summary] text for the current streak; a template
+ *   receiving its length in days ("%d-day streak").
  */
 @Immutable
 public class HeatmapStrings(

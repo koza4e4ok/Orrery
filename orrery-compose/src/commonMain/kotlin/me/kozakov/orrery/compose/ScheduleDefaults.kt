@@ -55,7 +55,21 @@ import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.PositionedEvent
 
-/** Colors used by [DaySchedule], [WeekSchedule] and the [ScheduleDefaults] slots. */
+/**
+ * Colors used by [DaySchedule], [WeekSchedule] and the [ScheduleDefaults] slots.
+ * Build one with [ScheduleDefaults.colors].
+ *
+ * @property gridLineColor Hour lines of the time grid.
+ * @property halfHourLineColor Half-hour lines, drawn when `showHalfHourLines` is on.
+ * @property hourLabelColor Hour labels in the time gutter.
+ * @property headerContentColor Day headers of days other than today.
+ * @property todayHeaderColor Day header of today.
+ * @property nowIndicatorColor Line and dot of the current-time indicator.
+ * @property defaultEventContainerColor Tile fill of an event without a color
+ *   ([CalendarEvent.colorArgb] is null). Colored events derive their fill from their own color.
+ * @property defaultEventContentColor Tile text of an event without a color.
+ * @property defaultEventAccentColor Tile accent bar of an event without a color.
+ */
 @Immutable
 public class ScheduleColors(
     public val gridLineColor: Color,
@@ -72,8 +86,17 @@ public class ScheduleColors(
 /**
  * Sizes used by [DaySchedule], [WeekSchedule] and the [ScheduleDefaults] slots.
  *
+ * Build one with [ScheduleDefaults.dimensions].
+ *
  * @property timeGutterWidth Minimum width of the hour gutter; it widens to fit
  *   the default hour labels.
+ * @property tileCornerRadius Corner radius of event tiles.
+ * @property tileAccentBarWidth Width of the accent bar on the start edge of event tiles and all-day chips.
+ * @property tileHorizontalGap Space taken off each tile's width, so side-by-side tiles stay apart.
+ * @property tileVerticalGap Space taken off each tile's height, so back-to-back tiles stay apart.
+ * @property nowLineStrokeWidth Stroke width of the current-time line.
+ * @property nowDotRadius Radius of the dot at the start of the current-time line.
+ * @property allDayChipHeight Height of one all-day event chip (one all-day row).
  * @property maxVisibleAllDayRows Most all-day rows, including the "+N" row;
  *   fewer in short windows, where the all-day area takes at most about a
  *   quarter of the height.
@@ -111,6 +134,8 @@ private val DefaultGhostBorderWidth = 2.dp
  * Localized strings for [DaySchedule] and [WeekSchedule].
  * [ScheduleDefaults.strings] resolves them from the current locale's resources.
  *
+ * @property allDayLabel Label of the all-day area in the time gutter.
+ * @property nowLabel Accessibility description of the current-time indicator.
  * @property moveEarlier Accessibility action: move an event one snap step earlier.
  * @property moveLater Accessibility action: move an event one snap step later.
  * @property movePreviousDay Accessibility action: move an event to the previous day of the page.
@@ -141,6 +166,10 @@ public class ScheduleStrings(
 /** Defaults for [DaySchedule] and [WeekSchedule]. */
 @Suppress("TooManyFunctions")
 public object ScheduleDefaults {
+    /**
+     * Builds [ScheduleColors] from the current [MaterialTheme] color scheme; override any
+     * parameter to replace a color. See [ScheduleColors] for what each color paints.
+     */
     @Composable
     public fun colors(
         gridLineColor: Color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
@@ -165,6 +194,7 @@ public object ScheduleDefaults {
             defaultEventAccentColor = defaultEventAccentColor,
         )
 
+    /** Builds [ScheduleDimensions]; see it for what each size controls. */
     @Suppress("LongParameterList")
     public fun dimensions(
         timeGutterWidth: Dp = 56.dp,

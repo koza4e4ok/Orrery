@@ -23,7 +23,7 @@ internal const val FAR_JUMP_WEEKS: Int = 52
 private val UNBOUNDED_START_DATE = LocalDate(-19999, 1, 1)
 private val UNBOUNDED_END_DATE = LocalDate(19999, 12, 31)
 
-/** State holder for [WeekCalendar]. */
+/** State holder for [WeekCalendar]. Create it with [rememberWeekCalendarState]. */
 @Stable
 @Suppress("TooManyFunctions")
 public class WeekCalendarState internal constructor(
@@ -51,6 +51,7 @@ public class WeekCalendarState internal constructor(
     public var endDate: LocalDate? by mutableStateOf(endDate)
         private set
 
+    /** First day of each week row. Snapshot state: setting it re-lays out the pages. */
     public var firstDayOfWeek: DayOfWeek by mutableStateOf(firstDayOfWeek)
 
     private var visibleWeeksCountState: Int by mutableIntStateOf(visibleWeeksCount)
@@ -197,11 +198,16 @@ public class WeekCalendarState internal constructor(
         }
     }
 
+    /** Jumps to the page containing [date], clamped to [startDate]..[endDate]. */
     public suspend fun scrollToDate(date: LocalDate) {
         val target = indexOf(date)
         programmaticScroll(target) { listState.scrollToItem(target) }
     }
 
+    /**
+     * Animated counterpart of [scrollToDate]. Far targets (more than about a year of weeks
+     * away) first jump close to the target, then animate the rest.
+     */
     public suspend fun animateScrollToDate(date: LocalDate) {
         animateScrollToPage(indexOf(date))
     }
@@ -253,7 +259,12 @@ public class WeekCalendarState internal constructor(
             weekCount - 1,
         )
 
+    /** Holds [Saver]. */
     public companion object {
+        /**
+         * Saves the date range, the first visible week, [firstDayOfWeek], [visibleWeeksCount] and
+         * [visibleDaysOfWeek] for `rememberSaveable`.
+         */
         public val Saver: Saver<WeekCalendarState, Any> =
             listSaver(
                 save = {

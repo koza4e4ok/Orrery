@@ -10,7 +10,12 @@ import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.EventSpan
 import kotlin.math.floor
 
-/** What an in-flight [DaySchedule] / [WeekSchedule] edit is doing. */
+/**
+ * What an in-flight [DaySchedule] / [WeekSchedule] edit is doing.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
 public enum class ScheduleDragKind {
     /** A new time range is being dragged out on empty space. */
     Create,

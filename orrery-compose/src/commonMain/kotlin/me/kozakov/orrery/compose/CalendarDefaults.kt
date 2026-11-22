@@ -35,6 +35,26 @@ import me.kozakov.orrery.core.isoWeekNumber
  * in-month days whose day of week is in [weekendDays] (and that are not
  * today or in a range); it defaults to [contentColor], so weekends look like
  * weekdays until a distinct color is passed.
+ *
+ * Build one with [CalendarDefaults.dayColors].
+ *
+ * @property containerColor Background of every day cell, drawn behind the day shapes.
+ * @property contentColor Day number of an available, unselected in-month day.
+ * @property todayContentColor Day number of today while it is not selected or in a range.
+ * @property todayIndicatorColor Color of the [TodayIndicator] (ring, fill or underline).
+ * @property selectedContainerColor Fill ([CalendarDayShapes.selectedShape]) of a selected day,
+ *   including [RangeEndpointStyle.FullCell] range endpoints.
+ * @property selectedContentColor Day number and label of a selected day, and of today with
+ *   [TodayIndicator.FilledCircle].
+ * @property inRangeContainerColor Fill of the days inside a range (band or segments), and of the
+ *   split endpoint halves of [RangeEndpointStyle.SplitHorizontal]/[RangeEndpointStyle.SplitDiagonal].
+ * @property inRangeContentColor Day number and label of days inside a range and of split endpoints.
+ * @property outDateContentColor Day number and label of out dates (days of the neighbouring months).
+ * @property unavailableContainerColor Background of a disabled (unavailable) day.
+ * @property unavailableContentColor Day number and label of a disabled (unavailable) day.
+ * @property labelColor Secondary label ([me.kozakov.orrery.core.DayInfo.label]) of a regular day.
+ * @property holidayLabelColor Secondary label of a day whose [me.kozakov.orrery.core.DayInfo.isHoliday]
+ *   is true; defaults to [labelColor].
  */
 @Immutable
 public class CalendarDayColors(
@@ -83,6 +103,10 @@ internal val DefaultWeekendDays: Set<DayOfWeek> = setOf(DayOfWeek.SATURDAY, DayO
  * [DefaultDay] draws (shapes, range band, decorators, focus ring), so the
  * shapes of days in adjacent weeks never touch. The cell keeps its height
  * and the whole cell stays clickable.
+ *
+ * Build one with [CalendarDefaults.dayShapes].
+ *
+ * @property todayIndicator How today is marked while it is not selected.
  */
 @Immutable
 public class CalendarDayShapes(
@@ -99,6 +123,12 @@ public class CalendarDayShapes(
  * State descriptions [DefaultDay] reports to accessibility services
  * (e.g. TalkBack announces "July 9, 2026, Range start, Today").
  * Applicable states are joined with ", ".
+ *
+ * @property rangeStart Reported for the first day of a selected range.
+ * @property rangeEnd Reported for the last day of a selected range.
+ * @property inRange Reported for the days between the range endpoints.
+ * @property today Reported for today.
+ * @property unavailable Reported for a disabled (unavailable) day.
  */
 @Immutable
 public class CalendarDayStrings(
@@ -109,9 +139,18 @@ public class CalendarDayStrings(
     public val unavailable: String,
 )
 
-/** How today's date is marked when it is not selected. */
+/**
+ * How today's date is marked when it is not selected.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ */
 public sealed interface TodayIndicator {
-    /** Outlined [CalendarDayShapes.dayShape] ring — the default. */
+    /**
+     * Outlined [CalendarDayShapes.dayShape] ring — the default.
+     *
+     * @property width Stroke width of the ring.
+     */
     public class Ring(
         public val width: Dp = 1.dp,
     ) : TodayIndicator {
@@ -138,12 +177,21 @@ public sealed interface TodayIndicator {
     /** Short line under the day number. */
     public data object Underline : TodayIndicator
 
+    /** No marker: today is drawn like any other day, apart from [CalendarDayColors.todayContentColor]. */
     public data object None : TodayIndicator
 }
 
-// Factory object for colors, shapes, strings, styles and slot defaults, mirroring Material3's *Defaults objects.
+/**
+ * Defaults for the month, week and year calendars and [DefaultDay]: factories for
+ * [CalendarDayColors], [CalendarDayShapes], [CalendarDayStrings] and [CalendarStyle] presets,
+ * plus default header and slot composables, mirroring Material 3's `*Defaults` objects.
+ */
 @Suppress("TooManyFunctions")
 public object CalendarDefaults {
+    /**
+     * Builds [CalendarDayColors] from the current [MaterialTheme] color scheme; override any
+     * parameter to replace a color. See [CalendarDayColors] for what each color paints.
+     */
     @Composable
     public fun dayColors(
         containerColor: Color = Color.Transparent,
@@ -184,6 +232,11 @@ public object CalendarDefaults {
             weekendDays,
         )
 
+    /**
+     * Builds [CalendarDayShapes]: circle day and selection shapes, a continuous range band
+     * ([RectangleShape] in-range shape) and a 1.dp [TodayIndicator.Ring] by default. See
+     * [CalendarDayShapes] for what each parameter controls.
+     */
     public fun dayShapes(
         dayShape: Shape = CircleShape,
         selectedShape: Shape = CircleShape,

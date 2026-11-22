@@ -15,6 +15,26 @@ import me.kozakov.orrery.core.SelectionPresets
  * Strings for the date picker dialogs. [DatePickerDefaults.strings]
  * resolves them from the current locale's resources; callers can
  * override any of them.
+ *
+ * @property title Title of the single-date dialog ("Select date").
+ * @property rangeTitle Title of the range dialog ("Select dates").
+ * @property headlinePlaceholder Headline while no date is selected ("Selected date").
+ * @property rangeStartPlaceholder Range headline while no start date is selected ("Start date").
+ * @property rangeEndPlaceholder Range headline while no end date is selected ("End date").
+ * @property inputLabel Label of the text field in input mode ("Date").
+ * @property rangeStartInputLabel Label of the start date text field in input mode ("Start date").
+ * @property rangeEndInputLabel Label of the end date text field in input mode ("End date").
+ * @property invalidFormatError Error for text that does not parse; a template whose `%s` receives
+ *   the expected date pattern ("Date must match %s").
+ * @property outOfRangeError Error for a typed date outside the allowed range.
+ * @property disabledDateError Error for a typed date that is disabled.
+ * @property invalidRangeError Error for a typed start/end pair that the range selection rules
+ *   reject, so the selection keeps its previous value ("Invalid date range").
+ * @property switchToInputDescription Content description of the button that switches to text input.
+ * @property switchToPickerDescription Content description of the button that switches back to the calendar.
+ * @property previousMonthDescription Content description of the previous-month button.
+ * @property nextMonthDescription Content description of the next-month button.
+ * @property closeDescription Content description of the close button of the range dialog.
  */
 @Immutable
 public class DatePickerStrings(
@@ -41,6 +61,13 @@ public class DatePickerStrings(
  * Strings for [OrreryDateTimePickerDialog]'s two steps and buttons.
  * [DatePickerDefaults.dateTimeStrings] resolves them from the current
  * locale's resources; callers can override any of them.
+ *
+ * @property title Title of the date step ("Select date and time").
+ * @property next Button that moves from the date step to the time step ("Next").
+ * @property back Button that returns from the time step to the date step ("Back").
+ * @property timeTitle Title of the time step ("Select time").
+ * @property switchToClock Content description of the button that switches the time step to the clock dial.
+ * @property switchToKeyboard Content description of the button that switches the time step to keyboard input.
  */
 @Immutable
 public class DateTimePickerStrings(
@@ -56,6 +83,9 @@ public class DateTimePickerStrings(
  * Strings for [OrreryMonthPickerDialog]. [DatePickerDefaults.monthPickerStrings]
  * resolves them from the current locale's resources; callers can override
  * any of them.
+ *
+ * @property title Title of the dialog ("Select month").
+ * @property headlinePlaceholder Headline while no month is selected ("Month").
  */
 @Immutable
 public class MonthPickerStrings(

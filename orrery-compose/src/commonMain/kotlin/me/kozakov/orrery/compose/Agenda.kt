@@ -27,7 +27,12 @@ import kotlin.math.abs
 /** Far animated jumps teleport near the target first (items). */
 internal const val FAR_JUMP_AGENDA_ITEMS: Int = 40
 
-/** State holder for [Agenda]. */
+/**
+ * State holder for [Agenda]. Create it with [rememberAgendaState].
+ *
+ * @property startDate First date the agenda lists (inclusive).
+ * @property endDate Last date the agenda lists (inclusive); must not precede [startDate].
+ */
 @Stable
 public class AgendaState internal constructor(
     public val startDate: LocalDate,
@@ -65,6 +70,11 @@ public class AgendaState internal constructor(
             return dates[currentIndex]
         }
 
+    /**
+     * Jumps to [date], clamped to [startDate]..[endDate]. When the agenda has no
+     * entry for that date (days without events are skipped unless `showEmptyDays`),
+     * it lands on the next listed date, or the last one when none follows.
+     */
     public suspend fun scrollToDate(date: LocalDate) {
         val targetDate = resolveDateForScroll(date)
         val targetIndex = resolveIndexForDate(targetDate)
@@ -79,6 +89,10 @@ public class AgendaState internal constructor(
         programmaticTarget = listState.firstVisibleItemIndex to targetDate
     }
 
+    /**
+     * Animated counterpart of [scrollToDate]. Far targets (more than 40 list items
+     * away) first jump close to the target, then animate the rest.
+     */
     public suspend fun animateScrollToDate(date: LocalDate) {
         val targetDate = resolveDateForScroll(date)
         val targetIndex = resolveIndexForDate(targetDate)
@@ -144,7 +158,9 @@ public class AgendaState internal constructor(
         return match.second
     }
 
+    /** Holds [Saver]. */
     public companion object {
+        /** Saves [startDate], [endDate] and [firstVisibleDate] for `rememberSaveable`. */
         public val Saver: Saver<AgendaState, Any> =
             listSaver(
                 save = {

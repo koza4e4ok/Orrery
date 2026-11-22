@@ -70,7 +70,13 @@ import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.core.DisabledDates
 
 /** Which step of [OrreryDateTimePickerDialog] is showing. */
-public enum class DateTimePickerStep { Date, Time }
+public enum class DateTimePickerStep {
+    /** The date picker. */
+    Date,
+
+    /** The time picker (clock dial or keyboard input). */
+    Time,
+}
 
 /**
  * State for [OrreryDateTimePickerDialog]: the date (through [dateState], with

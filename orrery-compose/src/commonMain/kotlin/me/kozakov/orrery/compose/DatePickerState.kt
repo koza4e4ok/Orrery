@@ -19,12 +19,21 @@ import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionMode
 
 /** Which face of a picker dialog is showing. */
-public enum class DatePickerDisplayMode { Picker, Input }
+public enum class DatePickerDisplayMode {
+    /** The calendar grid. */
+    Picker,
+
+    /** Text fields for typing the date(s). */
+    Input,
+}
 
 /**
  * State for [OrreryDatePickerDialog]: the selected date, the display
  * mode, and the visible month. Writes to [selectedDate] are validated
  * like clicks (bounds and disabled dates); invalid writes are ignored.
+ *
+ * @property yearRange Years the picker can show and select (1 January of the first to
+ *   31 December of the last).
  */
 @Stable
 public class OrreryDatePickerState internal constructor(
@@ -58,8 +67,13 @@ public class OrreryDatePickerState internal constructor(
             onEvent = {},
         )
 
+    /** The face showing (calendar or text input). Snapshot state; the dialog's toggle sets it. */
     public var displayMode: DatePickerDisplayMode by mutableStateOf(initialDisplayMode)
 
+    /**
+     * The selected date, or null. Snapshot state. Writes are validated like clicks:
+     * a date outside the bounds or disabled is ignored; null clears.
+     */
     public var selectedDate: LocalDate?
         get() = selection.selection.single
         set(value) {
@@ -140,6 +154,9 @@ public fun rememberOrreryDatePickerState(
  * [maxRangeDays] restarts at the tapped date when allowed, a span under
  * [minRangeDays] is ignored); typed input and [setSelection] that break
  * them are rejected, and the input face shows its invalid-range error.
+ *
+ * @property yearRange Years the picker can show and select (1 January of the first to
+ *   31 December of the last).
  */
 @Stable
 public class OrreryDateRangePickerState internal constructor(
@@ -193,11 +210,14 @@ public class OrreryDateRangePickerState internal constructor(
             maxRangeDays = maxRangeDays,
         )
 
+    /** The face showing (calendar or text input). Snapshot state; the dialog's toggle sets it. */
     public var displayMode: DatePickerDisplayMode by mutableStateOf(initialDisplayMode)
 
+    /** Start of the selected range, or null when nothing is selected. Snapshot-observable. */
     public val selectedStartDate: LocalDate?
         get() = selection.selection.rangeStart
 
+    /** End of the selected range, or null while only the start is picked. Snapshot-observable. */
     public val selectedEndDate: LocalDate?
         get() = selection.selection.rangeEnd
 

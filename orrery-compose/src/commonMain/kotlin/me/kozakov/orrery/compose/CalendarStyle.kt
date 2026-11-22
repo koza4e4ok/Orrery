@@ -12,6 +12,9 @@ import androidx.compose.ui.unit.dp
  * [minCellHeight] is the minimum height of each day cell and
  * [showSecondaryLabel] whether the secondary [me.kozakov.orrery.core.DayInfo.label]
  * (lunar date, holiday name, ...) is drawn under the day number.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public enum class CalendarDensity(
     public val minCellHeight: Dp,
@@ -41,6 +44,9 @@ public enum class CalendarDensity(
  * checks in in the afternoon, so both halves are filled with a 2.dp gap
  * between them. Halves follow the layout direction: in RTL the range start
  * fills the left half.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public enum class RangeEndpointStyle {
     /** Range endpoints are filled with [CalendarDayShapes.selectedShape] (the default). */

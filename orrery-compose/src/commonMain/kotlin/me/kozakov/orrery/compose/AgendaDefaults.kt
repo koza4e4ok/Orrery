@@ -40,6 +40,11 @@ internal val LocalAgendaDate = compositionLocalOf<LocalDate?> { null }
 /**
  * Localized strings for [Agenda]. [AgendaDefaults.strings] resolves them
  * from the current locale's resources; callers can override any of them.
+ *
+ * @property todayPrefix Shown before today's date in its day header (`"TODAY · <date>"`).
+ * @property allDayLabel Shown instead of a time range on all-day event rows.
+ * @property noEventsLabel Text of a listed day without events (`showEmptyDays = true`) and of
+ *   the placeholder shown when the whole range has no events.
  */
 @Immutable
 public class AgendaStrings(

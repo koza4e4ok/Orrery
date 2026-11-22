@@ -12,7 +12,8 @@ private const val DAYS_PER_WEEK = 7
  * Immutable grid geometry of one month without out-dates: it depends only on
  * [yearMonth] and [firstDayOfWeek]. Shared by MiniMonth and the snapshot renderer.
  *
- * Internal Orrery API: public only for sibling `orrery-*` modules.
+ * Internal Orrery API: public only for sibling `orrery-*` modules; unstable and may change
+ * in any release.
  */
 @InternalOrreryApi
 @Immutable

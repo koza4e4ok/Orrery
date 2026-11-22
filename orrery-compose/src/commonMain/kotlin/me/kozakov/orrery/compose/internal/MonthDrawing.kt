@@ -15,7 +15,8 @@ import me.kozakov.orrery.InternalOrreryApi
  * date reads as a circle; a square end runs to the cell edge so adjacent segments join.
  * [roundStart] and [roundEnd] are logical: they mirror in RTL.
  *
- * Internal Orrery API: public only for sibling `orrery-*` modules.
+ * Internal Orrery API: public only for sibling `orrery-*` modules; unstable and may change
+ * in any release.
  */
 @InternalOrreryApi
 public fun DrawScope.drawSelectionPill(
@@ -40,7 +41,8 @@ public fun DrawScope.drawSelectionPill(
 /**
  * Draws the today mark: a filled circle of [radius] at [center].
  *
- * Internal Orrery API: public only for sibling `orrery-*` modules.
+ * Internal Orrery API: public only for sibling `orrery-*` modules; unstable and may change
+ * in any release.
  */
 @InternalOrreryApi
 public fun DrawScope.drawTodayMark(
@@ -57,7 +59,8 @@ public fun DrawScope.drawTodayMark(
  * replaces every dot's colour (for example on a selected day). Callers cap the count;
  * translate the scope to draw into a cell.
  *
- * Internal Orrery API: public only for sibling `orrery-*` modules.
+ * Internal Orrery API: public only for sibling `orrery-*` modules; unstable and may change
+ * in any release.
  */
 @InternalOrreryApi
 public fun DrawScope.drawEventDots(

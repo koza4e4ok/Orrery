@@ -49,7 +49,10 @@ import me.kozakov.orrery.core.HeatmapSummary
 import me.kozakov.orrery.core.daysOfWeek
 import me.kozakov.orrery.core.heatmapSummary
 
-/** State holder for [HeatmapCalendar]. */
+/**
+ * State holder for [HeatmapCalendar]: the date range, the week layout and the scroll
+ * position of the week columns. Create it with [rememberHeatmapCalendarState].
+ */
 @Stable
 public class HeatmapCalendarState internal constructor(
     startDate: LocalDate,
@@ -57,16 +60,22 @@ public class HeatmapCalendarState internal constructor(
     firstVisibleDate: LocalDate,
     firstDayOfWeek: DayOfWeek,
 ) {
+    /** First date of the heatmap range (inclusive). Snapshot-observable. */
     public var startDate: LocalDate by mutableStateOf(startDate)
         private set
+
+    /** Last date of the heatmap range (inclusive). Snapshot-observable. */
     public var endDate: LocalDate by mutableStateOf(endDate)
         private set
+
+    /** First day of each week column (the top row). Snapshot-observable. */
     public var firstDayOfWeek: DayOfWeek by mutableStateOf(firstDayOfWeek)
         private set
 
     internal val listState: LazyListState =
         LazyListState(firstVisibleItemIndex = indexOf(firstVisibleDate))
 
+    /** Number of week columns covering [startDate]..[endDate], partial weeks included. */
     public val weekCount: Int
         get() = CalendarPages.weekCount(startDate, endDate, firstDayOfWeek)
 
@@ -77,10 +86,12 @@ public class HeatmapCalendarState internal constructor(
     internal fun weekStartAt(index: Int): LocalDate =
         CalendarPages.weekStart(startDate, firstDayOfWeek).plus(index * 7, DateTimeUnit.DAY)
 
+    /** Jumps to the week column containing [date], clamped to the first and last column. */
     public suspend fun scrollToDate(date: LocalDate) {
         listState.scrollToItem(indexOf(date))
     }
 
+    /** Animated counterpart of [scrollToDate]. */
     public suspend fun animateScrollToDate(date: LocalDate) {
         listState.animateScrollToItem(indexOf(date))
     }
@@ -88,7 +99,12 @@ public class HeatmapCalendarState internal constructor(
     private fun indexOf(date: LocalDate): Int =
         CalendarPages.weekIndex(startDate, date, firstDayOfWeek).coerceIn(0, weekCount - 1)
 
+    /** Holds [Saver]. */
     public companion object {
+        /**
+         * Saves [startDate], [endDate], [firstVisibleWeekStart] and [firstDayOfWeek] for
+         * `rememberSaveable`.
+         */
         public val Saver: Saver<HeatmapCalendarState, Any> =
             listSaver(
                 save = {

@@ -37,7 +37,11 @@ private val UNBOUNDED_SCHEDULE_END = LocalDate(19999, 12, 31)
 /**
  * State holder for [DaySchedule] and [WeekSchedule]: the horizontally paged
  * date window, the shared vertical scroll of the time grid, the zoomable
- * [hourHeight], and the visible [minHour]..[maxHour] window.
+ * [hourHeight], and the visible [minHour]..[maxHour] window. Create it with
+ * [rememberScheduleState].
+ *
+ * @property minHourHeight Smallest [hourHeight] that zooming can reach.
+ * @property maxHourHeight Largest [hourHeight] that zooming can reach; at least [minHourHeight].
  */
 @Stable
 @Suppress("TooManyFunctions")
@@ -74,6 +78,10 @@ public class ScheduleState internal constructor(
     public var endDate: LocalDate? by mutableStateOf(endDate)
         private set
 
+    /**
+     * First day of each page in a 7-day [WeekSchedule]; other page sizes count from the
+     * range start. Snapshot state.
+     */
     public var firstDayOfWeek: DayOfWeek by mutableStateOf(firstDayOfWeek)
 
     private var hourHeightState: Dp by mutableStateOf(initialHourHeight.coerceIn(minHourHeight, maxHourHeight))
@@ -139,6 +147,10 @@ public class ScheduleState internal constructor(
     private var pagerState: PagerState? = null
     private var paging: SchedulePaging? = null
 
+    /**
+     * Jumps to the page containing [date], clamped to [startDate]..[endDate], and sets
+     * [firstVisibleDate] to it. Before the first layout only [firstVisibleDate] changes.
+     */
     public suspend fun scrollToDate(date: LocalDate) {
         val target = date.coerceIn(effectiveStartDate, effectiveEndDate)
         firstVisibleDate = target
@@ -147,6 +159,10 @@ public class ScheduleState internal constructor(
         pager.scrollToPage(pages.pageOf(target))
     }
 
+    /**
+     * Animated counterpart of [scrollToDate]. Far targets first jump close to the target,
+     * then animate the rest.
+     */
     public suspend fun animateScrollToDate(date: LocalDate) {
         val target = date.coerceIn(effectiveStartDate, effectiveEndDate)
         val pager = pagerState
@@ -330,7 +346,12 @@ public class ScheduleState internal constructor(
         verticalScrollState.dispatchRawDelta(target - verticalScrollState.value)
     }
 
+    /** Holds [Saver]. */
     public companion object {
+        /**
+         * Saves the date range, [firstVisibleDate], [firstDayOfWeek], the zoom ([hourHeight] and
+         * its limits), the vertical scroll offset and [minHour]..[maxHour] for `rememberSaveable`.
+         */
         public val Saver: Saver<ScheduleState, Any> =
             listSaver(
                 save = {

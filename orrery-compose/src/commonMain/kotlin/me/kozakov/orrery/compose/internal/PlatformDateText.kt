@@ -13,7 +13,8 @@ import me.kozakov.orrery.compose.formatTime
  * Intl.DateTimeFormat, for the current default locale), for the snapshot renderer of
  * `orrery-widget`, so both modules format dates the same way.
  *
- * Internal Orrery API: public only for sibling `orrery-*` modules.
+ * Internal Orrery API: public only for sibling `orrery-*` modules; unstable and may change
+ * in any release.
  */
 @InternalOrreryApi
 public object PlatformDateText {

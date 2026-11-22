@@ -63,16 +63,29 @@ import kotlin.math.roundToInt
  * Snap stops of [CollapsibleCalendarScaffold]. [TwoWeeks] is only a snap
  * target when [CollapsibleCalendarState.enableTwoWeekStop] is on; at its
  * fraction the scaffold shows exactly two week rows.
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
+ *
+ * @property expandFraction The [CollapsibleCalendarState.expandFraction] of this stop.
  */
 public enum class CollapsibleCalendarAnchor(
     public val expandFraction: Float,
 ) {
+    /** Collapsed to a single week row (the week of the scaffold's `weekState`). */
     Week(0f),
+
+    /** Two week rows. */
     TwoWeeks(0.35f),
+
+    /** Fully expanded to the whole month. */
     Month(1f),
 }
 
-/** Expand/collapse state for [CollapsibleCalendarScaffold]. */
+/**
+ * Expand/collapse state for [CollapsibleCalendarScaffold]. Create it with
+ * [rememberCollapsibleCalendarState].
+ */
 @Stable
 public class CollapsibleCalendarState internal constructor(
     initialFraction: Float,
@@ -85,6 +98,7 @@ public class CollapsibleCalendarState internal constructor(
     public var expandFraction: Float by mutableFloatStateOf(initialFraction.coerceIn(0f, 1f))
         private set
 
+    /** True when [expandFraction] is above 0.5f (closer to the month than to the week). */
     public val isExpanded: Boolean
         get() = expandFraction > 0.5f
 
@@ -108,8 +122,10 @@ public class CollapsibleCalendarState internal constructor(
 
     private val mutex = MutatorMutex()
 
+    /** Animates to [CollapsibleCalendarAnchor.Month] (fully expanded). */
     public suspend fun expand(): Unit = animateTo(1f)
 
+    /** Animates to [CollapsibleCalendarAnchor.Week] (single week row). */
     public suspend fun collapse(): Unit = animateTo(0f)
 
     /** Animates to [anchor]; works for [CollapsibleCalendarAnchor.TwoWeeks] even without [enableTwoWeekStop]. */
@@ -175,7 +191,12 @@ public class CollapsibleCalendarState internal constructor(
         }
     }
 
+    /** Holds [Saver]. */
     public companion object {
+        /**
+         * Saves only [isExpanded]: it restores to the month or the week and without
+         * [enableTwoWeekStop].
+         */
         public val Saver: Saver<CollapsibleCalendarState, Boolean> =
             Saver(
                 save = { it.isExpanded },

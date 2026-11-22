@@ -17,7 +17,8 @@ private val DayLabels: Array<String> = Array(32) { it.toString() }
 /**
  * Everything a measured month text layout depends on.
  *
- * Internal Orrery API: public only for sibling `orrery-*` modules.
+ * Internal Orrery API: public only for sibling `orrery-*` modules; unstable and may change
+ * in any release.
  */
 @InternalOrreryApi
 public data class MonthTextKey(
@@ -39,7 +40,8 @@ public data class MonthTextKey(
  * reused. MiniMonth shares one cache across a whole YearCalendar; the snapshot
  * renderer creates one per render call. Not thread-safe.
  *
- * Internal Orrery API: public only for sibling `orrery-*` modules.
+ * Internal Orrery API: public only for sibling `orrery-*` modules; unstable and may change
+ * in any release.
  */
 @InternalOrreryApi
 public class MonthTextCache(
@@ -54,7 +56,12 @@ public class MonthTextCache(
     /** The layouts for [key]; a different style or environment starts a fresh set. */
     public fun texts(key: MonthTextKey): Texts = latest?.takeIf { it.key == key } ?: Texts(key).also { latest = it }
 
-    /** The layouts measured for one [key]. */
+    /**
+     * The layouts measured for one [key].
+     *
+     * Internal Orrery API: public only for sibling `orrery-*` modules; unstable and may change
+     * in any release.
+     */
     @InternalOrreryApi
     public inner class Texts(
         /** The style and environment these layouts are measured for. */

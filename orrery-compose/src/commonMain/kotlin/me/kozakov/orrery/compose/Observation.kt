@@ -12,6 +12,9 @@ import me.kozakov.orrery.core.Selection
  * What brought the current first visible page of a calendar into view; see
  * [CalendarState.lastScrollSource], [WeekCalendarState.lastScrollSource] and
  * [YearCalendarState.lastScrollSource].
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public enum class ScrollSource {
     /** The page the state was created (or restored) with; nothing has scrolled yet. */
@@ -24,7 +27,11 @@ public enum class ScrollSource {
     Programmatic,
 }
 
-/** A visible-month change emitted by [visibleMonthChanges], with the [source] that caused it. */
+/**
+ * A visible-month change emitted by [visibleMonthChanges], with the [source] that caused it.
+ *
+ * @property month The new first visible month.
+ */
 public class VisibleMonthChange(
     public val month: YearMonth,
     public val source: ScrollSource,
@@ -51,7 +58,11 @@ public class VisibleMonthChange(
     override fun toString(): String = "VisibleMonthChange(month=$month, source=$source)"
 }
 
-/** A visible-week change emitted by [visibleWeekChanges], with the [source] that caused it. */
+/**
+ * A visible-week change emitted by [visibleWeekChanges], with the [source] that caused it.
+ *
+ * @property week The new first visible week.
+ */
 public class VisibleWeekChange(
     public val week: CalendarWeek,
     public val source: ScrollSource,

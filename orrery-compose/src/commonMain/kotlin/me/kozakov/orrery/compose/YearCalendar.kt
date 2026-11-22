@@ -57,7 +57,13 @@ import me.kozakov.orrery.compose.internal.MonthTextKey
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.Selection
 
-/** State holder for [YearCalendar]. */
+/**
+ * State holder for [YearCalendar]: a list of years and its scroll position. Create it with
+ * [rememberYearCalendarState].
+ *
+ * @property startYear First year of the list (inclusive).
+ * @property endYear Last year of the list (inclusive).
+ */
 @Stable
 public class YearCalendarState internal constructor(
     public val startYear: Int,
@@ -69,9 +75,11 @@ public class YearCalendarState internal constructor(
             firstVisibleItemIndex = indexOf(firstVisibleYear),
         )
 
+    /** Number of years in [startYear]..[endYear]. */
     public val yearCount: Int
         get() = endYear - startYear + 1
 
+    /** The year at the top of the viewport. Snapshot-observable. */
     public val firstVisibleYear: Int
         get() = startYear + listState.firstVisibleItemIndex
 
@@ -111,11 +119,13 @@ public class YearCalendarState internal constructor(
         }
     }
 
+    /** Jumps to [year], clamped to [startYear]..[endYear]. */
     public suspend fun scrollToYear(year: Int) {
         val target = indexOf(year)
         programmaticScroll(target) { listState.scrollToItem(target) }
     }
 
+    /** Animates to [year], clamped to [startYear]..[endYear]. */
     public suspend fun animateScrollToYear(year: Int) {
         val target = indexOf(year)
         programmaticScroll(target) { listState.animateScrollToItem(target) }
@@ -123,7 +133,9 @@ public class YearCalendarState internal constructor(
 
     private fun indexOf(year: Int): Int = (year - startYear).coerceIn(0, endYear - startYear)
 
+    /** Holds [Saver]. */
     public companion object {
+        /** Saves [startYear], [endYear] and [firstVisibleYear] for `rememberSaveable`. */
         public val Saver: Saver<YearCalendarState, Any> =
             listSaver(
                 save = { listOf(it.startYear, it.endYear, it.firstVisibleYear) },

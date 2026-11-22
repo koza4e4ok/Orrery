@@ -26,6 +26,9 @@ import me.kozakov.orrery.core.SelectionMode
 /**
  * What a tap on a day outside the rendered month ([DayPosition.InDate] or
  * [DayPosition.OutDate]) does in [CalendarSelectionState.onDayClick].
+ *
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public enum class OutDateClickPolicy {
     /** The tap is ignored: the selection and the visible month stay as they are. */
@@ -50,6 +53,10 @@ public enum class OutDateClickPolicy {
  * reject violations like the mode's own minDays/maxDays: a disabled endpoint
  * is always rejected, disabled dates inside the range only when
  * [disallowDisabledInRange] is true.
+ *
+ * Create it with [rememberCalendarSelectionState].
+ *
+ * @property mode What a tap selects (single date, multiple dates, range, week or month).
  */
 @Stable
 @Suppress("TooManyFunctions")
@@ -110,15 +117,22 @@ public class CalendarSelectionState internal constructor(
 
     private var dragAnchor: LocalDate? = null
 
+    /** The current selection. Snapshot-observable; change it with [click], [set] or [clear]. */
     public var selection: Selection by mutableStateOf(initialSelection)
         internal set
 
+    /** Whether [date] is in [disabled]. */
     public fun isDisabled(date: LocalDate): Boolean = date in disabled
 
     /** Week and Month select a whole period per tap, so calendars skip the drag gesture. */
     internal val supportsDrag: Boolean
         get() = mode !is SelectionMode.Week && mode !is SelectionMode.Month
 
+    /**
+     * Applies a tap on [date] through the [SelectionEngine] for [mode], with the bounds,
+     * [disabled] dates and range guardrails, and reports the resulting events (including
+     * rejections) to the event callback.
+     */
     public fun click(date: LocalDate) {
         val result = engine().click(selection, date)
         selection = result.selection
@@ -162,6 +176,7 @@ public class CalendarSelectionState internal constructor(
         return true
     }
 
+    /** Clears the selection to [Selection.Empty] without reporting an event. */
     public fun clear() {
         selection = Selection.Empty
     }

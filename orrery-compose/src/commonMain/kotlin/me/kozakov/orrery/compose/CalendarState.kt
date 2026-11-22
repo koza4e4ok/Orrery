@@ -23,7 +23,10 @@ internal const val FAR_JUMP_MONTHS: Int = 12
 private val UNBOUNDED_START_MONTH = YearMonth(-19999, 1)
 private val UNBOUNDED_END_MONTH = YearMonth(19999, 12)
 
-/** State holder for [HorizontalCalendar] and [VerticalCalendar]. */
+/**
+ * State holder for [HorizontalCalendar] and [VerticalCalendar]. Create it with
+ * [rememberCalendarState].
+ */
 @Stable
 @Suppress("TooManyFunctions")
 public class CalendarState internal constructor(
@@ -53,7 +56,11 @@ public class CalendarState internal constructor(
 
     internal val effectiveEndMonth: YearMonth
         get() = endMonth ?: UNBOUNDED_END_MONTH
+
+    /** First day of each week row. Snapshot state: setting it re-lays out the grid. */
     public var firstDayOfWeek: DayOfWeek by mutableStateOf(firstDayOfWeek)
+
+    /** Which days of the neighbouring months fill partial week rows. Snapshot state. */
     public var outDateStyle: OutDateStyle by mutableStateOf(outDateStyle)
 
     private var visibleDaysOfWeekState: Set<DayOfWeek> by mutableStateOf(visibleDaysOfWeek)
@@ -168,10 +175,15 @@ public class CalendarState internal constructor(
         }
     }
 
+    /** Jumps to [month], clamped to [startMonth]..[endMonth]. */
     public suspend fun scrollToMonth(month: YearMonth) {
         programmaticScroll(month) { listState.scrollToItem(indexOf(month)) }
     }
 
+    /**
+     * Animates to [month], clamped to [startMonth]..[endMonth]. Far targets first
+     * jump close to the target, then animate the rest.
+     */
     public suspend fun animateScrollToMonth(month: YearMonth) {
         programmaticScroll(month) {
             val target = indexOf(month)
@@ -219,6 +231,7 @@ public class CalendarState internal constructor(
         animateScrollToMonth(currentYearMonth())
     }
 
+    /** Jumps to the month containing [date] (see [scrollToMonth]). */
     public suspend fun scrollToDate(date: LocalDate) {
         scrollToMonth(YearMonth(date.year, date.month))
     }
@@ -264,7 +277,12 @@ public class CalendarState internal constructor(
 
     private fun monthAtIndex(index: Int): YearMonth = CalendarPages.monthAt(effectiveStartMonth, index / itemsPerMonth)
 
+    /** Holds [Saver]. */
     public companion object {
+        /**
+         * Saves the month range, [firstVisibleMonth], [firstDayOfWeek], [outDateStyle] and
+         * [visibleDaysOfWeek] for `rememberSaveable`.
+         */
         public val Saver: Saver<CalendarState, Any> =
             listSaver(
                 save = {

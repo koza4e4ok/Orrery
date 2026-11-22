@@ -35,7 +35,13 @@ import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.packWeekEventBanners
 
 /** Draw layer for a [DayDecorator]: behind or over the day content. */
-public enum class DecoratorLayer { Behind, Over }
+public enum class DecoratorLayer {
+    /** Drawn under the day number. */
+    Behind,
+
+    /** Drawn over the day number. */
+    Over,
+}
 
 /**
  * Custom drawing stacked into [DefaultDay]'s cell. Implementations draw
@@ -48,6 +54,7 @@ public fun interface DayDecorator {
     public val layer: DecoratorLayer
         get() = DecoratorLayer.Behind
 
+    /** Draws the decoration of [day] into the day cell's [DrawScope]. */
     public fun DrawScope.draw(day: CalendarDay)
 }
 

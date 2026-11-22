@@ -56,7 +56,8 @@ public enum class OutDateClickPolicy {
  *
  * Create it with [rememberCalendarSelectionState].
  *
- * @property mode What a tap selects (single date, multiple dates, range, week or month).
+ * @property mode What a tap selects (single date, multiple dates, range, week or month), or nothing for
+ *   [SelectionMode.None].
  */
 @Stable
 @Suppress("TooManyFunctions")

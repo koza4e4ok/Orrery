@@ -32,8 +32,8 @@ public enum class DatePickerDisplayMode {
  * mode, and the visible month. Writes to [selectedDate] are validated
  * like clicks (bounds and disabled dates); invalid writes are ignored.
  *
- * @property yearRange Years the picker can show and select (1 January of the first to
- *   31 December of the last).
+ * @property yearRange Years the picker can show (1 January of the first to 31 December
+ *   of the last); selection is further limited by the state's bounds and disabled dates.
  */
 @Stable
 public class OrreryDatePickerState internal constructor(
@@ -155,8 +155,8 @@ public fun rememberOrreryDatePickerState(
  * [minRangeDays] is ignored); typed input and [setSelection] that break
  * them are rejected, and the input face shows its invalid-range error.
  *
- * @property yearRange Years the picker can show and select (1 January of the first to
- *   31 December of the last).
+ * @property yearRange Years the picker can show (1 January of the first to 31 December
+ *   of the last); selection is further limited by the state's bounds and disabled dates.
  */
 @Stable
 public class OrreryDateRangePickerState internal constructor(

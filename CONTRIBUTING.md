@@ -32,6 +32,11 @@ Thanks for helping. Bug reports, questions and pull requests are all welcome.
 
   Without the tags it exits 2 ("no v* tag found"). `API_BASELINE_REF` is set in
   `.github/workflows/ci.yml`; drop `--report` to see the enforcing verdict.
+- Every public declaration in the six library modules (`orrery-core`, `orrery-lunar`,
+  `orrery-calendars`, `orrery-holidays`, `orrery-compose`, `orrery-widget`) needs KDoc,
+  in main source sets; document primary-constructor properties with `@property` in the
+  class KDoc. `./gradlew detekt` checks this (`config/detekt/detekt-library.yml`) and
+  fails the build on a missing KDoc; there is no baseline.
 - If you change how something looks, refresh the screenshot goldens with
   `./gradlew :orrery-compose:recordRoborazziDebug`.
 - CI must pass. The commands below run the same checks locally.

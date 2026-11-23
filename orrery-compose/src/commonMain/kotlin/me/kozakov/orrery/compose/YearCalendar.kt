@@ -144,6 +144,10 @@ public class YearCalendarState internal constructor(
     }
 }
 
+/**
+ * Remembers a saveable [YearCalendarState] spanning [startYear] to [endYear]
+ * that first shows [firstVisibleYear] (the current year by default).
+ */
 @Composable
 public fun rememberYearCalendarState(
     startYear: Int = 1971,

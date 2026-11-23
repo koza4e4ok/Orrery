@@ -222,6 +222,10 @@ private const val SETTLE_EPSILON = 0.001f
 private val SettleSpring =
     spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)
 
+/**
+ * Remembers a saveable [CollapsibleCalendarState] that starts expanded
+ * (month) when [initialExpanded] is true, otherwise collapsed (week).
+ */
 @Composable
 public fun rememberCollapsibleCalendarState(initialExpanded: Boolean = true): CollapsibleCalendarState =
     rememberSaveable(saver = CollapsibleCalendarState.Saver) {

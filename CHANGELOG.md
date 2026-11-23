@@ -76,6 +76,11 @@ The 1.0 API rules and the ABI gate are described in
   also a `CalendarDefaults.dayShapes` parameter), so circles, badges and today rings no
   longer touch in short rows. The cell keeps its height and the whole cell stays
   clickable; pass `verticalInset = 0.dp` for the previous look. Screenshot goldens changed.
+- Touch targets in the default dialogs are at least 48 dp (#89): the month/year title
+  button of `CalendarNavHeader` (about 32 dp before) and the Date/Time step pills of
+  `OrreryDateTimePickerDialog` (36-44 dp before) use
+  `minimumInteractiveComponentSize()`. The visible title and pills, and their ripples,
+  keep their size; only the clickable area grows. Signatures are unchanged.
 
 ### Added
 

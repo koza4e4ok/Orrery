@@ -30,7 +30,8 @@ public enum class DatePickerDisplayMode {
 /**
  * State for [OrreryDatePickerDialog]: the selected date, the display
  * mode, and the visible month. Writes to [selectedDate] are validated
- * like clicks ([yearRange] and disabled dates); invalid writes are ignored.
+ * like clicks ([yearRange], a date-time picker's date bounds, and disabled
+ * dates); invalid writes are ignored.
  *
  * @property yearRange Years the picker can show (1 January of the first to 31 December
  *   of the last); selection is further limited by the disabled dates (and, in a date-time
@@ -73,7 +74,8 @@ public class OrreryDatePickerState internal constructor(
 
     /**
      * The selected date, or null. Snapshot state. Writes are validated like clicks:
-     * a date outside the bounds or disabled is ignored; null clears.
+     * a date outside [yearRange] (or a date-time picker's date bounds) or disabled
+     * is ignored; null clears.
      */
     public var selectedDate: LocalDate?
         get() = selection.selection.single

@@ -15,6 +15,32 @@ class RecurrenceRuleParseTest {
     private fun d(iso: String): LocalDate = LocalDate.parse(iso)
 
     @Test
+    fun `parse accepts RRULE text at the length cap and rejects longer text`() {
+        val base = "FREQ=DAILY;COUNT=3;"
+        val atLimit = base + ";".repeat(MAX_RRULE_LENGTH - base.length)
+        assertEquals(MAX_RRULE_LENGTH, atLimit.length)
+        assertEquals(RecurrenceRule.parse("FREQ=DAILY;COUNT=3"), RecurrenceRule.parse(atLimit))
+        assertNotNull(RecurrenceRule.parseOrNull(atLimit))
+
+        val overLimit = "$atLimit;"
+        val error = assertFailsWith<IllegalArgumentException> { RecurrenceRule.parse(overLimit) }
+        assertTrue("too long" in error.message.orEmpty(), error.message)
+        assertNull(RecurrenceRule.parseOrNull(overLimit))
+    }
+
+    @Test
+    fun `parseExDates accepts text at the length cap and rejects longer text`() {
+        val date = "20260331"
+        val prefix = "EXDATE;VALUE=DATE:"
+        val atLimit = prefix + date + " ".repeat(MAX_EXDATE_LENGTH - prefix.length - date.length)
+        assertEquals(MAX_EXDATE_LENGTH, atLimit.length)
+        assertEquals(setOf(d("2026-03-31")), RecurrenceRule.parseExDates(atLimit))
+
+        val error = assertFailsWith<IllegalArgumentException> { RecurrenceRule.parseExDates("$atLimit ") }
+        assertTrue("too long" in error.message.orEmpty(), error.message)
+    }
+
+    @Test
     fun `parse accepts the RRULE prefix whitespace and lower case and formats canonically`() {
         val rule = RecurrenceRule.parse("  rrule:freq=weekly;interval=2;byday=su,tu;wkst=su;count=4 ")
         assertEquals(Frequency.WEEKLY, rule.frequency)

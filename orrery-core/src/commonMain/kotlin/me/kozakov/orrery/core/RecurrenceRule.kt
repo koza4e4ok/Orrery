@@ -104,6 +104,9 @@ public class RecurrenceRule(
     /**
      * Start dates of the series that begins at [dtStart] and fall inside [range], ascending,
      * with [exDates] removed. [count] is counted from [dtStart], not from the window.
+     *
+     * The whole window is returned as one list: a daily rule over years 1..9999 is about
+     * 3.65 million dates. Bound [range] when the rule or the window comes from untrusted input.
      */
     public fun occurrences(
         dtStart: LocalDate,
@@ -185,10 +188,15 @@ public class RecurrenceRule(
          * without the `RRULE:` prefix; keys and values are case-insensitive. `UNTIL` accepts
          * `yyyyMMdd`, `yyyyMMdd'T'HHmmss` and `yyyyMMdd'T'HHmmss'Z'` and keeps only the date.
          *
+         * Untrusted input: text longer than 4096 chars is rejected before parsing, numbers are
+         * limited to 9 digits and expansion is bounded, but [occurrences] still returns the
+         * whole requested window, so bound that window too.
+         *
          * @param exDates Dates to exclude; see [parseExDates].
          * @throws IllegalArgumentException for unknown, unsupported (`BYYEARDAY`, `BYWEEKNO`,
          *   `BYHOUR`, `BYMINUTE`, `BYSECOND`, `RDATE`, `EXRULE`, sub-daily `FREQ`), duplicate or
-         *   empty parts, malformed or out-of-range values, and invalid combinations.
+         *   empty parts, malformed or out-of-range values, invalid combinations, and text
+         *   longer than 4096 chars.
          */
         public fun parse(
             rrule: String,
@@ -208,9 +216,10 @@ public class RecurrenceRule(
 
         /**
          * Parses an `EXDATE` property (`EXDATE;VALUE=DATE:20260331,20260430`) or a bare comma
-         * separated list of `yyyyMMdd` dates; date-time values keep only the date.
+         * separated list of `yyyyMMdd` dates; date-time values keep only the date. Text longer
+         * than 65,536 chars (about 7,000 dates) is rejected before parsing.
          *
-         * @throws IllegalArgumentException for malformed values.
+         * @throws IllegalArgumentException for malformed values and text longer than 65,536 chars.
          */
         public fun parseExDates(exDate: String): Set<LocalDate> = RecurrenceCodec.parseExDates(exDate)
 

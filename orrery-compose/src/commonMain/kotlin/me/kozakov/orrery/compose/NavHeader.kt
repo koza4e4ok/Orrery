@@ -22,6 +22,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -98,12 +99,13 @@ public fun CalendarNavHeader(
                     .weight(1f)
                     .then(
                         if (onTitleClick != null) {
+                            // The clickable's own layout is at least 48 dp tall (the text alone is
+                            // about 32 dp). The ripple is drawn on that same node, so it starts
+                            // under the finger and covers the whole target.
                             Modifier
                                 .clip(MaterialTheme.shapes.small)
-                                .clickable(
-                                    role = Role.Button,
-                                    onClick = onTitleClick,
-                                )
+                                .clickable(role = Role.Button, onClick = onTitleClick)
+                                .minimumInteractiveComponentSize()
                         } else {
                             Modifier
                         },

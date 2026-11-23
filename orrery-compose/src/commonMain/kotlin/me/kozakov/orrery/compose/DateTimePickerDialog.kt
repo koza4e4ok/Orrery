@@ -13,7 +13,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerLayoutType
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -411,6 +415,8 @@ private fun HeadlineStepPill(
         if (active) colorScheme.onSecondaryContainer else colorScheme.onSurfaceVariant,
         label = "stepPillContent",
     )
+    // The selectable target is at least 48 dp tall; the pill and its ripple keep the text's size.
+    val interaction = remember { MutableInteractionSource() }
     Text(
         text,
         style = style,
@@ -420,9 +426,17 @@ private fun HeadlineStepPill(
         onTextLayout = { if (it.didOverflowHeight) onOverflow() },
         modifier =
             modifier
+                .selectable(
+                    selected = active,
+                    interactionSource = interaction,
+                    indication = null,
+                    enabled = enabled,
+                    role = Role.Tab,
+                    onClick = onClick,
+                ).minimumInteractiveComponentSize()
                 .clip(RoundedCornerShape(16.dp))
                 .background(container)
-                .selectable(selected = active, enabled = enabled, role = Role.Tab, onClick = onClick)
+                .indication(interaction, LocalIndication.current)
                 .padding(horizontal = 6.dp, vertical = 2.dp),
     )
 }

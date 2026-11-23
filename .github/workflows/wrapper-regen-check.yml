@@ -1,0 +1,23 @@
+name: Wrapper regen check (temporary)
+
+on:
+  pull_request:
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew --version
+      - name: Regenerate the wrapper with Gradle 9.9.2 and compare
+        run: |
+          ./gradlew wrapper --gradle-version 9.9.2 --distribution-type bin --gradle-distribution-sha256-sum 971fcd7150ca4ba04852c0b2ca0d2d0ab9468e14b03473eab19528809914c76b
+          git status --short
+          git diff --stat
+          git diff --exit-code -- gradlew gradlew.bat gradle/wrapper/
+          sha256sum gradle/wrapper/gradle-wrapper.jar

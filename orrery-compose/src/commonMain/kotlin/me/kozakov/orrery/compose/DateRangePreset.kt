@@ -13,6 +13,7 @@ import kotlinx.datetime.LocalDate
  * set with [DatePickerDefaults.rangePresets].
  *
  * @property label Text of the chip.
+ * @property range The dates the chip selects.
  */
 @Immutable
 public class DateRangePreset(

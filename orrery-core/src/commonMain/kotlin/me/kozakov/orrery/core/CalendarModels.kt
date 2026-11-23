@@ -106,8 +106,8 @@ public class CalendarMonth(
  * [EndOfRow] = mode_all, [None] = mode_only_current (grid identical to
  * EndOfRow; renderers leave in/out cells empty), [EndOfGrid] = mode_fix (6 rows).
  *
- * New entries may be added in a minor release: do not rely on an exhaustive `when` over
- * this type across versions; add an `else` branch.
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public enum class OutDateStyle {
     /** Pad the last row with next-month days up to the end of that row. */

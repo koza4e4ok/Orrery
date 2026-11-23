@@ -330,7 +330,7 @@ internal fun CalendarSelectionState.extendRange(
 }
 
 /**
- * The min/max length or disabled-date violation of [range] in [mode], or null
+ * The min/max length or disabled-date violation of [range] in [CalendarSelectionState.mode], or null
  * when it is valid. Disabled endpoints always violate; disabled dates between
  * them only when [CalendarSelectionState.disallowDisabledInRange] is true.
  */

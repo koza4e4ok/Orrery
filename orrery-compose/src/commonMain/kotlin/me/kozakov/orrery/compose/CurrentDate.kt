@@ -3,7 +3,7 @@ package me.kozakov.orrery.compose
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 
-/** Today in the system time zone. */
+/** Today in the system time zone (on the web, the browser's local time zone). */
 public expect fun currentDate(): LocalDate
 
 /** The month containing [currentDate]. */

@@ -51,6 +51,7 @@ public enum class DecoratorLayer {
  * draw in list order.
  */
 public fun interface DayDecorator {
+    /** The layer this decorator draws in; [DecoratorLayer.Behind] unless overridden. */
     public val layer: DecoratorLayer
         get() = DecoratorLayer.Behind
 

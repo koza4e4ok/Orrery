@@ -6,7 +6,7 @@ import kotlinx.datetime.LocalDate
 /**
  * A quick-pick chip for [OrreryDateRangePickerDialog]: tapping it selects
  * [range] (validated like taps, so it is ignored when it breaks the
- * state's bounds, `minDays`/`maxDays` or disabled dates). Build the
+ * picker's year range, `minDays`/`maxDays` or disabled dates). Build the
  * standard set with [DatePickerDefaults.rangePresets].
  *
  * @property label Text of the chip.

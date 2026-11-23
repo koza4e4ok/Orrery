@@ -9,8 +9,8 @@ private const val MAX_STACKED_LEFT_FRACTION: Float = 0.75f
 /**
  * How [layoutDaySchedule] arranges timed events that overlap in time.
  *
- * New subtypes may be added in a minor release: do not rely on an exhaustive `when` over
- * this type across versions; add an `else` branch.
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public sealed interface EventOverlapMode {
     /**

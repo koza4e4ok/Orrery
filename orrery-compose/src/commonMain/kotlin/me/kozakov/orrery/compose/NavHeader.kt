@@ -10,10 +10,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -88,7 +84,6 @@ public fun CalendarNavHeader(
     val startBound = state.startMonth
     val endBound = state.endMonth
     val todayInRange = (startBound == null || today >= startBound) && (endBound == null || today <= endBound)
-    val titleInteraction = remember { MutableInteractionSource() }
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             onClick = {
@@ -104,17 +99,13 @@ public fun CalendarNavHeader(
                     .weight(1f)
                     .then(
                         if (onTitleClick != null) {
-                            // The click target is at least 48 dp tall (the text alone is about 32 dp);
-                            // the ripple stays clipped to the visible title area.
+                            // The clickable's own layout is at least 48 dp tall (the text alone is
+                            // about 32 dp). The ripple is drawn on that same node, so it starts
+                            // under the finger and covers the whole target.
                             Modifier
-                                .clickable(
-                                    interactionSource = titleInteraction,
-                                    indication = null,
-                                    role = Role.Button,
-                                    onClick = onTitleClick,
-                                ).minimumInteractiveComponentSize()
                                 .clip(MaterialTheme.shapes.small)
-                                .indication(titleInteraction, LocalIndication.current)
+                                .clickable(role = Role.Button, onClick = onTitleClick)
+                                .minimumInteractiveComponentSize()
                         } else {
                             Modifier
                         },

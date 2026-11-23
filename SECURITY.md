@@ -22,7 +22,7 @@ Use GitHub's private vulnerability reporting:
 Include, as far as you can:
 
 - the affected module (`orrery-core`, `orrery-lunar`, `orrery-calendars`, `orrery-holidays`,
-  `orrery-compose`, `orrery-widget`) and version;
+  `orrery-compose`) and version;
 - what an attacker can do and under which conditions (for example "an application that passes
   untrusted `RRULE` text to `RecurrenceRule.parse`");
 - a minimal reproduction or proof of concept.

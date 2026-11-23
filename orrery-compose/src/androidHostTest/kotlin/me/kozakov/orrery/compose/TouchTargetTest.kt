@@ -7,8 +7,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
-import androidx.compose.ui.test.assertTouchHeightIsAtLeast
-import androidx.compose.ui.test.assertTouchWidthIsAtLeast
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Dp
@@ -20,6 +18,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.YearMonth
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,7 +85,15 @@ class TouchTargetTest {
         val count = fetchSemanticsNodes().size
         assertEquals("interactive nodes", expectedCount, count)
         // Touch bounds: the layout bounds plus the extension Compose gives to small targets
-        // (a 40 dp IconButton still takes touches over 48 dp).
-        repeat(count) { index -> get(index).assertTouchHeightIsAtLeast(min).assertTouchWidthIsAtLeast(min) }
+        // (a 40 dp IconButton still takes touches over 48 dp). ui-test only has exact
+        // touch-size assertions, so compare SemanticsNode.touchBoundsInRoot directly.
+        repeat(count) { index ->
+            val bounds = get(index).fetchSemanticsNode().touchBoundsInRoot
+            val (width, height) = with(rule.density) { bounds.width.toDp() to bounds.height.toDp() }
+            // Half a pixel of slack for px -> dp rounding.
+            val slack = with(rule.density) { 0.5f.toDp() }
+            assertTrue("node $index touch width $width < $min", width >= min - slack)
+            assertTrue("node $index touch height $height < $min", height >= min - slack)
+        }
     }
 }

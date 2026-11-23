@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege: CI only reads the repository (artifacts need no extra scope).
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,12 +21,12 @@ jobs:
       # Set to "true" at the 1.0 freeze (#89 task 14) to make the gate required.
       API_COMPAT_ENFORCE: "false"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
       # On Linux, allTests runs jvmTest and wasmJsTest (headless Chrome);
       # iOS klibs compile here, iOS tests run in the macos job below.
       # orrery-compose runs its desktop and wasmJs (headless Chrome) tests explicitly.
@@ -105,7 +109,7 @@ jobs:
         run: ./gradlew updateKotlinAbi --continue
       - name: Upload ABI dumps and JS lock files on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: abi-dumps
           path: |
@@ -114,14 +118,14 @@ jobs:
           if-no-files-found: ignore
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: test-results
           path: "*/build/test-results/"
           if-no-files-found: ignore
       - name: Upload screenshot diffs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: roborazzi-diffs
           path: |
@@ -133,12 +137,12 @@ jobs:
     # Kotlin/Native iOS test binaries can only be linked and run on a macOS host.
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
       - name: iOS simulator tests (orrery-core, orrery-lunar, orrery-calendars, orrery-holidays, orrery-compose, orrery-widget)
         run: >
           ./gradlew :orrery-core:iosSimulatorArm64Test :orrery-lunar:iosSimulatorArm64Test
@@ -146,7 +150,7 @@ jobs:
           :orrery-compose:iosSimulatorArm64Test :orrery-widget:iosSimulatorArm64Test
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ios-test-results
           path: "*/build/test-results/"

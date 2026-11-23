@@ -2,6 +2,12 @@
 
 ## One-time setup (manual, cannot be automated)
 
+> **Before the gated `publish.yml` reaches `main`** (the one with `environment: release`),
+> steps 5 and 8 must be done: the `release` environment exists with a required reviewer, and
+> private vulnerability reporting is on. Otherwise the first `v*` tag push makes GitHub
+> auto-create `release` with no protection rules (the publish runs unapproved, on the
+> repository-level secrets), and the report link in `SECURITY.md` returns 404.
+
 1. Create the GitHub repository and wire the remote:
    `git remote add origin git@github.com:koza4e4ok/Orrery.git && git push -u origin main`
    (If the org/repo name differs, update `POM_URL`/`POM_SCM_*` in `gradle.properties` and the
@@ -10,16 +16,28 @@
 3. Generate a Central Portal **user token** (Account → Generate User Token).
 4. Export an ASCII-armored GPG signing key:
    `gpg --armor --export-secret-keys <KEY_ID>`
-5. Add the five repository secrets used by `.github/workflows/publish.yml`:
+5. Create the `release` environment (Settings → Environments → New environment: required
+   reviewer, deployment tags limited to `v*`). Leave **Prevent self-review** off while the
+   maintainer is the only reviewer: the person who pushes the tag could otherwise never
+   approve the run. Add the five secrets used by `.github/workflows/publish.yml` **to that
+   environment**, not to the repository:
    - `MAVEN_CENTRAL_USERNAME` / `MAVEN_CENTRAL_PASSWORD` — the user token pair
    - `SIGNING_KEY` — the armored secret key
    - `SIGNING_KEY_ID` — last 8 hex digits of the key fingerprint
    - `SIGNING_KEY_PASSWORD` — the key passphrase
+
+   Then **delete the five repository-level secrets** (Settings → Secrets and variables →
+   Actions → Repository secrets). Repository secrets stay readable by every workflow, so
+   until they are gone the environment gates nothing.
 6. To host the API docs: Settings → Pages → Source **GitHub Actions**, then in
    Settings → Environments → `github-pages` allow the `v*` tag pattern (by default
    the environment only accepts deployments from `main`). The `Docs` workflow
    (`.github/workflows/docs.yml`) then deploys Dokka to
    https://koza4e4ok.github.io/Orrery/ on every `v*` tag.
+7. Protect release tags: Settings → Rules → Rulesets → new tag ruleset `release-tags` on
+   `v*` (restrict creations, updates and deletions; only the maintainer may bypass).
+8. Enable private vulnerability reporting (Settings → Advanced Security → Private
+   vulnerability reporting); `SECURITY.md` links to its report form.
 
 ## Release flow
 
@@ -28,7 +46,10 @@
    version-catalog `orrery = "X.Y.Z"`).
 2. Commit: `git commit -am "release: X.Y.Z"`.
 3. Tag and push: `git tag vX.Y.Z && git push origin main vX.Y.Z`.
-4. The `Publish` workflow first runs the release gate: `checkKotlinAbi`,
+4. The `guard` job (no environment, no secrets) runs first and checks that the tag is
+   `v$VERSION_NAME` of a commit on `main` and not a `-SNAPSHOT`. Only then does the
+   `publish` job wait for approval in the `release` environment; once approved it runs the
+   release gate: `checkKotlinAbi`,
    `tools/api-compat.py --previous-of <tag>` (the dumps against the previous `v*` tag,
    enforcing, with `tools/api-compat-allow.txt`) and the Linux test tasks of `ci.yml`.
    A final tag (no `-` suffix) also gets `--forbid-entries`: it takes no allow-list
@@ -42,6 +63,12 @@
    > (tasks 9 and 10) regenerates it in the same PR.
    Then it builds, signs, uploads to the Central Portal, and releases automatically
    (`publishToMavenCentral(automaticRelease = true)`).
+
+   > Runs share the concurrency group `publish` without cancelling each other, and a run
+   > waiting for approval counts as in progress: an abandoned, never-approved tag run blocks
+   > every later tag (and GitHub keeps only one pending run, so a third tag cancels the
+   > second). Reject or cancel an abandoned run (Actions → the run → Cancel workflow) before
+   > tagging again.
 5. Bump `VERSION_NAME` to the next `X.Y.(Z+1)-SNAPSHOT`, update the snapshot version in the
    README's **Snapshots** note to match, and commit.
 

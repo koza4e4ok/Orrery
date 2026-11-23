@@ -1,0 +1,70 @@
+# Dependabot version updates for Orrery (v1.0.0 Phase 3 task 7, spec 3.2).
+# Weekly, grouped, minor and patch only: a major bump (Kotlin, AGP, Compose) arrives as its own PR
+# and is reviewed by hand. Dependabot security updates (separate repository setting) ignore this
+# schedule and the groups and open a PR as soon as an advisory has a fix.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build"
+      include: scope
+    groups:
+      # Kotlin, Compose Multiplatform and the compose compiler plugin move together.
+      kotlin-compose:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "org.jetbrains.kotlinx*"
+          - "org.jetbrains.compose*"
+        update-types: [minor, patch]
+      androidx-agp:
+        patterns:
+          - "androidx.*"
+          - "com.android*"
+        update-types: [minor, patch]
+      # Build and quality tooling: never part of a published artifact.
+      build-tooling:
+        patterns:
+          - "dev.detekt*"
+          - "org.jlleitschuh*"
+          - "com.vanniktech*"
+          - "org.jetbrains.dokka*"
+        update-types: [minor, patch]
+      # Test-only libraries.
+      test-libraries:
+        patterns:
+          - "org.robolectric*"
+          - "io.github.takahirom*"
+          - "junit*"
+          - "com.ibm.icu*"
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types: [minor, patch]
+
+  # Optional, not requested by the spec: tools/golden/requirements.txt (test-time fixtures only).
+  # - package-ecosystem: pip
+  #   directory: "/tools/golden"
+  #   schedule:
+  #     interval: weekly
+  #   commit-message:
+  #     prefix: "build"

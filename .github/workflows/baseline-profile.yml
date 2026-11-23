@@ -5,6 +5,9 @@ name: Baseline profile
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   GMD_FLAGS: >-
     -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
@@ -15,17 +18,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
       - name: Generate baseline profile
         run: ./gradlew :orrery-compose:generateBaselineProfile $GMD_FLAGS
       - name: Show profile changes
@@ -33,7 +36,7 @@ jobs:
           git status --short
           git diff --stat
       - name: Upload baseline profile
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: baseline-profile
           path: orrery-compose/src/*/generated/baselineProfiles/
@@ -65,7 +68,7 @@ jobs:
           cat "$GITHUB_STEP_SUMMARY"
       - name: Upload benchmark results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: benchmark-results
           path: |

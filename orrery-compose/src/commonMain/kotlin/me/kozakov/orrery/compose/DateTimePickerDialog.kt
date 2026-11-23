@@ -83,6 +83,9 @@ public enum class DateTimePickerStep {
  * its bounds and disabled dates), the time of day and the visible [step].
  * Writes outside 0..23 to [hour] or 0..59 to [minute] are ignored.
  * [selectedDateTime] is a [LocalDateTime]; attach a TimeZone yourself.
+ *
+ * @property dateState The date half of the picker: the selected date, its display mode,
+ *   the visible month and the selectable dates.
  */
 @Stable
 public class OrreryDateTimePickerState internal constructor(

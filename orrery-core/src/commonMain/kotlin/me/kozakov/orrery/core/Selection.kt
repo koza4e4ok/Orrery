@@ -13,8 +13,8 @@ import kotlinx.datetime.LocalDate
  * - [Week]: the whole week containing the tapped day.
  * - [Month]: the whole month containing the tapped day.
  *
- * New subtypes may be added in a minor release: do not rely on an exhaustive `when` over
- * this type across versions; add an `else` branch.
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public sealed interface SelectionMode {
     /**
@@ -225,8 +225,8 @@ public sealed interface SelectionMode {
  * Policy for which day gets selected when auto-advance paging changes month
  * ([SelectionMode.Single.autoAdvance]); [autoSelectDate] applies it.
  *
- * New entries may be added in a minor release: do not rely on an exhaustive `when` over
- * this type across versions; add an `else` branch.
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public enum class AutoSelectDay {
     /** Today when the new month is the current month, otherwise its first day. */
@@ -312,8 +312,8 @@ public class Selection(
  * A rejected or restricted selection change, reported in [SelectionResult.events] by
  * [SelectionEngine.click] and [SelectionEngine.replace].
  *
- * New subtypes may be added in a minor release: do not rely on an exhaustive `when` over
- * this type across versions; add an `else` branch.
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public sealed interface SelectionEvent {
     /** The day that caused the event. */

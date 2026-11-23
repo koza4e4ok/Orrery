@@ -48,12 +48,10 @@ public fun Month.displayName(
         locale,
     )
 
-/**
- * Today in the system time zone.
- *
- * Declared here (not in commonMain), like [currentYearMonth], so both stay in
- * LocaleKt for existing JVM callers.
- */
+// Declared here (not in commonMain), like currentYearMonth, so both stay in
+// LocaleKt for existing JVM callers.
+
+/** Today in the system time zone. */
 public actual fun currentDate(): LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
 /** The month containing [currentDate]. */

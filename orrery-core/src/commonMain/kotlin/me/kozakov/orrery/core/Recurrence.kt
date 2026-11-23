@@ -9,8 +9,8 @@ import kotlinx.datetime.LocalDate
  * Orrery events are date-granular, so the sub-daily frequencies (`HOURLY`, `MINUTELY`,
  * `SECONDLY`) are not supported.
  *
- * New entries may be added in a minor release: do not rely on an exhaustive `when` over
- * this type across versions; add an `else` branch.
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public enum class Frequency {
     /** Every [RecurrenceRule.interval] days. */
@@ -53,8 +53,8 @@ public data class ByDay(
  * [RecurrenceRule.toRfc5545String]: pass it to [RecurrenceRule.occurrences],
  * [RecurrenceRule.asSequence], [CalendarEvent.occurrencesIn] or [expandRecurring].
  *
- * New entries may be added in a minor release: do not rely on an exhaustive `when` over
- * this type across versions; add an `else` branch.
+ * New entries/subtypes may be added in a minor release: do not rely on an exhaustive
+ * `when` over this type across versions; add an `else` branch.
  */
 public enum class InvalidDatePolicy {
     /**

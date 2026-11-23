@@ -59,7 +59,7 @@ public class CalendarSnapshotSpec(
     /**
      * Events of the [CalendarSnapshotRange.Agenda] strip; ignored by the month and week ranges.
      * Recurring events are not expanded here: pass occurrences, for example from
-     * [me.kozakov.orrery.core.occurrencesIn] or [me.kozakov.orrery.core.expandRecurring].
+     * [me.kozakov.orrery.core.CalendarEvent.occurrencesIn] or [me.kozakov.orrery.core.expandRecurring].
      */
     public val agendaEvents: List<CalendarEvent<*>> = emptyList(),
     /** Weekday of the first column of month and week grids, and the start of [CalendarSnapshotRange.Week]. */

@@ -35,6 +35,8 @@ import kotlinx.datetime.number
  * State for [OrreryMonthPickerDialog]: the selected month within [range].
  * [selectedMonth] is null until the user (or [select]) picks one; months
  * outside [range] are ignored.
+ *
+ * @property range The months the picker shows and can select (inclusive).
  */
 @Stable
 public class OrreryMonthPickerState internal constructor(

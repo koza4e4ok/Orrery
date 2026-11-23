@@ -4,10 +4,13 @@ import androidx.compose.runtime.Immutable
 import kotlinx.datetime.LocalDate
 
 /**
- * A quick-pick chip for [OrreryDateRangePickerDialog]: tapping it selects
- * [range] (validated like taps, so it is ignored when it breaks the
- * picker's year range, `minDays`/`maxDays` or disabled dates). Build the
- * standard set with [DatePickerDefaults.rangePresets].
+ * A quick-pick chip for [OrreryDateRangePickerDialog]: tapping it passes
+ * [range] to [OrreryDateRangePickerState.setSelection], so it is ignored when
+ * it breaks the picker's year range, `minDays`/`maxDays` or disabled dates,
+ * or the range guardrails ([OrreryDateRangePickerState.minRangeDays],
+ * [OrreryDateRangePickerState.maxRangeDays] and
+ * [OrreryDateRangePickerState.disallowDisabledInRange]). Build the standard
+ * set with [DatePickerDefaults.rangePresets].
  *
  * @property label Text of the chip.
  */

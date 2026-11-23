@@ -5,6 +5,12 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
 
+/** Longest `RRULE` text [RecurrenceRule.parse] accepts, in chars (F9: untrusted input). */
+internal const val MAX_RRULE_LENGTH = 4096
+
+/** Longest `EXDATE` text [RecurrenceRule.parseExDates] accepts, in chars (about 7,000 dates). */
+internal const val MAX_EXDATE_LENGTH = 65_536
+
 /** RFC 5545 `RRULE` / `EXDATE` value parser and canonical formatter (spec section 1.5). */
 @Suppress("TooManyFunctions")
 internal object RecurrenceCodec {
@@ -31,6 +37,9 @@ internal object RecurrenceCodec {
         text: String,
         exDates: Set<LocalDate>,
     ): RecurrenceRule {
+        require(text.length <= MAX_RRULE_LENGTH) {
+            "RRULE text is too long: ${text.length} chars, the maximum is $MAX_RRULE_LENGTH"
+        }
         val parts = splitParts(stripPropertyName(text, "RRULE"))
         val frequency = parseFrequency(requireNotNull(parts["FREQ"]) { "RRULE must contain FREQ" })
         return RecurrenceRule(
@@ -48,6 +57,9 @@ internal object RecurrenceCodec {
     }
 
     fun parseExDates(text: String): Set<LocalDate> {
+        require(text.length <= MAX_EXDATE_LENGTH) {
+            "EXDATE text is too long: ${text.length} chars, the maximum is $MAX_EXDATE_LENGTH"
+        }
         val value = stripPropertyName(text, "EXDATE")
         if (value.isBlank()) return emptySet()
         return value.split(',').mapTo(LinkedHashSet()) { parseDate("EXDATE", it) }

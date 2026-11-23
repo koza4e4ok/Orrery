@@ -54,6 +54,10 @@ The 1.0 API rules and the ABI gate are described in
 
 ### Changed
 
+- Recurrence parsing (#89 task 7, F9): `RecurrenceRule.parse` and `parseOrNull` reject
+  `RRULE` text longer than 4096 chars, and `RecurrenceRule.parseExDates` rejects `EXDATE`
+  text longer than 65,536 chars, before parsing (`IllegalArgumentException`; null from
+  `parseOrNull`). The KDoc of `occurrences` now warns that it returns the whole window as one list.
 - Agenda day headings follow the locale's order on every platform (#136): Android now
   uses the `EEEMMMd` skeleton like iOS and Web, so Ukrainian reads "сб, 14 лист."
   instead of "сб, лист. 14", and the `CalendarSnapshot` composable prints the same

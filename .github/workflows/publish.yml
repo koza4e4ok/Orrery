@@ -4,18 +4,55 @@ on:
   push:
     tags: ["v*"]
 
+# Least privilege: the job only reads the repository. Publishing authenticates with the
+# secrets of the `release` environment, not with GITHUB_TOKEN.
+permissions:
+  contents: read
+
+# One release at a time; a second tag waits instead of racing the first to Maven Central.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
 jobs:
-  publish:
+  # Runs before the approval prompt and without secrets: a tag that cannot be released
+  # (wrong name, SNAPSHOT, or a commit that is not on main) fails here and never asks for approval.
+  guard:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Release guard (tag matches VERSION_NAME, commit is on main)
+        run: |
+          version=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          case "$version" in *SNAPSHOT*) echo "refusing to publish a SNAPSHOT ($version)"; exit 1 ;; esac
+          [ "$GITHUB_REF_NAME" = "v$version" ] || { echo "tag $GITHUB_REF_NAME does not match VERSION_NAME $version"; exit 1; }
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "$GITHUB_SHA is not on main"; exit 1; }
+
+  publish:
+    needs: guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # The five publishing secrets live in this environment (required reviewer, deployment
+    # tags limited to v*), so every publish waits for Andrii's approval.
+    environment: release
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0 # tools/api-compat.py reads the previous v* tag
-      - uses: actions/setup-java@v4
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
+        with:
+          # The release build restores no cache written by other jobs (cache poisoning),
+          # at the cost of a slower publish.
+          cache-disabled: true
       # Release gate: a tag that fails any of the next three steps never reaches Maven Central.
       - name: ABI gate selftest
         run: python3 tools/api-compat-selftest.py

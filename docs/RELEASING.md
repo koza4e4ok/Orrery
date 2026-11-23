@@ -10,7 +10,9 @@
 3. Generate a Central Portal **user token** (Account → Generate User Token).
 4. Export an ASCII-armored GPG signing key:
    `gpg --armor --export-secret-keys <KEY_ID>`
-5. Add the five repository secrets used by `.github/workflows/publish.yml`:
+5. Create the `release` environment (Settings → Environments → New environment: required
+   reviewer, deployment tags limited to `v*`) and add the five secrets used by
+   `.github/workflows/publish.yml` **to that environment**, not to the repository:
    - `MAVEN_CENTRAL_USERNAME` / `MAVEN_CENTRAL_PASSWORD` — the user token pair
    - `SIGNING_KEY` — the armored secret key
    - `SIGNING_KEY_ID` — last 8 hex digits of the key fingerprint
@@ -20,6 +22,8 @@
    the environment only accepts deployments from `main`). The `Docs` workflow
    (`.github/workflows/docs.yml`) then deploys Dokka to
    https://koza4e4ok.github.io/Orrery/ on every `v*` tag.
+7. Protect release tags: Settings → Rules → Rulesets → new tag ruleset `release-tags` on
+   `v*` (restrict creations, updates and deletions; only the maintainer may bypass).
 
 ## Release flow
 
@@ -28,7 +32,8 @@
    version-catalog `orrery = "X.Y.Z"`).
 2. Commit: `git commit -am "release: X.Y.Z"`.
 3. Tag and push: `git tag vX.Y.Z && git push origin main vX.Y.Z`.
-4. The `Publish` workflow first runs the release gate: `checkKotlinAbi`,
+4. The `Publish` job waits for approval in the `release` environment, then checks that the
+   tag is `v$VERSION_NAME` of a commit on `main` and runs the release gate: `checkKotlinAbi`,
    `tools/api-compat.py --previous-of <tag>` (the dumps against the previous `v*` tag,
    enforcing, with `tools/api-compat-allow.txt`) and the Linux test tasks of `ci.yml`.
    A final tag (no `-` suffix) also gets `--forbid-entries`: it takes no allow-list

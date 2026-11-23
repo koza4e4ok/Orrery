@@ -7,8 +7,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
-import androidx.compose.ui.test.assertHeightIsAtLeast
-import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.assertTouchHeightIsAtLeast
+import androidx.compose.ui.test.assertTouchWidthIsAtLeast
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Dp
@@ -85,6 +85,8 @@ class TouchTargetTest {
     ) {
         val count = fetchSemanticsNodes().size
         assertEquals("interactive nodes", expectedCount, count)
-        repeat(count) { index -> get(index).assertHeightIsAtLeast(min).assertWidthIsAtLeast(min) }
+        // Touch bounds: the layout bounds plus the extension Compose gives to small targets
+        // (a 40 dp IconButton still takes touches over 48 dp).
+        repeat(count) { index -> get(index).assertTouchHeightIsAtLeast(min).assertTouchWidthIsAtLeast(min) }
     }
 }

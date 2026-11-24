@@ -120,15 +120,22 @@ public class CalendarDayShapes(
 )
 
 /**
- * State descriptions [DefaultDay] reports to accessibility services
- * (e.g. TalkBack announces "July 9, 2026, Range start, Today").
- * Applicable states are joined with ", ".
+ * Texts [DefaultDay] reports to accessibility services (e.g. TalkBack announces
+ * "Thursday, July 9, 2026, Range start, Today"). Applicable states are joined
+ * with ", " in the order of the properties below, and no state replaces another.
  *
  * @property rangeStart Reported for the first day of a selected range.
  * @property rangeEnd Reported for the last day of a selected range.
  * @property inRange Reported for the days between the range endpoints.
  * @property today Reported for today.
  * @property unavailable Reported for a disabled (unavailable) day.
+ * @property selected Reported for a selected day that is not a range day (range
+ *   days already say range start, range end or in range). Reported after the
+ *   range states and before [today].
+ * @property holiday Reported after [today] for a day whose [me.kozakov.orrery.core.DayInfo.isHoliday]
+ *   is true, whether or not its label is shown.
+ * @property events Template for the number of events of the built-in event
+ *   decorators, added to the content description; `%1$d` is the count.
  */
 @Immutable
 public class CalendarDayStrings(
@@ -137,7 +144,32 @@ public class CalendarDayStrings(
     public val inRange: String,
     public val today: String,
     public val unavailable: String,
-)
+    public val selected: String,
+    public val holiday: String,
+    public val events: String,
+) {
+    /**
+     * Strings without [selected], [holiday] and [events], which get their
+     * English texts ("Selected", "Holiday", "Events: %1$d"). Use
+     * [CalendarDefaults.dayStrings] for localized defaults.
+     */
+    public constructor(
+        rangeStart: String,
+        rangeEnd: String,
+        inRange: String,
+        today: String,
+        unavailable: String,
+    ) : this(
+        rangeStart = rangeStart,
+        rangeEnd = rangeEnd,
+        inRange = inRange,
+        today = today,
+        unavailable = unavailable,
+        selected = "Selected",
+        holiday = "Holiday",
+        events = "Events: %1\$d",
+    )
+}
 
 /**
  * How today's date is marked when it is not selected.
@@ -368,7 +400,20 @@ public object CalendarDefaults {
         inRange: String = orreryString(OrreryString.DayInRange),
         today: String = orreryString(OrreryString.DayToday),
         unavailable: String = orreryString(OrreryString.DayUnavailable),
-    ): CalendarDayStrings = CalendarDayStrings(rangeStart, rangeEnd, inRange, today, unavailable)
+        selected: String = orreryString(OrreryString.DaySelected),
+        holiday: String = orreryString(OrreryString.DayHoliday),
+        events: String = orreryString(OrreryString.DayEvents),
+    ): CalendarDayStrings =
+        CalendarDayStrings(
+            rangeStart = rangeStart,
+            rangeEnd = rangeEnd,
+            inRange = inRange,
+            today = today,
+            unavailable = unavailable,
+            selected = selected,
+            holiday = holiday,
+            events = events,
+        )
 
     /**
      * Weekday header row with localized short names in [contentColor];

@@ -48,6 +48,16 @@ class PlatformDateFormatTest {
     }
 
     @Test
+    fun fullDatesAddTheWeekdayToLongDates() {
+        // Day cells announce the Full style (#89 task 13): it must carry more than the Long date.
+        val date = LocalDate(2026, 7, 15)
+        val long = PlatformDateFormat.formatDate(date, DateFormattingStyle.Long)
+        val full = PlatformDateFormat.formatDate(date, DateFormattingStyle.Full)
+        assertNotEquals(long, full)
+        assertTrue(full.length > long.length, "$long / $full")
+    }
+
+    @Test
     fun earlyYearsAreNotShiftedIntoTheTwentiethCentury() {
         val text = PlatformDateFormat.formatDate(LocalDate(42, 3, 1), DateFormattingStyle.Long)
         assertTrue("42" in text && "1942" !in text, text)

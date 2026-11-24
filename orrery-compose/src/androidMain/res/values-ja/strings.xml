@@ -29,6 +29,9 @@
     <string name="orrery_day_state_in_range">期間内</string>
     <string name="orrery_day_state_today">今日</string>
     <string name="orrery_day_state_unavailable">選択不可</string>
+    <string name="orrery_day_state_selected">選択済み</string>
+    <string name="orrery_day_state_holiday">祝日</string>
+    <string name="orrery_day_events">予定: %1$d件</string>
     <string name="orrery_agenda_today_prefix">今日</string>
     <string name="orrery_agenda_all_day">終日</string>
     <string name="orrery_agenda_no_events">予定なし</string>

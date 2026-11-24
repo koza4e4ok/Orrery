@@ -89,7 +89,14 @@ internal interface CellAwareDayDecorator : DayDecorator {
     override fun DrawScope.draw(day: CalendarDay) {
         draw(day, DayCellDrawState.Unknown)
     }
+
+    /** Events this decorator shows for [date], uncapped by its drawing limit; [DefaultDay] announces it. */
+    fun eventCount(date: LocalDate): Int = 0
 }
+
+/** [CellAwareDayDecorator.eventCount] of a built-in decorator; 0 for custom ones, which only draw. */
+internal fun DayDecorator.eventCount(date: LocalDate): Int =
+    (this as? CellAwareDayDecorator)?.eventCount(date)?.coerceAtLeast(0) ?: 0
 
 internal fun DrawScope.drawDecorator(
     decorator: DayDecorator,
@@ -126,7 +133,7 @@ public object DayDecorators {
         dotSize: Dp = 4.dp,
         spacing: Dp = 2.dp,
         colors: (LocalDate) -> List<Color>,
-    ): DayDecorator = EventDots(maxDots, dotSize, spacing, selectedColor = null, colors)
+    ): DayDecorator = EventDots(maxDots, dotSize, spacing, selectedColor = null, colors) { colors(it).size }
 
     /**
      * [eventDots] whose dots draw in [selectedColor] on a selected day in
@@ -138,7 +145,7 @@ public object DayDecorators {
         dotSize: Dp = 4.dp,
         spacing: Dp = 2.dp,
         colors: (LocalDate) -> List<Color>,
-    ): DayDecorator = EventDots(maxDots, dotSize, spacing, selectedColor, colors)
+    ): DayDecorator = EventDots(maxDots, dotSize, spacing, selectedColor, colors) { colors(it).size }
 
     private class EventDots(
         private val maxDots: Int,
@@ -146,7 +153,10 @@ public object DayDecorators {
         private val spacing: Dp,
         private val selectedColor: Color?,
         private val colors: (LocalDate) -> List<Color>,
+        private val count: (LocalDate) -> Int,
     ) : CellAwareDayDecorator {
+        override fun eventCount(date: LocalDate): Int = count(date)
+
         override fun DrawScope.draw(
             day: CalendarDay,
             cell: DayCellDrawState,
@@ -179,13 +189,16 @@ public object DayDecorators {
         dotSize: Dp = 4.dp,
         spacing: Dp = 2.dp,
     ): DayDecorator =
-        eventDots(
+        EventDots(
             maxDots = maxDots,
             dotSize = dotSize,
             spacing = spacing,
-        ) { date ->
-            eventsByDate(date).map { event -> event.colorArgb?.let(::Color) ?: defaultColor }.distinct()
-        }
+            selectedColor = null,
+            colors = { date ->
+                eventsByDate(date).map { event -> event.colorArgb?.let(::Color) ?: defaultColor }.distinct()
+            },
+            count = { date -> eventsByDate(date).size },
+        )
 
     /**
      * Up to [maxBars] horizontal event bars near the bottom of the cell.
@@ -228,6 +241,8 @@ public object DayDecorators {
     ) : CellAwareDayDecorator {
         override val layer: DecoratorLayer
             get() = DecoratorLayer.Over
+
+        override fun eventCount(date: LocalDate): Int = eventsByDate(date).size
 
         override fun DrawScope.draw(
             day: CalendarDay,
@@ -624,6 +639,8 @@ public object DayDecorators {
         return object : CellAwareDayDecorator {
             override val layer: DecoratorLayer
                 get() = DecoratorLayer.Over
+
+            override fun eventCount(date: LocalDate): Int = count(date)
 
             override fun DrawScope.draw(
                 day: CalendarDay,

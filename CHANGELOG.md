@@ -86,9 +86,27 @@ The 1.0 API rules and the ABI gate are described in
   least 48 dp (about 32 dp and 36-44 dp before). Compose already extended their hit-testing
   to 48 dp; this makes the visible layout target 48 dp too. The pills keep their visible
   size; the title's ripple now covers the 48 dp target. Signatures are unchanged.
+- `DefaultDay` announces more to screen readers (#89 task 13, M1/M2): the content
+  description is the full date with the weekday ("Thursday, July 9, 2026"), followed by
+  the `DayInfo.label` when the cell shows it and "Events: N" for the built-in event
+  decorators (`eventDots`, `eventDotsForEvents`, `spanningEventBars`, `badge`; the full
+  count, not the drawn dots, and the largest one when several are set). A label hidden by
+  the density (`CalendarDensity.Compact`) is not announced. The state description also says
+  "Selected" and "Holiday" now, and states are joined instead of one replacing another: a
+  selected today is "Selected, Today" (before, the state description hid the selection).
+  Range days keep "Range start" / "Range end" / "In range" without an extra "Selected".
+  Tests that matched the old date text exactly need the weekday or `substring = true`.
 
 ### Added
 
+- Day announcements (#89 task 13): `DefaultDay(describeDay = ...)` replaces a cell's
+  content description. It receives a `DayAnnouncement` (date, states, `info`, `eventCount`
+  and the default texts), so `{ it.contentDescription + ", booked" }` extends the default
+  and `it.info?.label` can announce a label the density hides. `CalendarDayStrings` and
+  `CalendarDefaults.dayStrings` gain `selected`, `holiday` and `events` (translated in all
+  six bundled locales); the five-string constructor still compiles and uses English for
+  the new three. The `DefaultDay` and `dayStrings` JVM/klib signatures change (ledger rows
+  S-003, S-004): recompile, no source change.
 - Heatmaps (#123, #124): `HeatmapDefaults.colorScale(levels, from, to)` ramps toward
   any target color (existing calls are unchanged), and the public
   `HeatmapDefaults.Levels` and `HeatmapDefaults.levelOf(value)` give the level a

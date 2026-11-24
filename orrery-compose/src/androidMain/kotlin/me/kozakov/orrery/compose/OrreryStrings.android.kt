@@ -42,6 +42,9 @@ private val OrreryString.resId: Int
             OrreryString.DayInRange -> R.string.orrery_day_state_in_range
             OrreryString.DayToday -> R.string.orrery_day_state_today
             OrreryString.DayUnavailable -> R.string.orrery_day_state_unavailable
+            OrreryString.DaySelected -> R.string.orrery_day_state_selected
+            OrreryString.DayHoliday -> R.string.orrery_day_state_holiday
+            OrreryString.DayEvents -> R.string.orrery_day_events
             OrreryString.AgendaTodayPrefix -> R.string.orrery_agenda_today_prefix
             OrreryString.AgendaAllDay -> R.string.orrery_agenda_all_day
             OrreryString.AgendaNoEvents -> R.string.orrery_agenda_no_events

@@ -29,6 +29,9 @@
     <string name="orrery_day_state_in_range">У діапазоні</string>
     <string name="orrery_day_state_today">Сьогодні</string>
     <string name="orrery_day_state_unavailable">Недоступно</string>
+    <string name="orrery_day_state_selected">Вибрано</string>
+    <string name="orrery_day_state_holiday">Свято</string>
+    <string name="orrery_day_events">Події: %1$d</string>
     <string name="orrery_agenda_today_prefix">СЬОГОДНІ</string>
     <string name="orrery_agenda_all_day">Весь день</string>
     <string name="orrery_agenda_no_events">Немає подій</string>

@@ -57,6 +57,37 @@ HorizontalCalendar(
 and month title are also slots — the defaults are `CalendarDefaults.WeekHeader`,
 `CalendarDefaults.WeekNumber` (ISO week), and `CalendarDefaults.MonthTitle`.
 
+### What screen readers announce
+
+A `DefaultDay` cell reports two texts to TalkBack and VoiceOver:
+
+- **Content:** the full date with the weekday ("Thursday, July 9, 2026", in the locale's own
+  order), then the `DayInfo.label` when the cell shows it, then "Events: N" when a built-in
+  event decorator (`eventDots`, `eventDotsForEvents`, `spanningEventBars`, `badge`) has events
+  for the day. N is the full count, not the number of drawn dots; with several of them the
+  largest count is used. Custom decorators only draw and are not announced.
+- **State:** range start, range end, in range, selected, today, holiday and unavailable, joined
+  with ", " ("Selected, Today, Holiday"). Range days do not repeat "Selected".
+
+Labels hidden by the density (`CalendarDensity.Compact`) are **not** announced, so a
+screen reader hears what is on screen. The holiday state is still announced. To announce
+hidden labels too, or to add your own text, pass `describeDay`. It replaces the content text
+and receives a `DayAnnouncement` with the default text, the states and the `DayInfo`:
+
+```kotlin
+DefaultDay(
+    day = day,
+    style = CalendarDefaults.style(density = CalendarDensity.Compact),
+    info = info,
+    describeDay = { a -> listOfNotNull(a.contentDescription, a.info?.label).joinToString(", ") },
+)
+```
+
+The state text stays the library's; change its words through `strings = CalendarDefaults.dayStrings(...)`
+(`selected`, `holiday`, `events` with `%1$d` for the count, ...). `describeDay` runs on every
+composition of the cell, so keep it cheap. Everything announced is readable by any enabled
+accessibility service, so do not put sensitive text in `DayInfo.label` or `describeDay`.
+
 ## Decorators
 
 Decorators draw data onto day cells without per-cell composables — they are

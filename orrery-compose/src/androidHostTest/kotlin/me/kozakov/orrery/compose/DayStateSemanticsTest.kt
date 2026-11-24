@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionMode
@@ -33,6 +34,8 @@ class DayStateSemanticsTest {
     private fun hasState(value: String) = SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, value)
 
     private val hasNoState = SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription)
+
+    private fun isSelected(value: Boolean) = SemanticsMatcher.expectValue(SemanticsProperties.Selected, value)
 
     private fun range(today: LocalDate = farAway) {
         rule.setContent {
@@ -57,13 +60,22 @@ class DayStateSemanticsTest {
     private fun single(
         today: LocalDate = farAway,
         enabled: Boolean = true,
+        selected: Boolean = false,
+        info: DayInfo? = null,
         strings: (@Composable () -> CalendarDayStrings)? = null,
     ) {
         rule.setContent {
+            val selection =
+                rememberCalendarSelectionState(
+                    mode = SelectionMode.Single(),
+                    initialSelection = if (selected) Selection(single = middle) else Selection.Empty,
+                )
             DefaultDay(
                 day = CalendarDay(middle, DayPosition.MonthDate),
                 modifier = Modifier.testTag("day"),
+                selectionState = selection,
                 today = today,
+                info = info,
                 enabled = enabled,
                 strings = strings?.invoke() ?: CalendarDefaults.dayStrings(),
             )
@@ -107,6 +119,44 @@ class DayStateSemanticsTest {
     fun todayAndUnavailableAreJoined() {
         single(today = middle, enabled = false)
         rule.onNodeWithTag("day").assert(hasState("Today, Unavailable"))
+    }
+
+    @Test
+    fun selectedIsAnnounced() {
+        single(selected = true)
+        rule.onNodeWithTag("day").assert(hasState("Selected")).assert(isSelected(true))
+    }
+
+    @Test
+    fun selectedTodayAnnouncesBothStates() {
+        single(today = middle, selected = true)
+        rule.onNodeWithTag("day").assert(hasState("Selected, Today")).assert(isSelected(true))
+    }
+
+    @Test
+    fun selectedHolidayTodayAnnouncesAllStates() {
+        single(today = middle, selected = true, info = DayInfo(label = "Christmas", isHoliday = true))
+        rule.onNodeWithTag("day").assert(hasState("Selected, Today, Holiday")).assert(isSelected(true))
+    }
+
+    @Test
+    fun selectedUnavailableAnnouncesBothStates() {
+        single(selected = true, enabled = false)
+        rule.onNodeWithTag("day").assert(hasState("Selected, Unavailable")).assert(isSelected(true))
+    }
+
+    @Test
+    fun rangeDaysDoNotRepeatSelected() {
+        range(today = start)
+        rule.onNodeWithTag("day-$start").assert(hasState("Range start, Today")).assert(isSelected(true))
+        rule.onNodeWithTag("day-$end").assert(hasState("Range end")).assert(isSelected(true))
+    }
+
+    @Test
+    @Config(qualifiers = "de")
+    fun selectedTodayIsLocalized() {
+        single(today = middle, selected = true)
+        rule.onNodeWithTag("day").assert(hasState("Ausgewählt, Heute"))
     }
 
     @Test

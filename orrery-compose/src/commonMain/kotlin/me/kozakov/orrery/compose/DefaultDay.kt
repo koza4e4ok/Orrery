@@ -115,9 +115,19 @@ import kotlin.math.sqrt
  * `LayoutDirection.Rtl` the range band halves and split endpoint halves
  * are mirrored so they still face the previous and next days.
  *
- * Besides the date as content description, the cell reports range
- * start / end / in range, today and unavailable as its accessibility
- * state description, using [strings].
+ * Accessibility: the content description is the full date with the weekday
+ * ("Thursday, July 9, 2026"), followed by the [DayInfo.label] when the cell
+ * shows it and the number of events of the built-in event decorators
+ * ([DayDecorators.eventDots], [DayDecorators.eventDotsForEvents],
+ * [DayDecorators.spanningEventBars], [DayDecorators.badge]; the largest count
+ * when several are set). A label hidden by the density is not announced. The
+ * state description joins range start / end / in range, selected, today,
+ * holiday and unavailable, using [strings]; the selected flag stays set as well.
+ * [describeDay] replaces the content description: it receives the cell's
+ * [DayAnnouncement], whose [DayAnnouncement.contentDescription] is the default
+ * text, and must be cheap because it runs on every composition of the cell.
+ * Everything announced is readable by any enabled accessibility service, so do
+ * not put sensitive text in labels or in [describeDay].
  */
 @Composable
 public fun DefaultDay(
@@ -135,6 +145,7 @@ public fun DefaultDay(
     hapticsEnabled: Boolean = true,
     decorators: List<DayDecorator> = emptyList(),
     strings: CalendarDayStrings = CalendarDefaults.dayStrings(),
+    describeDay: ((DayAnnouncement) -> String)? = null,
     onClick: ((CalendarDay) -> Unit)? = null,
 ) {
     DefaultDayContent(
@@ -152,6 +163,7 @@ public fun DefaultDay(
         hapticsEnabled = hapticsEnabled,
         decorators = decorators,
         strings = strings,
+        describeDay = describeDay,
         onClick = onClick,
         minCellHeight = CalendarDensity.Comfortable.minCellHeight,
         showSecondaryLabel = true,
@@ -172,7 +184,9 @@ public fun DefaultDay(
  * hidden when [CalendarDensity.showSecondaryLabel] is false. A positive
  * [CalendarStyle.cellBorderWidth] outlines [CalendarDayShapes.dayShape]
  * in [CalendarStyle.cellBorderColor], drawn unclipped under the today
- * marker, Over decorators and focus ring.
+ * marker, Over decorators and focus ring. A label hidden by the density is
+ * not part of the content description; [describeDay] can add it from
+ * [DayAnnouncement.info].
  */
 @Composable
 public fun DefaultDay(
@@ -188,6 +202,7 @@ public fun DefaultDay(
     hapticsEnabled: Boolean = true,
     decorators: List<DayDecorator> = emptyList(),
     strings: CalendarDayStrings = CalendarDefaults.dayStrings(),
+    describeDay: ((DayAnnouncement) -> String)? = null,
     onClick: ((CalendarDay) -> Unit)? = null,
 ) {
     DefaultDayContent(
@@ -205,6 +220,7 @@ public fun DefaultDay(
         hapticsEnabled = hapticsEnabled,
         decorators = decorators,
         strings = strings,
+        describeDay = describeDay,
         onClick = onClick,
         minCellHeight = style.density.minCellHeight,
         showSecondaryLabel = style.density.showSecondaryLabel,
@@ -252,6 +268,7 @@ public fun DefaultDay(
     hapticsEnabled: Boolean = true,
     decorators: List<DayDecorator> = emptyList(),
     strings: CalendarDayStrings = CalendarDefaults.dayStrings(),
+    describeDay: ((DayAnnouncement) -> String)? = null,
     onClick: ((CalendarDay) -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
@@ -270,6 +287,7 @@ public fun DefaultDay(
         hapticsEnabled = hapticsEnabled,
         decorators = decorators,
         strings = strings,
+        describeDay = describeDay,
         onClick = onClick,
         minCellHeight = style.density.minCellHeight,
         showSecondaryLabel = style.density.showSecondaryLabel,
@@ -308,6 +326,7 @@ private fun DefaultDayContent(
     hapticsEnabled: Boolean,
     decorators: List<DayDecorator>,
     strings: CalendarDayStrings,
+    describeDay: ((DayAnnouncement) -> String)?,
     onClick: ((CalendarDay) -> Unit)?,
     minCellHeight: Dp,
     showSecondaryLabel: Boolean,
@@ -377,18 +396,28 @@ private fun DefaultDayContent(
         animationSpec = if (animateSelection) spring(stiffness = Spring.StiffnessMediumLow) else snap(),
         label = "dayElevation",
     )
-    val description =
+    val dateText =
         remember(day.date) {
-            PlatformDateFormat.formatDate(day.date, DateFormattingStyle.Long)
+            PlatformDateFormat.formatDate(day.date, DateFormattingStyle.Full)
         }
-    val dayState =
-        listOfNotNull(
-            strings.rangeStart.takeIf { isRangeStart },
-            strings.rangeEnd.takeIf { isRangeEnd },
-            strings.inRange.takeIf { isInRange },
-            strings.today.takeIf { isToday },
-            strings.unavailable.takeIf { !available },
-        ).joinToString(", ")
+    val announcement =
+        dayAnnouncement(
+            date = day.date,
+            position = day.position,
+            dateText = dateText,
+            isToday = isToday,
+            isSelected = isSelected,
+            isRangeStart = isRangeStart,
+            isRangeEnd = isRangeEnd,
+            isInRange = isInRange,
+            isAvailable = available,
+            info = info,
+            labelVisible = showSecondaryLabel,
+            eventCount = decorators.maxOfOrNull { it.eventCount(day.date) } ?: 0,
+            strings = strings,
+        )
+    val description = describeDay?.invoke(announcement) ?: announcement.contentDescription
+    val dayState = announcement.stateDescription
     val haptics = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()

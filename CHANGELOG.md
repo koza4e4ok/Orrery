@@ -109,7 +109,8 @@ The 1.0 API rules and the ABI gate are described in
   `CalendarDefaults.dayStrings` gain `selected`, `holiday` and `events` (translated in all
   six bundled locales); the five-string constructor still compiles and uses English for
   the new three. The `DefaultDay` and `dayStrings` JVM/klib signatures change (ledger rows
-  S-003, S-004): recompile, no source change.
+  S-003, S-004): recompile. Calls that pass `onClick` positionally right after `strings`
+  must name it; named and trailing-lambda calls need no source change.
 - Heatmaps (#123, #124): `HeatmapDefaults.colorScale(levels, from, to)` ramps toward
   any target color (existing calls are unchanged), and the public
   `HeatmapDefaults.Levels` and `HeatmapDefaults.levelOf(value)` give the level a

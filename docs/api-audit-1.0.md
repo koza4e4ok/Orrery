@@ -7,7 +7,7 @@ Generated from the sources and ABI dumps of `50bd6e3` against the baseline `v0.9
 | Section | Rows | Allow-list reason |
 |---|---|---|
 | B: HIDDEN bridges, removed at 1.0 (5B) | 46: 45 bridges (`orrery-compose` 38, `orrery-core` 7) and B-046, their compiler-generated lambdas (task 9) | `1.0-bridge` |
-| S: signature changes since `v0.9.2` without a bridge (5C) | 2 | `1.0-signature` |
+| S: signature changes since `v0.9.2` without a bridge (5C) | 4 | `1.0-signature` |
 | D: public data classes (8B) | 45 (A 7, B 20, C 18) | `1.0-dataclass` (A and B) |
 | E: public enums (rule 3) | 20 | - |
 | T: public sealed types (rule 3) | 9 | - |

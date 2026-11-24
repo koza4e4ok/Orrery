@@ -26,7 +26,7 @@ ktlint-gradle = "14.2.0"
 detekt = "2.0.0-alpha.6"
 maven-publish = "0.37.0"
 klibs-io-notifier = "0.0.1"
-dokka = "2.2.0"
+dokka = "2.3.0"
 roborazzi = "1.79.0"
 # androidx.benchmark libraries and the androidx.baselineprofile Gradle plugin release together.
 # 1.5.0 is the latest stable; its release notes drop the android.newDsl=false requirement on AGP 9.

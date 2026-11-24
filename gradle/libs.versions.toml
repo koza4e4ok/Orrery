@@ -3,8 +3,8 @@ kotlin = "2.4.21"
 kotlinx-datetime = "0.8.0"
 # Test only (orrery-widget runTest); the published modules get coroutines through Compose.
 kotlinx-coroutines = "1.11.0"
-agp = "9.4.1"
-compose-bom = "2026.09.00"
+agp = "9.5.2"
+compose-bom = "2026.11.01"
 # Compose Multiplatform for orrery-compose (#20). On Android these resolve to the
 # androidx artifacts the BOM pins (foundation 1.12.x, material3 1.4.0); the separate
 # material3 line is the latest stable one built on androidx material3 1.4.0.
@@ -31,7 +31,7 @@ roborazzi = "1.79.0"
 # androidx.benchmark libraries and the androidx.baselineprofile Gradle plugin release together.
 # 1.5.0 is the latest stable; its release notes drop the android.newDsl=false requirement on AGP 9.
 benchmark = "1.5.0"
-uiautomator = "2.4.0"
+uiautomator = "2.4.1"
 profileinstaller = "1.4.1"
 # :sample only (the home-screen widget, #89). Never a dependency of a published module.
 glance = "1.2.0"

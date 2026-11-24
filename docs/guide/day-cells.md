@@ -65,7 +65,9 @@ A `DefaultDay` cell reports two texts to TalkBack and VoiceOver:
   order), then the `DayInfo.label` when the cell shows it, then "Events: N" when a built-in
   event decorator (`eventDots`, `eventDotsForEvents`, `spanningEventBars`, `badge`) has events
   for the day. N is the full count, not the number of drawn dots; with several of them the
-  largest count is used. Custom decorators only draw and are not announced.
+  largest count is used. `stackedBars` is not counted, because its bars are colour markers
+  that need not be events; if yours are, announce them with `describeDay` (below). Custom
+  decorators only draw and are not announced.
 - **State:** range start, range end, in range, selected, today, holiday and unavailable, joined
   with ", " ("Selected, Today, Holiday"). Range days do not repeat "Selected".
 

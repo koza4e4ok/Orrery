@@ -12,8 +12,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.datetime.LocalDate
 import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DayPosition
+import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionMode
 import org.junit.Assert.assertEquals
@@ -169,6 +171,41 @@ class DayAnnouncementSemanticsTest {
     }
 
     @Test
+    fun eventDotsForEventsAnnounceEveryEventNotTheDistinctColors() {
+        val events = List(3) { CalendarEvent<Unit>(id = "e$it", title = "Event $it", span = EventSpan.AllDay(date)) }
+        show(
+            decorators = {
+                listOf(DayDecorators.eventDotsForEvents(eventsByDate = { events }, defaultColor = Color.Red))
+            },
+        )
+        day.assert(hasContent("Thursday, July 9, 2026, Events: 3"))
+    }
+
+    @Test
+    fun spanningEventBarsAnnounceTheirCount() {
+        val events = List(2) { CalendarEvent<Unit>(id = "e$it", title = "Event $it", span = EventSpan.AllDay(date)) }
+        show(decorators = { listOf(DayDecorators.spanningEventBars(eventsByDate = { events }, maxBars = 1)) })
+        day.assert(hasContent("Thursday, July 9, 2026, Events: 2"))
+    }
+
+    @Test
+    fun selectedColorEventDotsAnnounceTheirCount() {
+        show(
+            selected = true,
+            decorators = {
+                listOf(DayDecorators.eventDots(selectedColor = Color.White) { listOf(Color.Red, Color.Blue) })
+            },
+        )
+        day.assert(hasContent("Thursday, July 9, 2026, Events: 2")).assert(hasState("Selected"))
+    }
+
+    @Test
+    fun stackedBarsAreNotAnnounced() {
+        show(decorators = { listOf(DayDecorators.stackedBars { listOf(Color.Red, Color.Blue) }) })
+        day.assert(hasContent("Thursday, July 9, 2026"))
+    }
+
+    @Test
     fun noEventsAddNoEventText() {
         show(decorators = { listOf(DayDecorators.eventDots { emptyList() }, DayDecorators.badge { 0 }) })
         day.assert(hasContent("Thursday, July 9, 2026"))
@@ -200,6 +237,27 @@ class DayAnnouncementSemanticsTest {
         val announcement = checkNotNull(received)
         assertEquals("Selected, Today", announcement.stateDescription)
         assertTrue(announcement.isSelected && announcement.isToday)
+    }
+
+    @Test
+    fun describeDayWorksOnTheTurnoverOverload() {
+        var received: DayAnnouncement? = null
+        rule.setContent {
+            DefaultDay(
+                day = CalendarDay(date, DayPosition.MonthDate),
+                style = CalendarDefaults.style(density = CalendarDensity.Compact),
+                turnoverDates = setOf(date),
+                modifier = Modifier.testTag("day"),
+                today = farAway,
+                info = christmas,
+                describeDay = { a ->
+                    received = a
+                    listOfNotNull(a.contentDescription, a.info?.label).joinToString(", ")
+                },
+            )
+        }
+        day.assert(hasContent("Thursday, July 9, 2026, Christmas")).assert(hasState("Holiday"))
+        assertEquals(christmas, checkNotNull(received).info)
     }
 
     @Test

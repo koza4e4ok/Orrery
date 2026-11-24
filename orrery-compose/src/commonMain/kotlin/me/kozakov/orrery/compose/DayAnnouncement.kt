@@ -10,7 +10,9 @@ import me.kozakov.orrery.core.DayPosition
  *
  * [contentDescription] is the default text for "what this cell is": the full date
  * with the weekday, the [DayInfo.label] when the cell shows it, and the event count
- * of the built-in event decorators. [stateDescription] joins the states that apply
+ * of the built-in event decorators. [DayDecorators.stackedBars] is not counted: its
+ * bars are colour markers that need not be events, so an app that wants them
+ * announced adds the text in `describeDay`. [stateDescription] joins the states that apply
  * (range start, range end, in range, selected, today, holiday, unavailable) with
  * ", ", or is empty when none applies.
  *
@@ -28,6 +30,7 @@ import me.kozakov.orrery.core.DayPosition
  * @property info Metadata passed to [DefaultDay], or null.
  * @property eventCount Events reported by the built-in event decorators (event dots,
  *   spanning event bars and badges; the largest count when several are set), 0 when none.
+ *   [DayDecorators.stackedBars] does not contribute.
  * @property contentDescription The default content description.
  * @property stateDescription The state description, "" when no state applies.
  */

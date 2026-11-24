@@ -102,7 +102,10 @@ The 1.0 API rules and the ABI gate are described in
 - Day announcements (#89 task 13): `DefaultDay(describeDay = ...)` replaces a cell's
   content description. It receives a `DayAnnouncement` (date, states, `info`, `eventCount`
   and the default texts), so `{ it.contentDescription + ", booked" }` extends the default
-  and `it.info?.label` can announce a label the density hides. `CalendarDayStrings` and
+  and `it.info?.label` can announce a label the density hides. The default text counts the
+  events of `eventDots`, `eventDotsForEvents`, `spanningEventBars` and `badge`; `stackedBars`
+  is not counted (its bars are colour markers), so announce it through `describeDay` if
+  needed. `CalendarDayStrings` and
   `CalendarDefaults.dayStrings` gain `selected`, `holiday` and `events` (translated in all
   six bundled locales); the five-string constructor still compiles and uses English for
   the new three. The `DefaultDay` and `dayStrings` JVM/klib signatures change (ledger rows

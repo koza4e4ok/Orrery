@@ -120,7 +120,9 @@ import kotlin.math.sqrt
  * shows it and the number of events of the built-in event decorators
  * ([DayDecorators.eventDots], [DayDecorators.eventDotsForEvents],
  * [DayDecorators.spanningEventBars], [DayDecorators.badge]; the largest count
- * when several are set). A label hidden by the density is not announced. The
+ * when several are set). [DayDecorators.stackedBars] is not counted, because its
+ * bars are colour markers that need not be events; announce them through
+ * [describeDay] when they are. A label hidden by the density is not announced. The
  * state description joins range start / end / in range, selected, today,
  * holiday and unavailable, using [strings]; the selected flag stays set as well.
  * [describeDay] replaces the content description: it receives the cell's
@@ -187,6 +189,12 @@ public fun DefaultDay(
  * marker, Over decorators and focus ring. A label hidden by the density is
  * not part of the content description; [describeDay] can add it from
  * [DayAnnouncement.info].
+ *
+ * @param describeDay Replaces the content description: it receives the cell's
+ *   [DayAnnouncement], whose [DayAnnouncement.contentDescription] is the default
+ *   text, and must be cheap because it runs on every composition of the cell.
+ *   Everything it returns is readable by any enabled accessibility service, so do
+ *   not put sensitive text in it. Null keeps the default text.
  */
 @Composable
 public fun DefaultDay(
@@ -250,6 +258,12 @@ public fun DefaultDay(
  * animates [calendarState] to the date's month (it only selects when
  * [calendarState] is null). [onClick] runs only for taps that were not
  * ignored. All other parameters behave like the other `style` overload.
+ *
+ * @param describeDay Replaces the content description: it receives the cell's
+ *   [DayAnnouncement], whose [DayAnnouncement.contentDescription] is the default
+ *   text, and must be cheap because it runs on every composition of the cell.
+ *   Everything it returns is readable by any enabled accessibility service, so do
+ *   not put sensitive text in it. Null keeps the default text.
  */
 @Composable
 public fun DefaultDay(

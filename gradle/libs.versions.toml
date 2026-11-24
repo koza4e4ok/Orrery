@@ -2,7 +2,7 @@
 kotlin = "2.4.21"
 kotlinx-datetime = "0.8.0"
 # Test only (orrery-widget runTest); the published modules get coroutines through Compose.
-kotlinx-coroutines = "1.10.2"
+kotlinx-coroutines = "1.11.0"
 agp = "9.4.1"
 compose-bom = "2026.09.00"
 # Compose Multiplatform for orrery-compose (#20). On Android these resolve to the

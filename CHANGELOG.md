@@ -116,6 +116,16 @@ The 1.0 API rules and the ABI gate are described in
   input fields report their error message as the field's error, including the range
   dialog's invalid-range error. The date/time step pills form a selectable group. New
   strings in all six languages; signatures are unchanged.
+- Layouts hold up at 200 % font scale and in 320 dp windows (#89 task 13, S8). The date,
+  month and date-time dialogs are at most 360 dp wide instead of exactly 360 dp, so they no
+  longer overflow narrower windows. Dialog headlines and the date-time step pills that do
+  not fit on one line even in their compact style now wrap instead of being ellipsized
+  (the range headline at 130 % on a Pixel 5 was cut off before). The `CalendarNavHeader`
+  title wraps so the dropdown triangle stays visible. `ScheduleDefaults.DayHeader` falls
+  back to the narrow weekday name when the short one does not fit its column.
+  `YearCalendar` uses fewer columns when the default mini-months would be too narrow for
+  their day numbers, and a year page scrolls vertically when taller than the calendar.
+  Nothing changes at the default text size on a phone; signatures are unchanged.
 
 ### Added
 

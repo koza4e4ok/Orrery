@@ -28,6 +28,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
@@ -292,8 +293,9 @@ abstract class LargeFontLayoutTest {
         val pills =
             rule.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab), useUnmergedTree = true)
         assertEquals("date and time pills", 2, pills.fetchSemanticsNodes().size)
-        assertTextFits("date pill", pills[0], surface, vertically = true)
-        assertTextFits("time pill", pills[1], surface, vertically = true)
+        for (index in 0..1) assertInside("step pill $index", pills[index], surface, vertically = true)
+        assertTextFits("Sep 28, 2026", surface, vertically = true)
+        assertTextFits("09:30", surface, maxLines = 1, vertically = true)
     }
 
     @Test

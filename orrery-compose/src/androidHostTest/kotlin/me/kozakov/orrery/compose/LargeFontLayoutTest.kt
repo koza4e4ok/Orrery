@@ -12,6 +12,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -547,6 +550,10 @@ abstract class LargeFontLayoutTest(
             // ...and on a phone it fits without scrolling, as before.
             assertEquals(0f, pageScroll.maxValue(), 0f)
         } else {
+            if (!largeFont) {
+                // The 3 x 4 page is taller than a 320 x 640 dp window, so it must really scroll.
+                assertTrue(pageScroll.maxValue() > 0f)
+            }
             // Taller than a 640 dp window or at 200 %: every month can be scrolled to and shown
             // (in a 320 x 640 dp window the last row was cut off before).
             for (month in Month.entries) {
@@ -600,6 +607,24 @@ abstract class LargeFontLayoutTest(
                 useUnmergedTree = true,
             )
         assertInside("December", december.getUnclippedBoundsInRoot(), year, vertically = true)
+    }
+
+    @Test
+    fun yearCalendarComposesNarrowerThanOneMonth() {
+        var width by mutableStateOf(1.dp)
+        rule.setContent {
+            MaterialTheme {
+                YearCalendar(
+                    state = rememberYearCalendarState(startYear = 2026, endYear = 2026, firstVisibleYear = 2026),
+                    modifier = Modifier.testTag("year").width(width).height(400.dp),
+                    onMonthClick = {},
+                )
+            }
+        }
+        rule.onNodeWithTag("year").assertExists()
+        width = 0.dp
+        rule.waitForIdle()
+        rule.onNodeWithTag("year").assertExists()
     }
 
     @Test

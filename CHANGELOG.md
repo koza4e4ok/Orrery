@@ -123,7 +123,7 @@ The 1.0 API rules and the ABI gate are described in
   (the range headline at 130 % on a Pixel 5 was cut off before). The `CalendarNavHeader`
   title wraps so the dropdown triangle stays visible. `ScheduleDefaults.DayHeader` falls
   back to the narrow weekday name when the short one does not fit its column (screen
-  readers still hear the full name). These fits are re-checked when the width or font
+  readers still hear the weekday name). These fits are re-checked when the width or font
   scale changes. `YearCalendar` uses fewer columns (6, 4, 3, 2 or 1, so rows stay full)
   when cells would be narrower than a default mini-month needs for its day numbers. This
   applies to custom `monthContent` too, since the minimum is measured from the default

@@ -292,7 +292,8 @@ private class YearPagePolicy(
         val width = constraints.maxWidth
         val perRow =
             if (constraints.hasBoundedWidth && minCellWidth > 0 && width / minCellWidth < columns) {
-                FULL_ROW_COLUMNS.first { it <= width / minCellWidth }
+                // Narrower than one cell (zero-width pane, mid-animation): one column.
+                FULL_ROW_COLUMNS.firstOrNull { it <= width / minCellWidth } ?: 1
             } else {
                 columns
             }

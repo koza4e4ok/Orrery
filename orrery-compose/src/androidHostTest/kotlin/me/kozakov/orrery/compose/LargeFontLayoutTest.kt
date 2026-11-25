@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,10 +19,13 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -28,6 +34,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.DpRect
@@ -52,30 +59,31 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.math.roundToInt
 
 /** 200 % system text on a Pixel 5. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5, fontScale = 2f)
-class LargeFontPixel5LayoutTest : LargeFontLayoutTest()
+class LargeFontPixel5LayoutTest : LargeFontLayoutTest(largeFont = true)
 
 /** 200 % system text in a 320 dp window: small phones, split screen, "Largest" display size. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = NARROW_WINDOW_QUALIFIERS, fontScale = 2f)
-class LargeFontNarrowLayoutTest : LargeFontLayoutTest()
+class LargeFontNarrowLayoutTest : LargeFontLayoutTest(largeFont = true)
 
 /** Control: the same checks hold at the default text size, so a failure above is the font scale's. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5)
-class DefaultFontPixel5LayoutTest : LargeFontLayoutTest()
+class DefaultFontPixel5LayoutTest : LargeFontLayoutTest(largeFont = false)
 
 /** Control: default text size in the 320 dp window. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = NARROW_WINDOW_QUALIFIERS)
-class DefaultFontNarrowLayoutTest : LargeFontLayoutTest()
+class DefaultFontNarrowLayoutTest : LargeFontLayoutTest(largeFont = false)
 
 internal const val NARROW_WINDOW_QUALIFIERS = "w320dp-h640dp-xhdpi"
 
@@ -84,7 +92,9 @@ internal const val NARROW_WINDOW_QUALIFIERS = "w320dp-h640dp-xhdpi"
  * cut off (no ellipsis or clipped line; where a line count is given, no word
  * broken over lines either). Subclasses pick the window and font scale.
  */
-abstract class LargeFontLayoutTest {
+abstract class LargeFontLayoutTest(
+    private val largeFont: Boolean,
+) {
     @get:Rule val rule = createComposeRule()
 
     // Time labels follow the device clock; these tests assert 24-hour text.
@@ -418,6 +428,8 @@ abstract class LargeFontLayoutTest {
             }
         }
         val schedule = rule.onNodeWithTag("schedule").getUnclippedBoundsInRoot()
+        // Narrow names repeat (T, S): the n-th narrow header with a name is the n-th day using it.
+        val narrowSeen = mutableMapOf<String, Int>()
         for (day in 13..19) {
             val dayOfWeek = LocalDate(2026, 7, day).dayOfWeek
             assertTextFits("$day", schedule, maxLines = 1)
@@ -434,7 +446,17 @@ abstract class LargeFontLayoutTest {
                     ignoreCase = true,
                     useUnmergedTree = true,
                 )
-            val header = if (full.fetchSemanticsNodes().isNotEmpty()) full.onFirst() else narrow.onFirst()
+            val weekday = PlatformDateFormat.weekdayName(dayOfWeek, narrow = false)
+            val header =
+                if (full.fetchSemanticsNodes().isNotEmpty()) {
+                    full.onFirst()
+                } else {
+                    val name = PlatformDateFormat.weekdayName(dayOfWeek, narrow = true).lowercase()
+                    val index = narrowSeen.getOrElse(name) { 0 }
+                    narrowSeen[name] = index + 1
+                    // A one-letter header still tells screen readers which day it is.
+                    narrow[index].assert(hasContentDescription(weekday))
+                }
             assertTextFits("$dayOfWeek header", header, schedule, maxLines = 1)
         }
     }
@@ -508,6 +530,94 @@ abstract class LargeFontLayoutTest {
             )
             assertInside(title, cell, year, vertically = false)
         }
+        assertFullRowsInMonthOrder()
+        val pageScroll =
+            rule
+                .onNode(
+                    SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange) and
+                        hasAnyAncestor(hasTestTag("year")),
+                ).fetchSemanticsNode()
+                .config[SemanticsProperties.VerticalScrollAxisRange]
+        if (largeFont) {
+            // Every month can be scrolled to and shown.
+            for (month in Month.entries) {
+                val title = PlatformDateFormat.yearMonthTitle(YearMonth(2026, month))
+                rule.onNodeWithContentDescription(title, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+            }
+        } else {
+            // At the default size the page looks as before: 3 columns x 4 rows, nothing to scroll.
+            assertEquals(3, monthRows().first().size)
+            assertEquals(0f, pageScroll.maxValue(), 0f)
+        }
+    }
+
+    /** Month cells grouped into rows by their top edge, top to bottom. */
+    private fun monthRows(): List<List<Month>> =
+        Month.entries
+            .groupBy { month ->
+                val title = PlatformDateFormat.yearMonthTitle(YearMonth(2026, month))
+                rule
+                    .onNodeWithContentDescription(
+                        title,
+                        useUnmergedTree = true,
+                    ).getUnclippedBoundsInRoot()
+                    .top.value
+                    .roundToInt()
+            }.toSortedMap()
+            .values
+            .toList()
+
+    private fun assertFullRowsInMonthOrder() {
+        val rows = monthRows()
+        assertEquals("rows of $rows are not all full", 1, rows.map { it.size }.toSet().size)
+        assertEquals(Month.entries, rows.flatten())
+    }
+
+    @Test
+    fun yearCalendarComposesInsideAVerticallyScrollingColumn() {
+        rule.setContent {
+            MaterialTheme {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    YearCalendar(
+                        state = rememberYearCalendarState(startYear = 2026, endYear = 2026, firstVisibleYear = 2026),
+                        modifier = Modifier.testTag("year").fillMaxWidth(),
+                        onMonthClick = {},
+                    )
+                }
+            }
+        }
+        // Unbounded height: the page takes the height of all its rows instead of scrolling.
+        assertFullRowsInMonthOrder()
+        val year = rule.onNodeWithTag("year").getUnclippedBoundsInRoot()
+        val december =
+            rule.onNodeWithContentDescription(
+                PlatformDateFormat.yearMonthTitle(YearMonth(2026, 12)),
+                useUnmergedTree = true,
+            )
+        assertInside("December", december.getUnclippedBoundsInRoot(), year, vertically = true)
+    }
+
+    @Test
+    fun yearCalendarComposesInALazyColumnItem() {
+        rule.setContent {
+            MaterialTheme {
+                LazyColumn {
+                    item {
+                        YearCalendar(
+                            state =
+                                rememberYearCalendarState(
+                                    startYear = 2026,
+                                    endYear = 2026,
+                                    firstVisibleYear = 2026,
+                                ),
+                            modifier = Modifier.testTag("year").fillMaxWidth(),
+                            onMonthClick = {},
+                        )
+                    }
+                }
+            }
+        }
+        assertFullRowsInMonthOrder()
     }
 
     private companion object {

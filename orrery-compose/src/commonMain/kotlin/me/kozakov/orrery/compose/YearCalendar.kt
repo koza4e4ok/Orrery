@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
@@ -171,9 +172,14 @@ public fun rememberYearCalendarState(
  * mini-month cell draws a 2.dp `primary` focus ring inside its bounds
  * while it has keyboard / D-pad focus.
  *
- * A page uses fewer columns when [columns] default mini-months would be too
- * narrow for their day numbers (large font scale, narrow window), and
- * scrolls vertically when its months are taller than the calendar.
+ * A page uses fewer columns when cells [columns] wide would be narrower than a
+ * default mini-month needs for its day numbers (large font scale, narrow
+ * window); the count drops to a divisor of 12 (6, 4, 3, 2 or 1) so rows stay
+ * full. This applies to custom [monthContent] too: the minimum is measured
+ * from the default mini-month's text, not from the content. When the
+ * calendar's height is bounded, a page taller than the calendar scrolls
+ * vertically; cells are measured with an unbounded max height either way,
+ * so content should not fill the maximum height.
  */
 @Composable
 public fun YearCalendar(
@@ -198,32 +204,37 @@ public fun YearCalendar(
         ) {
             items(count = state.yearCount, key = { it }, contentType = { YEAR_PAGE_CONTENT_TYPE }) { index ->
                 val year = state.startYear + index
-                Layout(
-                    content = {
-                        for (m in 1..MONTHS_PER_YEAR) {
-                            val ym = YearMonth(year, m)
-                            val interactionSource = remember { MutableInteractionSource() }
-                            val isFocused by interactionSource.collectIsFocusedAsState()
-                            Box(
-                                Modifier
-                                    .focusRing(
-                                        focused = isFocused,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        width = MiniMonthFocusRingWidth,
-                                        shape = MiniMonthFocusRingShape,
-                                        placement = FocusRingPlacement.Inside,
-                                    ).clip(MiniMonthFocusRingShape)
-                                    .clickable(
-                                        interactionSource = interactionSource,
-                                        indication = LocalIndication.current,
-                                        role = Role.Button,
-                                    ) { onMonthClick(ym) },
-                            ) { monthContent(ym) }
-                        }
-                    },
-                    modifier = Modifier.fillParentMaxWidth().verticalScroll(rememberScrollState()),
-                    measurePolicy = pagePolicy,
-                )
+                // verticalScroll throws under an unbounded max height (YearCalendar inside a
+                // vertically scrolling parent); the page then just takes its full height.
+                BoxWithConstraints(Modifier.fillParentMaxWidth()) {
+                    val pageScroll = rememberScrollState()
+                    Layout(
+                        content = {
+                            for (m in 1..MONTHS_PER_YEAR) {
+                                val ym = YearMonth(year, m)
+                                val interactionSource = remember { MutableInteractionSource() }
+                                val isFocused by interactionSource.collectIsFocusedAsState()
+                                Box(
+                                    Modifier
+                                        .focusRing(
+                                            focused = isFocused,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            width = MiniMonthFocusRingWidth,
+                                            shape = MiniMonthFocusRingShape,
+                                            placement = FocusRingPlacement.Inside,
+                                        ).clip(MiniMonthFocusRingShape)
+                                        .clickable(
+                                            interactionSource = interactionSource,
+                                            indication = LocalIndication.current,
+                                            role = Role.Button,
+                                        ) { onMonthClick(ym) },
+                                ) { monthContent(ym) }
+                            }
+                        },
+                        modifier = if (constraints.hasBoundedHeight) Modifier.verticalScroll(pageScroll) else Modifier,
+                        measurePolicy = pagePolicy,
+                    )
+                }
             }
         }
     }
@@ -232,6 +243,9 @@ public fun YearCalendar(
 private const val YEAR_PAGE_CONTENT_TYPE = "orrery-year-page"
 
 private const val MONTHS_PER_YEAR = 12
+
+/** Column counts that split 12 months into full rows, widest first. */
+private val FULL_ROW_COLUMNS = intArrayOf(6, 4, 3, 2, 1)
 
 /** Width in px a default mini-month needs (its padding, day numbers and longest month title). */
 @Composable
@@ -263,8 +277,8 @@ private fun miniMonthTexts(caches: MiniMonthCaches): MonthTextCache.Texts {
 }
 
 /**
- * The months of one page in rows of [columns] (fewer when the cells would be narrower than
- * [minCellWidth] px). Cells in a row share its width the way equally weighted Row children
+ * The months of one page in rows of [columns] (fewer, a divisor of 12, when the cells would be
+ * narrower than [minCellWidth] px). Cells in a row share its width the way equally weighted Row children
  * do, so a full row of [columns] lays out as it did as a Row.
  */
 private class YearPagePolicy(
@@ -277,8 +291,8 @@ private class YearPagePolicy(
     ): MeasureResult {
         val width = constraints.maxWidth
         val perRow =
-            if (constraints.hasBoundedWidth && minCellWidth > 0) {
-                (width / minCellWidth).coerceIn(1, columns)
+            if (constraints.hasBoundedWidth && minCellWidth > 0 && width / minCellWidth < columns) {
+                FULL_ROW_COLUMNS.first { it <= width / minCellWidth }
             } else {
                 columns
             }

@@ -122,10 +122,16 @@ The 1.0 API rules and the ABI gate are described in
   not fit on one line even in their compact style now wrap instead of being ellipsized
   (the range headline at 130 % on a Pixel 5 was cut off before). The `CalendarNavHeader`
   title wraps so the dropdown triangle stays visible. `ScheduleDefaults.DayHeader` falls
-  back to the narrow weekday name when the short one does not fit its column.
-  `YearCalendar` uses fewer columns when the default mini-months would be too narrow for
-  their day numbers, and a year page scrolls vertically when taller than the calendar.
-  Nothing changes at the default text size on a phone; signatures are unchanged.
+  back to the narrow weekday name when the short one does not fit its column (screen
+  readers still hear the full name). These fits are re-checked when the width or font
+  scale changes. `YearCalendar` uses fewer columns (6, 4, 3, 2 or 1, so rows stay full)
+  when cells would be narrower than a default mini-month needs for its day numbers. This
+  applies to custom `monthContent` too, since the minimum is measured from the default
+  mini-month's text. With a bounded height, a year page taller than the calendar scrolls
+  vertically. Month cells are now measured with an unbounded max height, so custom content
+  should not fill the maximum height. A caller's width modifier on the date, month and
+  date-time dialogs is now honored (`requiredWidth` used to override it). Nothing changes
+  at the default text size on a phone; signatures are unchanged.
 
 ### Added
 

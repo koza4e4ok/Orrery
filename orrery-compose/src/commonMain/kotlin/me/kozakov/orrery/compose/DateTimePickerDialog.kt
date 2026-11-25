@@ -60,10 +60,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -278,17 +279,21 @@ public fun OrreryDateTimePickerDialog(
             tonalElevation = 6.dp,
             modifier = modifier.widthIn(max = PickerDialogMaxWidth).fillMaxWidth(),
         ) {
-            var headlineFit by remember { mutableStateOf(HeadlineFit.Full) }
+            // Re-fit from the full style when the pills' width or the font scale changes.
+            var pillsWidth by remember { mutableIntStateOf(-1) }
+            val fontScale = LocalDensity.current.fontScale
+            var headlineFit by remember(pillsWidth, fontScale) { mutableStateOf(HeadlineFit.Full) }
             val headlineStyle =
                 if (headlineFit == HeadlineFit.Full) {
                     MaterialTheme.typography.headlineSmall
                 } else {
                     MaterialTheme.typography.titleLarge
                 }
-            // Only a layout in the current style moves on, not a stale one in the previous style.
-            val shrinkHeadline = { overflowed: TextLayoutResult ->
-                if (overflowed.layoutInput.style.fontSize == headlineStyle.fontSize) headlineFit = headlineFit.next()
-            }
+            // Advance only from the stage that was measured: both pills can overflow in one pass.
+            val measuredFit = headlineFit
+            val shrinkHeadline = { if (headlineFit == measuredFit) headlineFit = measuredFit.next() }
+            // The group's width is the same in every stage (it is weighted), so it does not loop.
+            val trackWidth = Modifier.onSizeChanged { if (it.width != pillsWidth) pillsWidth = it.width }
             Column(Modifier.padding(24.dp)) {
                 Text(
                     if (onDateStep) strings.title else strings.timeTitle,
@@ -327,12 +332,15 @@ public fun OrreryDateTimePickerDialog(
                         )
                     }
                     if (stacked) {
-                        Column(Modifier.weight(1f).selectableGroup()) {
+                        Column(Modifier.weight(1f).then(trackWidth).selectableGroup()) {
                             datePill(Modifier)
                             timePill()
                         }
                     } else {
-                        Row(Modifier.weight(1f).selectableGroup(), verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            Modifier.weight(1f).then(trackWidth).selectableGroup(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
                             datePill(Modifier.weight(1f, fill = false))
                             timePill()
                         }
@@ -422,16 +430,6 @@ private fun AnimatedContentTransitionScope<DateTimePickerStep>.stepTransition():
 /** Slide by a quarter of the body width: enough to read as direction, short enough to stay calm. */
 private const val STEP_SLIDE_DIVISOR = 4
 
-/** How the headline pills fit: their own style, a smaller one, or stacked and wrapping. */
-private enum class HeadlineFit {
-    Full,
-    Compact,
-    Stacked,
-    ;
-
-    fun next(): HeadlineFit = entries[minOf(ordinal + 1, entries.lastIndex)]
-}
-
 /**
  * One headline part (date or time). The active step's part sits on a
  * secondaryContainer pill; it is selectable, so accessibility services
@@ -443,7 +441,7 @@ private fun HeadlineStepPill(
     active: Boolean,
     onClick: () -> Unit,
     style: TextStyle,
-    onOverflow: (TextLayoutResult) -> Unit,
+    onOverflow: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     wrap: Boolean = false,
@@ -465,7 +463,7 @@ private fun HeadlineStepPill(
         color = content,
         maxLines = if (wrap) Int.MAX_VALUE else 1,
         overflow = TextOverflow.Ellipsis,
-        onTextLayout = { if (it.didOverflowHeight) onOverflow(it) },
+        onTextLayout = { if (it.didOverflowHeight) onOverflow() },
         modifier =
             modifier
                 .selectable(

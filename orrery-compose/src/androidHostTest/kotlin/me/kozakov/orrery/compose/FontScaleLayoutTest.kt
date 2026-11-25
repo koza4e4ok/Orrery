@@ -35,6 +35,7 @@ import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.core.packWeekEventBanners
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -54,11 +55,13 @@ class FontScaleLayoutTest {
     @Before
     fun use24HourClock() = setSystem24HourClock(true)
 
-    private fun SemanticsNodeInteraction.lineCount(): Int {
+    private fun SemanticsNodeInteraction.textLayout(): TextLayoutResult {
         val results = mutableListOf<TextLayoutResult>()
         performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(results) }
-        return results.single().lineCount
+        return results.single()
     }
+
+    private fun SemanticsNodeInteraction.lineCount(): Int = textLayout().lineCount
 
     @Test
     fun labelledDayLeavesRoomForDecoratorsBelowTheLabel() {
@@ -189,7 +192,7 @@ class FontScaleLayoutTest {
 
     @Test
     @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5, fontScale = 1.3f)
-    fun rangePickerHeadlineStaysOnOneLine() {
+    fun rangePickerHeadlineWrapsInsteadOfBeingCutOff() {
         rule.setContent {
             MaterialTheme {
                 OrreryDateRangePickerDialog(
@@ -205,7 +208,10 @@ class FontScaleLayoutTest {
                 )
             }
         }
-        assertEquals(1, rule.onNodeWithText("Sep 28, 2026 – Oct 30, 2026", useUnmergedTree = true).lineCount())
+        // Too wide for one line even in the compact style: it used to be ellipsized here.
+        val layout = rule.onNodeWithText("Sep 28, 2026 – Oct 30, 2026", useUnmergedTree = true).textLayout()
+        assertFalse((0 until layout.lineCount).any { layout.isLineEllipsized(it) })
+        assertEquals(2, layout.lineCount)
     }
 
     @Test

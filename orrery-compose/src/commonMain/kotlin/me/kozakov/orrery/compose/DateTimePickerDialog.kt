@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -60,6 +60,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -269,17 +271,29 @@ public fun OrreryDateTimePickerDialog(
     val onDateStep = state.step == DateTimePickerStep.Date
     Dialog(
         onDismissRequest = onDismissRequest,
-        // See OrreryDatePickerDialog: a fixed width keeps the text field from thrashing measurement.
+        // See OrreryDatePickerDialog: a definite width keeps the text field from thrashing measurement.
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
-            modifier = modifier.requiredWidth(360.dp),
+            modifier = modifier.widthIn(max = PickerDialogMaxWidth).fillMaxWidth(),
         ) {
-            var compactHeadline by remember { mutableStateOf(false) }
+            // Re-fit from the full style when the pills' width or the font scale changes.
+            var pillsWidth by remember { mutableIntStateOf(-1) }
+            val fontScale = LocalDensity.current.fontScale
+            var headlineFit by remember(pillsWidth, fontScale) { mutableStateOf(HeadlineFit.Full) }
             val headlineStyle =
-                if (compactHeadline) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineSmall
+                if (headlineFit == HeadlineFit.Full) {
+                    MaterialTheme.typography.headlineSmall
+                } else {
+                    MaterialTheme.typography.titleLarge
+                }
+            // Advance only from the stage that was measured: both pills can overflow in one pass.
+            val measuredFit = headlineFit
+            val shrinkHeadline = { if (headlineFit == measuredFit) headlineFit = measuredFit.next() }
+            // The group's width is the same in every stage (it is weighted), so it does not loop.
+            val trackWidth = Modifier.onSizeChanged { if (it.width != pillsWidth) pillsWidth = it.width }
             Column(Modifier.padding(24.dp)) {
                 Text(
                     if (onDateStep) strings.title else strings.timeTitle,
@@ -289,9 +303,11 @@ public fun OrreryDateTimePickerDialog(
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // The pills share one weighted row; if the date would wrap, both drop
-                    // to titleLarge so it fits on one line. As a selectable group the two
-                    // tabs are announced with their position ("1 of 2").
-                    Row(Modifier.weight(1f).selectableGroup(), verticalAlignment = Alignment.CenterVertically) {
+                    // to titleLarge so it fits on one line. If even that is too wide (large
+                    // font scale, narrow window) they stack and may wrap. As a selectable
+                    // group the two tabs are announced with their position ("1 of 2").
+                    val stacked = headlineFit == HeadlineFit.Stacked
+                    val datePill = @Composable { pillModifier: Modifier ->
                         HeadlineStepPill(
                             text =
                                 date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }
@@ -299,17 +315,35 @@ public fun OrreryDateTimePickerDialog(
                             active = onDateStep,
                             onClick = { state.step = DateTimePickerStep.Date },
                             style = headlineStyle,
-                            onOverflow = { compactHeadline = true },
-                            modifier = Modifier.weight(1f, fill = false),
+                            onOverflow = shrinkHeadline,
+                            modifier = pillModifier,
+                            wrap = stacked,
                         )
+                    }
+                    val timePill = @Composable {
                         HeadlineStepPill(
                             text = PlatformDateFormat.formatTime(state.hour, state.minute, state.is24Hour),
                             active = !onDateStep,
                             enabled = date != null,
                             onClick = { state.step = DateTimePickerStep.Time },
                             style = headlineStyle,
-                            onOverflow = { compactHeadline = true },
+                            onOverflow = shrinkHeadline,
+                            wrap = stacked,
                         )
+                    }
+                    if (stacked) {
+                        Column(Modifier.weight(1f).then(trackWidth).selectableGroup()) {
+                            datePill(Modifier)
+                            timePill()
+                        }
+                    } else {
+                        Row(
+                            Modifier.weight(1f).then(trackWidth).selectableGroup(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            datePill(Modifier.weight(1f, fill = false))
+                            timePill()
+                        }
                     }
                     if (onDateStep) {
                         DisplayModeToggle(state.dateState, dateStrings)
@@ -399,7 +433,7 @@ private const val STEP_SLIDE_DIVISOR = 4
 /**
  * One headline part (date or time). The active step's part sits on a
  * secondaryContainer pill; it is selectable, so accessibility services
- * announce which step is showing.
+ * announce which step is showing. [wrap] lets the text use several lines.
  */
 @Composable
 private fun HeadlineStepPill(
@@ -410,6 +444,7 @@ private fun HeadlineStepPill(
     onOverflow: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    wrap: Boolean = false,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val container by animateColorAsState(
@@ -426,7 +461,7 @@ private fun HeadlineStepPill(
         text,
         style = style,
         color = content,
-        maxLines = 1,
+        maxLines = if (wrap) Int.MAX_VALUE else 1,
         overflow = TextOverflow.Ellipsis,
         onTextLayout = { if (it.didOverflowHeight) onOverflow() },
         modifier =

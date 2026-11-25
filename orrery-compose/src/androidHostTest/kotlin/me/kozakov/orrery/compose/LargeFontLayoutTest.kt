@@ -325,7 +325,9 @@ abstract class LargeFontLayoutTest {
         val surface = surface()
         assertStepPillsFit(surface)
         assertChevronsFit(surface)
-        assertButtonsFit(surface)
+        // The date step shows Next where the time step shows the confirm button.
+        assertTextFits("Cancel", surface, maxLines = 1, vertically = true)
+        assertTextFits("Next", surface, maxLines = 1, vertically = true)
     }
 
     @Test

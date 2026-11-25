@@ -25,7 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -345,15 +347,19 @@ public object ScheduleDefaults {
         modifier: Modifier = Modifier,
     ) {
         val color = if (isToday) colors.todayHeaderColor else colors.headerContentColor
+        // Falls back to the narrow weekday name when the short one does not fit the column
+        // (large font scale, narrow window) instead of cutting it off.
+        var narrow by remember(date.dayOfWeek) { mutableStateOf(false) }
         Column(
             modifier = modifier.fillMaxWidth().padding(vertical = 6.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = PlatformDateFormat.uppercase(PlatformDateFormat.weekdayName(date.dayOfWeek, narrow = false)),
+                text = PlatformDateFormat.uppercase(PlatformDateFormat.weekdayName(date.dayOfWeek, narrow = narrow)),
                 style = MaterialTheme.typography.labelSmall,
                 color = color,
                 maxLines = 1,
+                onTextLayout = { if (!narrow && it.hasVisualOverflow) narrow = true },
             )
             Text(
                 text = date.day.toString(),

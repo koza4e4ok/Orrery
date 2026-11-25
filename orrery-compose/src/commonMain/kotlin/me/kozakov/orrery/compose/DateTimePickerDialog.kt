@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -284,7 +285,10 @@ public fun OrreryDateTimePickerDialog(
                 } else {
                     MaterialTheme.typography.titleLarge
                 }
-            val shrinkHeadline = { if (headlineFit != HeadlineFit.Stacked) headlineFit = headlineFit.next() }
+            // Only a layout in the current style moves on, not a stale one in the previous style.
+            val shrinkHeadline = { overflowed: TextLayoutResult ->
+                if (overflowed.layoutInput.style.fontSize == headlineStyle.fontSize) headlineFit = headlineFit.next()
+            }
             Column(Modifier.padding(24.dp)) {
                 Text(
                     if (onDateStep) strings.title else strings.timeTitle,
@@ -439,7 +443,7 @@ private fun HeadlineStepPill(
     active: Boolean,
     onClick: () -> Unit,
     style: TextStyle,
-    onOverflow: () -> Unit,
+    onOverflow: (TextLayoutResult) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     wrap: Boolean = false,
@@ -461,7 +465,7 @@ private fun HeadlineStepPill(
         color = content,
         maxLines = if (wrap) Int.MAX_VALUE else 1,
         overflow = TextOverflow.Ellipsis,
-        onTextLayout = { if (it.didOverflowHeight) onOverflow() },
+        onTextLayout = { if (it.didOverflowHeight) onOverflow(it) },
         modifier =
             modifier
                 .selectable(

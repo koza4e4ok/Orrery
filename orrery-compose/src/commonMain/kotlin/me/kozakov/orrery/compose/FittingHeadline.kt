@@ -32,7 +32,14 @@ internal fun FittingHeadline(
         overflow = TextOverflow.Ellipsis,
         onTextLayout = {
             if (it.didOverflowHeight) {
-                if (compact) wrap = true else compact = true
+                // Only a layout in compactStyle decides to wrap, not a stale one in style.
+                if (!compact) {
+                    compact = true
+                } else if (it.layoutInput.style.fontSize ==
+                    compactStyle.fontSize
+                ) {
+                    wrap = true
+                }
             }
         },
     )

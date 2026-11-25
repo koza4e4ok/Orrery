@@ -65,25 +65,25 @@ import kotlin.math.roundToInt
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5, fontScale = 2f)
-class LargeFontPixel5LayoutTest : LargeFontLayoutTest(largeFont = true)
+class LargeFontPixel5LayoutTest : LargeFontLayoutTest(largeFont = true, narrowWindow = false)
 
 /** 200 % system text in a 320 dp window: small phones, split screen, "Largest" display size. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = NARROW_WINDOW_QUALIFIERS, fontScale = 2f)
-class LargeFontNarrowLayoutTest : LargeFontLayoutTest(largeFont = true)
+class LargeFontNarrowLayoutTest : LargeFontLayoutTest(largeFont = true, narrowWindow = true)
 
 /** Control: the same checks hold at the default text size, so a failure above is the font scale's. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = RobolectricDeviceQualifiers.Pixel5)
-class DefaultFontPixel5LayoutTest : LargeFontLayoutTest(largeFont = false)
+class DefaultFontPixel5LayoutTest : LargeFontLayoutTest(largeFont = false, narrowWindow = false)
 
 /** Control: default text size in the 320 dp window. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = NARROW_WINDOW_QUALIFIERS)
-class DefaultFontNarrowLayoutTest : LargeFontLayoutTest(largeFont = false)
+class DefaultFontNarrowLayoutTest : LargeFontLayoutTest(largeFont = false, narrowWindow = true)
 
 internal const val NARROW_WINDOW_QUALIFIERS = "w320dp-h640dp-xhdpi"
 
@@ -94,6 +94,7 @@ internal const val NARROW_WINDOW_QUALIFIERS = "w320dp-h640dp-xhdpi"
  */
 abstract class LargeFontLayoutTest(
     private val largeFont: Boolean,
+    private val narrowWindow: Boolean,
 ) {
     @get:Rule val rule = createComposeRule()
 
@@ -538,16 +539,20 @@ abstract class LargeFontLayoutTest(
                         hasAnyAncestor(hasTestTag("year")),
                 ).fetchSemanticsNode()
                 .config[SemanticsProperties.VerticalScrollAxisRange]
-        if (largeFont) {
-            // Every month can be scrolled to and shown.
+        if (!largeFont) {
+            // At the default size the page keeps its 3 columns x 4 rows.
+            assertEquals(3, monthRows().first().size)
+        }
+        if (!largeFont && !narrowWindow) {
+            // ...and on a phone it fits without scrolling, as before.
+            assertEquals(0f, pageScroll.maxValue(), 0f)
+        } else {
+            // Taller than a 640 dp window or at 200 %: every month can be scrolled to and shown
+            // (in a 320 x 640 dp window the last row was cut off before).
             for (month in Month.entries) {
                 val title = PlatformDateFormat.yearMonthTitle(YearMonth(2026, month))
                 rule.onNodeWithContentDescription(title, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
             }
-        } else {
-            // At the default size the page looks as before: 3 columns x 4 rows, nothing to scroll.
-            assertEquals(3, monthRows().first().size)
-            assertEquals(0f, pageScroll.maxValue(), 0f)
         }
     }
 

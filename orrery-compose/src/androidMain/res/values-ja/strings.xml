@@ -18,6 +18,11 @@
     <string name="orrery_next_month">次の月</string>
     <string name="orrery_close">閉じる</string>
     <string name="orrery_month_year_picker_decade">%d年代</string>
+    <string name="orrery_nav_header_expanded">展開済み</string>
+    <string name="orrery_nav_header_collapsed">折りたたみ済み</string>
+    <string name="orrery_month_year_picker_current">現在</string>
+    <string name="orrery_month_year_picker_select_year">年を選択</string>
+    <string name="orrery_month_year_picker_select_decade">年代を選択</string>
     <string name="orrery_heatmap_legend_less">少</string>
     <string name="orrery_heatmap_legend_more">多</string>
     <string name="orrery_heatmap_day_description">%1$s、レベル %2$d/%3$d</string>

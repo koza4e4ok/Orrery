@@ -16,6 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -418,7 +421,9 @@ public object CalendarDefaults {
     /**
      * Weekday header row with localized short names in [contentColor];
      * labels of [weekendDays] use [weekendContentColor] (the same color by
-     * default).
+     * default). The labels are hidden from accessibility services because
+     * [DefaultDay] includes the weekday in each day's description; a custom
+     * day cell should do the same.
      */
     @Composable
     public fun WeekHeader(
@@ -436,7 +441,8 @@ public object CalendarDefaults {
             daysOfWeek.forEach { day ->
                 Text(
                     text = PlatformDateFormat.weekdayName(day, narrow = false),
-                    modifier = Modifier.weight(1f),
+                    // DefaultDay already says its weekday; seven extra stops would only repeat it.
+                    modifier = Modifier.weight(1f).semantics { hideFromAccessibility() },
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.labelMedium,
                     color = if (day in weekendDays) weekendContentColor else contentColor,
@@ -464,7 +470,7 @@ public object CalendarDefaults {
         )
     }
 
-    /** Month + year title used by [VerticalCalendar]'s default header. */
+    /** Month + year title used by [VerticalCalendar]'s default header; a heading for accessibility services. */
     @Composable
     public fun MonthTitle(
         month: CalendarMonth,
@@ -472,7 +478,7 @@ public object CalendarDefaults {
     ) {
         Text(
             text = PlatformDateFormat.yearMonthTitle(month.yearMonth),
-            modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = modifier.semantics { heading() }.padding(horizontal = 16.dp, vertical = 8.dp),
             style = MaterialTheme.typography.titleMedium,
         )
     }

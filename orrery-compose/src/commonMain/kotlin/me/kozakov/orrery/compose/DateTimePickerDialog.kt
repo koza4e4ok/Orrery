@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,6 +61,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -280,13 +283,15 @@ public fun OrreryDateTimePickerDialog(
             Column(Modifier.padding(24.dp)) {
                 Text(
                     if (onDateStep) strings.title else strings.timeTitle,
+                    modifier = Modifier.semantics { heading() },
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // The pills share one weighted row; if the date would wrap, both drop
-                    // to titleLarge so it fits on one line.
-                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    // to titleLarge so it fits on one line. As a selectable group the two
+                    // tabs are announced with their position ("1 of 2").
+                    Row(Modifier.weight(1f).selectableGroup(), verticalAlignment = Alignment.CenterVertically) {
                         HeadlineStepPill(
                             text =
                                 date?.let { PlatformDateFormat.formatDate(it, DateFormattingStyle.Medium) }

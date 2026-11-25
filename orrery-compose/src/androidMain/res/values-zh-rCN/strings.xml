@@ -18,6 +18,11 @@
     <string name="orrery_next_month">下个月</string>
     <string name="orrery_close">关闭</string>
     <string name="orrery_month_year_picker_decade">%d年代</string>
+    <string name="orrery_nav_header_expanded">已展开</string>
+    <string name="orrery_nav_header_collapsed">已收起</string>
+    <string name="orrery_month_year_picker_current">当前</string>
+    <string name="orrery_month_year_picker_select_year">选择年份</string>
+    <string name="orrery_month_year_picker_select_decade">选择年代</string>
     <string name="orrery_heatmap_legend_less">少</string>
     <string name="orrery_heatmap_legend_more">多</string>
     <string name="orrery_heatmap_day_description">%1$s，第 %2$d 级（共 %3$d 级）</string>

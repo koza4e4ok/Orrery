@@ -37,11 +37,16 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -60,8 +65,15 @@ import me.kozakov.orrery.core.CalendarPages
  * (and [today] lies within the state's month range); clicking it animates
  * the calendar back to [today].
  *
+ * The title area is a polite live region, so screen readers announce the new
+ * month after paging. While the title animates, only the incoming month's
+ * [title] is in the semantics tree, so the outgoing one is not read with it.
+ *
  * @param expanded Whether the picker opened by [onTitleClick] is showing; the
- *   default title's dropdown triangle rotates to point up while it is.
+ *   default title's dropdown triangle rotates to point up while it is, and the
+ *   clickable title reports it to accessibility services as expanded or collapsed.
+ *   When you set [onTitleClick], pass this too: it defaults to `false`, so the
+ *   title is announced as collapsed even while your picker is open.
  */
 @Suppress("LongParameterList")
 @Composable
@@ -84,6 +96,12 @@ public fun CalendarNavHeader(
     val startBound = state.startMonth
     val endBound = state.endMonth
     val todayInRange = (startBound == null || today >= startBound) && (endBound == null || today <= endBound)
+    val titleState =
+        when {
+            onTitleClick == null -> null
+            expanded -> orreryString(OrreryString.NavHeaderExpanded)
+            else -> orreryString(OrreryString.NavHeaderCollapsed)
+        }
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             onClick = {
@@ -97,7 +115,12 @@ public fun CalendarNavHeader(
             modifier =
                 Modifier
                     .weight(1f)
-                    .then(
+                    // Paging changes the title, so screen readers announce the new month. Merging
+                    // makes this node carry the title text (the clickable merges it anyway).
+                    .semantics(mergeDescendants = true) {
+                        liveRegion = LiveRegionMode.Polite
+                        if (titleState != null) stateDescription = titleState
+                    }.then(
                         if (onTitleClick != null) {
                             // The clickable's own layout is at least 48 dp tall (the text alone is
                             // about 32 dp). The ripple is drawn on that same node, so it starts
@@ -124,7 +147,13 @@ public fun CalendarNavHeader(
                             .togetherWith(slideOutHorizontally { -(it / 2) * sign } + fadeOut())
                     },
                     label = "navHeaderTitle",
-                ) { month -> currentTitle(month) }
+                ) { month ->
+                    // During the transition both titles are composed. Only the target month stays
+                    // in the semantics tree, so the live region reads one title, not "July, August".
+                    Box(if (month == visibleMonth) Modifier else Modifier.clearAndSetSemantics {}) {
+                        currentTitle(month)
+                    }
+                }
             }
         }
         IconButton(
@@ -160,7 +189,11 @@ private fun NavHeaderTitle(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
     ) {
-        Text(PlatformDateFormat.yearMonthTitle(month), style = MaterialTheme.typography.titleMedium)
+        Text(
+            PlatformDateFormat.yearMonthTitle(month),
+            modifier = Modifier.semantics { heading() },
+            style = MaterialTheme.typography.titleMedium,
+        )
         if (showDropdown) {
             DropdownTriangle(expanded || LocalNavHeaderExpanded.current)
         }

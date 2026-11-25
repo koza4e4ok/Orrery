@@ -191,7 +191,8 @@ private fun NavHeaderTitle(
     ) {
         Text(
             PlatformDateFormat.yearMonthTitle(month),
-            modifier = Modifier.semantics { heading() },
+            // Weighted so a long (or 200 %) title wraps instead of pushing the triangle out.
+            modifier = Modifier.weight(1f, fill = false).semantics { heading() },
             style = MaterialTheme.typography.titleMedium,
         )
         if (showDropdown) {

@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -65,12 +65,13 @@ public fun OrreryDatePickerDialog(
         onDismissRequest = onDismissRequest,
         // Platform default width leaves the Surface's width ambiguous, which thrashes
         // measurement indefinitely once an OutlinedTextField is in the composition.
+        // Filling the window up to 360 dp keeps the width definite and inside narrow windows.
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
-            modifier = modifier.requiredWidth(360.dp),
+            modifier = modifier.widthIn(max = PickerDialogMaxWidth).fillMaxWidth(),
         ) {
             Column(Modifier.padding(24.dp)) {
                 Text(
@@ -115,6 +116,9 @@ public fun OrreryDatePickerDialog(
 }
 
 private const val HEADLINE_ANIMATION_MILLIS = 150
+
+/** Width of the single-month picker dialogs; narrower windows get the window's width. */
+internal val PickerDialogMaxWidth = 360.dp
 
 /**
  * Picker headline that slides and fades vertically when [targetState]

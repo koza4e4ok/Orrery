@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -117,7 +117,7 @@ public fun OrreryMonthPickerDialog(
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
-            modifier = modifier.requiredWidth(360.dp),
+            modifier = modifier.widthIn(max = PickerDialogMaxWidth).fillMaxWidth(),
         ) {
             Column(Modifier.padding(24.dp)) {
                 Text(

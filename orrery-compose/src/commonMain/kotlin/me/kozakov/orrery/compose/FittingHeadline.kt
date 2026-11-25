@@ -11,8 +11,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
- * A dialog headline on one line: [style] when it fits, otherwise [compactStyle],
- * ellipsized if even that is too wide. Resets to [style] when [text] changes.
+ * A dialog headline on one line: [style] when it fits, otherwise [compactStyle].
+ * If even that is too wide (large font scale, narrow window) it wraps instead of
+ * cutting the text off. Resets to [style] when [text] changes.
  */
 @Composable
 internal fun FittingHeadline(
@@ -22,12 +23,17 @@ internal fun FittingHeadline(
     modifier: Modifier = Modifier,
 ) {
     var compact by remember(text) { mutableStateOf(false) }
+    var wrap by remember(text) { mutableStateOf(false) }
     Text(
         text = text,
         modifier = modifier,
         style = if (compact) compactStyle else style,
-        maxLines = 1,
+        maxLines = if (wrap) Int.MAX_VALUE else 1,
         overflow = TextOverflow.Ellipsis,
-        onTextLayout = { if (!compact && it.didOverflowHeight) compact = true },
+        onTextLayout = {
+            if (it.didOverflowHeight) {
+                if (compact) wrap = true else compact = true
+            }
+        },
     )
 }

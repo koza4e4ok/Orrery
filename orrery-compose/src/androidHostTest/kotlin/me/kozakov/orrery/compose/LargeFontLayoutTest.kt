@@ -65,6 +65,18 @@ class LargeFontPixel5LayoutTest : LargeFontLayoutTest()
 @Config(qualifiers = NARROW_WINDOW_QUALIFIERS, fontScale = 2f)
 class LargeFontNarrowLayoutTest : LargeFontLayoutTest()
 
+/** Control: the same checks hold at the default text size, so a failure above is the font scale's. */
+@RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = RobolectricDeviceQualifiers.Pixel5)
+class DefaultFontPixel5LayoutTest : LargeFontLayoutTest()
+
+/** Control: default text size in the 320 dp window. */
+@RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = NARROW_WINDOW_QUALIFIERS)
+class DefaultFontNarrowLayoutTest : LargeFontLayoutTest()
+
 internal const val NARROW_WINDOW_QUALIFIERS = "w320dp-h640dp-xhdpi"
 
 /**
@@ -116,7 +128,16 @@ abstract class LargeFontLayoutTest {
         vertically: Boolean = false,
     ) {
         val layout = node.textLayout()
-        assertFalse("$what is cut off (${layout.size}, ${layout.lineCount} lines)", layout.hasVisualOverflow)
+        val paragraph = layout.multiParagraph
+        val ellipsized = (0 until layout.lineCount).any { layout.isLineEllipsized(it) }
+        // A line can end a fraction of a pixel below the box after rounding.
+        val clippedBelow = layout.size.height + 1 < paragraph.height
+        assertFalse(
+            "$what is cut off: ellipsized=$ellipsized, exceededMaxLines=${paragraph.didExceedMaxLines}, " +
+                "box ${layout.size} < text ${paragraph.width}x${paragraph.height}, ${layout.lineCount} lines, " +
+                "constraints ${layout.layoutInput.constraints}",
+            ellipsized || paragraph.didExceedMaxLines || clippedBelow,
+        )
         assertTrue("$what wraps to ${layout.lineCount} lines", layout.lineCount <= maxLines)
         assertInside(what, node, container, vertically)
     }

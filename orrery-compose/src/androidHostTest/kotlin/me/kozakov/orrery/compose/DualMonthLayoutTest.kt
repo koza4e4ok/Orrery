@@ -6,6 +6,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -73,6 +77,15 @@ class DualMonthLayoutTest {
         assertDual()
         rule.onNodeWithContentDescription("July 2026").assertIsDisplayed()
         rule.onNodeWithContentDescription("August 2026").assertIsDisplayed()
+    }
+
+    @Test
+    fun dualHeaderTitlesAreOnePoliteHeading() {
+        content()
+        rule
+            .onNodeWithContentDescription(bothTitles)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
     }
 
     @Test

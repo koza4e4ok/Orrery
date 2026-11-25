@@ -31,6 +31,11 @@ private val OrreryString.resId: Int
             OrreryString.NextMonth -> R.string.orrery_next_month
             OrreryString.Close -> R.string.orrery_close
             OrreryString.MonthYearPickerDecade -> R.string.orrery_month_year_picker_decade
+            OrreryString.NavHeaderExpanded -> R.string.orrery_nav_header_expanded
+            OrreryString.NavHeaderCollapsed -> R.string.orrery_nav_header_collapsed
+            OrreryString.MonthYearPickerCurrent -> R.string.orrery_month_year_picker_current
+            OrreryString.MonthYearPickerSelectYear -> R.string.orrery_month_year_picker_select_year
+            OrreryString.MonthYearPickerSelectDecade -> R.string.orrery_month_year_picker_select_decade
             OrreryString.HeatmapLegendLess -> R.string.orrery_heatmap_legend_less
             OrreryString.HeatmapLegendMore -> R.string.orrery_heatmap_legend_more
             OrreryString.HeatmapDayDescription -> R.string.orrery_heatmap_day_description

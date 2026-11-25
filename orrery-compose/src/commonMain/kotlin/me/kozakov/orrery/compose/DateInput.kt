@@ -13,6 +13,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.intl.Locale
 import kotlinx.datetime.LocalDate
 
@@ -56,6 +58,7 @@ internal fun DateInputField(
             error = null
         }
     }
+    val shownError = error ?: externalError
     OutlinedTextField(
         value = text,
         onValueChange = { new ->
@@ -77,10 +80,11 @@ internal fun DateInputField(
         },
         label = { Text(label) },
         placeholder = { Text(displayPattern) },
-        isError = error != null || externalError != null,
-        supportingText = { (error ?: externalError)?.let { Text(it) } },
+        isError = shownError != null,
+        supportingText = { shownError?.let { Text(it) } },
         singleLine = true,
         keyboardOptions = keyboardOptions,
-        modifier = modifier.focusRequester(focusRequester),
+        // The field reports the message itself, not only Material's generic "Invalid input".
+        modifier = modifier.focusRequester(focusRequester).semantics { if (shownError != null) this.error(shownError) },
     )
 }

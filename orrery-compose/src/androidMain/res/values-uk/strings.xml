@@ -18,6 +18,11 @@
     <string name="orrery_next_month">Наступний місяць</string>
     <string name="orrery_close">Закрити</string>
     <string name="orrery_month_year_picker_decade">%d-ті</string>
+    <string name="orrery_nav_header_expanded">Розгорнуто</string>
+    <string name="orrery_nav_header_collapsed">Згорнуто</string>
+    <string name="orrery_month_year_picker_current">Поточний</string>
+    <string name="orrery_month_year_picker_select_year">Виберіть рік</string>
+    <string name="orrery_month_year_picker_select_decade">Виберіть десятиліття</string>
     <string name="orrery_heatmap_legend_less">Менше</string>
     <string name="orrery_heatmap_legend_more">Більше</string>
     <string name="orrery_heatmap_day_description">%1$s, рівень %2$d з %3$d</string>

@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -493,6 +494,7 @@ private fun DualMonthNavHeader(
                 .clearAndSetSemantics {
                     contentDescription = titles
                     liveRegion = LiveRegionMode.Polite
+                    heading()
                 },
         ) {
             DualMonthTitle(leftTitle, Modifier.weight(1f))

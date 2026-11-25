@@ -18,6 +18,11 @@
     <string name="orrery_next_month">Nächster Monat</string>
     <string name="orrery_close">Schließen</string>
     <string name="orrery_month_year_picker_decade">%der</string>
+    <string name="orrery_nav_header_expanded">Ausgeklappt</string>
+    <string name="orrery_nav_header_collapsed">Eingeklappt</string>
+    <string name="orrery_month_year_picker_current">Aktuell</string>
+    <string name="orrery_month_year_picker_select_year">Jahr auswählen</string>
+    <string name="orrery_month_year_picker_select_decade">Jahrzehnt auswählen</string>
     <string name="orrery_heatmap_legend_less">Weniger</string>
     <string name="orrery_heatmap_legend_more">Mehr</string>
     <string name="orrery_heatmap_day_description">%1$s, Stufe %2$d von %3$d</string>

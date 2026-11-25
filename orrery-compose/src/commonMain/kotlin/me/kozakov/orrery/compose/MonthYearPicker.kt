@@ -34,8 +34,10 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Month
@@ -198,8 +200,15 @@ private fun YearGrid(
     val years = (range.start.year..range.endInclusive.year).toList()
     val initialIndex =
         (focusYear - range.start.year).coerceIn(0, years.lastIndex).let { it - it % 3 }
+    val currentLabel = orreryString(OrreryString.MonthYearPickerCurrent)
     Column {
-        TextButton(onClick = onTitleClick, modifier = Modifier.focusRequester(titleFocus)) {
+        TextButton(
+            onClick = onTitleClick,
+            modifier =
+                Modifier
+                    .focusRequester(titleFocus)
+                    .drillUpClickLabel(orreryString(OrreryString.MonthYearPickerSelectDecade), onTitleClick),
+        ) {
             Text(
                 "${range.start.year} – ${range.endInclusive.year}",
                 style = MaterialTheme.typography.titleMedium,
@@ -211,8 +220,10 @@ private fun YearGrid(
         ) {
             items(years.size) { index ->
                 val year = years[index]
+                val isCurrent = year == currentYear
                 TextButton(
                     onClick = { onYearClick(year) },
+                    modifier = if (isCurrent) Modifier.semantics { stateDescription = currentLabel } else Modifier,
                     // Outlined like the current month in the month grid.
                     border = if (year == currentYear) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
                 ) {
@@ -235,13 +246,18 @@ private fun DecadeGrid(
 ) {
     val decades = (range.start.year / 10..range.endInclusive.year / 10).map { it * 10 }
     val decadeLabel = orreryString(OrreryString.MonthYearPickerDecade)
+    val currentLabel = orreryString(OrreryString.MonthYearPickerCurrent)
     LazyVerticalGrid(columns = GridCells.Fixed(3), modifier = Modifier.fillMaxWidth()) {
         items(decades.size) { index ->
             val decade = decades[index]
-            TextButton(onClick = { onDecadeClick(decade) }) {
+            val isCurrent = currentYear in decade until decade + 10
+            TextButton(
+                onClick = { onDecadeClick(decade) },
+                modifier = if (isCurrent) Modifier.semantics { stateDescription = currentLabel } else Modifier,
+            ) {
                 Text(
                     decadeLabel.formatTemplate(decade),
-                    fontWeight = if (currentYear in decade until decade + 10) FontWeight.Bold else null,
+                    fontWeight = if (isCurrent) FontWeight.Bold else null,
                 )
             }
         }
@@ -258,8 +274,13 @@ private fun MonthGrid(
     onBack: () -> Unit,
     onMonthClick: (Month) -> Unit,
 ) {
+    val currentLabel = orreryString(OrreryString.MonthYearPickerCurrent)
+    val selectedLabel = orreryString(OrreryString.DaySelected)
     Column {
-        TextButton(onClick = onBack) {
+        TextButton(
+            onClick = onBack,
+            modifier = Modifier.drillUpClickLabel(orreryString(OrreryString.MonthYearPickerSelectYear), onBack),
+        ) {
             Text(year.toString(), style = MaterialTheme.typography.titleMedium)
         }
         // Any full name that would wrap switches the whole grid to short names.
@@ -269,10 +290,18 @@ private fun MonthGrid(
                 val month = Month(index + 1)
                 val yearMonth = YearMonth(year, month)
                 val isSelected = selectable && yearMonth == selected
+                val isCurrent = yearMonth == current
                 TextButton(
                     onClick = { onMonthClick(month) },
                     enabled = yearMonth in range,
-                    modifier = if (selectable) Modifier.semantics { this.selected = isSelected } else Modifier,
+                    modifier =
+                        Modifier.semantics {
+                            if (selectable) this.selected = isSelected
+                            // A state description replaces the spoken "selected", so it says both.
+                            if (isCurrent) {
+                                stateDescription = if (isSelected) "$selectedLabel, $currentLabel" else currentLabel
+                            }
+                        },
                     colors =
                         if (isSelected) {
                             ButtonDefaults.textButtonColors(
@@ -294,7 +323,7 @@ private fun MonthGrid(
                         PlatformDateFormat.monthName(month, short = shortNames),
                         // Short names keep the full name for accessibility services.
                         modifier = if (shortNames) Modifier.semantics { contentDescription = fullName } else Modifier,
-                        fontWeight = if (yearMonth == current) FontWeight.Bold else null,
+                        fontWeight = if (isCurrent) FontWeight.Bold else null,
                         maxLines = 1,
                         onTextLayout = { if (it.didOverflowHeight) shortNames = true },
                     )
@@ -303,3 +332,18 @@ private fun MonthGrid(
         }
     }
 }
+
+/**
+ * Names what a drill-up button does ("double-tap to select year") instead of
+ * a bare number or range; [action] is the button's own onClick.
+ */
+private fun Modifier.drillUpClickLabel(
+    label: String,
+    action: () -> Unit,
+): Modifier =
+    semantics {
+        onClick(label = label) {
+            action()
+            true
+        }
+    }

@@ -100,13 +100,19 @@ The 1.0 API rules and the ABI gate are described in
   `CalendarNavHeader`, `CalendarDefaults.MonthTitle` (`VerticalCalendar`'s default month
   header), the dual-month header and the titles of the date, range, month and date-time
   dialogs are headings. The `CalendarNavHeader` title is a polite live region, so paging
-  announces the new month, and with `onTitleClick` it says "Expanded" or "Collapsed" from
-  `expanded`; `OrreryDatePickerDialog` now passes `expanded` while its month/year picker is
+  announces the new month (only the incoming title is in the semantics tree while the title
+  animates, so the outgoing month is not read with it), and with `onTitleClick` it says
+  "Expanded" or "Collapsed" from `expanded`. Callers that set `onTitleClick` should pass
+  `expanded` too: it defaults to `false`, which is announced as "Collapsed" even while the
+  picker is open. `OrreryDatePickerDialog` now passes `expanded` while its month/year picker is
   open, so the dropdown triangle points up then too. `MonthYearPicker` says "Current" on the
   current year, decade and month (with "Selected" first when the current month is also the
   selected one), and its drill-up buttons are announced as "Select decade" / "Select year".
   The weekday labels of `CalendarDefaults.WeekHeader` are hidden from accessibility, because
-  each `DefaultDay` already says its weekday; custom day cells should include it. Date
+  each `DefaultDay` already says its weekday; custom day cells should include it.
+  `HeatmapMonth`, which shows that header, now describes its cells with the full date
+  including the weekday ("Wednesday, July 8, 2026, level 4 of 5" instead of "Jul 8, 2026,
+  level 4 of 5"); tests that matched the old description need the new text. Date
   input fields report their error message as the field's error, including the range
   dialog's invalid-range error. The date/time step pills form a selectable group. New
   strings in all six languages; signatures are unchanged.

@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -64,9 +65,15 @@ import me.kozakov.orrery.core.CalendarPages
  * (and [today] lies within the state's month range); clicking it animates
  * the calendar back to [today].
  *
+ * The title area is a polite live region, so screen readers announce the new
+ * month after paging. While the title animates, only the incoming month's
+ * [title] is in the semantics tree, so the outgoing one is not read with it.
+ *
  * @param expanded Whether the picker opened by [onTitleClick] is showing; the
  *   default title's dropdown triangle rotates to point up while it is, and the
  *   clickable title reports it to accessibility services as expanded or collapsed.
+ *   When you set [onTitleClick], pass this too: it defaults to `false`, so the
+ *   title is announced as collapsed even while your picker is open.
  */
 @Suppress("LongParameterList")
 @Composable
@@ -108,8 +115,9 @@ public fun CalendarNavHeader(
             modifier =
                 Modifier
                     .weight(1f)
-                    // Paging changes the title, so screen readers announce the new month.
-                    .semantics {
+                    // Paging changes the title, so screen readers announce the new month. Merging
+                    // makes this node carry the title text (the clickable merges it anyway).
+                    .semantics(mergeDescendants = true) {
                         liveRegion = LiveRegionMode.Polite
                         if (titleState != null) stateDescription = titleState
                     }.then(
@@ -139,7 +147,13 @@ public fun CalendarNavHeader(
                             .togetherWith(slideOutHorizontally { -(it / 2) * sign } + fadeOut())
                     },
                     label = "navHeaderTitle",
-                ) { month -> currentTitle(month) }
+                ) { month ->
+                    // During the transition both titles are composed. Only the target month stays
+                    // in the semantics tree, so the live region reads one title, not "July, August".
+                    Box(if (month == visibleMonth) Modifier else Modifier.clearAndSetSemantics {}) {
+                        currentTitle(month)
+                    }
+                }
             }
         }
         IconButton(

@@ -26,11 +26,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.daysUntil
+import kotlinx.datetime.format.DayOfWeekNames
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
 import kotlinx.datetime.plus
 import me.kozakov.orrery.compose.Agenda
 import me.kozakov.orrery.compose.CalendarDefaults
@@ -120,14 +127,36 @@ private fun BannerDayNumber(
             else -> colors.onSurface
         }
     Box(
-        Modifier.fillMaxWidth().height(24.dp).clickable(onClick = onClick),
+        Modifier
+            .fillMaxWidth()
+            .height(24.dp)
+            .clickable(onClick = onClick)
+            // The default week header is hidden from screen readers, so the cell says its weekday.
+            .semantics { contentDescription = BannerDayDescription.format(day.date) },
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.size(22.dp).background(background, CircleShape), contentAlignment = Alignment.Center) {
-            Text("${day.date.day}", style = MaterialTheme.typography.labelMedium, color = content)
+            Text(
+                "${day.date.day}",
+                style = MaterialTheme.typography.labelMedium,
+                color = content,
+                modifier = Modifier.clearAndSetSemantics {},
+            )
         }
     }
 }
+
+/** English full date with weekday, for example "Wednesday, July 8, 2026". */
+private val BannerDayDescription =
+    LocalDate.Format {
+        dayOfWeek(DayOfWeekNames.ENGLISH_FULL)
+        chars(", ")
+        monthName(MonthNames.ENGLISH_FULL)
+        char(' ')
+        day(padding = Padding.NONE)
+        chars(", ")
+        year()
+    }
 
 /** A Month / TwoWeeks / Week collapsible calendar with a drag handle over the agenda. */
 @Composable

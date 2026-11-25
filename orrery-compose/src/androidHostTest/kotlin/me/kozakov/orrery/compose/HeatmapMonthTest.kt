@@ -1,6 +1,7 @@
 package me.kozakov.orrery.compose
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -12,15 +13,21 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.format.TextStyle
+import java.util.Locale
+import java.time.DayOfWeek as JavaDayOfWeek
 
 @RunWith(AndroidJUnit4::class)
 class HeatmapMonthTest {
     @get:Rule val rule = createComposeRule()
 
     private fun intensity(date: LocalDate): Float? = if (date.day % 5 == 0) null else (date.day % 5) / 4f
+
+    private fun fullDate(date: LocalDate) = PlatformDateFormat.formatDate(date, DateFormattingStyle.Full)
 
     private fun content(
         onDayClick: ((LocalDate) -> Unit)? = null,
@@ -45,7 +52,7 @@ class HeatmapMonthTest {
     fun clickReportsDate() {
         var clicked: LocalDate? = null
         content(onDayClick = { clicked = it })
-        rule.onNodeWithContentDescription("Jul 8, 2026, level 4 of 5").performClick()
+        rule.onNodeWithContentDescription("${fullDate(LocalDate(2026, 7, 8))}, level 4 of 5").performClick()
         rule.runOnIdle { assertEquals(LocalDate(2026, 7, 8), clicked) }
     }
 
@@ -53,7 +60,7 @@ class HeatmapMonthTest {
     fun outDatesAreNotClickable() {
         content(onDayClick = {})
         rule.onAllNodesWithText("29").assertCountEquals(0)
-        rule.onNodeWithContentDescription("Jun 29, 2026, no data").assertDoesNotExist()
+        rule.onNodeWithContentDescription("${fullDate(LocalDate(2026, 6, 29))}, no data").assertDoesNotExist()
     }
 
     @Test
@@ -65,7 +72,22 @@ class HeatmapMonthTest {
     @Test
     fun cellsNotClickableWithoutCallback() {
         content(onDayClick = null)
-        rule.onNodeWithContentDescription("Jul 8, 2026, level 4 of 5").assertHasNoClickAction()
+        rule.onNodeWithContentDescription("${fullDate(LocalDate(2026, 7, 8))}, level 4 of 5").assertHasNoClickAction()
+    }
+
+    @Test
+    fun cellDescriptionIncludesTheWeekday() {
+        // The weekday header is hidden from accessibility (#89 task 13, S3), so each cell says it.
+        content()
+        val weekday = JavaDayOfWeek.WEDNESDAY.getDisplayName(TextStyle.FULL, Locale.getDefault())
+        val description =
+            rule
+                .onNodeWithContentDescription("July 8, 2026", substring = true)
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.ContentDescription]
+                .single()
+        assertTrue("\"$description\" should name the weekday \"$weekday\"", description.contains(weekday))
+        assertEquals("${fullDate(LocalDate(2026, 7, 8))}, level 4 of 5", description)
     }
 
     @Test

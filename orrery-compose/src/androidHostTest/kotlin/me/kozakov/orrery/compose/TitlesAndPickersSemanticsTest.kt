@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,12 +17,14 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.filter
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
@@ -32,6 +35,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.YearMonth
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,6 +77,82 @@ class TitlesAndPickersSemanticsTest {
         title.assert(isHeading).assert(politeLiveRegion).assert(stateDescription(collapsedLabel))
         title.performClick()
         title.assert(stateDescription(expandedLabel))
+    }
+
+    /**
+     * A July 2026 nav header over a pager; [composed] tracks the months whose title is composed.
+     * Returns the "Next month" and "Collapsed" strings.
+     */
+    private fun pagingNavHeader(composed: MutableSet<YearMonth>): Pair<String, String> {
+        lateinit var nextMonth: String
+        lateinit var collapsed: String
+        rule.setContent {
+            MaterialTheme {
+                nextMonth = orreryString(OrreryString.NextMonth)
+                collapsed = orreryString(OrreryString.NavHeaderCollapsed)
+                val state =
+                    rememberCalendarState(
+                        startMonth = YearMonth(2026, 6),
+                        endMonth = YearMonth(2026, 9),
+                        firstVisibleMonth = YearMonth(2026, 7),
+                        firstDayOfWeek = DayOfWeek.MONDAY,
+                    )
+                Column {
+                    CalendarNavHeader(
+                        state = state,
+                        onTitleClick = {},
+                        title = { month ->
+                            DisposableEffect(month) {
+                                composed += month
+                                onDispose { composed -= month }
+                            }
+                            Text(PlatformDateFormat.yearMonthTitle(month))
+                        },
+                    )
+                    HorizontalCalendar(state = state, dayContent = { day -> Text(day.date.day.toString()) })
+                }
+            }
+        }
+        rule.waitForIdle()
+        return nextMonth to collapsed
+    }
+
+    @Test
+    fun pagingNavHeaderExposesOnlyTheIncomingMonthMidTransition() {
+        val july = PlatformDateFormat.yearMonthTitle(YearMonth(2026, 7))
+        val august = PlatformDateFormat.yearMonthTitle(YearMonth(2026, 8))
+        // Months whose title is composed right now; both are while AnimatedContent animates.
+        val composed = mutableSetOf<YearMonth>()
+        val (nextMonth, collapsedLabel) = pagingNavHeader(composed)
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithContentDescription(nextMonth).performClick()
+        var sawBothComposed = false
+        repeat(MAX_TRANSITION_FRAMES) { frame ->
+            rule.mainClock.advanceTimeByFrame()
+            val titles =
+                rule
+                    .onNode(politeLiveRegion)
+                    .fetchSemanticsNode()
+                    .config
+                    .getOrElse(SemanticsProperties.Text) { emptyList() }
+                    .map { it.text }
+            assertEquals("frame $frame: the live region exposes $titles", 1, titles.size)
+            if (composed.size == 2) {
+                sawBothComposed = true
+                assertEquals("frame $frame: mid-transition the title is the target month", august, titles.single())
+            } else {
+                assertTrue("frame $frame: unexpected title $titles", titles.single() in setOf(july, august))
+            }
+        }
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertTrue("the outgoing and incoming titles were never composed together", sawBothComposed)
+        rule
+            .onNode(politeLiveRegion)
+            .assert(hasText(august))
+            .assert(isHeading)
+            .assert(hasClickAction())
+            .assert(stateDescription(collapsedLabel))
     }
 
     @Test
@@ -310,6 +390,8 @@ class TitlesAndPickersSemanticsTest {
         field.assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
         field.performTextReplacement("07/15/2030")
         field.assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, strings.outOfRangeError))
+        field.performTextReplacement("07/15/2026")
+        field.assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
     }
 
     @Test
@@ -336,5 +418,17 @@ class TitlesAndPickersSemanticsTest {
         rule
             .onNodeWithText(strings.rangeEndInputLabel)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, strings.invalidRangeError))
+        rule.onNodeWithText(strings.rangeEndInputLabel).performTextReplacement("07/14/2026")
+        rule
+            .onNodeWithText(strings.rangeEndInputLabel)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        rule
+            .onNodeWithText(strings.rangeStartInputLabel)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+    }
+
+    private companion object {
+        /** About two seconds at 16 ms per frame: longer than the pager scroll plus the title transition. */
+        const val MAX_TRANSITION_FRAMES = 120
     }
 }

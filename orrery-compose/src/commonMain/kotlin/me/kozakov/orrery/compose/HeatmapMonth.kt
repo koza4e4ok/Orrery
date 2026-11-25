@@ -64,8 +64,9 @@ public fun HeatmapMonth(
         remember(yearMonth, firstDayOfWeek) {
             monthGrid(yearMonth, firstDayOfWeek, OutDateStyle.EndOfRow)
         }
+    // Full style includes the weekday: the WeekHeader above is hidden from accessibility.
     val dateFormatter: (LocalDate) -> String =
-        remember { { date -> PlatformDateFormat.formatDate(date, DateFormattingStyle.Medium) } }
+        remember { { date -> PlatformDateFormat.formatDate(date, DateFormattingStyle.Full) } }
     Column(modifier) {
         if (showWeekdayHeader) {
             CalendarDefaults.WeekHeader(daysOfWeek = daysOfWeek(firstDayOfWeek))

@@ -8,10 +8,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
@@ -106,7 +109,8 @@ class TitlesAndPickersSemanticsTest {
                                 composed += month
                                 onDispose { composed -= month }
                             }
-                            Text(PlatformDateFormat.yearMonthTitle(month))
+                            // Like the default NavHeaderTitle, which is a heading.
+                            Text(PlatformDateFormat.yearMonthTitle(month), Modifier.semantics { heading() })
                         },
                     )
                     HorizontalCalendar(state = state, dayContent = { day -> Text(day.date.day.toString()) })

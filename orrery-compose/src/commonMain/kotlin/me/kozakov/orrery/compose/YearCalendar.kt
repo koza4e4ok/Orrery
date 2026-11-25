@@ -55,8 +55,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 import me.kozakov.orrery.InternalOrreryApi
+import me.kozakov.orrery.compose.internal.MonthTextCache
 import me.kozakov.orrery.compose.internal.MonthTextKey
 import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.Selection
@@ -169,10 +171,9 @@ public fun rememberYearCalendarState(
  * mini-month cell draws a 2.dp `primary` focus ring inside its bounds
  * while it has keyboard / D-pad focus.
  *
- * With the default [monthContent], a page uses fewer columns when [columns]
- * mini-months would be too narrow for their day numbers (large font scale,
- * narrow window). A page scrolls vertically when its months are taller than
- * the calendar. Custom [monthContent] always gets [columns] columns.
+ * A page uses fewer columns when [columns] default mini-months would be too
+ * narrow for their day numbers (large font scale, narrow window), and
+ * scrolls vertically when its months are taller than the calendar.
  */
 @Composable
 public fun YearCalendar(
@@ -181,13 +182,13 @@ public fun YearCalendar(
     userScrollEnabled: Boolean = true,
     columns: Int = 3,
     onMonthClick: (YearMonth) -> Unit,
-    monthContent: @Composable BoxScope.(YearMonth) -> Unit = DefaultYearMonthContent,
+    monthContent: @Composable BoxScope.(YearMonth) -> Unit = { CalendarDefaults.MiniMonth(it) },
 ) {
     val caches = rememberMiniMonthCaches()
-    // The default mini-month reports the width its day numbers need; custom content may not
-    // support intrinsic measurement (a SubcomposeLayout throws), so it keeps the column count.
-    val pagePolicy =
-        remember(columns, monthContent) { YearPagePolicy(columns, monthContent === DefaultYearMonthContent) }
+    // Measured from text, not from monthContent: custom content may not support intrinsic
+    // measurement (a SubcomposeLayout throws).
+    val minCellWidth = miniMonthMinWidth(caches)
+    val pagePolicy = remember(columns, minCellWidth) { YearPagePolicy(columns, minCellWidth) }
     CompositionLocalProvider(LocalMiniMonthCaches provides caches) {
         LazyRow(
             state = state.listState,
@@ -232,16 +233,43 @@ private const val YEAR_PAGE_CONTENT_TYPE = "orrery-year-page"
 
 private const val MONTHS_PER_YEAR = 12
 
-private val DefaultYearMonthContent: @Composable BoxScope.(YearMonth) -> Unit = { CalendarDefaults.MiniMonth(it) }
+/** Width in px a default mini-month needs (its padding, day numbers and longest month title). */
+@Composable
+private fun miniMonthMinWidth(caches: MiniMonthCaches): Int {
+    val texts = miniMonthTexts(caches)
+    val padding = with(LocalDensity.current) { (MiniMonthPadding * 2).roundToPx() }
+    return remember(texts, padding) {
+        val titles = Month.entries.maxOf { texts.title(PlatformDateFormat.monthName(it, short = true)).size.width }
+        padding + maxOf(titles, texts.minGridWidth)
+    }
+}
+
+private val MiniMonthPadding = 8.dp
+
+/** The measured texts of a default mini-month in the current theme, density and direction. */
+@Composable
+private fun miniMonthTexts(caches: MiniMonthCaches): MonthTextCache.Texts {
+    val baseStyle = LocalTextStyle.current
+    val dayStyle = remember(baseStyle) { baseStyle.merge(MiniDayTextStyle) }
+    return caches.texts.texts(
+        MonthTextKey(
+            dayStyle = dayStyle,
+            titleStyle = MaterialTheme.typography.titleSmall,
+            density = LocalDensity.current,
+            layoutDirection = LocalLayoutDirection.current,
+            fontFamilyResolver = LocalFontFamilyResolver.current,
+        ),
+    )
+}
 
 /**
- * The months of one page in rows of [columns] (fewer when [fitColumns] and the cells would be
- * narrower than the first month's minimum intrinsic width). Cells in a row share its width the
- * way equally weighted Row children do, so a full row of [columns] lays out as it did as a Row.
+ * The months of one page in rows of [columns] (fewer when the cells would be narrower than
+ * [minCellWidth] px). Cells in a row share its width the way equally weighted Row children
+ * do, so a full row of [columns] lays out as it did as a Row.
  */
 private class YearPagePolicy(
     private val columns: Int,
-    private val fitColumns: Boolean,
+    private val minCellWidth: Int,
 ) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
@@ -249,9 +277,8 @@ private class YearPagePolicy(
     ): MeasureResult {
         val width = constraints.maxWidth
         val perRow =
-            if (fitColumns && measurables.isNotEmpty() && constraints.hasBoundedWidth) {
-                val minCell = measurables.first().minIntrinsicWidth(Constraints.Infinity)
-                if (minCell > 0) (width / minCell).coerceIn(1, columns) else columns
+            if (constraints.hasBoundedWidth && minCellWidth > 0) {
+                (width / minCellWidth).coerceIn(1, columns)
             } else {
                 columns
             }
@@ -319,18 +346,7 @@ public fun CalendarDefaults.MiniMonth(
     val caches = rememberMiniMonthCaches()
     val model = remember(caches, yearMonth, firstDayOfWeek) { caches.models[yearMonth, firstDayOfWeek] }
     val dayState = remember(model, today, selection, dayInfo) { miniMonthDayState(model, today, selection, dayInfo) }
-    val baseStyle = LocalTextStyle.current
-    val dayStyle = remember(baseStyle) { baseStyle.merge(MiniDayTextStyle) }
-    val texts =
-        caches.texts.texts(
-            MonthTextKey(
-                dayStyle = dayStyle,
-                titleStyle = MaterialTheme.typography.titleSmall,
-                density = LocalDensity.current,
-                layoutDirection = LocalLayoutDirection.current,
-                fontFamilyResolver = LocalFontFamilyResolver.current,
-            ),
-        )
+    val texts = miniMonthTexts(caches)
     val title = texts.title(PlatformDateFormat.monthName(yearMonth.month, short = true))
     val scheme = MaterialTheme.colorScheme
     val colors =
@@ -355,7 +371,7 @@ public fun CalendarDefaults.MiniMonth(
     val hasSelection = dayState.selectedMask != 0
     Spacer(
         modifier
-            .padding(8.dp)
+            .padding(MiniMonthPadding)
             .layout { measurable, constraints ->
                 val width =
                     if (constraints.hasBoundedWidth) {

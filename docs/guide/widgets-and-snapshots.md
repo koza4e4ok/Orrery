@@ -1,8 +1,8 @@
 # Widgets and snapshots
 
-> **Experimental, not released yet (#89).** Everything on this page lives in
-> `me.kozakov.orrery:orrery-widget` and is marked `@ExperimentalOrreryApi`: it can change in
-> any release of the 1.0.x line and graduates in 1.1. The module is not on Maven Central yet.
+> **Experimental (#89).** Everything on this page lives in
+> `me.kozakov.orrery:orrery-widget` (on Maven Central from `1.0.0-rc.1`) and is marked
+> `@ExperimentalOrreryApi`: it can change in any release of the 1.0.x line and graduates in 1.1.
 
 Home-screen widgets (Glance or RemoteViews), notifications and share images cannot host a
 composable calendar. `orrery-widget` draws a compact **month**, **week** or **agenda strip**

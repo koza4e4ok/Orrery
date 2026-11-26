@@ -111,7 +111,7 @@ Modal `OrreryDatePickerDialog` and full-screen `OrreryDateRangePickerDialog` wit
 | Heatmap | ✅ | ✅ | – |
 | Lunar, Hijri, Persian, public holidays | ✅ optional modules | – | – |
 | Home-screen widget and share-image snapshots | Experimental `orrery-widget`: month, week and agenda bitmaps ([guide](docs/guide/widgets-and-snapshots.md)) | – | – |
-| Maturity | Pre-1.0, new | Mature, widely used | First-party |
+| Maturity | 1.0 release candidate, new | Mature, widely used | First-party |
 
 Choose kizitonwose/Calendar if you need Android Views, Kotlin/JS or a long track
 record, and Material 3's picker if a standard dialog is all you need. Orrery is for
@@ -130,7 +130,7 @@ The library ships these artifacts on **Maven Central** under the group
 | `me.kozakov.orrery:orrery-lunar`   | Chinese lunisolar calendar, solar terms and festivals as a DayInfoProvider |
 | `me.kozakov.orrery:orrery-calendars` | Hijri (Umm al-Qura, tabular) and Persian calendars as DayInfoProviders |
 | `me.kozakov.orrery:orrery-holidays` | Rule-based public holidays for US, GB, DE and UA as a DayInfoProvider |
-| `me.kozakov.orrery:orrery-widget` | **Experimental, not released yet (#89).** Headless calendar snapshots for app widgets and share images |
+| `me.kozakov.orrery:orrery-widget` | **Experimental (`@ExperimentalOrreryApi`, #89).** Headless calendar snapshots for app widgets and share images |
 
 > **Multiplatform:** `orrery-compose` also publishes Desktop (JVM), iOS
 > and Web (`wasmJs`) variants. In a Kotlin Multiplatform project, add it to
@@ -142,11 +142,11 @@ The library ships these artifacts on **Maven Central** under the group
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("me.kozakov.orrery:orrery-compose:0.9.2")
+    implementation("me.kozakov.orrery:orrery-compose:1.0.0-rc.1")
     // Optional DayInfoProvider modules:
-    implementation("me.kozakov.orrery:orrery-lunar:0.9.2")
-    implementation("me.kozakov.orrery:orrery-calendars:0.9.2")
-    implementation("me.kozakov.orrery:orrery-holidays:0.9.2")
+    implementation("me.kozakov.orrery:orrery-lunar:1.0.0-rc.1")
+    implementation("me.kozakov.orrery:orrery-calendars:1.0.0-rc.1")
+    implementation("me.kozakov.orrery:orrery-holidays:1.0.0-rc.1")
 }
 ```
 
@@ -155,7 +155,7 @@ Using a [version catalog](https://docs.gradle.org/current/userguide/version_cata
 
 ```toml
 [versions]
-orrery = "0.9.2"
+orrery = "1.0.0-rc.1"
 
 [libraries]
 orrery-compose   = { module = "me.kozakov.orrery:orrery-compose",   version.ref = "orrery" }
@@ -216,24 +216,26 @@ demonstrating all four picker dialogs.
 
 ## Stability and compatibility
 
-Orrery is pre-1.0, so public APIs can still change between minor versions. Every
-change is listed in the [CHANGELOG](CHANGELOG.md), and CI checks the public API with
-Kotlin's ABI validation (`checkKotlinAbi`), so API changes are always deliberate.
+`1.0.0-rc.1` is the release candidate of 1.0: from 1.0.0 the stable public API follows
+semantic versioning ([API-STABILITY.md](docs/API-STABILITY.md)), and until then only a new
+RC can change it. Every change is listed in the [CHANGELOG](CHANGELOG.md). CI checks the
+public API with Kotlin's ABI validation (`checkKotlinAbi`) and compares it with the last
+release, so API changes are always deliberate.
 
 | Orrery | Kotlin | Compose Multiplatform | Compose BOM (Android) | kotlinx-datetime | Android `compileSdk` |
 | --- | --- | --- | --- | --- | --- |
-| 0.7.0 – 0.9.2 | 2.4.21 | 1.12.2 | 2026.09.00 | 0.8.0 | 37 |
+| 0.7.0 – 1.0.0-rc.1 | 2.4.21 | 1.12.2 | 2026.09.00 | 0.8.0 | 37 |
 | 0.6.0 | 2.4.0 | 1.11.1 | 2026.06.01 | 0.8.0 | 36 |
 
 These are the versions each release was built against. Android apps need `minSdk 23`
 and, from 0.7.0, `compileSdk 37` (Compose 1.12 requires it). Releases before 0.6.0
 are Android-only.
 
-> **1.0 is a breaking release.** 1.0.0 will remove the hidden binary-compatibility bridges,
-> `CalendarDefaults.DaysOfWeekHeader` (use `WeekHeader`) and the `componentN` functions
-> of the growth-prone data classes. Recompile your app against 1.0, and use only
-> libraries built against Orrery 1.0: one compiled against 0.9.x can fail with
-> `NoSuchMethodError`. See the [0.9 to 1.0 migration guide](docs/migration/0.9-to-1.0.md).
+> **1.0 is a breaking release.** 1.0.0 (first as `1.0.0-rc.1`) removes the hidden
+> binary-compatibility bridges, `CalendarDefaults.DaysOfWeekHeader` (use `WeekHeader`) and
+> the `componentN` functions of the growth-prone data classes. Recompile your app
+> against 1.0, and use only libraries built against Orrery 1.0: one compiled against 0.9.x
+> can fail with `NoSuchMethodError`. See the [0.9 to 1.0 migration guide](docs/migration/0.9-to-1.0.md).
 > From 1.0, [API-STABILITY.md](docs/API-STABILITY.md) describes what is stable and how CI
 > keeps it compatible.
 

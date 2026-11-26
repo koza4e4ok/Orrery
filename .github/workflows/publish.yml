@@ -70,8 +70,8 @@ jobs:
           :orrery-compose:testDebugUnitTest :orrery-compose:desktopTest :orrery-compose:wasmJsTest
           :orrery-widget:testAndroidHostTest :orrery-widget:desktopTest :orrery-widget:wasmJsTest
       - name: Publish to Maven Central
-        # orrery-widget ships with the 1.0.0 rc (#89); drop this exclusion in that release PR.
-        run: ./gradlew publishToMavenCentral -x :orrery-widget:publishToMavenCentral
+        # orrery-widget ships (experimental) from 1.0.0-rc.1 on (#89, Andrii 2026-11-26).
+        run: ./gradlew publishToMavenCentral
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

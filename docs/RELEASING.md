@@ -84,8 +84,8 @@ part of the release:
 2. **First PR after `v1.0.0-rc.1` is tagged:** move `API_BASELINE_REF` to `v1.0.0-rc.1`
    and empty the allow-list by regenerating it against the RC (no findings, so only the
    header is left, and the CI regeneration check uses the new baseline). From an rc baseline on, the script fails on any entry that is
-   not `rc-soak`, in report mode too. The same PR drops
-   `-x :orrery-widget:publishToMavenCentral` from `publish.yml` if the widget ships.
+   not `rc-soak`, in report mode too. (`orrery-widget` already publishes from rc.1 on:
+   the release PR dropped its exclusion from `publish.yml`.)
 3. **A break found during the soak:** Andrii approves it in a comment on #89. A PR makes
    the change, adds one row per removed dump line to `tools/api-ledger-map.tsv` with reason
    `rc-soak` and that comment's URL as the ledger field

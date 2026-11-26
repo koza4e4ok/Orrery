@@ -89,14 +89,14 @@ jobs:
           if grep -il glance $modules $poms; then echo "orrery-widget mentions Glance"; exit 1; fi
           # Glance is a :sample dependency only; no published POM or module file may mention it.
           if grep -ril --include='*.pom' --include='*.module' glance "$repo"; then echo "a published orrery-* artifact mentions Glance"; exit 1; fi
-      - name: Check a v* tag publish would skip orrery-widget (same command as publish.yml)
+      - name: Check a v* tag publish includes orrery-widget and skips :sample (same command as publish.yml)
         run: |
-          ./gradlew publishToMavenCentral -x :orrery-widget:publishToMavenCentral --dry-run | tee publish-plan.txt
+          ./gradlew publishToMavenCentral --dry-run | tee publish-plan.txt
           grep -q ':orrery-compose:publish' publish-plan.txt || { echo "dry run planned no orrery-compose publish"; exit 1; }
-          if grep ':orrery-widget:publish' publish-plan.txt; then echo "a v* tag would publish orrery-widget"; exit 1; fi
+          grep -q ':orrery-widget:publish' publish-plan.txt || { echo "dry run planned no orrery-widget publish"; exit 1; }
           # :sample (the only module with Glance) must never be published.
           if grep ':sample:' publish-plan.txt; then echo "a v* tag would publish :sample"; exit 1; fi
-          grep -qF 'publishToMavenCentral -x :orrery-widget:publishToMavenCentral' .github/workflows/publish.yml \
+          grep -qxF '        run: ./gradlew publishToMavenCentral' .github/workflows/publish.yml \
             || { echo "publish.yml no longer matches this check; update both"; exit 1; }
       - name: Check the Android AAR ships the baseline profile and string resources
         run: |

@@ -58,7 +58,14 @@ internal object SampleData {
         )
 
     /** Named events on ~40% of days in [range], 1..3 per day, indexed by date. */
-    fun eventsFor(range: ClosedRange<LocalDate>): Map<LocalDate, List<CalendarEvent<Nothing>>> {
+    fun eventsFor(range: ClosedRange<LocalDate>): Map<LocalDate, List<CalendarEvent<Nothing>>> =
+        eventListFor(range).eventsByDate(range)
+
+    /**
+     * The events behind [eventsFor], not indexed: recurring series stay masters, which
+     * eventsByDate expands over the requested range.
+     */
+    fun eventListFor(range: ClosedRange<LocalDate>): List<CalendarEvent<Nothing>> {
         val startEpoch = range.start.toEpochDays()
         val endEpoch = range.endInclusive.toEpochDays()
         val rawEvents =
@@ -116,7 +123,7 @@ internal object SampleData {
                     }
                 }
             }
-        return (spanningEventsFor(range) + rawEvents + recurringEvents).eventsByDate(range)
+        return spanningEventsFor(range) + rawEvents + recurringEvents
     }
 
     /** Recurring series masters; eventsByDate expands them over the requested range. */
@@ -136,6 +143,23 @@ internal object SampleData {
                 span = EventSpan.AllDay(LocalDate(2026, 1, 31)),
                 colorArgb = PERSONAL_COLOR,
                 recurrence = RecurrenceRule.monthlyOnLastDay(),
+            ),
+            // Rules as they arrive in an iCalendar (RFC 5545) feed, parsed from RRULE text.
+            CalendarEvent<Nothing>(
+                id = "board",
+                title = "Board meeting",
+                subtitle = "Second Tuesday of every month",
+                span = EventSpan.Timed(LocalDateTime(2026, 1, 13, 10, 0), LocalDateTime(2026, 1, 13, 11, 0)),
+                colorArgb = TRAVEL_COLOR,
+                recurrence = RecurrenceRule.parse("RRULE:FREQ=MONTHLY;BYDAY=TU;BYSETPOS=2"),
+            ),
+            CalendarEvent<Nothing>(
+                id = "yoga",
+                title = "Yoga class",
+                subtitle = "Every other Tuesday and Thursday",
+                span = EventSpan.Timed(LocalDateTime(2026, 1, 6, 7, 15), LocalDateTime(2026, 1, 6, 8, 0)),
+                colorArgb = HEALTH_COLOR,
+                recurrence = RecurrenceRule.parse("FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,TH"),
             ),
         )
 

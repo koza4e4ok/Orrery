@@ -49,6 +49,7 @@ import me.kozakov.orrery.compose.CalendarNavHeader
 import me.kozakov.orrery.compose.DayDecorators
 import me.kozakov.orrery.compose.DefaultDay
 import me.kozakov.orrery.compose.HeatmapCalendar
+import me.kozakov.orrery.compose.HeatmapDefaults
 import me.kozakov.orrery.compose.HeatmapMonth
 import me.kozakov.orrery.compose.HorizontalCalendar
 import me.kozakov.orrery.compose.WeekCalendar
@@ -291,11 +292,14 @@ internal fun HabitsScreen() {
                         "This month",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     )
+                    // A second heatmap on the screen: its own color ramp, with a legend.
                     HeatmapMonth(
                         yearMonth = month,
                         intensity = { date -> yearHeat[date] },
                         onDayClick = { pickedDay = it.toString() },
+                        colorScale = HeatmapDefaults.colorScale(to = MaterialTheme.colorScheme.tertiary),
                         showDayNumbers = true,
+                        showLegend = true,
                     )
                 }
             }

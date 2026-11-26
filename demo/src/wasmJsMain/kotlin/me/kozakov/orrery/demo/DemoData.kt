@@ -11,6 +11,7 @@ import me.kozakov.orrery.core.DayInfo
 import me.kozakov.orrery.core.DayInfoPriority
 import me.kozakov.orrery.core.DayInfoProvider
 import me.kozakov.orrery.core.EventSpan
+import me.kozakov.orrery.core.RecurrenceRule
 import me.kozakov.orrery.holidays.PublicHolidayDayInfoProvider
 import me.kozakov.orrery.holidays.PublicHolidays
 
@@ -124,7 +125,60 @@ internal fun buildDemoEvents(today: LocalDate): List<CalendarEvent<Nothing>> {
                 colorArgb = event.color,
             )
     }
+    // Recurring series as they arrive in an iCalendar (RFC 5545) feed; DemoApp expands them.
+    events +=
+        CalendarEvent<Nothing>(
+            id = "board",
+            title = "Board meeting",
+            span = EventSpan.Timed(LocalDateTime(2026, 1, 13, 16, 0), LocalDateTime(2026, 1, 13, 17, 0)),
+            subtitle = "Second Tuesday of every month",
+            colorArgb = MONEY,
+            recurrence = RecurrenceRule.parse("RRULE:FREQ=MONTHLY;BYDAY=TU;BYSETPOS=2"),
+        )
+    events +=
+        CalendarEvent<Nothing>(
+            id = "yoga",
+            title = "Yoga class",
+            span = EventSpan.Timed(LocalDateTime(2026, 1, 6, 18, 30), LocalDateTime(2026, 1, 6, 19, 15)),
+            subtitle = "Every other Tuesday and Thursday",
+            colorArgb = HEALTH,
+            recurrence = RecurrenceRule.parse("FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,TH"),
+        )
     return events
+}
+
+/** The Schedule tab's drag-to-create result: a "New event" over the slot. */
+internal fun List<CalendarEvent<Nothing>>.withNewEvent(
+    date: LocalDate,
+    start: LocalTime,
+    end: LocalTime,
+): List<CalendarEvent<Nothing>> =
+    this + CalendarEvent(id = "new-$date-$start-$size", title = "New event", span = timedSpan(date, start, end))
+
+/** The Schedule tab's move and resize result: [event] at [date] from [start] to [end]. */
+internal fun List<CalendarEvent<Nothing>>.withRescheduled(
+    event: CalendarEvent<Nothing>,
+    date: LocalDate,
+    start: LocalTime,
+    end: LocalTime,
+): List<CalendarEvent<Nothing>> {
+    val span = timedSpan(date, start, end)
+    return map { if (it.id == event.id) it.copy(span = span) else it }
+}
+
+// The schedule reports an end that is not after the start as 00:00 of the next day.
+private fun timedSpan(
+    date: LocalDate,
+    start: LocalTime,
+    end: LocalTime,
+): EventSpan.Timed {
+    val endDateTime =
+        if (end > start) {
+            LocalDateTime(date, end)
+        } else {
+            LocalDateTime(date.plus(1, DateTimeUnit.DAY), LocalTime(0, 0))
+        }
+    return EventSpan.Timed(start = LocalDateTime(date, start), end = endDateTime)
 }
 
 private val holidays = PublicHolidayDayInfoProvider(checkNotNull(PublicHolidays.forCountry("US")))

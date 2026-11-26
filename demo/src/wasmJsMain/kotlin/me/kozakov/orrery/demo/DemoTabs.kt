@@ -195,7 +195,11 @@ internal fun AgendaTab(
     }
 }
 
-/** Day / Week time grids limited to working hours, with side-by-side or stacked overlaps. */
+/**
+ * Day / Week time grids limited to working hours, with side-by-side or stacked overlaps. In
+ * Edit mode a drag on empty time creates an event and dragging an event or its edges moves or
+ * resizes it (press-and-drag with a mouse, long press first on touch).
+ */
 @Composable
 internal fun ScheduleTab(
     ui: DemoUiState,
@@ -216,9 +220,26 @@ internal fun ScheduleTab(
                 onClick = { ui.stackedOverlap = !ui.stackedOverlap },
                 label = { Text("Stacked") },
             )
+            FilterChip(selected = ui.editing, onClick = { ui.editing = !ui.editing }, label = { Text("Edit") })
         }
+        val onSlotCreate =
+            { date: LocalDate, start: LocalTime, end: LocalTime ->
+                ui.events = ui.events.withNewEvent(date, start, end)
+            }.takeIf { ui.editing }
+        val onEventMove =
+            { event: CalendarEvent<Nothing>, date: LocalDate, start: LocalTime, end: LocalTime ->
+                ui.events = ui.events.withRescheduled(event, date, start, end)
+            }.takeIf { ui.editing }
+        val onEventResize =
+            { event: CalendarEvent<Nothing>, start: LocalTime, end: LocalTime ->
+                ui.events = ui.events.withRescheduled(event, event.span.startDate, start, end)
+            }.takeIf { ui.editing }
         Text(
-            "Working hours $WORK_DAY_START_HOUR:00-$WORK_DAY_END_HOUR:00",
+            if (ui.editing) {
+                "Drag empty time to add an event; drag an event or its edges to change it"
+            } else {
+                "Working hours $WORK_DAY_START_HOUR:00-$WORK_DAY_END_HOUR:00"
+            },
             Modifier.padding(horizontal = 16.dp),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -231,6 +252,9 @@ internal fun ScheduleTab(
                 currentTime = now,
                 modifier = Modifier.fillMaxSize(),
                 overlapMode = overlapMode,
+                onSlotCreate = onSlotCreate,
+                onEventMove = onEventMove,
+                onEventResize = onEventResize,
             )
         } else {
             DaySchedule(
@@ -240,6 +264,9 @@ internal fun ScheduleTab(
                 currentTime = now,
                 modifier = Modifier.fillMaxSize(),
                 overlapMode = overlapMode,
+                onSlotCreate = onSlotCreate,
+                onEventMove = onEventMove,
+                onEventResize = onEventResize,
             )
         }
     }

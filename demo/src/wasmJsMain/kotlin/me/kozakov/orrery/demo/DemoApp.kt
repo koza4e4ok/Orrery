@@ -216,12 +216,9 @@ internal fun DemoApp(
     platform: String,
     today: LocalDate = currentDate(),
     now: LocalTime = LocalTime(12, 0),
-    tour: (suspend DemoUiState.() -> Unit)? = null,
 ) {
     MaterialTheme(colorScheme = lightColorScheme()) {
         val ui = rememberDemoUiState(today)
-        // TEMPORARY: the README GIF tour.
-        LaunchedEffect(Unit) { tour?.invoke(ui) }
         val events = ui.events
         val eventsByDate =
             remember(events) {

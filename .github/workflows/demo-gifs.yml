@@ -182,7 +182,7 @@ jobs:
             [ -f "$in" ] || { echo "missing $in"; return 0; }
             local trim=()
             [ -f "$in.loop" ] && trim=(-sseof "-$(cat "$in.loop")")
-            for cfg in "12 128 40" "12 128 80" "10 128 80" "10 96 100" "8 96 120"; do
+            for cfg in "12 128 40" "12 128 80" "10 128 80" "10 96 100" "8 96 120" "8 64 140" "6 64 160"; do
               read -r fps colors lossy <<< "$cfg"
               ffmpeg -nostdin -y -loglevel error "${trim[@]}" -i "$in" -vf "fps=$fps,scale=320:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=$colors:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle" -loop 0 "$out"
               gifsicle -O3 --lossy=$lossy -b "$out"

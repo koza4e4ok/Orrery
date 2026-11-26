@@ -198,9 +198,10 @@ class SampleArtScreenshots {
     /** The day of this month with the most timed events: overlapping ones show the overlap modes. */
     private fun busiestDay(): LocalDate = timedEvents().maxByOrNull { it.value }?.key ?: today
 
-    /** The Wednesday of the week of this month with the most timed events. */
+    /** The Wednesday of the week of this month with the most events: all-day banners and overlaps. */
     private fun busiestWeek(): LocalDate {
-        val counts = timedEvents()
+        val month = YearMonth(today.year, today.month)
+        val counts = SampleData.eventsFor(month.firstDay..month.lastDay).mapValues { it.value.size }
         return counts.keys
             .filter { it.dayOfWeek == DayOfWeek.WEDNESDAY }
             .maxByOrNull { wed -> (-3..3).sumOf { counts[wed.plus(it, DateTimeUnit.DAY)] ?: 0 } } ?: today
@@ -327,6 +328,7 @@ class SampleArtScreenshots {
     @Test
     fun almanac() {
         tab("Almanac")
+        chip("Meizu Badges")
         shot("style_presets")
     }
 
@@ -343,15 +345,6 @@ class SampleArtScreenshots {
         chip("Pick range")
         chip("Last 7 days")
         shot("picker_range_modal")
-    }
-
-    @Test
-    @Config(qualifiers = "w800dp-h400dp-land-xhdpi")
-    fun pickerRangeDual() {
-        tab("Pickers")
-        chip("Pick range")
-        chip("Last 7 days")
-        shot("picker_range_dual")
     }
 
     @Test

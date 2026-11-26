@@ -25,7 +25,9 @@ jobs:
       - name: Move the demo UI to commonMain (temporary)
         run: |
           mkdir -p demo/src/commonMain/kotlin/me/kozakov/orrery/demo
-          mv demo/src/wasmJsMain/kotlin/me/kozakov/orrery/demo/Demo{App,Data,Tabs}.kt demo/src/commonMain/kotlin/me/kozakov/orrery/demo/
+          mv demo/src/wasmJsMain/kotlin/me/kozakov/orrery/demo/Demo{App,Data,Tabs,Tour}.kt demo/src/commonMain/kotlin/me/kozakov/orrery/demo/
+          mkdir -p demo/src/desktopMain/kotlin/me/kozakov/orrery/demo
+          cp demo/recording/desktopMain/*.kt demo/src/desktopMain/kotlin/me/kozakov/orrery/demo/
       - name: Install Xvfb and ffmpeg
         run: sudo apt-get update -q && sudo apt-get install -yq xvfb ffmpeg libgl1-mesa-dri
       - name: Build desktop and web demos
@@ -81,8 +83,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
       - name: Record the sample tour and screenshots (Robolectric)
         run: |
-          ./gradlew :sample:testDebugUnitTest --tests '*SampleTourRecorder*' --tests '*SampleArtScreenshots*' -i > android.log 2>&1 || true
-          grep -E 'TOUR:|SHOT:|A11Y|BUILD|FAILED|Exception' android.log | head -200
+          timeout 1200 ./gradlew :sample:testDebugUnitTest --tests '*SampleTourRecorder*' -i > android.log 2>&1 || true
+          timeout 1500 ./gradlew :sample:testDebugUnitTest --tests '*SampleArtScreenshots*' -i > android-shots.log 2>&1 || true
+          grep -E 'TOUR:|SHOT:|A11Y|BUILD|FAILED|Exception' android.log android-shots.log | head -200
       - name: Frames to video
         run: |
           sudo apt-get update -q && sudo apt-get install -yq ffmpeg
@@ -97,6 +100,7 @@ jobs:
           path: |
             android.mp4
             android.log
+            android-shots.log
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
@@ -116,7 +120,9 @@ jobs:
       - name: Move the demo UI to commonMain (temporary)
         run: |
           mkdir -p demo/src/commonMain/kotlin/me/kozakov/orrery/demo
-          mv demo/src/wasmJsMain/kotlin/me/kozakov/orrery/demo/Demo{App,Data,Tabs}.kt demo/src/commonMain/kotlin/me/kozakov/orrery/demo/
+          mv demo/src/wasmJsMain/kotlin/me/kozakov/orrery/demo/Demo{App,Data,Tabs,Tour}.kt demo/src/commonMain/kotlin/me/kozakov/orrery/demo/
+          mkdir -p demo/src/iosMain/kotlin/me/kozakov/orrery/demo
+          cp demo/recording/iosMain/*.kt demo/src/iosMain/kotlin/me/kozakov/orrery/demo/
       - name: Build the demo framework
         run: ./gradlew :demo:linkReleaseFrameworkIosSimulatorArm64
       - name: Build the demo app

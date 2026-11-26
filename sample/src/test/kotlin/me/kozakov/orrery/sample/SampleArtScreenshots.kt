@@ -3,7 +3,6 @@
 package me.kozakov.orrery.sample
 
 import android.graphics.Bitmap
-import android.os.Looper
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -40,7 +39,6 @@ import me.kozakov.orrery.widget.renderCalendarSnapshot
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
@@ -60,15 +58,11 @@ class SampleArtScreenshots {
     private val isTab = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
     private val today = currentDate()
 
-    // Small clock steps with the main looper idled in between, like the frame recorder: one
-    // big advanceTimeBy left injected touches undelivered.
+    // Small clock steps, like the frame recorder: one big advanceTimeBy left the next
+    // injected touch undelivered after a tab switch.
     private fun settle(ms: Long = 1600) {
         rule.mainClock.autoAdvance = false
-        repeat((ms / STEP_MS).toInt().coerceAtLeast(1)) {
-            rule.mainClock.advanceTimeBy(STEP_MS)
-            rule.waitForIdle()
-            Shadows.shadowOf(Looper.getMainLooper()).idle()
-        }
+        repeat((ms / STEP_MS).toInt().coerceAtLeast(1)) { rule.mainClock.advanceTimeBy(STEP_MS) }
     }
 
     private fun shot(name: String) {

@@ -96,7 +96,7 @@ jobs:
           grep -q ':orrery-widget:publish' publish-plan.txt || { echo "dry run planned no orrery-widget publish"; exit 1; }
           # :sample (the only module with Glance) must never be published.
           if grep ':sample:' publish-plan.txt; then echo "a v* tag would publish :sample"; exit 1; fi
-          grep -qxF '        run: ./gradlew publishToMavenCentral' .github/workflows/publish.yml \
+          grep -qE '^[[:space:]]*run: \./gradlew publishToMavenCentral[[:space:]]*$' .github/workflows/publish.yml \
             || { echo "publish.yml no longer matches this check; update both"; exit 1; }
       - name: Check the Android AAR ships the baseline profile and string resources
         run: |

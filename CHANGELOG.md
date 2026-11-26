@@ -231,6 +231,8 @@ The 1.0 API rules and the ABI gate are described in
 
 ### Experimental
 
+- `orrery-widget` is published to Maven Central for the first time with this release,
+  as an experimental module next to the five stable ones.
 - New module `me.kozakov.orrery:orrery-widget` (#89, #130): the headless calendar
   snapshot renderer, with `CalendarSnapshotRange` (`Month`, `Week`,
   `Agenda`). Every public declaration is `@ExperimentalOrreryApi` and has no

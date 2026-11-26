@@ -7,6 +7,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
@@ -17,8 +18,8 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -58,8 +59,9 @@ class SampleArtScreenshots {
     private val isTab = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
     private val today = currentDate()
 
-    // Small clock steps, like the frame recorder: one big advanceTimeBy left the next
-    // injected touch undelivered after a tab switch.
+    // Small clock steps, like the frame recorder. Taps go through the semantics OnClick action:
+    // injected touches after a tab switch failed with "Failed to inject touch input" or were
+    // dropped. Only the drags still inject touch input.
     private fun settle(ms: Long = 1600) {
         rule.mainClock.autoAdvance = false
         repeat((ms / STEP_MS).toInt().coerceAtLeast(1)) { rule.mainClock.advanceTimeBy(STEP_MS) }
@@ -82,7 +84,7 @@ class SampleArtScreenshots {
 
     private fun tab(label: String) =
         attempt("tab $label") {
-            rule.onNode(hasText(label) and isTab).performClick()
+            rule.onNode(hasText(label) and isTab).performSemanticsAction(SemanticsActions.OnClick)
             settle()
         }
 
@@ -90,7 +92,7 @@ class SampleArtScreenshots {
         attempt("chip $label") {
             val node = rule.onAllNodes(hasText(label) and hasClickAction() and !isTab).onFirst()
             runCatching { node.performScrollTo() }
-            node.performClick()
+            node.performSemanticsAction(SemanticsActions.OnClick)
             settle()
         }
 
@@ -179,7 +181,7 @@ class SampleArtScreenshots {
     private fun selectInMonth(date: LocalDate) {
         chip("Month")
         attempt("select $date") {
-            rule.onNode(hasContentDescription(fullDate(date))).performClick()
+            rule.onNode(hasContentDescription(fullDate(date))).performSemanticsAction(SemanticsActions.OnClick)
             settle()
         }
     }
@@ -222,7 +224,7 @@ class SampleArtScreenshots {
     @Test
     fun yearOverview() {
         attempt("year overview") {
-            rule.onNode(hasTestTag("hero_year_overview_button")).performClick()
+            rule.onNode(hasTestTag("hero_year_overview_button")).performSemanticsAction(SemanticsActions.OnClick)
         }
         shot("year_overview")
     }

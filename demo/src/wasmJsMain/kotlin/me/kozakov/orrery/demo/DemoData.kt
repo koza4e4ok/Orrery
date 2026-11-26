@@ -125,27 +125,30 @@ internal fun buildDemoEvents(today: LocalDate): List<CalendarEvent<Nothing>> {
                 colorArgb = event.color,
             )
     }
-    // Recurring series as they arrive in an iCalendar (RFC 5545) feed; DemoApp expands them.
-    events +=
-        CalendarEvent<Nothing>(
+    events += recurringDemoEvents
+    return events
+}
+
+// Recurring series as they arrive in an iCalendar (RFC 5545) feed; DemoApp expands them.
+private val recurringDemoEvents: List<CalendarEvent<Nothing>> =
+    listOf(
+        CalendarEvent(
             id = "board",
             title = "Board meeting",
             span = EventSpan.Timed(LocalDateTime(2026, 1, 13, 16, 0), LocalDateTime(2026, 1, 13, 17, 0)),
             subtitle = "Second Tuesday of every month",
             colorArgb = MONEY,
             recurrence = RecurrenceRule.parse("RRULE:FREQ=MONTHLY;BYDAY=TU;BYSETPOS=2"),
-        )
-    events +=
-        CalendarEvent<Nothing>(
+        ),
+        CalendarEvent(
             id = "yoga",
             title = "Yoga class",
             span = EventSpan.Timed(LocalDateTime(2026, 1, 6, 18, 30), LocalDateTime(2026, 1, 6, 19, 15)),
             subtitle = "Every other Tuesday and Thursday",
             colorArgb = HEALTH,
             recurrence = RecurrenceRule.parse("FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,TH"),
-        )
-    return events
-}
+        ),
+    )
 
 /** The Schedule tab's drag-to-create result: a "New event" over the slot. */
 internal fun List<CalendarEvent<Nothing>>.withNewEvent(

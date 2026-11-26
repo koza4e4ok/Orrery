@@ -117,15 +117,28 @@ class SampleArtScreenshots {
         }
     }
 
-    private fun width() = rule.onRoot().fetchSemanticsNode().size.width.toFloat()
+    private fun width() =
+        rule
+            .onRoot()
+            .fetchSemanticsNode()
+            .size.width
+            .toFloat()
 
-    private fun height() = rule.onRoot().fetchSemanticsNode().size.height.toFloat()
+    private fun height() =
+        rule
+            .onRoot()
+            .fetchSemanticsNode()
+            .size.height
+            .toFloat()
 
     private fun hourY(hour: Int): Float? {
         val h12 = (hour + 11) % 12 + 1
         val amPm = if (hour < 12) "AM" else "PM"
         for (label in listOf("%02d:00".format(hour), "$h12:00\u202F$amPm", "$h12:00 $amPm")) {
-            val nodes = rule.onAllNodes(hasText(label), useUnmergedTree = true).fetchSemanticsNodes()
+            val nodes =
+                rule
+                    .onAllNodes(hasText(label), useUnmergedTree = true)
+                    .fetchSemanticsNodes()
             if (nodes.isNotEmpty()) return nodes.first().boundsInRoot.center.y
         }
         println("SHOT: no hour label for $hour")
@@ -329,6 +342,7 @@ class SampleArtScreenshots {
     @Test
     fun widgets() {
         val context = rule.activity
+
         fun save(
             image: ImageBitmap,
             name: String,
@@ -336,8 +350,10 @@ class SampleArtScreenshots {
             image.asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it)
             println("SHOT: $name")
         }
-        save(runBlocking { renderCalendarSnapshot(context, OrreryMonthWidget().spec(today), 600, 600) }, "widget_month")
-        save(runBlocking { renderCalendarSnapshot(context, OrreryAgendaWidget().spec(today), 720, 360) }, "widget_agenda")
+        val month = runBlocking { renderCalendarSnapshot(context, OrreryMonthWidget().spec(today), 600, 600) }
+        save(month, "widget_month")
+        val agenda = runBlocking { renderCalendarSnapshot(context, OrreryAgendaWidget().spec(today), 720, 360) }
+        save(agenda, "widget_agenda")
     }
 
     private companion object {

@@ -5,7 +5,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
@@ -68,7 +67,10 @@ class SampleTourRecorder {
             node.performClick()
         }
 
-    /** Presses at [start], waits [pressMs] (long press), drags by [dyDp] over [frames] frames, holds [holdMs], lifts. */
+    /**
+     * Presses at [start], waits [pressMs] (long press), drags by [dyDp] over [frames] frames,
+     * holds [holdMs], lifts.
+     */
     private fun drag(
         start: Offset,
         dyDp: Int,
@@ -94,7 +96,10 @@ class SampleTourRecorder {
         val amPm = if (hour < 12) "AM" else "PM"
         val labels = listOf("%02d:00".format(hour), "$h12:00\u202F$amPm", "$h12:00 $amPm")
         for (label in labels) {
-            val nodes = rule.onAllNodes(hasText(label), useUnmergedTree = true).fetchSemanticsNodes()
+            val nodes =
+                rule
+                    .onAllNodes(hasText(label), useUnmergedTree = true)
+                    .fetchSemanticsNodes()
             if (nodes.isNotEmpty()) return nodes.first().boundsInRoot.center.y
         }
         println("TOUR: no hour label for $hour")
@@ -102,11 +107,22 @@ class SampleTourRecorder {
     }
 
     @Test
+    @Suppress("LongMethod")
     fun recordTour() {
         rule.mainClock.autoAdvance = false
         hold(1000)
-        val width = rule.onRoot().fetchSemanticsNode().size.width.toFloat()
-        val height = rule.onRoot().fetchSemanticsNode().size.height.toFloat()
+        val width =
+            rule
+                .onRoot()
+                .fetchSemanticsNode()
+                .size.width
+                .toFloat()
+        val height =
+            rule
+                .onRoot()
+                .fetchSemanticsNode()
+                .size.height
+                .toFloat()
         // Agenda: collapse the calendar Month -> TwoWeeks -> Week with direct drags, then expand it.
         var gridY = 0f
         attempt("locate grid") {

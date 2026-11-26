@@ -104,7 +104,7 @@ class SampleTourRecorder {
     @Test
     fun recordTour() {
         rule.mainClock.autoAdvance = false
-        hold(1500)
+        hold(1000)
         val width = rule.onRoot().fetchSemanticsNode().size.width.toFloat()
         val height = rule.onRoot().fetchSemanticsNode().size.height.toFloat()
         // Agenda: collapse the calendar Month -> TwoWeeks -> Week with direct drags, then expand it.
@@ -120,20 +120,20 @@ class SampleTourRecorder {
         }
         if (gridY > 0f) {
             drag(Offset(width / 2, gridY), -150, 10)
-            hold(900)
+            hold(700)
             drag(Offset(width / 2, gridY), -80, 8)
-            hold(900)
+            hold(700)
             drag(Offset(width / 2, gridY), 280, 12)
-            hold(900)
+            hold(700)
         }
-        // Month grid with multi-day event banners.
+        // Month grid with multi-day event banners and the RRULE series.
         chip("Month")
-        hold(2000)
+        hold(1600)
         // Day schedule in Edit mode: drag out a new event, stretch its end, then move it.
         chip("Day")
-        hold(900)
+        hold(600)
         chip("Edit")
-        hold(1000)
+        hold(600)
         val y10 = hourY(10)
         val y11 = hourY(11)
         if (y10 != null && y11 != null) {
@@ -142,55 +142,46 @@ class SampleTourRecorder {
             val hourDp = with(rule.density) { hourPx.toDp().value.toInt() }
             println("TOUR: hour lines at $y10 / $y11 px")
             drag(Offset(x, y10 + px(4)), hourDp, 10, pressMs = 640, holdMs = 400)
-            hold(900)
+            hold(700)
             drag(Offset(x, y11 - px(6)), hourDp * 3 / 4, 8, holdMs = 300)
-            hold(900)
+            hold(700)
             drag(Offset(x, y10 + hourPx * 0.8f), hourDp, 10, pressMs = 640, holdMs = 400)
-            hold(1100)
+            hold(900)
         }
         chip("Edit")
-        // The day before (a Wednesday has overlapping events), stacked, then the week.
-        attempt("previous page") { rule.onNode(hasContentDescription("Previous page")).performClick() }
-        hold(900)
-        chip("Stacked overlap")
-        hold(1500)
         chip("Week")
-        hold(1600)
-        chip("Stacked overlap")
+        hold(1400)
         chip("Agenda")
         // Trips: hospitality check-in / check-out halves.
         tab("Trips")
-        hold(1100)
-        chip("Weekend")
-        hold(1200)
+        hold(800)
         chip("Next 7 days")
-        hold(1200)
+        hold(1100)
         chip("Split")
-        hold(1200)
+        hold(1100)
         chip("Diagonal")
-        hold(600)
         // Habits: two-week strip, the Mon-Fri filter, then the heatmaps further down.
         tab("Habits")
-        hold(1200)
+        hold(900)
         chip("Mon–Fri")
-        hold(1500)
+        hold(1300)
         chip("Mon–Fri")
-        hold(400)
+        hold(300)
         drag(Offset(width / 2, height * 0.8f), -700, 14)
-        hold(1800)
+        hold(1500)
         // Almanac and the pickers.
         tab("Almanac")
-        hold(2000)
+        hold(1500)
         tab("Pickers")
-        hold(900)
+        hold(700)
         chip("Pick range")
-        hold(1200)
+        hold(900)
         chip("Last 7 days")
-        hold(1300)
+        hold(1200)
         chip("Save")
-        hold(700)
+        hold(500)
         tab("Agenda")
-        hold(700)
+        hold(500)
         println("TOUR: recorded $frame frames to $dir")
     }
 

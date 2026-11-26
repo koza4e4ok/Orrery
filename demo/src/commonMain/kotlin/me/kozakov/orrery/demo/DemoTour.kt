@@ -13,14 +13,14 @@ import me.kozakov.orrery.core.Selection
 
 /** TEMPORARY: auto-playing tour used to record the README GIFs. */
 @Suppress("LongMethod")
-internal suspend fun DemoUiState.playTour() {
+internal suspend fun DemoUiState.playTour(onLoop: () -> Unit = { println("ORRERY_DEMO_LOOP") }) {
     val month = YearMonth(today.year, today.month)
     val initialEvents = events
     // The second Tuesday of this month: an occurrence of the RRULE board meeting.
     val boardDay = (8..14).map { LocalDate(today.year, today.month, it) }.first { it.dayOfWeek == DayOfWeek.TUESDAY }
     while (true) {
         // Marker the recording script waits for, so each GIF is exactly one loop.
-        println("ORRERY_DEMO_LOOP")
+        onLoop()
         tab = DemoTab.Month
         events = initialEvents
         selectedDay = today

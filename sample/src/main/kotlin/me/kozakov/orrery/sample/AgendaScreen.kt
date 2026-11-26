@@ -220,8 +220,13 @@ internal fun AgendaScreen() {
                 onToggleYearOverview = { showYearOverview = !showYearOverview },
             )
         }
+        // Scrolls rather than squeezing the last chip at large font scales.
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

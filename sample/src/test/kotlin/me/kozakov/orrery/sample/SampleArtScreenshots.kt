@@ -3,6 +3,7 @@
 package me.kozakov.orrery.sample
 
 import android.graphics.Bitmap
+import android.os.Looper
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -24,9 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.ExperimentalOrreryApi
 import me.kozakov.orrery.compose.currentDate
@@ -37,6 +40,7 @@ import me.kozakov.orrery.widget.renderCalendarSnapshot
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
@@ -56,9 +60,15 @@ class SampleArtScreenshots {
     private val isTab = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
     private val today = currentDate()
 
+    // Small clock steps with the main looper idled in between, like the frame recorder: one
+    // big advanceTimeBy left injected touches undelivered.
     private fun settle(ms: Long = 1600) {
         rule.mainClock.autoAdvance = false
-        rule.mainClock.advanceTimeBy(ms)
+        repeat((ms / STEP_MS).toInt().coerceAtLeast(1)) {
+            rule.mainClock.advanceTimeBy(STEP_MS)
+            rule.waitForIdle()
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
+        }
     }
 
     private fun shot(name: String) {
@@ -154,14 +164,22 @@ class SampleArtScreenshots {
         drag(Offset(width() / 2, y), dyDp)
     }
 
-    /** The Wednesday of this month with the most timed events: overlapping ones show the overlap modes. */
-    private fun busiestWednesday(): LocalDate {
+    private fun timedEvents(): Map<LocalDate, Int> {
         val month = YearMonth(today.year, today.month)
-        val events = SampleData.eventsFor(month.firstDay..month.lastDay)
-        return events
-            .filterKeys { it.dayOfWeek == DayOfWeek.WEDNESDAY }
-            .maxByOrNull { (_, list) -> list.count { it.span is EventSpan.Timed } }
-            ?.key ?: today
+        return SampleData.eventsFor(month.firstDay..month.lastDay).mapValues { (_, list) ->
+            list.count { it.span is EventSpan.Timed }
+        }
+    }
+
+    /** The day of this month with the most timed events: overlapping ones show the overlap modes. */
+    private fun busiestDay(): LocalDate = timedEvents().maxByOrNull { it.value }?.key ?: today
+
+    /** The Wednesday of the week of this month with the most timed events. */
+    private fun busiestWeek(): LocalDate {
+        val counts = timedEvents()
+        return counts.keys
+            .filter { it.dayOfWeek == DayOfWeek.WEDNESDAY }
+            .maxByOrNull { wed -> (-3..3).sumOf { counts[wed.plus(it, DateTimeUnit.DAY)] ?: 0 } } ?: today
     }
 
     private fun selectInMonth(date: LocalDate) {
@@ -217,14 +235,14 @@ class SampleArtScreenshots {
 
     @Test
     fun scheduleWeek() {
-        selectInMonth(busiestWednesday())
+        selectInMonth(busiestWeek())
         chip("Week")
         shot("schedule_week_side_by_side")
     }
 
     @Test
     fun scheduleDayStacked() {
-        selectInMonth(busiestWednesday())
+        selectInMonth(busiestDay())
         chip("Day")
         chip("Stacked overlap")
         shot("schedule_week_stacked")
@@ -324,6 +342,10 @@ class SampleArtScreenshots {
         }
         save(runBlocking { renderCalendarSnapshot(context, OrreryMonthWidget().spec(today), 600, 600) }, "widget_month")
         save(runBlocking { renderCalendarSnapshot(context, OrreryAgendaWidget().spec(today), 720, 360) }, "widget_agenda")
+    }
+
+    private companion object {
+        const val STEP_MS = 80L
     }
 
     @Test

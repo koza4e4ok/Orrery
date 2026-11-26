@@ -182,7 +182,7 @@ jobs:
               gifsicle -O3 --lossy=$lossy -b "$out"
               size=$(stat -c%s "$out")
               echo "$out fps=$fps colors=$colors lossy=$lossy -> $size bytes"
-              [ "$size" -le 1500000 ] && break
+              if [ "$size" -le 1500000 ]; then break; fi
             done
           }
           togif videos/android.mp4 art/orrery-demo.gif

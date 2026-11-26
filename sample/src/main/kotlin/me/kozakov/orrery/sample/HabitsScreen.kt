@@ -58,6 +58,7 @@ import me.kozakov.orrery.compose.rememberAnimatedDayValues
 import me.kozakov.orrery.compose.rememberCalendarState
 import me.kozakov.orrery.compose.rememberHeatmapCalendarState
 import me.kozakov.orrery.compose.rememberWeekCalendarState
+import me.kozakov.orrery.core.heatmapSummary
 
 private val WORK_WEEK =
     setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
@@ -269,10 +270,18 @@ internal fun HabitsScreen() {
                         "Year in review",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     )
+                    val heatState = rememberHeatmapCalendarState()
+                    // The summary gets its own line: next to the legend it does not fit a phone width.
+                    val summary =
+                        remember(yearHeat, heatState.startDate, heatState.endDate) {
+                            heatmapSummary(heatState.startDate..heatState.endDate) { (yearHeat[it] ?: 0f) > 0f }
+                        }
+                    HeatmapDefaults.Summary(summary)
                     HeatmapCalendar(
                         intensity = { date -> yearHeat[date] },
-                        state = rememberHeatmapCalendarState(),
+                        state = heatState,
                         onDayClick = { pickedDay = it.toString() },
+                        summary = null,
                     )
                     pickedDay?.let {
                         Text(

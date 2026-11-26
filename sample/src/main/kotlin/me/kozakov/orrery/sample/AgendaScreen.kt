@@ -250,6 +250,11 @@ internal fun AgendaScreen() {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next page")
                 }
                 FilterChip(
+                    selected = editing,
+                    onClick = { editing = !editing },
+                    label = { Text("Edit") },
+                )
+                FilterChip(
                     selected = stackedOverlap,
                     onClick = { stackedOverlap = !stackedOverlap },
                     label = { Text("Stacked overlap") },
@@ -263,11 +268,6 @@ internal fun AgendaScreen() {
                         }
                     },
                     label = { Text("Zoom") },
-                )
-                FilterChip(
-                    selected = editing,
-                    onClick = { editing = !editing },
-                    label = { Text("Edit") },
                 )
             }
             if (!compactHeight) {

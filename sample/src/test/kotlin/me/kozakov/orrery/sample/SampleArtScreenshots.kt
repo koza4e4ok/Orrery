@@ -3,6 +3,7 @@
 package me.kozakov.orrery.sample
 
 import android.graphics.Bitmap
+import android.os.Looper
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -37,13 +38,16 @@ import me.kozakov.orrery.core.EventSpan
 import me.kozakov.orrery.sample.widget.OrreryAgendaWidget
 import me.kozakov.orrery.sample.widget.OrreryMonthWidget
 import me.kozakov.orrery.widget.renderCalendarSnapshot
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import java.io.FileOutputStream
+import java.time.Duration
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -59,13 +63,21 @@ class SampleArtScreenshots {
     private val isTab = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
     private val today = currentDate()
 
-    // Small clock steps, like the frame recorder. Taps go through the semantics OnClick action:
-    // injected touches after a tab switch failed with "Failed to inject touch input" or were
-    // dropped. Only the drags still inject touch input.
+    // Small clock steps with the Robolectric main looper run for the same time after each one.
+    // advanceTimeBy alone leaves the looper paused, so after a tab switch the new screen was
+    // never laid out and the next tap found no node ("Failed to perform OnClick action").
+    // The frame recorder gets the same effect from capturing a frame after every step.
+    // Taps go through the semantics OnClick action; only the drags inject touch input.
     private fun settle(ms: Long = 1600) {
         rule.mainClock.autoAdvance = false
-        repeat((ms / STEP_MS).toInt().coerceAtLeast(1)) { rule.mainClock.advanceTimeBy(STEP_MS) }
+        repeat((ms / STEP_MS).toInt().coerceAtLeast(1)) {
+            rule.mainClock.advanceTimeBy(STEP_MS)
+            Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(STEP_MS))
+        }
     }
+
+    @Before
+    fun pauseClock() = settle(1000)
 
     private fun shot(name: String) {
         settle()

@@ -2,10 +2,19 @@
 
 ## [Unreleased]
 
+## [1.0.0-rc.1] - 2026-11-26
+
+The release candidate of 1.0.0 (#89). It is a deliberate, one-time break against 0.9.x:
+read the [0.9 to 1.0 migration guide](docs/migration/0.9-to-1.0.md) before upgrading.
+From this release on, CI compares the public ABI of every change with the last release and
+fails on a removal or signature change ([`docs/API-STABILITY.md`](docs/API-STABILITY.md)). A
+break found while the RC is tested needs a new RC; `1.0.0` follows after about a week of
+testing without one.
+
 ### BREAKING
 
 The 1.0 breaks are listed row by row in the API audit ledger,
-[`docs/api-audit-1.0.md`](docs/api-audit-1.0.md) (#89); the migration guide follows.
+[`docs/api-audit-1.0.md`](docs/api-audit-1.0.md) (#89).
 
 **Migration guide:** [`docs/migration/0.9-to-1.0.md`](docs/migration/0.9-to-1.0.md) covers every
 ledger row (who is affected, including libraries built against 0.9.x, and what to change).
@@ -75,7 +84,7 @@ The 1.0 API rules and the ABI gate are described in
   inside a selected range reach 4.5:1 contrast against the range band, and a title that
   does not fit shrinks (down to the text floor) before it is ellipsised, so the end of
   an agenda's date range stays visible. Snapshot goldens changed.
-- `DefaultDay` keeps a gap between the day shapes of adjacent weeks: everything it draws
+- `DefaultDay` keeps a gap between the day shapes of adjacent weeks (#134): everything it draws
   is inset by the new `CalendarDayShapes.verticalInset` (default `2.dp` above and below,
   also a `CalendarDefaults.dayShapes` parameter), so circles, badges and today rings no
   longer touch in short rows. The cell keeps its height and the whole cell stays
@@ -132,6 +141,21 @@ The 1.0 API rules and the ABI gate are described in
   should not fill the maximum height. A caller's width modifier on the date, month and
   date-time dialogs is now honored (`requiredWidth` used to override it). Nothing changes
   at the default text size on a phone; signatures are unchanged.
+- Heatmaps (#122): the default color scale starts level 1 at 35% of the way from
+  `surfaceVariant` to `primary` (was 20%) and rises linearly to `primary`, so the
+  lowest level is easier to tell apart from an empty day. Heatmap colors change
+  for levels 1-4.
+- `CalendarDefaults.MiniMonth` draws the whole month on one canvas with shared,
+  cached text layouts instead of composing about 40 nodes per month, so
+  `YearCalendar` pages compose and scroll faster. The month is now one
+  accessibility node described by its month and year (with "today" and selected
+  state) instead of reading every day number. Signatures are unchanged.
+- Every public declaration of the six library modules has KDoc, and detekt now fails the
+  build on a missing one (#149-#154).
+- Build and supply chain (#89 task 7): Gradle wrapper 9.9.2 with a pinned distribution
+  checksum (#156); every GitHub Action pinned to a commit SHA, least-privilege workflow
+  permissions, Dependabot and `SECURITY.md` (#155). The tag publish job runs in the
+  `release` environment and first runs an ABI gate against the previous release tag (#139).
 
 ### Added
 
@@ -188,8 +212,16 @@ The 1.0 API rules and the ABI gate are described in
   `CollapsibleCalendarState.visibleDateRangeFlow(calendarState, weekState, ...)`,
   which widen the range by whole months/weeks, clamp it to the configured bounds
   and only emit changes.
+- Dual-month layout for `OrreryDateRangePickerDialog` (#88b, #121): the new `layoutMode`
+  parameter takes a `DateRangeCalendarLayoutMode`. The default `Adaptive()` shows two
+  consecutive months side by side in a centred card when the dialog window is at least
+  `DatePickerDefaults.MinDualMonthWidth` (640 dp) wide, and the single column of months below
+  that; it is resolved live, so rotating or resizing switches the layout. `DualMonth` always
+  shows two months and `SingleMonth` is the 0.9 layout, so wide windows (tablets, desktop,
+  landscape) now get the two-month card unless `SingleMonth` is passed. The Input face puts
+  the two fields side by side.
 - Range selection across the two months of the dual-month
-  `OrreryDateRangePickerDialog` (#88b): a long-press drag can start in one month
+  `OrreryDateRangePickerDialog` (#88b, #125): a long-press drag can start in one month
   and end in the other (in either order), and holding a drag near the left or
   right edge pages one month after a short pause, then one more every 400 ms
   while it stays there; with a mouse or stylus, hovering previews the
@@ -197,26 +229,14 @@ The 1.0 API rules and the ABI gate are described in
   two months without scrolling (`Shift+Arrow` extends the range across them)
   and page by exactly one month past either side.
 
-### Changed
-
-- Heatmaps (#122): the default color scale starts level 1 at 35% of the way from
-  `surfaceVariant` to `primary` (was 20%) and rises linearly to `primary`, so the
-  lowest level is easier to tell apart from an empty day. Heatmap colors change
-  for levels 1-4.
-- `CalendarDefaults.MiniMonth` draws the whole month on one canvas with shared,
-  cached text layouts instead of composing about 40 nodes per month, so
-  `YearCalendar` pages compose and scroll faster. The month is now one
-  accessibility node described by its month and year (with "today" and selected
-  state) instead of reading every day number. Signatures are unchanged.
-
 ### Experimental
 
-- New module `me.kozakov.orrery:orrery-widget` (#89, in progress): the scaffold for the
-  headless calendar snapshot renderer, with `CalendarSnapshotRange` (`Month`, `Week`,
+- New module `me.kozakov.orrery:orrery-widget` (#89, #130): the headless calendar
+  snapshot renderer, with `CalendarSnapshotRange` (`Month`, `Week`,
   `Agenda`). Every public declaration is `@ExperimentalOrreryApi` and has no
   compatibility promise in 1.0.x. It requires exactly the same `orrery-compose`
   version (`strictly` in the Gradle metadata, `[x.y.z]` in the POM).
-- `orrery-widget` snapshot model (#89, in progress): `CalendarSnapshotSpec` (range, today,
+- `orrery-widget` snapshot model (#89, #133): `CalendarSnapshotSpec` (range, today,
   selection, day info tint, event dot counts, agenda events, first day of week, title,
   weekday and outside-day switches), `CalendarSnapshotColors` and
   `CalendarSnapshotDefaults.colors(colorScheme)` / `colors()` (the `MiniMonth` colour
@@ -226,8 +246,8 @@ The 1.0 API rules and the ABI gate are described in
   `@ExperimentalOrreryApi`. `CalendarSnapshotRange.Agenda.days` is limited to 1..366.
   The internal painter draws month, week and agenda strips; text shrinks with the cells
   down to `minTextScale` of its size at font scale 1, so a large system font never hides
-  the day numbers. The render functions follow in a later change.
-- `orrery-widget` renderer (#89, in progress): `renderCalendarSnapshot(spec, output, colors, style)`
+  the day numbers.
+- `orrery-widget` renderer (#89, #135): `renderCalendarSnapshot(spec, output, colors, style)`
   draws a snapshot into an `ImageBitmap` on `Dispatchers.Default` with software drawing
   only, on every target. On Android, `renderCalendarSnapshot(context, spec, widthPx, heightPx)`
   takes density, font scale, locale, layout direction and the 24-hour setting from the
@@ -238,7 +258,7 @@ The 1.0 API rules and the ABI gate are described in
   outside 1..4096 px a side or above 4 194 304 px throw `IllegalArgumentException` naming
   the values. Agenda text now shrinks down to `minTextScale` of its size at font scale 1
   before rows are dropped, like the day numbers. All `@ExperimentalOrreryApi`.
-- `orrery-widget` home-screen widgets (#89): `calendarSnapshotDescription(context, spec)` on
+- `orrery-widget` home-screen widgets (#89, #137): `calendarSnapshotDescription(context, spec)` on
   Android returns the text the `CalendarSnapshot` composable announces (month title or the
   spoken date range) in the context's locale, for the content description of a widget image.
   The sample app has a Glance month widget (2×2 and up) and agenda widget (4×2 and up) that
@@ -844,7 +864,8 @@ maxVisibleLanes = 3)` in `orrery-core` packs the events overlapping a week row
   is replaced by `decorators: List<DayDecorator>`. Migrate
   `decorator = { day -> ... }` to `decorators = listOf(DayDecorator { day -> ... })`.
 
-[Unreleased]: https://github.com/koza4e4ok/Orrery/compare/v0.9.2...HEAD
+[Unreleased]: https://github.com/koza4e4ok/Orrery/compare/v1.0.0-rc.1...HEAD
+[1.0.0-rc.1]: https://github.com/koza4e4ok/Orrery/compare/v0.9.2...v1.0.0-rc.1
 [0.9.2]: https://github.com/koza4e4ok/Orrery/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/koza4e4ok/Orrery/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/koza4e4ok/Orrery/compare/v0.8.0...v0.9.0

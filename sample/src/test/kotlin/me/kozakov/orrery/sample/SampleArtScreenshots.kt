@@ -133,14 +133,16 @@ class SampleArtScreenshots {
         rule
             .onRoot()
             .fetchSemanticsNode()
-            .size.width
+            .size
+            .width
             .toFloat()
 
     private fun height() =
         rule
             .onRoot()
             .fetchSemanticsNode()
-            .size.height
+            .size
+            .height
             .toFloat()
 
     private fun hourY(hour: Int): Float? {
@@ -151,7 +153,8 @@ class SampleArtScreenshots {
                 rule
                     .onAllNodes(hasText(label), useUnmergedTree = true)
                     .fetchSemanticsNodes()
-            if (nodes.isNotEmpty()) return nodes.first().boundsInRoot.center.y
+            val center = nodes.firstOrNull()?.boundsInRoot?.center
+            if (center != null) return center.y
         }
         println("SHOT: no hour label for $hour")
         return null

@@ -100,7 +100,8 @@ class SampleTourRecorder {
                 rule
                     .onAllNodes(hasText(label), useUnmergedTree = true)
                     .fetchSemanticsNodes()
-            if (nodes.isNotEmpty()) return nodes.first().boundsInRoot.center.y
+            val center = nodes.firstOrNull()?.boundsInRoot?.center
+            if (center != null) return center.y
         }
         println("TOUR: no hour label for $hour")
         return null
@@ -115,13 +116,15 @@ class SampleTourRecorder {
             rule
                 .onRoot()
                 .fetchSemanticsNode()
-                .size.width
+                .size
+                .width
                 .toFloat()
         val height =
             rule
                 .onRoot()
                 .fetchSemanticsNode()
-                .size.height
+                .size
+                .height
                 .toFloat()
         // Agenda: collapse the calendar Month -> TwoWeeks -> Week with direct drags, then expand it.
         var gridY = 0f

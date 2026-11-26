@@ -29,6 +29,14 @@ android {
     buildFeatures {
         compose = true
     }
+    // TEMPORARY (README GIF and screenshots): Robolectric frame capture in src/test.
+    testOptions.unitTests {
+        isIncludeAndroidResources = true
+        all {
+            it.systemProperty("roborazzi.test.record", "true")
+            it.maxHeapSize = "4g"
+        }
+    }
 }
 
 kotlin {
@@ -48,4 +56,13 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
     // The home-screen widget glue. Glance stays in :sample, which is never published.
     implementation(libs.glance.appwidget)
+    // TEMPORARY (README GIF and screenshots): Robolectric frame capture in src/test.
+    testImplementation(libs.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.androidx.test.ext.junit)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

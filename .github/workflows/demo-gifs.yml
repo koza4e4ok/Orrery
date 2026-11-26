@@ -1,0 +1,197 @@
+# TEMPORARY: records the README demo GIFs and screenshots. Removed again before review.
+# Android: Robolectric frame capture of the :sample app (SampleTourRecorder) and the
+# README screenshots (SampleArtScreenshots). Desktop / Web / iOS: the shared :demo UI
+# playing DemoTour, as in #58 and #99.
+name: Demo GIFs
+
+on:
+  push:
+    branches: [docs/1.0-sample-demo-media]
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - name: Move the demo UI to commonMain (temporary)
+        run: |
+          mkdir -p demo/src/commonMain/kotlin/me/kozakov/orrery/demo
+          mv demo/src/wasmJsMain/kotlin/me/kozakov/orrery/demo/Demo{App,Data,Tabs}.kt demo/src/commonMain/kotlin/me/kozakov/orrery/demo/
+      - name: Install Xvfb and ffmpeg
+        run: sudo apt-get update -q && sudo apt-get install -yq xvfb ffmpeg libgl1-mesa-dri
+      - name: Build desktop and web demos
+        run: ./gradlew :demo:desktopMainClasses :demo:wasmJsBrowserDistribution
+      - name: Record desktop (features)
+        timeout-minutes: 12
+        run: |
+          Xvfb :99 -screen 0 800x1640x24 &
+          sleep 3
+          DISPLAY=:99 ./gradlew --console=plain :demo:runDesktopDemo > desktop.log 2>&1 &
+          demo/record.sh desktop.log desktop.mp4 \
+            ffmpeg -nostdin -y -loglevel error -f x11grab -draw_mouse 0 -video_size 800x1640 -framerate 30 -i :99 -pix_fmt yuv420p
+          pkill -f DesktopMainKt || true
+          pkill Xvfb || true
+      - name: Serve the web demo
+        run: |
+          dist=demo/build/dist/wasmJs/productionExecutable
+          ls -l "$dist"
+          (cd "$dist" && python3 -m http.server 8080 > /dev/null 2>&1 &)
+          which google-chrome
+      # Chrome's GPU process fails under Xvfb and SwiftShader cannot compile Skia's shaders,
+      # so the web demo is recorded on ANGLE's desktop-GL backend (Mesa llvmpipe), as in #99.
+      - name: Record web (Chrome, ANGLE GL)
+        timeout-minutes: 12
+        run: |
+          # Chrome will not open a window narrower than ~500 DIP, so the viewport is 500x1025 DIP at 1.6x.
+          Xvfb :97 -screen 0 800x1640x24 +extension GLX &
+          sleep 3
+          DISPLAY=:97 google-chrome --no-sandbox --no-first-run --no-default-browser-check \
+            --user-data-dir=/tmp/chrome --kiosk --window-position=0,0 --window-size=500,1025 --force-device-scale-factor=1.6 \
+            --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --enable-logging=stderr --v=0 \
+            http://localhost:8080/ > web-chrome.log 2>&1 &
+          demo/record.sh web-chrome.log web-chrome.mp4 \
+            ffmpeg -nostdin -y -loglevel error -f x11grab -draw_mouse 0 -video_size 800x1640 -framerate 30 -i :97 -pix_fmt yuv420p
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: linux-videos
+          path: |
+            *.mp4
+            *.log
+            *.loop
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - name: Record the sample tour and screenshots (Robolectric)
+        run: |
+          ./gradlew :sample:testDebugUnitTest --tests '*SampleTourRecorder*' --tests '*SampleArtScreenshots*' -i > android.log 2>&1 || true
+          grep -E 'TOUR:|SHOT:|A11Y|BUILD|FAILED|Exception' android.log | head -200
+      - name: Frames to video
+        run: |
+          sudo apt-get update -q && sudo apt-get install -yq ffmpeg
+          ls sample/build/tour-frames | wc -l
+          ffmpeg -nostdin -y -loglevel error -framerate 12.5 -i sample/build/tour-frames/frame_%05d.png \
+            -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p android.mp4
+          ls -l sample/build/art-screens
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: android-video
+          path: |
+            android.mp4
+            android.log
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: art-screens
+          path: sample/build/art-screens/
+
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - name: Move the demo UI to commonMain (temporary)
+        run: |
+          mkdir -p demo/src/commonMain/kotlin/me/kozakov/orrery/demo
+          mv demo/src/wasmJsMain/kotlin/me/kozakov/orrery/demo/Demo{App,Data,Tabs}.kt demo/src/commonMain/kotlin/me/kozakov/orrery/demo/
+      - name: Build the demo framework
+        run: ./gradlew :demo:linkReleaseFrameworkIosSimulatorArm64
+      - name: Build the demo app
+        run: |
+          fw=demo/build/bin/iosSimulatorArm64/releaseFramework
+          app=build/OrreryDemoApp.app
+          mkdir -p "$app/Frameworks"
+          cp demo/ios/Info.plist "$app/"
+          cp -R "$fw/OrreryDemo.framework" "$app/Frameworks/"
+          xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios16.0-simulator \
+            -F "$fw" -framework OrreryDemo \
+            -Xlinker -rpath -Xlinker @executable_path/Frameworks \
+            demo/ios/main.swift -o "$app/OrreryDemoApp"
+          codesign --force --sign - "$app/Frameworks/OrreryDemo.framework"
+          codesign --force --sign - "$app"
+      - name: Boot a simulator
+        run: |
+          udid=$(xcrun simctl list devices available -j | jq -r '[.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.name | test("^iPhone [0-9]+( Pro)?$"))] | last | .udid')
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl status_bar "$udid" override --time 9:41 --dataNetwork wifi --wifiBars 3 --cellularBars 4 --batteryState charged --batteryLevel 100
+          xcrun simctl install "$udid" build/OrreryDemoApp.app
+      - name: Record iOS
+        timeout-minutes: 12
+        run: |
+          xcrun simctl launch --console-pty "$UDID" me.kozakov.orrery.demo > ios.log 2>&1 &
+          demo/record.sh ios.log ios.mov xcrun simctl io "$UDID" recordVideo --codec=h264 --force
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: ios-video
+          path: |
+            ios.mov
+            ios.log
+            ios.mov.loop
+
+  gifs:
+    needs: [linux, ios, android]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: videos
+          pattern: "*-video*"
+          merge-multiple: true
+      - name: Install ffmpeg and gifsicle
+        run: sudo apt-get update -q && sudo apt-get install -yq ffmpeg gifsicle
+      - name: Convert to GIFs (each at most 1.5 MB)
+        run: |
+          mkdir -p art
+          # Keep only the last loop of each recording (record.sh writes its length to <video>.loop),
+          # then step down fps / colors / lossy until the GIF fits 1,500,000 bytes.
+          togif() {
+            local in=$1 out=$2
+            [ -f "$in" ] || { echo "missing $in"; return 0; }
+            local trim=()
+            [ -f "$in.loop" ] && trim=(-sseof "-$(cat "$in.loop")")
+            for cfg in "12 128 40" "12 128 80" "10 128 80" "10 96 100" "8 96 120"; do
+              read -r fps colors lossy <<< "$cfg"
+              ffmpeg -nostdin -y -loglevel error "${trim[@]}" -i "$in" -vf "fps=$fps,scale=320:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=$colors:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle" -loop 0 "$out"
+              gifsicle -O3 --lossy=$lossy -b "$out"
+              size=$(stat -c%s "$out")
+              echo "$out fps=$fps colors=$colors lossy=$lossy -> $size bytes"
+              [ "$size" -le 1500000 ] && break
+            done
+          }
+          togif videos/android.mp4 art/orrery-demo.gif
+          togif videos/desktop.mp4 art/orrery-features-demo.gif
+          togif videos/web-chrome.mp4 art/orrery-web-demo.gif
+          togif videos/ios.mov art/orrery-ios-demo.gif
+          ls -l art
+          for g in art/*.gif; do echo "$g $(gifsicle --info "$g" | head -1)"; done
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: demo-gifs
+          path: art/

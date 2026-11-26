@@ -47,7 +47,11 @@ kotlin {
 }
 
 tasks.register<JavaExec>("runDesktopDemo") {
-    val compilation = kotlin.targets.getByName("desktop").compilations.getByName("main")
+    val compilation =
+        kotlin.targets
+            .getByName("desktop")
+            .compilations
+            .getByName("main")
     dependsOn(compilation.compileTaskProvider)
     classpath = files(compilation.output.allOutputs, compilation.runtimeDependencyFiles)
     mainClass.set("me.kozakov.orrery.demo.DesktopMainKt")

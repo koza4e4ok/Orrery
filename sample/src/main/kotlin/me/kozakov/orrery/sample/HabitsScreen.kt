@@ -278,7 +278,8 @@ internal fun HabitsScreen() {
                         }
                     HeatmapDefaults.Summary(summary)
                     HeatmapCalendar(
-                        intensity = { date -> yearHeat[date] },
+                        // Days with no habit done stay empty, like GitHub's graph, so gaps read as gaps.
+                        intensity = { date -> yearHeat[date]?.takeIf { it > 0f } },
                         state = heatState,
                         onDayClick = { pickedDay = it.toString() },
                         summary = null,

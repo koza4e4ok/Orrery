@@ -11,6 +11,7 @@ android {
         version =
             release(
                 libs.versions.compile.sdk
+                    .asProvider()
                     .get()
                     .toInt(),
             ) {
@@ -26,6 +27,7 @@ android {
         minSdk = 23
         targetSdk =
             libs.versions.compile.sdk
+                .asProvider()
                 .get()
                 .toInt()
         versionCode = 1

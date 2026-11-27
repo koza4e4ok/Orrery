@@ -10,6 +10,7 @@ android {
         version =
             release(
                 libs.versions.compile.sdk
+                    .asProvider()
                     .get()
                     .toInt(),
             ) {
@@ -24,6 +25,7 @@ android {
         minSdk = 28
         targetSdk =
             libs.versions.compile.sdk
+                .asProvider()
                 .get()
                 .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

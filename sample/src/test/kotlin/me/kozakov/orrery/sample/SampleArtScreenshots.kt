@@ -18,7 +18,6 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -113,11 +112,17 @@ class SampleArtScreenshots {
     ) = attempt("scroll") {
         val scroller =
             SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange) and hasAnyDescendant(target)
-        // Lazy items far below are not placed yet (zero bounds): bring the target on screen first.
-        runCatching { rule.onAllNodes(scroller).onFirst().performScrollToNode(target) }
-        settle()
+        // Lazy items far below are not placed yet (zero bounds): step down until the target is.
+        repeat(MAX_SCROLL_STEPS) {
+            val placed = rule.onAllNodes(target).fetchSemanticsNodes().any { it.boundsInRoot.height > 0f }
+            if (placed) return@repeat
+            rule.onAllNodes(scroller).onFirst().performSemanticsAction(SemanticsActions.ScrollBy) {
+                it(0f, px(SCROLL_STEP_DP))
+            }
+            settle(STEP_MS * 3)
+        }
         val scrollers = rule.onAllNodes(scroller).fetchSemanticsNodes()
-        val targets = rule.onAllNodes(target).fetchSemanticsNodes()
+        val targets = rule.onAllNodes(target).fetchSemanticsNodes().filter { it.boundsInRoot.height > 0f }
         println("SHOT: scrollers ${scrollers.map { it.boundsInRoot }} targets ${targets.map { it.boundsInRoot }}")
         val index = scrollers.indices.maxByOrNull { scrollers[it].boundsInRoot.height } ?: return@attempt
         val box = scrollers[index].boundsInRoot
@@ -224,5 +229,7 @@ class SampleArtScreenshots {
 
     private companion object {
         const val STEP_MS = 80L
+        const val MAX_SCROLL_STEPS = 12
+        const val SCROLL_STEP_DP = 300
     }
 }

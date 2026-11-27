@@ -24,7 +24,7 @@ jobs:
       - name: Record the screenshots (Robolectric)
         timeout-minutes: 35
         run: |
-          timeout 1800 ./gradlew :sample:testDebugUnitTest --tests '*SampleArtScreenshots*' -i > android-shots.log 2>&1 || echo "gradle exit $?"
+          timeout 900 ./gradlew :sample:testDebugUnitTest --tests '*SampleArtScreenshots*' -i > android-shots.log 2>&1 || echo "gradle exit $?"
           grep -E 'SHOT:|BUILD|FAILED|Exception|error:|e: ' android-shots.log | head -200
           ls -l sample/build/art-screens || true
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

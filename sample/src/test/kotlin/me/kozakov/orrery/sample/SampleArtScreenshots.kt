@@ -18,6 +18,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -112,6 +113,9 @@ class SampleArtScreenshots {
     ) = attempt("scroll") {
         val scroller =
             SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange) and hasAnyDescendant(target)
+        // Lazy items far below are not placed yet (zero bounds): bring the target on screen first.
+        runCatching { rule.onAllNodes(scroller).onFirst().performScrollToNode(target) }
+        settle()
         val scrollers = rule.onAllNodes(scroller).fetchSemanticsNodes()
         val targets = rule.onAllNodes(target).fetchSemanticsNodes()
         println("SHOT: scrollers ${scrollers.map { it.boundsInRoot }} targets ${targets.map { it.boundsInRoot }}")

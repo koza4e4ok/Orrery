@@ -79,8 +79,7 @@ internal object SampleData {
                         for (i in 0 until count) {
                             val tpl = eventPool[(startIndex + i * 2) % eventPool.size]
                             // Wednesdays add their own standup below; a second one would be a third lane.
-                            val isWednesday = date.dayOfWeek == DayOfWeek.WEDNESDAY
-                            if (isWednesday && tpl.title == "Team standup") continue
+                            if (date.dayOfWeek == DayOfWeek.WEDNESDAY && tpl.title == "Team standup") continue
                             val span =
                                 if (tpl.start != null && tpl.end != null) {
                                     EventSpan.Timed(
@@ -101,8 +100,7 @@ internal object SampleData {
                             )
                         }
                     }
-                    // Wednesdays: a review overlaps the standup, to demo the schedule's overlap modes.
-                    // Short titles, so they still fit two side-by-side lanes on a phone.
+                    // Wednesdays: a review overlaps the standup (short titles fit two lanes on a phone).
                     if (date.dayOfWeek == DayOfWeek.WEDNESDAY) {
                         add(
                             timedEvent(

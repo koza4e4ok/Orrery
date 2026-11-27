@@ -6,10 +6,19 @@ plugins {
 
 android {
     namespace = "me.kozakov.orrery.baselineprofile"
-    compileSdk =
-        libs.versions.compile.sdk
-            .get()
-            .toInt()
+    compileSdk {
+        version =
+            release(
+                libs.versions.compile.sdk
+                    .get()
+                    .toInt(),
+            ) {
+                minorApiLevel =
+                    libs.versions.compile.sdk.minor
+                        .get()
+                        .toInt()
+            }
+    }
 
     defaultConfig {
         minSdk = 28

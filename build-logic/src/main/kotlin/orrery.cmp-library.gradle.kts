@@ -31,12 +31,23 @@ kotlin {
     jvmToolchain(17)
 
     android {
-        compileSdk =
-            libs
-                .findVersion("compile-sdk")
-                .get()
-                .requiredVersion
-                .toInt()
+        compileSdk {
+            version =
+                release(
+                    libs
+                        .findVersion("compile-sdk")
+                        .get()
+                        .requiredVersion
+                        .toInt(),
+                ) {
+                    minorApiLevel =
+                        libs
+                            .findVersion("compile-sdk-minor")
+                            .get()
+                            .requiredVersion
+                            .toInt()
+                }
+        }
         minSdk = 23
         androidResources {
             enable = true

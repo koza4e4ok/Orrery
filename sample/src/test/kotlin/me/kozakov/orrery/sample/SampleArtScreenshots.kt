@@ -9,6 +9,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
@@ -101,6 +102,7 @@ class SampleArtScreenshots {
             .boundsInRoot
 
     /** Scrolls [scroller] so the top of [target] sits [marginDp] below the scroller's top. */
+    @Suppress("SameParameterValue")
     private fun scrollTopTo(
         scroller: SemanticsMatcher,
         target: SemanticsMatcher,
@@ -132,15 +134,30 @@ class SampleArtScreenshots {
         }
     }
 
+    /**
+     * Scrolls whole week rows, so the sticky month header covers exactly the rows scrolled
+     * past: the week before check-in sits right under it and the stay is fully on screen.
+     */
     private fun showStay() {
         tab("Trips")
         chip("Next 7 days")
         val calendar = hasTestTag("trips_calendar")
-        scrollTopTo(
-            scroller = hasScrollAction() and (calendar or hasAnyAncestor(calendar)),
-            target = hasContentDescription(fullDate(today), substring = true),
-            marginDp = 64,
-        )
+        attempt("scroll stay") {
+            val row = bounds(hasContentDescription(fullDate(today), substring = true)).top
+            val next = bounds(hasContentDescription(fullDate(today.plus(7, DateTimeUnit.DAY)), substring = true)).top
+            val first = YearMonth(today.year, today.month).firstDay
+            val leading = (first.dayOfWeek.ordinal + 1) % 7 // Sunday-first weeks in the US locale
+            val weekRow = (today.day - 1 + leading) / 7
+            val dy = (weekRow - 1).coerceAtLeast(0) * (next - row)
+            println("SHOT: stay row $weekRow, scroll by $dy")
+            if (dy > 0) {
+                rule
+                    .onAllNodes(hasScrollAction() and (calendar or hasAnyAncestor(calendar)))
+                    .onFirst()
+                    .performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, dy) }
+            }
+            settle()
+        }
     }
 
     @Test
@@ -168,7 +185,7 @@ class SampleArtScreenshots {
     fun habitsHeatmaps() {
         tab("Habits")
         scrollTopTo(
-            scroller = SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange),
+            scroller = hasScrollAction() and hasAnyDescendant(hasText("Year in review")),
             target = hasText("Year in review"),
             marginDp = 28,
         )

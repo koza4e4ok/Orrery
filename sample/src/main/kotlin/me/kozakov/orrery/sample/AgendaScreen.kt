@@ -96,9 +96,9 @@ private const val WORK_DAY_START_HOUR = 7
 
 private const val COMPACT_HEIGHT_DP = 480
 
-/** Below this width the Week grid pages three days at a time, so event titles stay readable. */
+/** Below this width the Week grid pages two days at a time, so side-by-side event titles stay readable. */
 private const val COMPACT_WIDTH_DP = 600
-private const val COMPACT_WEEK_DAYS = 3
+private const val COMPACT_WEEK_DAYS = 2
 private const val WORK_DAY_END_HOUR = 22
 
 /** Hour heights the time grids' Zoom chip animates between. */

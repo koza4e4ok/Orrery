@@ -162,7 +162,10 @@ The 1.0 API rules and the ABI gate are described in
 - `compileSdk` is 37.1, because the Compose 1.13 artifacts require it: Android apps and
   libraries depending on `orrery-compose` or `orrery-widget` must now compile against
   API 37.1 or later (with AGP 9: `compileSdk { version = release(37) { minorApiLevel = 1 } }`).
-  `minSdk` stays 23.
+- `minSdk` of `orrery-compose` and `orrery-widget` is 24 (was 23), because Compose 1.13 and
+  material3 1.5 declare `minSdk 24`: apps with `minSdk 23` fail the manifest merger.
+- The material3 1.5 `TimePicker` restyles the AM/PM selector, so the time step of
+  `DateTimePickerDialog` looks different on Android.
 
 ### Added
 

@@ -244,9 +244,9 @@ release, so API changes are always deliberate.
 | 0.7.0 – 0.9.2 | 2.4.21 | 1.12.2 | 2026.09.00 | 0.8.0 | 37 |
 | 0.6.0 | 2.4.0 | 1.11.1 | 2026.06.01 | 0.8.0 | 36 |
 
-These are the versions each release was built against. Android apps need `minSdk 23`
-and, from 1.0.0-rc.1, `compileSdk 37.1` (Compose 1.13 requires it; 0.7.0 to 0.9.2 need
-`compileSdk 37`). Releases before 0.6.0 are Android-only.
+These are the versions each release was built against. From 1.0.0-rc.1, Android apps need
+`compileSdk 37.1` and `minSdk 24` (Compose 1.13 requires both); 0.7.0 to 0.9.2 need
+`compileSdk 37` and `minSdk 23`. Releases before 0.6.0 are Android-only.
 
 > **1.0 is a breaking release.** 1.0.0 (first as `1.0.0-rc.1`) removes the hidden
 > binary-compatibility bridges, `CalendarDefaults.DaysOfWeekHeader` (use `WeekHeader`) and

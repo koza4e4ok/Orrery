@@ -48,7 +48,8 @@ kotlin {
                             .toInt()
                 }
         }
-        minSdk = 23
+        // Compose 1.13 and material3 1.5 (BOM 2026.11.01) declare minSdk 24 in their manifests.
+        minSdk = 24
         androidResources {
             enable = true
         }

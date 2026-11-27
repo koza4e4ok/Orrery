@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId = "me.kozakov.orrery.sample"
-        minSdk = 23
+        minSdk = 24
         targetSdk =
             libs.versions.compile.sdk
                 .asProvider()

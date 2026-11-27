@@ -26,6 +26,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.ExperimentalOrreryApi
@@ -101,16 +102,29 @@ class SampleArtScreenshots {
             .fetchSemanticsNode()
             .boundsInRoot
 
-    /** Scrolls [scroller] so the top of [target] sits [marginDp] below the scroller's top. */
-    @Suppress("SameParameterValue")
+    /**
+     * Scrolls the vertical scroller holding [target] so the target's top sits [marginDp] below
+     * the scroller's top. Other tabs keep nodes with the same text, so both are picked by bounds.
+     */
     private fun scrollTopTo(
-        scroller: SemanticsMatcher,
         target: SemanticsMatcher,
         marginDp: Int,
     ) = attempt("scroll") {
-        val dy = bounds(target).top - bounds(scroller).top - px(marginDp)
+        val scroller =
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange) and hasAnyDescendant(target)
+        val scrollers = rule.onAllNodes(scroller).fetchSemanticsNodes()
+        val targets = rule.onAllNodes(target).fetchSemanticsNodes()
+        println("SHOT: scrollers ${scrollers.map { it.boundsInRoot }} targets ${targets.map { it.boundsInRoot }}")
+        val index = scrollers.indices.maxByOrNull { scrollers[it].boundsInRoot.height } ?: return@attempt
+        val box = scrollers[index].boundsInRoot
+        val top =
+            targets
+                .map { it.boundsInRoot }
+                .filter { it.left >= box.left && it.right <= box.right }
+                .maxOf { it.top }
+        val dy = top - box.top - px(marginDp)
         println("SHOT: scroll by $dy")
-        rule.onAllNodes(scroller).onFirst().performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, dy) }
+        rule.onAllNodes(scroller)[index].performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, dy) }
         settle()
     }
 
@@ -143,12 +157,14 @@ class SampleArtScreenshots {
         chip("Next 7 days")
         val calendar = hasTestTag("trips_calendar")
         attempt("scroll stay") {
-            val row = bounds(hasContentDescription(fullDate(today), substring = true)).top
-            val next = bounds(hasContentDescription(fullDate(today.plus(7, DateTimeUnit.DAY)), substring = true)).top
             val first = YearMonth(today.year, today.month).firstDay
             val leading = (first.dayOfWeek.ordinal + 1) % 7 // Sunday-first weeks in the US locale
             val weekRow = (today.day - 1 + leading) / 7
-            val dy = (weekRow - 1).coerceAtLeast(0) * (next - row)
+            // Row height from today and the same weekday a week earlier, in the same month.
+            val row = bounds(hasContentDescription(fullDate(today), substring = true)).top
+            val weekBefore = hasContentDescription(fullDate(today.minus(7, DateTimeUnit.DAY)), substring = true)
+            val prev = if (weekRow > 0) bounds(weekBefore).top else row
+            val dy = (weekRow - 1).coerceAtLeast(0) * (row - prev)
             println("SHOT: stay row $weekRow, scroll by $dy")
             if (dy > 0) {
                 rule
@@ -184,11 +200,7 @@ class SampleArtScreenshots {
     @Test
     fun habitsHeatmaps() {
         tab("Habits")
-        scrollTopTo(
-            scroller = hasScrollAction() and hasAnyDescendant(hasText("Year in review")),
-            target = hasText("Year in review"),
-            marginDp = 28,
-        )
+        scrollTopTo(target = hasText("Year in review"), marginDp = 28)
         shot("year_and_heatmap")
     }
 

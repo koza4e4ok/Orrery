@@ -35,6 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,6 +48,7 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlinx.datetime.toJavaLocalDate
 import me.kozakov.orrery.compose.Agenda
 import me.kozakov.orrery.compose.CalendarDefaults
 import me.kozakov.orrery.compose.CalendarNavHeader
@@ -66,11 +71,15 @@ import me.kozakov.orrery.compose.rememberScheduleState
 import me.kozakov.orrery.compose.rememberWeekCalendarState
 import me.kozakov.orrery.compose.rememberYearCalendarState
 import me.kozakov.orrery.core.CalendarDay
+import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.DayPosition
 import me.kozakov.orrery.core.EventOverlapMode
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionMode
+import me.kozakov.orrery.core.eventsByDate
 import me.kozakov.orrery.lunar.LunarDayInfoProvider
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 /** How the agenda screen shows the event dataset. */
 private enum class AgendaMode(
@@ -86,6 +95,10 @@ private enum class AgendaMode(
 private const val WORK_DAY_START_HOUR = 7
 
 private const val COMPACT_HEIGHT_DP = 480
+
+/** Below this width the Week grid pages two days at a time, so side-by-side event titles stay readable. */
+private const val COMPACT_WIDTH_DP = 600
+private const val COMPACT_WEEK_DAYS = 2
 private const val WORK_DAY_END_HOUR = 22
 
 /** Hour heights the time grids' Zoom chip animates between. */
@@ -97,7 +110,7 @@ private val ZoomedHourHeight = 104.dp
  * grab handle) with event dots, count badges and a synchronized [Agenda]; a month grid with
  * multi-day [WeekEventBanners]; or the same events in a [DaySchedule] / [WeekSchedule] time
  * grid limited to working hours, with side-by-side or stacked overlapping events, page
- * chevrons and an animated zoom.
+ * chevrons, an animated zoom and an Edit mode that creates, moves and resizes events by drag.
  */
 @Composable
 internal fun AgendaScreen() {
@@ -106,6 +119,7 @@ internal fun AgendaScreen() {
     var showYearOverview by rememberSaveable { mutableStateOf(false) }
     var stackedOverlap by rememberSaveable { mutableStateOf(false) }
     var zoomed by rememberSaveable { mutableStateOf(false) }
+    var editing by rememberSaveable { mutableStateOf(false) }
     var now by remember { mutableStateOf(systemTimeOfDay()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -148,7 +162,21 @@ internal fun AgendaScreen() {
             initialSelection = Selection(single = today),
         )
     val scope = rememberCoroutineScope()
-    val events = remember(rangeStart, rangeEnd) { SampleData.eventsFor(rangeStart..rangeEnd) }
+    // Edits from the time grids replace this list; like all sample data it lives in memory only.
+    var eventList by remember(rangeStart, rangeEnd) { mutableStateOf(SampleData.eventListFor(rangeStart..rangeEnd)) }
+    val events = remember(eventList) { eventList.eventsByDate(rangeStart..rangeEnd) }
+    val onSlotCreate =
+        { date: LocalDate, start: LocalTime, end: LocalTime ->
+            eventList = ScheduleEdits.create(eventList, date, start, end)
+        }.takeIf { editing }
+    val onEventMove =
+        { event: CalendarEvent<Nothing>, date: LocalDate, start: LocalTime, end: LocalTime ->
+            eventList = ScheduleEdits.reschedule(eventList, event, date, start, end)
+        }.takeIf { editing }
+    val onEventResize =
+        { event: CalendarEvent<Nothing>, start: LocalTime, end: LocalTime ->
+            eventList = ScheduleEdits.reschedule(eventList, event, event.span.startDate, start, end)
+        }.takeIf { editing }
     val bannerEvents = remember(events) { events.values.flatten().distinctBy { it.id } }
     val lunarProvider = remember { LunarDayInfoProvider() }
     val decorators =
@@ -176,6 +204,7 @@ internal fun AgendaScreen() {
 
     // Short windows (landscape phones) drop the big date header so the time grid keeps its room.
     val compactHeight = LocalConfiguration.current.screenHeightDp < COMPACT_HEIGHT_DP
+    val weekDays = if (LocalConfiguration.current.screenWidthDp < COMPACT_WIDTH_DP) COMPACT_WEEK_DAYS else 7
     Column(Modifier.fillMaxSize()) {
         if (!compactHeight) {
             SampleHeroHeader(
@@ -196,8 +225,13 @@ internal fun AgendaScreen() {
                 onToggleYearOverview = { showYearOverview = !showYearOverview },
             )
         }
+        // Scrolls rather than squeezing the last chip at large font scales.
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -226,6 +260,11 @@ internal fun AgendaScreen() {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next page")
                 }
                 FilterChip(
+                    selected = editing,
+                    onClick = { editing = !editing },
+                    label = { Text("Edit") },
+                )
+                FilterChip(
                     selected = stackedOverlap,
                     onClick = { stackedOverlap = !stackedOverlap },
                     label = { Text("Stacked overlap") },
@@ -243,7 +282,11 @@ internal fun AgendaScreen() {
             }
             if (!compactHeight) {
                 Text(
-                    "Working hours $WORK_DAY_START_HOUR:00–$WORK_DAY_END_HOUR:00",
+                    if (editing) {
+                        "Long-press and drag empty time to add an event; drag an event or its edges to change it"
+                    } else {
+                        "Working hours $WORK_DAY_START_HOUR:00–$WORK_DAY_END_HOUR:00"
+                    },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -280,16 +323,23 @@ internal fun AgendaScreen() {
                         currentTime = now,
                         modifier = Modifier.fillMaxSize(),
                         overlapMode = overlapMode,
+                        onSlotCreate = onSlotCreate,
+                        onEventMove = onEventMove,
+                        onEventResize = onEventResize,
                     )
 
                 AgendaMode.Week ->
                     WeekSchedule(
                         events = { date -> events[date].orEmpty() },
                         state = scheduleState,
+                        daysPerPage = weekDays,
                         today = today,
                         currentTime = now,
                         modifier = Modifier.fillMaxSize(),
                         overlapMode = overlapMode,
+                        onSlotCreate = onSlotCreate,
+                        onEventMove = onEventMove,
+                        onEventResize = onEventResize,
                     )
 
                 // Multi-day events as Google Calendar-style title banners over each week row.
@@ -370,14 +420,31 @@ private fun BannerDayNumber(
             else -> colors.onSurface
         }
     Box(
-        Modifier.fillMaxWidth().height(24.dp).clickable(onClick = onClick),
+        Modifier
+            .fillMaxWidth()
+            .height(24.dp)
+            .clickable(onClick = onClick)
+            // The week header is hidden from screen readers, so the cell says its full date.
+            .semantics {
+                contentDescription = fullDate(day.date)
+                this.selected = selected
+            },
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.size(22.dp).background(background, CircleShape), contentAlignment = Alignment.Center) {
-            Text("${day.date.day}", style = MaterialTheme.typography.labelMedium, color = content)
+            Text(
+                "${day.date.day}",
+                style = MaterialTheme.typography.labelMedium,
+                color = content,
+                modifier = Modifier.clearAndSetSemantics {},
+            )
         }
     }
 }
+
+/** The date with its weekday in the current locale, for example "Thursday, November 26, 2026". */
+private fun fullDate(date: LocalDate): String =
+    date.toJavaLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
 
 private fun systemTimeOfDay(): LocalTime {
     val now = java.time.LocalTime.now()

@@ -63,6 +63,7 @@ import me.kozakov.orrery.core.CalendarEvent
 import me.kozakov.orrery.core.Selection
 import me.kozakov.orrery.core.SelectionMode
 import me.kozakov.orrery.core.eventsByDate
+import me.kozakov.orrery.core.expandRecurring
 
 internal enum class DemoTab(
     val label: String,
@@ -113,11 +114,15 @@ internal class DemoUiState(
     val stylesState: CalendarState,
     val stylesSelection: CalendarSelectionState,
     val pickerState: OrreryDateRangePickerState,
+    initialEvents: List<CalendarEvent<Nothing>>,
 ) {
+    /** The demo's events, recurring series expanded; the Schedule tab's edits replace it. */
+    var events: List<CalendarEvent<Nothing>> by mutableStateOf(initialEvents)
     var tab: DemoTab by mutableStateOf(DemoTab.Month)
     var selectedDay: LocalDate by mutableStateOf(today)
     var weekMode: Boolean by mutableStateOf(false)
     var stackedOverlap: Boolean by mutableStateOf(false)
+    var editing: Boolean by mutableStateOf(false)
     var endpoint: EndpointOption by mutableStateOf(EndpointOption.Diagonal)
     var preset: StylePreset by mutableStateOf(StylePreset.Rounded)
     var density: CalendarDensity by mutableStateOf(CalendarDensity.Comfortable)
@@ -191,15 +196,20 @@ private fun rememberDemoUiState(today: LocalDate): DemoUiState {
             stylesState = stylesState,
             stylesSelection = stylesSelection,
             pickerState = pickerState,
+            initialEvents =
+                buildDemoEvents(today).expandRecurring(
+                    today.minus(DATA_DAYS, DateTimeUnit.DAY)..today.plus(DATA_DAYS, DateTimeUnit.DAY),
+                ),
         )
     }
 }
 
 /**
- * Interactive tour of Orrery: a month grid with multi-day event banners, a collapsible
- * Month / TwoWeeks / Week calendar over the agenda, a working-hours Day / Week schedule with
- * stacked overlaps, hotel stays with split check-in / check-out days, and the style presets
- * under a two-week strip with a Mon–Fri filter.
+ * Interactive tour of Orrery: a month grid with multi-day event banners and recurring
+ * series, a collapsible Month / TwoWeeks / Week calendar over the agenda, a working-hours
+ * Day / Week schedule with stacked overlaps and drag-to-create / move / resize, hotel stays
+ * with split check-in / check-out days, and the style presets under a two-week strip with a
+ * Mon–Fri filter.
  */
 @Composable
 internal fun DemoApp(
@@ -209,7 +219,7 @@ internal fun DemoApp(
 ) {
     MaterialTheme(colorScheme = lightColorScheme()) {
         val ui = rememberDemoUiState(today)
-        val events = remember(today) { buildDemoEvents(today) }
+        val events = ui.events
         val eventsByDate =
             remember(events) {
                 events.eventsByDate(today.minus(DATA_DAYS, DateTimeUnit.DAY)..today.plus(DATA_DAYS, DateTimeUnit.DAY))

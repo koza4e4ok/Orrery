@@ -9,6 +9,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -35,6 +37,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.unit.sp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,8 +87,20 @@ private fun SampleApp() {
                         NavigationBarItem(
                             selected = screen == index,
                             onClick = { screen = index },
-                            icon = { Icon(destination.icon, contentDescription = destination.label) },
-                            label = { Text(destination.label) },
+                            // The label names the tab; an icon description would make TalkBack say it twice.
+                            icon = { Icon(destination.icon, contentDescription = null) },
+                            // One line that shrinks at large font scales instead of breaking mid-word.
+                            label = {
+                                Text(
+                                    destination.label,
+                                    maxLines = 1,
+                                    autoSize =
+                                        TextAutoSize.StepBased(
+                                            minFontSize = 8.sp,
+                                            maxFontSize = LocalTextStyle.current.fontSize,
+                                        ),
+                                )
+                            },
                         )
                     }
                 }

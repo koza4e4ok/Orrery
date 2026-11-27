@@ -49,6 +49,7 @@ import me.kozakov.orrery.compose.CalendarNavHeader
 import me.kozakov.orrery.compose.DayDecorators
 import me.kozakov.orrery.compose.DefaultDay
 import me.kozakov.orrery.compose.HeatmapCalendar
+import me.kozakov.orrery.compose.HeatmapDefaults
 import me.kozakov.orrery.compose.HeatmapMonth
 import me.kozakov.orrery.compose.HorizontalCalendar
 import me.kozakov.orrery.compose.WeekCalendar
@@ -57,6 +58,7 @@ import me.kozakov.orrery.compose.rememberAnimatedDayValues
 import me.kozakov.orrery.compose.rememberCalendarState
 import me.kozakov.orrery.compose.rememberHeatmapCalendarState
 import me.kozakov.orrery.compose.rememberWeekCalendarState
+import me.kozakov.orrery.core.heatmapSummary
 
 private val WORK_WEEK =
     setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
@@ -268,10 +270,19 @@ internal fun HabitsScreen() {
                         "Year in review",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     )
+                    val heatState = rememberHeatmapCalendarState()
+                    // The summary gets its own line: next to the legend it does not fit a phone width.
+                    val summary =
+                        remember(yearHeat, heatState.startDate, heatState.endDate) {
+                            heatmapSummary(heatState.startDate..heatState.endDate) { (yearHeat[it] ?: 0f) > 0f }
+                        }
+                    HeatmapDefaults.Summary(summary)
                     HeatmapCalendar(
-                        intensity = { date -> yearHeat[date] },
-                        state = rememberHeatmapCalendarState(),
+                        // Days with no habit done stay empty, like GitHub's graph, so gaps read as gaps.
+                        intensity = { date -> yearHeat[date]?.takeIf { it > 0f } },
+                        state = heatState,
                         onDayClick = { pickedDay = it.toString() },
+                        summary = null,
                     )
                     pickedDay?.let {
                         Text(
@@ -291,11 +302,14 @@ internal fun HabitsScreen() {
                         "This month",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     )
+                    // A second heatmap on the screen: its own color ramp, with a legend.
                     HeatmapMonth(
                         yearMonth = month,
                         intensity = { date -> yearHeat[date] },
                         onDayClick = { pickedDay = it.toString() },
+                        colorScale = HeatmapDefaults.colorScale(to = MaterialTheme.colorScheme.tertiary),
                         showDayNumbers = true,
+                        showLegend = true,
                     )
                 }
             }

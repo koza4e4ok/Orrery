@@ -21,41 +21,42 @@ theme, and dates are [`kotlinx-datetime`](https://github.com/Kotlin/kotlinx-date
 </p>
 
 <p align="center">
-  <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with multi-day week event banners, hospitality trip range selection with split check-in/check-out endpoints, collapsible Month/TwoWeeks/Week agenda, working-hours Day/Week schedule with stacked overlaps, style presets, and Material 3 date picker dialogs" />
+  <img src="art/orrery-demo.gif" width="300" alt="Sample app walkthrough: month calendar with multi-day week event banners and a recurring series, collapsible Month/TwoWeeks/Week agenda, working-hours Day/Week schedule with stacked overlaps and Edit mode (drag to create and move events), hospitality trip range selection with split check-in/check-out endpoints, habit heatmaps, style presets, and Material 3 date picker dialogs" />
 </p>
 
 The shared Compose Multiplatform demo on Desktop (JVM), iOS and Web (Kotlin/Wasm):
 multi-day week event banners, a collapsible Month / TwoWeeks / Week calendar over the
-Agenda, a working-hours Day / Week schedule with stacked overlaps, hotel stays with split
-check-in / check-out endpoints and turnover days, and the style presets under a Mon–Fri
-two-week strip.
+Agenda (including a recurring series), a working-hours Day / Week schedule with stacked
+overlaps and an Edit mode where you drag empty time to create an event and drag events to
+move them, hotel stays with split check-in / check-out endpoints, the range picker, and the
+style presets under a Mon–Fri two-week strip.
 
 <p align="center">
-  <img src="art/orrery-features-demo.gif" width="250" alt="Desktop demo: multi-day week event banners, collapsible Month/TwoWeeks/Week agenda, working-hours schedule with stacked overlaps, hospitality range selection, and style presets" />
-  <img src="art/orrery-ios-demo.gif" width="250" alt="iOS simulator demo: the same calendar tour running on iOS" />
-  <img src="art/orrery-web-demo.gif" width="250" alt="Web demo: the same calendar tour running on Kotlin/Wasm in Chrome" />
+  <img src="art/orrery-features-demo.gif" width="250" alt="Desktop demo: multi-day week event banners, collapsible Month/TwoWeeks/Week agenda with a recurring series, working-hours schedule with stacked overlaps and drag-to-edit, hospitality range selection, and style presets" />
+  <img src="art/orrery-ios-demo.gif" width="250" alt="iOS simulator demo: month event banners, agenda with a recurring series, Day schedule with stacked overlaps and drag-to-create in Edit mode, hotel stay styles, range picker, and style presets" />
+  <img src="art/orrery-web-demo.gif" width="250" alt="Web demo on Kotlin/Wasm in Chrome: month event banners, agenda with a recurring series, Day and Week schedules with drag-to-edit, hotel stay styles, range picker, and style presets" />
 </p>
 
 <details>
-<summary><b>📸 Feature Screenshots Gallery (Collapsible Calendar, Event Banners, Range Styles, Progress Rings, Schedules, Year &amp; Heatmap, Style Presets, Pickers)</b></summary>
+<summary><b>📸 Feature Screenshots Gallery (Collapsible Calendar, Event Banners, Range Styles, Progress Rings, Schedules, Schedule Editing, Heatmaps, Theme Presets, Pickers, Widgets)</b></summary>
 <br />
 
 ### Collapsible Calendar & Multi-Day Event Banners
-Expanded `Month` with spanning `WeekEventBanners` (`+N` overflow), `TwoWeeks` mode with drag handle, collapsed `Week` strip, and Dark theme with lunisolar sub-labels & event count badges:
+Expanded `Month` with spanning `WeekEventBanners` (`+N` overflow), `TwoWeeks` mode with event count badges, event dots and drag handle, collapsed `Week` strip, and the Dark theme month over the agenda:
 
 <p align="center">
   <img src="art/screenshots/agenda_month_banners.png" width="230" alt="Expanded month calendar with spanning multi-day week event banners and agenda list" />&nbsp;&nbsp;
-  <img src="art/screenshots/agenda_twoweeks.png" width="230" alt="CollapsibleCalendarScaffold at the TwoWeeks stop with lunisolar sub-labels, event count badges, and drag handle" />&nbsp;&nbsp;
+  <img src="art/screenshots/agenda_twoweeks.png" width="230" alt="CollapsibleCalendarScaffold at the TwoWeeks stop with event count badges, event dots, and drag handle" />&nbsp;&nbsp;
   <img src="art/screenshots/agenda_week_collapsed.png" width="230" alt="Collapsed single-week strip over the scrollable agenda list" />&nbsp;&nbsp;
-  <img src="art/screenshots/agenda_dark.png" width="230" alt="Dark theme month calendar with lunisolar sub-labels, festival labels, corner badges, and agenda list" />
+  <img src="art/screenshots/agenda_dark.png" width="230" alt="Dark theme month calendar with event count badges and event dots over the agenda list" />
 </p>
 
 ### Hospitality & Range Selection Styles
-`SplitDiagonal` check-in/check-out triangles and `SplitHorizontal` half-cell endpoints with same-day turnover (`Oct 29`) and nightly pricing sub-labels:
+`SplitDiagonal` check-in/check-out triangles and `SplitHorizontal` half-cell endpoints (check-in today, check-out `Dec 2`) and nightly pricing sub-labels:
 
 <p align="center">
-  <img src="art/screenshots/range_diagonal.png" width="240" alt="Hospitality range selection with SplitDiagonal check-in/check-out triangles, turnover day, and nightly prices" />&nbsp;&nbsp;
-  <img src="art/screenshots/range_split_horizontal.png" width="240" alt="Hospitality range selection with SplitHorizontal check-in/check-out half-cells, turnover day, and nightly prices" />
+  <img src="art/screenshots/range_diagonal.png" width="240" alt="Hospitality range selection with SplitDiagonal check-in/check-out triangles and nightly prices" />&nbsp;&nbsp;
+  <img src="art/screenshots/range_split_horizontal.png" width="240" alt="Hospitality range selection with SplitHorizontal check-in/check-out half-cells and nightly prices" />
 </p>
 
 ### Progress Rings & Weekday Filtering
@@ -67,19 +68,26 @@ Custom circular progress ring day cells across a `TwoWeeks` strip and `Month` gr
 </p>
 
 ### Time-Grid Schedules (`WeekSchedule` & `DaySchedule`)
-Working-hours `WeekSchedule` (`07:00–22:00`) with all-day banners, current-time indicator, and `SideBySide` timed event lanes, alongside `DaySchedule` with `EventOverlapMode.Stacked` cascading cards:
+Working-hours `WeekSchedule` (`07:00–22:00`) with spanning all-day banners and `SideBySide` timed event lanes, alongside `DaySchedule` with `EventOverlapMode.Stacked` cascading cards:
 
 <p align="center">
-  <img src="art/screenshots/schedule_week_side_by_side.png" width="240" alt="WeekSchedule with all-day event banners, working hours 07:00-22:00, current time indicator, and side-by-side timed event lanes" />&nbsp;&nbsp;
+  <img src="art/screenshots/schedule_week_side_by_side.png" width="240" alt="WeekSchedule paging two days at a time on a phone, with spanning all-day event banners, working hours 07:00-22:00, and side-by-side timed event lanes" />&nbsp;&nbsp;
   <img src="art/screenshots/schedule_week_stacked.png" width="240" alt="DaySchedule with EventOverlapMode.Stacked cascading overlapping event cards" />
 </p>
 
-### Year View, Contribution Heatmap & Style Presets
-12-month `YearCalendar` overview + GitHub-style `HeatmapCalendar`, and built-in `CalendarStyle` presets (`roundedSquareStyle`, `segmentedRangeStyle`, `borderedCardStyle` with Meizu `W`/`H` corner badges, and custom `DayDecorator` glow/festival styles):
+### Schedule Editing (1.0)
+`DaySchedule` / `WeekSchedule` editing: long-press and drag empty time to create an event, then drag it (or its edges) while the drag ghost shows the new time:
 
 <p align="center">
-  <img src="art/screenshots/year_and_heatmap.png" width="240" alt="12-month YearCalendar overview and GitHub-style HeatmapCalendar contribution grid" />&nbsp;&nbsp;
-  <img src="art/screenshots/style_presets.png" width="240" alt="Style presets: roundedSquareStyle, segmentedRangeStyle, borderedCardStyle with Meizu W/H corner badges, and custom DayDecorator" />
+  <img src="art/screenshots/schedule_edit_drag.png" width="240" alt="DaySchedule in edit mode: a new event being dragged about 1.5 hours later, with the drag ghost and its new time range" />
+</p>
+
+### Contribution Heatmaps & Theme Presets
+GitHub-style `HeatmapCalendar` year in review with a `HeatmapMonth` color scale, and the Almanac's theme presets (here Meizu Badges: `W`/`H`/`N` corner badges with lunisolar and festival sub-labels):
+
+<p align="center">
+  <img src="art/screenshots/year_and_heatmap.png" width="240" alt="GitHub-style HeatmapCalendar year in review with empty rest days and a current streak, and HeatmapMonth grid with a color scale" />&nbsp;&nbsp;
+  <img src="art/screenshots/style_presets.png" width="240" alt="Almanac month with the Meizu Badges theme preset: W/H/N corner badges, lunisolar sub-labels and festival labels" />
 </p>
 
 ### Material 3 Date & Date-Range Picker Dialogs
@@ -88,6 +96,14 @@ Modal `OrreryDatePickerDialog` and full-screen `OrreryDateRangePickerDialog` wit
 <p align="center">
   <img src="art/screenshots/picker_date_modal.png" width="240" alt="Material 3 OrreryDatePickerDialog modal date picker" />&nbsp;&nbsp;
   <img src="art/screenshots/picker_range_modal.png" width="240" alt="Material 3 OrreryDateRangePickerDialog full-screen range picker with quick preset chips" />
+</p>
+
+### Home-Screen Widgets (`orrery-widget`, 1.0)
+The sample's Glance month and agenda widgets, drawn by `renderCalendarSnapshot`:
+
+<p align="center">
+  <img src="art/screenshots/widget_month.png" width="240" alt="Month home-screen widget rendered by renderCalendarSnapshot, with event dots and today highlighted" />&nbsp;&nbsp;
+  <img src="art/screenshots/widget_agenda.png" width="288" alt="Agenda home-screen widget rendered by renderCalendarSnapshot, listing the next events" />
 </p>
 
 </details>

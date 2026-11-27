@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
 import me.kozakov.orrery.compose.DatePickerDefaults
+import me.kozakov.orrery.compose.DateRangeCalendarLayoutMode
 import me.kozakov.orrery.compose.OrreryDatePickerDialog
 import me.kozakov.orrery.compose.OrreryDateRangePickerDialog
 import me.kozakov.orrery.compose.OrreryDateTimePickerDialog
@@ -122,6 +123,11 @@ private fun DateRangeCard() {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Text(
+                "Two months side by side on wide windows (landscape, tablets)",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Button(onClick = { showDialog = true }) { Text("Pick range") }
         }
     }
@@ -144,6 +150,8 @@ private fun DateRangeCard() {
             },
             state = state,
             presets = DatePickerDefaults.rangePresets(),
+            // The default, spelled out: dual-month card from DatePickerDefaults.MinDualMonthWidth (640 dp).
+            layoutMode = DateRangeCalendarLayoutMode.Adaptive(),
         )
     }
 }
@@ -224,7 +232,7 @@ private fun MonthCard() {
                     enabled = state.selectedMonth != null,
                 ) { Text("OK") }
             },
-            dismissButton = { Button(onClick = { showDialog = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } },
             state = state,
         )
     }

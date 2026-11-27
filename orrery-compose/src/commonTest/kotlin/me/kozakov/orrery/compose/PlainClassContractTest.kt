@@ -78,11 +78,12 @@ class PlainClassContractTest {
 
     /**
      * Dp is a value class over Float and the data classes compared it like Float.equals:
-     * -0.dp and 0.dp differ, NaN (Dp.Unspecified) equals NaN and hashes the same.
+     * Dp(-0f) and 0.dp differ, NaN (Dp.Unspecified) equals NaN and hashes the same.
+     * Dp(-0f) rather than (-0f).dp: since Compose 1.13, Float.dp turns -0f into 0f.
      */
     private fun <T : Any> assertDpSemantics(make: (Dp) -> T) {
-        assertNotEquals(make(0.dp), make((-0f).dp))
-        assertNotEquals(make(0.dp).hashCode(), make((-0f).dp).hashCode())
+        assertNotEquals(make(0.dp), make(Dp(-0f)))
+        assertNotEquals(make(0.dp).hashCode(), make(Dp(-0f)).hashCode())
         assertEquals(make(0.dp), make(0.dp))
         assertEquals(make(Dp.Unspecified), make(Dp(Float.NaN)))
         assertEquals(make(Dp.Unspecified).hashCode(), make(Dp(Float.NaN)).hashCode())

@@ -101,7 +101,7 @@ The promise covers Orrery's own API only. Orrery 1.0 is built and tested with:
 
 | Kotlin | Compose Multiplatform | Compose Multiplatform material3 | Compose BOM (Android) | kotlinx-datetime | Android `compileSdk` / `minSdk` |
 | --- | --- | --- | --- | --- | --- |
-| 2.4.21 | 1.12.2 | 1.9.0 | 2026.09.00 | 0.8.0 | 37 / 23 |
+| 2.4.21 | 1.12.2 | 1.9.0 | 2026.11.01 | 0.8.0 | 37.1 / 24 |
 
 These "tested with" versions are updated with each release and listed in the
 [README](../README.md#stability-and-compatibility). Orrery does not promise a range of

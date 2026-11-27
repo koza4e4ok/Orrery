@@ -7,16 +7,27 @@ plugins {
 
 android {
     namespace = "me.kozakov.orrery.sample"
-    compileSdk =
-        libs.versions.compile.sdk
-            .get()
-            .toInt()
+    compileSdk {
+        version =
+            release(
+                libs.versions.compile.sdk
+                    .asProvider()
+                    .get()
+                    .toInt(),
+            ) {
+                minorApiLevel =
+                    libs.versions.compile.sdk.minor
+                        .get()
+                        .toInt()
+            }
+    }
 
     defaultConfig {
         applicationId = "me.kozakov.orrery.sample"
-        minSdk = 23
+        minSdk = 24
         targetSdk =
             libs.versions.compile.sdk
+                .asProvider()
                 .get()
                 .toInt()
         versionCode = 1

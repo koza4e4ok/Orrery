@@ -18,6 +18,10 @@ The 1.0 breaks are listed row by row in the API audit ledger,
 
 **Migration guide:** [`docs/migration/0.9-to-1.0.md`](docs/migration/0.9-to-1.0.md) covers every
 ledger row (who is affected, including libraries built against 0.9.x, and what to change).
+
+- Android: apps and libraries depending on `orrery-compose` or `orrery-widget` need
+  `compileSdk` 37.1 or later and `minSdk` 24 or higher (was 37 and 23), because Compose 1.13
+  requires both (see Changed). Apps that must keep `minSdk 23` stay on 0.9.2.
 The 1.0 API rules and the ABI gate are described in
 [`docs/API-STABILITY.md`](docs/API-STABILITY.md).
 
@@ -156,6 +160,16 @@ The 1.0 API rules and the ABI gate are described in
   checksum (#156); every GitHub Action pinned to a commit SHA, least-privilege workflow
   permissions, Dependabot and `SECURITY.md` (#155). The tag publish job runs in the
   `release` environment and first runs an ABI gate against the previous release tag (#139).
+- Build: Compose BOM 2026.11.01 (Compose 1.13.0, material3 1.5.0 on Android), Android
+  Gradle Plugin 9.5.2 and uiautomator 2.4.1 (supersedes #164). Compose Multiplatform stays
+  1.12.2.
+- `compileSdk` is 37.1, because the Compose 1.13 artifacts require it: Android apps and
+  libraries depending on `orrery-compose` or `orrery-widget` must now compile against
+  API 37.1 or later (with AGP 9: `compileSdk { version = release(37) { minorApiLevel = 1 } }`).
+- `minSdk` of `orrery-compose` and `orrery-widget` is 24 (was 23), because Compose 1.13 and
+  material3 1.5 declare `minSdk 24`: apps with `minSdk 23` fail the manifest merger.
+- The material3 1.5 `TimePicker` restyles the AM/PM selector, so the time step of
+  `DateTimePickerDialog` looks different on Android.
 
 ### Added
 

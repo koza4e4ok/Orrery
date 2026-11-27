@@ -6,15 +6,26 @@ plugins {
 
 android {
     namespace = "me.kozakov.orrery.baselineprofile"
-    compileSdk =
-        libs.versions.compile.sdk
-            .get()
-            .toInt()
+    compileSdk {
+        version =
+            release(
+                libs.versions.compile.sdk
+                    .asProvider()
+                    .get()
+                    .toInt(),
+            ) {
+                minorApiLevel =
+                    libs.versions.compile.sdk.minor
+                        .get()
+                        .toInt()
+            }
+    }
 
     defaultConfig {
         minSdk = 28
         targetSdk =
             libs.versions.compile.sdk
+                .asProvider()
                 .get()
                 .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

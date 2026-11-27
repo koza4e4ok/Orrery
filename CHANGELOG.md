@@ -18,6 +18,10 @@ The 1.0 breaks are listed row by row in the API audit ledger,
 
 **Migration guide:** [`docs/migration/0.9-to-1.0.md`](docs/migration/0.9-to-1.0.md) covers every
 ledger row (who is affected, including libraries built against 0.9.x, and what to change).
+
+- Android: apps and libraries depending on `orrery-compose` or `orrery-widget` need
+  `compileSdk` 37.1 or later and `minSdk` 24 or higher (was 37 and 23), because Compose 1.13
+  requires both (see Changed). Apps that must keep `minSdk 23` stay on 0.9.2.
 The 1.0 API rules and the ABI gate are described in
 [`docs/API-STABILITY.md`](docs/API-STABILITY.md).
 

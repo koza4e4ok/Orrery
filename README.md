@@ -250,7 +250,8 @@ These are the versions each release was built against. From 1.0.0-rc.1, Android 
 
 > **1.0 is a breaking release.** 1.0.0 (first as `1.0.0-rc.1`) removes the hidden
 > binary-compatibility bridges, `CalendarDefaults.DaysOfWeekHeader` (use `WeekHeader`) and
-> the `componentN` functions of the growth-prone data classes. Recompile your app
+> the `componentN` functions of the growth-prone data classes, and on Android needs
+> `compileSdk 37.1` and `minSdk 24` (Compose 1.13 requires both). Recompile your app
 > against 1.0, and use only libraries built against Orrery 1.0: one compiled against 0.9.x
 > can fail with `NoSuchMethodError`. See the [0.9 to 1.0 migration guide](docs/migration/0.9-to-1.0.md).
 > From 1.0, [API-STABILITY.md](docs/API-STABILITY.md) describes what is stable and how CI

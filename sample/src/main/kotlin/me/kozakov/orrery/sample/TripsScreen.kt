@@ -133,9 +133,15 @@ internal fun TripsScreen() {
     val onSurface = MaterialTheme.colorScheme.onSurface
     val splitColors =
         CalendarDefaults.dayColors(
-            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.42f).compositeOver(surface),
+            selectedContainerColor =
+                MaterialTheme.colorScheme.primary
+                    .copy(alpha = 0.42f)
+                    .compositeOver(surface),
             selectedContentColor = onSurface,
-            inRangeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f).compositeOver(surface),
+            inRangeContainerColor =
+                MaterialTheme.colorScheme.primary
+                    .copy(alpha = 0.22f)
+                    .compositeOver(surface),
             inRangeContentColor = onSurface,
             labelColor = onSurface,
             weekendContentColor = weekendColor,

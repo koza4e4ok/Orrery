@@ -71,7 +71,7 @@ Custom circular progress ring day cells across a `TwoWeeks` strip and `Month` gr
 Working-hours `WeekSchedule` (`07:00–22:00`) with spanning all-day banners and `SideBySide` timed event lanes, alongside `DaySchedule` with `EventOverlapMode.Stacked` cascading cards:
 
 <p align="center">
-  <img src="art/screenshots/schedule_week_side_by_side.png" width="240" alt="WeekSchedule with spanning all-day event banners, working hours 07:00-22:00, and side-by-side timed event lanes" />&nbsp;&nbsp;
+  <img src="art/screenshots/schedule_week_side_by_side.png" width="240" alt="WeekSchedule paging two days at a time on a phone, with spanning all-day event banners, working hours 07:00-22:00, and side-by-side timed event lanes" />&nbsp;&nbsp;
   <img src="art/screenshots/schedule_week_stacked.png" width="240" alt="DaySchedule with EventOverlapMode.Stacked cascading overlapping event cards" />
 </p>
 
@@ -86,7 +86,7 @@ Working-hours `WeekSchedule` (`07:00–22:00`) with spanning all-day banners and
 GitHub-style `HeatmapCalendar` year in review with a `HeatmapMonth` color scale, and the Almanac's theme presets (here Meizu Badges: `W`/`H`/`N` corner badges with lunisolar and festival sub-labels):
 
 <p align="center">
-  <img src="art/screenshots/year_and_heatmap.png" width="240" alt="GitHub-style HeatmapCalendar year in review and HeatmapMonth grid with a color scale" />&nbsp;&nbsp;
+  <img src="art/screenshots/year_and_heatmap.png" width="240" alt="GitHub-style HeatmapCalendar year in review with empty rest days and a current streak, and HeatmapMonth grid with a color scale" />&nbsp;&nbsp;
   <img src="art/screenshots/style_presets.png" width="240" alt="Almanac month with the Meizu Badges theme preset: W/H/N corner badges, lunisolar sub-labels and festival labels" />
 </p>
 

@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -126,6 +127,20 @@ internal fun TripsScreen() {
     val weekendColor = MaterialTheme.colorScheme.tertiary
     val dayColors =
         CalendarDefaults.dayColors(weekendContentColor = weekendColor, weekendDays = WeekendNights)
+    // Split check-in/out cells put the day and price across a filled half and an empty half:
+    // a light band with onSurface text reads on both halves.
+    val surface = MaterialTheme.colorScheme.surface
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val splitColors =
+        CalendarDefaults.dayColors(
+            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.42f).compositeOver(surface),
+            selectedContentColor = onSurface,
+            inRangeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f).compositeOver(surface),
+            inRangeContentColor = onSurface,
+            labelColor = onSurface,
+            weekendContentColor = weekendColor,
+            weekendDays = WeekendNights,
+        )
     val dayStyle =
         if (endpointOption.style == RangeEndpointStyle.FullCell) {
             CalendarStyle(
@@ -137,7 +152,7 @@ internal fun TripsScreen() {
                     ),
             )
         } else {
-            CalendarDefaults.hospitalityStyle(rangeEndpointStyle = endpointOption.style, colors = dayColors)
+            CalendarDefaults.hospitalityStyle(rangeEndpointStyle = endpointOption.style, colors = splitColors)
         }
     // Back-to-back bookings: one guest checks out in the morning, the next checks in after noon.
     val turnoverDates =

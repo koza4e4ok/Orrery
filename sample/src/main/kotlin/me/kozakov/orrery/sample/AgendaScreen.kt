@@ -95,6 +95,10 @@ private enum class AgendaMode(
 private const val WORK_DAY_START_HOUR = 7
 
 private const val COMPACT_HEIGHT_DP = 480
+
+/** Below this width the Week grid pages three days at a time, so event titles stay readable. */
+private const val COMPACT_WIDTH_DP = 600
+private const val COMPACT_WEEK_DAYS = 3
 private const val WORK_DAY_END_HOUR = 22
 
 /** Hour heights the time grids' Zoom chip animates between. */
@@ -200,6 +204,7 @@ internal fun AgendaScreen() {
 
     // Short windows (landscape phones) drop the big date header so the time grid keeps its room.
     val compactHeight = LocalConfiguration.current.screenHeightDp < COMPACT_HEIGHT_DP
+    val weekDays = if (LocalConfiguration.current.screenWidthDp < COMPACT_WIDTH_DP) COMPACT_WEEK_DAYS else 7
     Column(Modifier.fillMaxSize()) {
         if (!compactHeight) {
             SampleHeroHeader(
@@ -327,6 +332,7 @@ internal fun AgendaScreen() {
                     WeekSchedule(
                         events = { date -> events[date].orEmpty() },
                         state = scheduleState,
+                        daysPerPage = weekDays,
                         today = today,
                         currentTime = now,
                         modifier = Modifier.fillMaxSize(),

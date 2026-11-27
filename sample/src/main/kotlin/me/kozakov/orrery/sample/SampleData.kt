@@ -78,6 +78,9 @@ internal object SampleData {
                         val startIndex = (date.day * 3) % eventPool.size
                         for (i in 0 until count) {
                             val tpl = eventPool[(startIndex + i * 2) % eventPool.size]
+                            // Wednesdays add their own standup below; a second one would be a third lane.
+                            val isWednesday = date.dayOfWeek == DayOfWeek.WEDNESDAY
+                            if (isWednesday && tpl.title == "Team standup") continue
                             val span =
                                 if (tpl.start != null && tpl.end != null) {
                                     EventSpan.Timed(
@@ -99,6 +102,7 @@ internal object SampleData {
                         }
                     }
                     // Wednesdays: a review overlaps the standup, to demo the schedule's overlap modes.
+                    // Short titles, so they still fit two side-by-side lanes on a phone.
                     if (date.dayOfWeek == DayOfWeek.WEDNESDAY) {
                         add(
                             timedEvent(
@@ -106,7 +110,7 @@ internal object SampleData {
                                 date,
                                 LocalTime(9, 0),
                                 LocalTime(9, 30),
-                                "Team standup",
+                                "Standup",
                                 WORK_COLOR,
                             ),
                         )
@@ -116,7 +120,7 @@ internal object SampleData {
                                 date,
                                 LocalTime(9, 15),
                                 LocalTime(10, 15),
-                                "Code review",
+                                "PR review",
                                 WORK_COLOR,
                             ),
                         )
@@ -222,7 +226,11 @@ internal object SampleData {
             }
         }
 
-    /** Progress for past days and today; the most recent days are complete so streaks show. */
+    /**
+     * Progress for past days and today; the most recent days are complete so streaks show.
+     * Older days have gaps: each habit skips about one day in five, and every habit pauses
+     * for a week away each quarter and on an occasional Sunday.
+     */
     fun habitProgress(
         habit: Habit,
         month: YearMonth,
@@ -241,8 +249,18 @@ internal object SampleData {
         return (startEpoch..endEpoch)
             .map { LocalDate.fromEpochDays(it) }
             .associateWith { date ->
-                if (date.daysUntil(today) < streakLength) 1f else ((date.day * seed) % 100) / 100f
+                when {
+                    date.daysUntil(today) < streakLength -> 1f
+                    isRestDay(date) || (date.toEpochDays() * 7 + seed) % 5 == 0L -> 0f
+                    else -> ((date.day * seed) % 100) / 100f
+                }
             }
+    }
+
+    /** Days every habit skips: a week away every 13 weeks, and every fifth Sunday. */
+    private fun isRestDay(date: LocalDate): Boolean {
+        val week = date.toEpochDays() / 7
+        return week % 13 == 5L || (date.dayOfWeek == DayOfWeek.SUNDAY && week % 5 == 2L)
     }
 
     /** Consecutive days ending [today] with progress >= 0.99f. */
